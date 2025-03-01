@@ -1,10 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "tailwindcss";
 
 @layer theme;
 @layer base;
 @layer components;
+
+@layer components {
+  optgroup {
+    @apply font-bold text-gray-800 bg-gray-100;
+  }
+}
 @layer utilities;
 
 @layer utilities {
@@ -21,4 +28,13 @@
     inherits: false;
     initial-value: #0000;
   }
+}
+
+:root {
+  --bg-color: #fff;
+  --text-color: #1e293b;
+}
+.dark {
+  --bg-color: #0f172a;
+  --text-color: #f8fafc;
 }

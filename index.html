@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riigihanke Andmed</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="dist/output.css" rel="stylesheet">
+    <link href="./dist/output.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
@@ -97,7 +97,7 @@
 
                     <!-- ✅ Dropdown Menu (Now Opens Down) -->
                     <div id="dropdownMenu"
-                        class="hidden absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                        class="hidden absolute items-center w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                         <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="dropdownButton">
 
                             <button id="showForm"
@@ -128,7 +128,7 @@
                 <div x-data="{ open: false }" class="relative">
                     <!-- ✅ Login Button (Opens Modal) -->
                     <button id="loginButton" @click="open = true"
-                        class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-lg flex items-center justify-center shadow-md hover:from-blue-600 hover:to-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
+                        class="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-3 py-1 rounded-lg flex items-center justify-center shadow-md hover:from-blue-600 hover:to-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
                         <i class="fas fa-sign-in-alt mr-2"></i> Logi sisse
                     </button>
 
@@ -236,17 +236,21 @@
     <main class="container mx-auto p-6 pt-32">
         </div>
         </div>
-        <div id="toolTab" class="flex space-x-4">
-            <div class="container bg-white p-6 rounded shadow max-w-lg" id="formContainer">
-                <h2 class="text-2xl font-bold text-center mb-4">Riighanke andmed</h2>
-                <form id="procurementForm" class="space-y-10">
+        <div id="toolTab" class="flex justify-center">
+            <div class="bg-white p-8 rounded-xl shadow-lg max-w-xl w-full border border-gray-300" id="formContainer">
+                <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Riigihanke andmed</h2>
+                <form id="procurementForm" class="space-y-6">
                     <div>
                         <label for="name" class="block text-gray-700 font-semibold mb-1">Riigihanke nimetus:</label>
-                        <input type="text" id="name" name="name" class="w-full p-2 border rounded" required>
+                        <input type="text" id="name" name="name"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                            required>
                     </div>
                     <div>
                         <label for="cost" class="block text-gray-700 font-semibold mb-1">Riigihanke maksumus:</label>
-                        <input type="number" id="cost" name="cost" class="w-full p-2 border rounded" required>
+                        <input type="number" id="cost" name="cost"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                            required>
                     </div>
                     <div>
                         <label for="procedureType" class="block text-gray-700 font-semibold mb-1">
@@ -260,64 +264,64 @@
 
                             <!-- Placeholder option (disabled & selected by default) -->
                             <option value="" disabled selected>Vali siit</option>
-                            <optgroup label="Avatud hankemenetlus">
-                                <option value="Avatud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade hankeleping
-                                </option>
-                                <option value="Avatud hankemenetlus teenuste hankelepingu sõlmimiseks">Teenuste
-                                    hankeleping</option>
-                                <option value="Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
-                                    hankeleping</option>
+                            <optgroup label="Avatud hankemenetlus" class="text-black"></optgroup>
+                            <option value="Avatud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade hankeleping
+                            </option>
+                            <option value="Avatud hankemenetlus teenuste hankelepingu sõlmimiseks">Teenuste
+                                hankeleping</option>
+                            <option value="Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
+                                hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Piiratud hankemenetlus">
-                                <option value="Piiratud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade
-                                    hankeleping</option>
-                                <option value="Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks">Teenuste
-                                    hankeleping</option>
-                                <option value="Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
-                                    hankeleping</option>
+                            <optgroup label="Piiratud hankemenetlus" class="text-black"></optgroup>
+                            <option value="Piiratud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade
+                                hankeleping</option>
+                            <option value="Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks">Teenuste
+                                hankeleping</option>
+                            <option value="Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
+                                hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Konkurentsipõhine läbirääkimistega menetlus">
-                                <option
-                                    value="Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks">
-                                    Asjade hankeleping</option>
-                                <option
-                                    value="Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks">
-                                    Teenuste hankeleping</option>
-                                <option
-                                    value="Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks">
-                                    Ehitustööde hankeleping</option>
+                            <optgroup label="Konkurentsipõhine läbirääkimistega menetlus" class="text-black"></optgroup>
+                            <option
+                                value="Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks">
+                                Asjade hankeleping</option>
+                            <option
+                                value="Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks">
+                                Teenuste hankeleping</option>
+                            <option
+                                value="Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks">
+                                Ehitustööde hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Võistlev dialoog">
-                                <option value="Võistlev dialoog asjade hankelepingu sõlmimiseks">Asjade hankeleping
-                                </option>
-                                <option value="Võistlev dialoog teenuste hankelepingu sõlmimiseks">Teenuste hankeleping
-                                </option>
-                                <option value="Võistlev dialoog ehitustööde hankelepingu sõlmimiseks">Ehitustööde
-                                    hankeleping</option>
+                            <optgroup label="Võistlev dialoog" class="text-black"></optgroup>
+                            <option value="Võistlev dialoog asjade hankelepingu sõlmimiseks">Asjade hankeleping
+                            </option>
+                            <option value="Võistlev dialoog teenuste hankelepingu sõlmimiseks">Teenuste hankeleping
+                            </option>
+                            <option value="Võistlev dialoog ehitustööde hankelepingu sõlmimiseks">Ehitustööde
+                                hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Innovatsioonipartnerlus">
-                                <option value="Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks">Asjade
-                                    hankeleping</option>
-                                <option value="Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks">Teenuste
-                                    hankeleping</option>
-                                <option value="Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
-                                    hankeleping</option>
+                            <optgroup label="Innovatsioonipartnerlus" class="text-black"></optgroup>
+                            <option value="Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks">Asjade
+                                hankeleping</option>
+                            <option value="Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks">Teenuste
+                                hankeleping</option>
+                            <option value="Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
+                                hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Kontsessioonimenetlus">
-                                <option value="Kontsessioonimenetlus koos eraldi taotluse esitamisega">Koos eraldi
-                                    taotlusega</option>
-                                <option value="Kontsessioonimenetlus ilma eraldi taotlust esitamata">Ilma eraldi
-                                    taotluseta</option>
+                            <optgroup label="Kontsessioonimenetlus" class="text-black"></optgroup>
+                            <option value="Kontsessioonimenetlus koos eraldi taotluse esitamisega">Koos eraldi
+                                taotlusega</option>
+                            <option value="Kontsessioonimenetlus ilma eraldi taotlust esitamata">Ilma eraldi
+                                taotluseta</option>
                             </optgroup>
 
-                            <optgroup label="Erimenetlused">
-                                <option value="Sotsiaalteenuste erimenetlus">Sotsiaalteenuste erimenetlus</option>
-                                <option value="Eriteenuste erimenetlus">Eriteenuste erimenetlus</option>
+                            <optgroup label="Erimenetlused" class="text-black"></optgroup>
+                            <option value="Sotsiaalteenuste erimenetlus">Sotsiaalteenuste erimenetlus</option>
+                            <option value="Eriteenuste erimenetlus">Eriteenuste erimenetlus</option>
                             </optgroup>
                         </select>
                     </div>
@@ -328,15 +332,15 @@
                         <input type="date" id="contractSigningDate" name="contractSigningDate"
                             class="w-full p-2 border rounded" required>
                     </div>
-                    <div class="flex space-x-4 mt-4">
+                    <div class="flex justify-between space-x-4 mt-4">
                         <button id="calculateTime"
-                            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:from-blue-600 hover:to-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
-                            <i class="fas fa-calculator mr-2"></i> Arvuta menetlusaeg
+                            class="w-full bg-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:from-blue-600 hover:to-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
+                            <i class="fas fa-calculator mr-2"></i> Arvuta aeg
                         </button>
                         <div x-data="{ added: false }" class="relative">
                             <!-- ✅ Lisa hange tabelisse nupp (hidden vaikimisi) -->
                             <button id="updateProcurement" @click="added = true; setTimeout(() => added = false, 2000)"
-                                class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:from-green-600 hover:to-green-700 hover:scale-105 hover:shadow-lg transition-all duration-300 hidden">
+                                class="w-full bg-green-500 to-green-600 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:from-green-600 hover:to-green-700 hover:scale-105 hover:shadow-lg transition-all duration-300 hidden">
                                 ✅ Lisa hange tabelisse
                             </button>
 
@@ -366,7 +370,8 @@
                     </button>
                 </div>
             </div>
-            <div class="container bg-white p-6 rounded shadow max-w-xl hidden" id="resultContainer">
+            <div class="container bg-white p-8 rounded-xl shadow-lg max-w-xl w-full border border-gray-300  hidden"
+                id="resultContainer">
                 <div id="result" class="result-card"></div>
             </div>
         </div>
@@ -1850,7 +1855,7 @@
                             progressBar.classList.add("bg-green-500"); // Short duration
                         }
                         setTimeout(() => {
-                            gsap.to(progressBar, { width: `${progressWidth}%`, duration: 0.8, ease: "power2.out" });
+                            gsap.to(progressBar, { width: `${progressWidth}%`, duration: 0.5, ease: "power2.out" });
                         }, 10); // Small delay ensures colors are visible first
                     }
                 });
@@ -2094,7 +2099,6 @@
 
             /* ✅ Modaalakna stiil */
         </style>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
         <script>
             // Active Tab Highlighting
             document.addEventListener('DOMContentLoaded', function () {
@@ -2139,7 +2143,7 @@
             document.addEventListener("DOMContentLoaded", function () {
                 function animateProgressBars() {
                     document.querySelectorAll(".progress-bar").forEach(bar => {
-                        gsap.to(bar, { width: bar.dataset.progress + "%", duration: 1.5, ease: "power2.out" });
+                        gsap.to(bar, { width: bar.dataset.progress + "%", duration: 0.3, ease: "power2.out" });
                     });
                 }
 
@@ -2456,6 +2460,5 @@
             });
         </script>
 </body>
-<button class="btn btn-primary">Testi nupp</button>
 
 </html>

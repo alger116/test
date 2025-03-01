@@ -1,12 +1,14 @@
-const purgecss = require('@fullhuman/postcss-purgecss');
+import purgecss from "@fullhuman/postcss-purgecss";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
 
-module.exports = {
+export default {
   plugins: [
-    require('tailwindcss'),
-    require('autoprefixer'),
+    tailwindcss,
+    autoprefixer,
     purgecss({
-      content: ['./**/*.html', './**/*.md', './**/*.liquid'], // Add Jekyll file types
-      defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
-    })
+      content: ["./**/*.html", "./**/*.md", "./**/*.liquid"], // Add Jekyll file types
+      defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
+    }),
   ],
 };
