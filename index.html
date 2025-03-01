@@ -202,7 +202,7 @@
                 </a>
 
                 <!-- Right Side: User Menu -->
-                <div x-data="{ open: false }" class="relative">
+                <div x-data="{ open: false }" class="absolute right-10">
                     <button @click="open = !open"
                         class="flex items-center space-x-2 text-gray-500 hover:text-green-500">
                         <span id="userEmail" class="font-semibold">Kasutaja</span>
@@ -2490,6 +2490,64 @@
 
                     console.log("✅ Otsingud lisatud tabelisse!");
                 };
+            });
+        </script>
+
+        <script type="module">
+
+            // Listen for authentication state changes
+            onAuthStateChanged(auth, (user) => {
+                const userEmailElement = document.getElementById("userEmail");
+                if (user) {
+                    // User is signed in
+                    userEmailElement.textContent = user.email;
+                    document.getElementById("logoutButton").classList.remove("hidden");
+                } else {
+                    // No user signed in
+                    userEmailElement.textContent = "Pole sisse logitud";
+                    document.getElementById("logoutButton").classList.add("hidden");
+                }
+            });
+
+            // Logout function
+            document.getElementById("logoutButton").addEventListener("click", async () => {
+                try {
+                    await signOut(auth);
+                    alert("Oled välja logitud!");
+                    location.reload();
+                } catch (error) {
+                    alert("Väljalogimine ebaõnnestus: " + error.message);
+                }
+            });
+
+            // Change email function
+            document.getElementById("changeEmail").addEventListener("click", async () => {
+                const newEmail = prompt("Sisesta uus e-post:");
+                if (newEmail) {
+                    try {
+                        await updateEmail(auth.currentUser, newEmail);
+                        alert("E-post uuendatud! Logi uuesti sisse.");
+                        await signOut(auth);
+                        location.reload();
+                    } catch (error) {
+                        alert("E-posti muutmine ebaõnnestus: " + error.message);
+                    }
+                }
+            });
+
+            // Change password function
+            document.getElementById("changePassword").addEventListener("click", async () => {
+                const newPassword = prompt("Sisesta uus parool:");
+                if (newPassword) {
+                    try {
+                        await updatePassword(auth.currentUser, newPassword);
+                        alert("Parool uuendatud! Logi uuesti sisse.");
+                        await signOut(auth);
+                        location.reload();
+                    } catch (error) {
+                        alert("Parooli muutmine ebaõnnestus: " + error.message);
+                    }
+                }
             });
         </script>
 </body>
