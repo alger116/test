@@ -105,8 +105,9 @@
                                 role="menuitem">
                                 <i class="fas fa-tools mr-2"></i> Tööriist
                             </button>
-                            <button id="showSavedSearches" class="block px-4 py-2 text-sm text-gray-800 hover:bg-blue-600 hover:text-white w-full text-left transition transform hover:scale-105 protected-section hidden
-                                role=" menuitem">
+                            <button id="showSavedSearches"
+                                class="block px-4 py-2 text-sm text-gray-800 hover:bg-blue-600 hover:text-white w-full text-left transition transform hover:scale-105 protected-section hidden"
+                                role="menuitem">
                                 <i class="fas fa-folder-open mr-2"></i> Hanked
                             </button>
                             <button id="settingsButton"
@@ -114,7 +115,8 @@
                                 role="menuitem">
                                 <i class="fas fa-cog mr-2"></i> Seaded
                             </button>
-                            <a href="admin.html" id="adminTab" class="block px-4 py-2 text-sm text-gray-800 hover:bg-blue-600 hover:text-white w-full text-left transition transform hover:scale-105 protected-section hidden
+                            <a href="admin.html" id="adminTab"
+                                class="block px-4 py-2 text-sm text-gray-800 hover:bg-blue-600 hover:text-white w-full text-left transition transform hover:scale-105 protected-section hidden"
                                 role=" menuitem">
                                 <i class="fas fa-user-shield mr-2"></i> Admin
                             </a>
@@ -257,7 +259,7 @@
                         <label for="procedureType" class="block text-gray-700 font-semibold mb-1">
                             Riigihanke menetlusliik:
                             <span id="procedureLabel"
-                                class="text-gray-500 text-sm roboto opacity-0 transition-opacity duration-300 ml-1"></span>
+                                class="text-blue-500 text-sm roboto opacity-0 transition-opacity duration-300 ml-1"></span>
                         </label>
                         <select id="procedureType" name="procedureType"
                             class="w-full p-2 border rounded bg-white shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -265,64 +267,67 @@
 
                             <!-- Placeholder option (disabled & selected by default) -->
                             <option value="" disabled selected>Vali siit</option>
-                            <optgroup label="Avatud hankemenetlus" class="text-black"></optgroup>
-                            <option value="Avatud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade hankeleping
-                            </option>
-                            <option value="Avatud hankemenetlus teenuste hankelepingu sõlmimiseks">Teenuste
-                                hankeleping</option>
-                            <option value="Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
-                                hankeleping</option>
+                            <optgroup label="Avatud hankemenetlus">
+                                <option value="Avatud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade hankeleping
+                                </option>
+                                <option value="Avatud hankemenetlus teenuste hankelepingu sõlmimiseks">Teenuste
+                                    hankeleping</option>
+                                <option value="Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
+                                    hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Piiratud hankemenetlus" class="text-black"></optgroup>
-                            <option value="Piiratud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade
-                                hankeleping</option>
-                            <option value="Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks">Teenuste
-                                hankeleping</option>
-                            <option value="Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
-                                hankeleping</option>
+                            <optgroup label="Piiratud hankemenetlus">
+                                <option value="Piiratud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade
+                                    hankeleping</option>
+                                <option value="Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks">Teenuste
+                                    hankeleping</option>
+                                <option value="Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
+                                    hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Konkurentsipõhine läbirääkimistega menetlus" class="text-black"></optgroup>
-                            <option
-                                value="Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks">
-                                Asjade hankeleping</option>
-                            <option
-                                value="Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks">
-                                Teenuste hankeleping</option>
-                            <option
-                                value="Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks">
-                                Ehitustööde hankeleping</option>
+                            <optgroup label="Konkurentsipõhine läbirääkimistega menetlus">
+                                <option
+                                    value="Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks">
+                                    Asjade hankeleping
+                                </option>
+                                <option
+                                    value="Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks">
+                                    Teenuste
+                                    hankeleping</option>
+                                <option
+                                    value="Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks">
+                                    Ehitustööde
+                                    hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Võistlev dialoog" class="text-black"></optgroup>
-                            <option value="Võistlev dialoog asjade hankelepingu sõlmimiseks">Asjade hankeleping
-                            </option>
-                            <option value="Võistlev dialoog teenuste hankelepingu sõlmimiseks">Teenuste hankeleping
-                            </option>
-                            <option value="Võistlev dialoog ehitustööde hankelepingu sõlmimiseks">Ehitustööde
-                                hankeleping</option>
+                            <optgroup label="Võistlev dialoog">
+                                <option value="Võistlev dialoog asjade hankelepingu sõlmimiseks">Asjade hankeleping
+                                </option>
+                                <option value="Võistlev dialoog teenuste hankelepingu sõlmimiseks">Teenuste hankeleping
+                                </option>
+                                <option value="Võistlev dialoog ehitustööde hankelepingu sõlmimiseks">Ehitustööde
+                                    hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Innovatsioonipartnerlus" class="text-black"></optgroup>
-                            <option value="Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks">Asjade
-                                hankeleping</option>
-                            <option value="Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks">Teenuste
-                                hankeleping</option>
-                            <option value="Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
-                                hankeleping</option>
+                            <optgroup label="Innovatsioonipartnerlus">
+                                <option value="Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks">Asjade
+                                    hankeleping</option>
+                                <option value="Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks">Teenuste
+                                    hankeleping</option>
+                                <option value="Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks">Ehitustööde
+                                    hankeleping</option>
                             </optgroup>
 
-                            <optgroup label="Kontsessioonimenetlus" class="text-black"></optgroup>
-                            <option value="Kontsessioonimenetlus koos eraldi taotluse esitamisega">Koos eraldi
-                                taotlusega</option>
-                            <option value="Kontsessioonimenetlus ilma eraldi taotlust esitamata">Ilma eraldi
-                                taotluseta</option>
+                            <optgroup label="Kontsessioonimenetlus">
+                                <option value="Kontsessioonimenetlus koos eraldi taotluse esitamisega">Koos eraldi
+                                    taotlusega</option>
+                                <option value="Kontsessioonimenetlus ilma eraldi taotlust esitamata">Ilma eraldi
+                                    taotluseta</option>
                             </optgroup>
 
-                            <optgroup label="Erimenetlused" class="text-black"></optgroup>
-                            <option value="Sotsiaalteenuste erimenetlus">Sotsiaalteenuste erimenetlus</option>
-                            <option value="Eriteenuste erimenetlus">Eriteenuste erimenetlus</option>
+                            <optgroup label="Erimenetlused">
+                                <option value="Sotsiaalteenuste erimenetlus">Sotsiaalteenuste erimenetlus</option>
+                                <option value="Eriteenuste erimenetlus">Eriteenuste erimenetlus</option>
                             </optgroup>
                         </select>
                     </div>
@@ -346,9 +351,9 @@
                             </button>
 
                             <!-- ✅ Väike checkmark teade -->
-                            <div x-show="added" x-transition.opacity
-                                class="absolute mt-2 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md flex items-center">
-                                ✅ Lisatud!
+                            <div x-show="added" x-transition.opacity class="absolute mt-2 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white px-3 py-1 rounded-full shadow-lg flex items-center gap-2 text-sm font-semibold
+    animate-bounce transition-all duration-300">
+                                <i class="fas fa-check-circle text-white"></i> Lisatud!
                             </div>
                         </div>
                     </div>
@@ -1856,7 +1861,7 @@
                             progressBar.classList.add("bg-green-500"); // Short duration
                         }
                         setTimeout(() => {
-                            gsap.to(progressBar, { width: `${progressWidth}%`, duration: 0.5, ease: "power2.out" });
+                            gsap.to(progressBar, { width: `${progressWidth}%`, duration: 0.5, ease: "ease-in-out" });
                         }, 10); // Small delay ensures colors are visible first
                     }
                 });

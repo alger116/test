@@ -9,12 +9,10 @@
     <script src="https://unpkg.com/@heroicons/react/outline"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="dist/output.css" rel="stylesheet">
+    <link href="./dist/output.css" rel="stylesheet">
 </head>
 
 <body>
-
-
     <ul id="userList"></ul>
 
     <script type="module">
@@ -175,80 +173,75 @@
             });
         };
     </script>
-    </script>
-    </head>
-
-    <body class="bg-gray-100">
-        <div class="flex h-screen">
-            <!-- Sidebar -->
-            <aside class="w-45 bg-blue-700 text-white p-6">
-                <h2 class="text-2xl font-bold">Admin Panel</h2>
-                <ul class="mt-6 space-y-4">
-                    <li><a href="index.html" class="block hover:underline">🏠 Tagasi</a></li>
-                    <li><button id="settingsButton" class="block hover:underline">⚙️ Seaded</button></li>
-                    <li><a href="#" class="block hover:underline">👥 Kasutajad</a></li>
-                    <li><a href="#" class="block hover:underline">📊 Statistika</a></li>
-                    <li><button id="logoutButton" class="mt-4 w-full bg-red-600 px-4 py-2 rounded">Log Out</button></li>
-                </ul>
-            </aside>
-
-            <!-- Main Content -->
-            <main class="flex-1 p-6">
-                <h1 class="text-3xl font-bold"></h1>
-
-                <!-- User Management Table -->
-                <div class="bg-white mt-6 p-6 rounded shadow">
-                    <h2 class="text-lg font-semibold mb-4">Kasutajad</h2>
-                    <table class="w-full border-collapse">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th class="px-4 py-2">Email</th>
-                                <th class="px-4 py-2">Roll</th>
-                                <th class="px-4 py-2">Kinnitatud</th>
-                                <th class="px-4 py-2">Tegevused</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userTable">
-                            <!-- Users dynamically added here -->
-                        </tbody>
-                    </table>
-                </div>
-                <div id="settingsContainer" class="hidden bg-white p-6 rounded shadow mt-6">
-                    <h2 class="text-xl font-semibold">Seaded</h2>
-                    <p class="text-gray-600 mt-2">Siin saad muuta administraatori seadeid.</p>
-
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700">Dark Mode</label>
-                        <input type="checkbox" id="toggleDarkMode" class="mt-1">
-                    </div>
-                </div>
-                <!-- ✅ Settings Section (Hidden by Default) -->
-                </section>
-                <div id="settingsContainer" class="hidden">
-                    <!-- Settings content goes here -->
-                    </section>
-            </main>
-        </div>
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const settingsButton = document.getElementById("settingsButton");
-                const settingsContainer = document.getElementById("settingsContainer");
-
-                // ✅ Fix: Ensure elements exist before adding event listeners
-                if (!settingsButton || !settingsContainer) {
-                    console.error("❌ settingsButton or settingsContainer not found in the DOM!");
-                    return;
-                }
-
-                settingsButton.addEventListener("click", () => {
-                    settingsContainer.classList.toggle("hidden");
-                });
-            });
-        </script>
-    </body>
-
-</html>
-
 </body>
 
 </html>
+
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-45 bg-blue-700 text-white p-6">
+            <h2 class="text-2xl font-bold">Admin Panel</h2>
+            <ul class="mt-6 space-y-4">
+                <li><a href="index.html" class="block hover:underline">🏠 Tagasi</a></li>
+                <li><button id="settingsButton" class="block hover:underline">⚙️ Seaded</button></li>
+                <li><a href="#" class="block hover:underline">👥 Kasutajad</a></li>
+                <li><a href="#" class="block hover:underline">📊 Statistika</a></li>
+                <li><button id="logoutButton" class="mt-4 w-full bg-red-600 px-4 py-2 rounded">Log Out</button></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <h1 class="text-3xl font-bold"></h1>
+
+            <!-- User Management Table -->
+            <div class="bg-white mt-6 p-6 rounded shadow">
+                <h2 class="text-lg font-semibold mb-4">Kasutajad</h2>
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="px-4 py-2">Email</th>
+                            <th class="px-4 py-2">Roll</th>
+                            <th class="px-4 py-2">Kinnitatud</th>
+                            <th class="px-4 py-2">Tegevused</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTable">
+                        <!-- Users dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="settingsContainer" class="hidden bg-white p-6 rounded shadow mt-6">
+                <h2 class="text-xl font-semibold">Seaded</h2>
+                <p class="text-gray-600 mt-2">Siin saad muuta administraatori seadeid.</p>
+
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700">Dark Mode</label>
+                    <input type="checkbox" id="toggleDarkMode" class="mt-1">
+                </div>
+            </div>
+            <!-- ✅ Settings Section (Hidden by Default) -->
+            <div id="settingsContainerAlt" class="hidden">
+                <!-- Settings content goes here -->
+            </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const settingsButton = document.getElementById("settingsButton");
+                    const settingsContainer = document.getElementById("settingsContainer");
+
+                    // ✅ Fix: Ensure elements exist before adding event listeners
+                    if (!settingsButton || !settingsContainer) {
+                        console.error("❌ settingsButton or settingsContainer not found in the DOM!");
+                        return;
+                    }
+
+                    settingsButton.addEventListener("click", () => {
+                        settingsContainer.classList.toggle("hidden");
+                    });
+                });
+            </script>
+        </main>
+    </div>
+</body>
