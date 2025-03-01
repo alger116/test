@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<!-- sidebar.html -->
+<aside x-data :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+    class="fixed inset-y-0 left-0 w-64 bg-white text-black-500 flex flex-col transition-all duration-300">
+
+    <div class="flex items-center justify-between px-4 py-3 border-white border-gray-800">
+        <h2 class="text-lg font-semibold">Menüü</h2>
+        <button @click="sidebarOpen = !sidebarOpen; localStorage.setItem('sidebarOpen', sidebarOpen)"
+            class="text-gray-400 hover:text-white">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto">
+        <ul class="mt-4">
+            <li><a href="dashboard.html" class="block px-4 py-2 hover:bg-blue-400">Dashboard</a></li>
+            <li><a href="procurement-forms.html" class="block px-4 py-2 hover:bg-blue-400">Procurement Forms</a></li>
+            <li><a href="data-analysis.html" class="block px-4 py-2 hover:bg-blue-400">Data Analysis</a></li>
+            <li><a href="reports.html" class="block px-4 py-2 hover:bg-blue-400">Reports</a></li>
+            <li><a href="excel.html" class="block px-4 py-2 hover:bg-blue-400">Excel</a></li>
+            <li><a href="pdf.html" class="block px-4 py-2 hover:bg-blue-400">PDF</a></li>
+            <li><a href="cpv-koodid.html" class="block px-4 py-2 hover:bg-blue-400">CPV Koodid</a></li>
+        </ul>
+    </nav>
+</aside>
+
+</html>
