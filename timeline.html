@@ -1,393 +1,577 @@
 <!DOCTYPE html>
-<!-- Timeline Modal -->
-<div id="timelineModal" class="modal">
-    <div class="modal-box w-11/12 max-w-5xl">
-        <h3 class="font-bold text-lg mb-4">Riigihanke ajakava</h3>
+<html lang="et">
 
-        <!-- Timeline header -->
-        <div class="flex justify-between mb-2">
-            <div class="font-semibold">Hanke nimi: <span id="timeline-procurement-name"></span></div>
-            <div class="font-semibold">Lepingu allkirjastamine: <span id="timeline-contract-date"></span></div>
-        </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riigihanke ajakava</title>
+</head>
 
-        <!-- Days countdown from today -->
-        <div class="alert alert-info mb-4">
-            <div>
+<body>
+    <!-- Timeline Modal -->
+    <div id="timelineModal" class="modal" x-data="{ open: false }" x-show="open"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="modal-box w-11/12 max-w-5xl bg-white/90 backdrop-blur-md shadow-xl rounded-lg">
+            <h3 class="font-bold text-2xl mb-4 text-blue-dark">Riigihanke ajakava</h3>
+
+            <!-- Timeline header -->
+            <div class="flex flex-col md:flex-row justify-between mb-4 gap-2">
+                <div class="font-semibold text-lg">Hanke nimi: <span id="timeline-procurement-name"
+                        class="text-blue-600"></span></div>
+                <div class="font-semibold text-lg">Lepingu allkirjastamine: <span id="timeline-contract-date"
+                        class="text-blue-600"></span></div>
+            </div>
+
+            <!-- Days countdown from today -->
+            <div class="alert bg-blue-light/70 text-blue-dark p-4 rounded-lg mb-6 flex items-center shadow-md">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    class="stroke-current shrink-0 w-6 h-6">
+                    class="stroke-current shrink-0 w-6 h-6 mr-3">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span>Alustamiseni on jäänud <span id="days-to-start" class="font-bold"></span> päeva</span>
+                <span class="text-lg">Alustamiseni on jäänud <span id="days-to-start" class="font-bold text-xl"></span>
+                    päeva</span>
+            </div>
+
+            <!-- Timeline visualization -->
+            <div class="timeline-container bg-white/50 backdrop-blur-sm rounded-lg shadow-md">
+                <ol class="relative border-l-2 border-blue-400 dark:border-blue-600 ml-4">
+                    <div id="timeline-steps" class="space-y-6 py-4">
+                        <!-- Timeline steps will be inserted here -->
+                    </div>
+                </ol>
+            </div>
+
+            <!-- Export buttons -->
+            <div class="modal-action mt-6 flex flex-wrap gap-3 justify-end">
+                <button id="exportExcel"
+                    class="btn bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Salvesta Excelisse
+                </button>
+                <button id="exportPDF"
+                    class="btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    </svg>
+                    Salvesta PDF
+                </button>
+                <button id="closeTimelineModal" @click="open = false"
+                    class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
+                    Sulge
+                </button>
             </div>
         </div>
-
-        <!-- Timeline visualization -->
-        <div class="timeline-container">
-            <ol class="relative border-l border-gray-300 dark:border-gray-700">
-                <div id="timeline-steps">
-                    <!-- Timeline steps will be inserted here -->
-                </div>
-            </ol>
-        </div>
-
-        <!-- Export buttons -->
-        <div class="modal-action mt-6">
-            <button id="exportExcel" class="btn btn-success">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Salvesta Excelisse
-            </button>
-            <button id="exportPDF" class="btn btn-info">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                </svg>
-                Salvesta PDF
-            </button>
-            <button id="closeTimelineModal" class="btn">Sulge</button>
-        </div>
     </div>
-</div>
 
-<!-- Timeline step template -->
-<template id="timeline-step-template">
-    <li class="mb-10 ml-6">
-        <span
-            class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white dark:ring-gray-900 dark:bg-blue-900">
-            <svg class="w-2.5 h-2.5 text-blue-800 dark:text-blue-300" aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                    d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-            </svg>
-        </span>
-        <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white step-name"></h3>
-        <time
-            class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500 step-date-range"></time>
-        <p class="mb-4 text-base font-normal text-gray-500 dark:text-gray-400 step-duration"></p>
-    </li>
-</template>
-|<style>
-    /* Timeline container styles */
-    .timeline-container {
-        max-height: 60vh;
-        overflow-y: auto;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
+    <!-- Timeline step template -->
+    <template id="timeline-step-template">
+        <li class="mb-6 ml-6">
+            <span
+                class="absolute flex items-center justify-center w-8 h-8 rounded-full -left-4 ring-4 ring-white dark:ring-gray-900 bg-blue-500 text-white">
+                <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                    viewBox="0 0 20 20">
+                    <path
+                        d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                </svg>
+            </span>
+            <div
+                class="p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-md border-l-4 border-blue-500 ml-2 transform transition-all hover:scale-102 hover:shadow-lg">
+                <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white step-name"></h3>
+                <time
+                    class="block mb-2 text-sm font-normal leading-none text-blue-600 dark:text-blue-500 step-date-range"></time>
+                <p class="mb-2 text-base font-normal text-gray-600 dark:text-gray-400 step-duration"></p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1 overflow-hidden">
+                    <div class="step-progress-bar h-2.5 rounded-full transition-all duration-500"></div>
+                </div>
+            </div>
+        </li>
+    </template>
 
-    /* Timeline step customization */
-    .timeline-container ol {
-        padding-left: 1rem;
-    }
-
-    .timeline-container li {
-        position: relative;
-        border-left-width: 2px;
-        padding-left: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    /* Customize the timeline step marker */
-    .timeline-container li:before {
-        content: '';
-        position: absolute;
-        width: 1rem;
-        height: 1rem;
-        background-color: #3b82f6;
-        border-radius: 50%;
-        left: -0.6rem;
-        top: 0;
-        border: 2px solid white;
-    }
-
-    /* Style different types of timeline steps */
-    .timeline-container li.completed:before {
-        background-color: #10b981;
-    }
-
-    .timeline-container li.current:before {
-        background-color: #f59e0b;
-    }
-
-    .timeline-container li.future:before {
-        background-color: #6b7280;
-    }
-
-    /* Step date styling */
-    .step-date-range {
-        font-size: 0.875rem;
-        color: #6b7280;
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-
-    /* Step duration styling */
-    .step-duration {
-        font-size: 0.875rem;
-        color: #6b7280;
-        padding-left: 0.5rem;
-        border-left: 2px solid #e5e7eb;
-    }
-
-    /* Export buttons styling */
-    .modal-action {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: flex-end;
-        margin-top: 1.5rem;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 640px) {
+    <style>
+        /* Timeline container styles */
         .timeline-container {
-            max-height: 70vh;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(59, 130, 246, 0.5) rgba(229, 231, 235, 0.5);
         }
 
-        .modal-action {
-            flex-direction: column;
+        .timeline-container::-webkit-scrollbar {
+            width: 8px;
         }
-    }
-</style>
-<script <!-- End of timeline.html -->
-    // Timeline calculation function
-    function calculateTimeline(procedureDetails, contractDate) {
-        // Convert contract date string to Date object
-        const contractDateObj = new Date(contractDate);
-        const today = new Date();
 
-        // Calculate the start date by working backwards from contract date
-        let currentDate = new Date(contractDateObj);
-        const timelineSteps = [];
+        .timeline-container::-webkit-scrollbar-track {
+            background: rgba(229, 231, 235, 0.5);
+            border-radius: 10px;
+        }
 
-        // Reverse the procedure details to calculate backwards from contract date
-        const reversedSteps = [...procedureDetails].reverse();
+        .timeline-container::-webkit-scrollbar-thumb {
+            background-color: rgba(59, 130, 246, 0.5);
+            border-radius: 10px;
+        }
 
-        // Calculate the dates by subtracting days from contract date
-        reversedSteps.forEach(step => {
-            const days = parseInt(step.days);
-            if (!isNaN(days)) {
-                currentDate = new Date(currentDate);
-                currentDate.setDate(currentDate.getDate() - days);
+        /* Timeline step customization */
+        .timeline-container ol {
+            padding-left: 1rem;
+        }
+
+        /* Step status styling */
+        .timeline-step.completed .step-progress-bar {
+            background-color: #10b981;
+        }
+
+        .timeline-step.current .step-progress-bar {
+            background-color: #3b82f6;
+        }
+
+        .timeline-step.future .step-progress-bar {
+            background-color: #6b7280;
+        }
+
+        .timeline-step.overdue .step-progress-bar {
+            background-color: #ef4444;
+        }
+
+        /* Modal styling */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            padding: 1rem;
+        }
+
+        .modal-box {
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .timeline-container {
+                max-height: 70vh;
             }
-        });
 
-        // Start date is the date when the procurement process should begin
-        const startDate = new Date(currentDate);
-
-        // Calculate days from today to start date
-        const daysToStart = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
-
-        // Now calculate forward from start date for display
-        currentDate = new Date(startDate);
-
-        // Add initial step with days from today
-        timelineSteps.push({
-            step: "Alustamine",
-            startDate: formatDate(today),
-            endDate: formatDate(startDate),
-            daysFromToday: daysToStart
-        });
-
-        // Calculate each step's date range
-        procedureDetails.forEach(step => {
-            const startDateForStep = new Date(currentDate);
-            const days = parseInt(step.days.split(' ')[0]);
-
-            if (!isNaN(days)) {
-                currentDate = new Date(currentDate);
-                currentDate.setDate(currentDate.getDate() + days);
-
-                timelineSteps.push({
-                    step: step.step,
-                    startDate: formatDate(startDateForStep),
-                    endDate: formatDate(currentDate),
-                    duration: days
-                });
+            .modal-action {
+                flex-direction: column;
+                align-items: stretch;
             }
-        });
 
-        return timelineSteps;
-    }
+            .modal-box {
+                padding: 1rem;
+                width: 95%;
+            }
+        }
+    </style>
 
-    // Helper function to format dates as DD.MM.YYYY
-    function formatDate(date) {
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}.${month}.${year}`;
-    }
+    <script>
+        // Timeline calculation function
+        function calculateTimeline(procedureDetails, contractDate) {
+            // Convert contract date string to Date object
+            let contractDateObj;
 
-    // Function to show the timeline modal
-    function showTimelineModal() {
-        // Get the procedure details from the result card
-        const procedureDetails = [];
-        document.querySelectorAll('.result-card .step-row').forEach(row => {
-            const step = row.querySelector('.step-name').textContent;
-            const days = row.querySelector('.step-days').textContent;
-            procedureDetails.push({ step, days });
-        });
+            // Handle different date formats (dd.mm.yyyy or yyyy-mm-dd)
+            if (contractDate.includes('.')) {
+                const parts = contractDate.split('.');
+                contractDateObj = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            } else {
+                contractDateObj = new Date(contractDate);
+            }
 
-        // Get the contract signing date
-        const contractDate = document.getElementById('contractDate').value;
-        const procurementName = document.getElementById('procurementName').value;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today to start of day
 
-        // Calculate the timeline
-        const timeline = calculateTimeline(procedureDetails, contractDate);
+            // Calculate the start date by working backwards from contract date
+            let currentDate = new Date(contractDateObj);
+            const timelineSteps = [];
 
-        // Populate the timeline modal
-        document.getElementById('timeline-procurement-name').textContent = procurementName;
-        document.getElementById('timeline-contract-date').textContent = contractDate;
-        document.getElementById('days-to-start').textContent = timeline[0].daysFromToday;
+            // Calculate total duration
+            const totalDuration = procedureDetails.reduce((sum, step) => {
+                const days = parseInt(step.days.match(/\d+/)[0]);
+                return sum + (isNaN(days) ? 0 : days);
+            }, 0);
 
-        // Clear existing timeline steps
-        const timelineStepsContainer = document.getElementById('timeline-steps');
-        timelineStepsContainer.innerHTML = '';
+            // Calculate the start date by subtracting the total duration from the contract date
+            const startDate = new Date(contractDateObj);
+            startDate.setDate(startDate.getDate() - totalDuration);
 
-        // Add timeline steps
-        const stepTemplate = document.getElementById('timeline-step-template');
-        timeline.forEach(step => {
-            const stepClone = document.importNode(stepTemplate.content, true);
+            // Calculate days from today to start date
+            const daysToStart = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
 
-            stepClone.querySelector('.step-name').textContent = step.step;
-            stepClone.querySelector('.step-date-range').textContent = `${step.startDate} - ${step.endDate}`;
+            // Now calculate forward from start date for display
+            currentDate = new Date(startDate);
 
-            if (step.duration) {
+            // Add steps with calculated dates
+            procedureDetails.forEach((step, index) => {
+                const stepStartDate = new Date(currentDate);
+                const days = parseInt(step.days.match(/\d+/)[0]);
+
+                if (!isNaN(days)) {
+                    // Calculate end date for this step
+                    const stepEndDate = new Date(currentDate);
+                    stepEndDate.setDate(stepEndDate.getDate() + days);
+
+                    // Determine step status
+                    let status = 'future';
+                    let progress = 0;
+
+                    if (today > stepEndDate) {
+                        status = 'completed';
+                        progress = 100;
+                    } else if (today >= stepStartDate && today <= stepEndDate) {
+                        status = 'current';
+                        const totalStepDays = days;
+                        const daysElapsed = Math.ceil((today - stepStartDate) / (1000 * 60 * 60 * 24));
+                        progress = Math.min(100, Math.round((daysElapsed / totalStepDays) * 100));
+                    }
+
+                    timelineSteps.push({
+                        step: step.step,
+                        startDate: formatDate(stepStartDate),
+                        endDate: formatDate(stepEndDate),
+                        duration: days,
+                        status: status,
+                        progress: progress
+                    });
+
+                    // Move current date forward for next step
+                    currentDate = new Date(stepEndDate);
+                }
+            });
+
+            return {
+                steps: timelineSteps,
+                daysToStart: daysToStart,
+                startDate: formatDate(startDate),
+                totalDuration: totalDuration
+            };
+        }
+
+        // Expose the calculateTimeline function to the window object
+        window.calculateTimeline = calculateTimeline;
+
+        // Helper function to format dates as DD.MM.YYYY
+        function formatDate(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        // Function to show the timeline modal
+        function showTimelineModal() {
+            // Get the procedure details from the result card
+            const procedureDetails = [];
+            document.querySelectorAll('.result-card .step-row, .result-card li').forEach(row => {
+                const stepName = row.querySelector('.step-name') ?
+                    row.querySelector('.step-name').textContent :
+                    row.textContent.split(':')[0].trim();
+
+                const daysElement = row.querySelector('[id^="days-"]');
+                if (daysElement) {
+                    const days = daysElement.textContent;
+                    procedureDetails.push({ step: stepName, days: days });
+                }
+            });
+
+            if (procedureDetails.length === 0) {
+                console.error("No procedure details found in the result card");
+                alert("Ei leitud menetluse üksikasju. Palun täitke vorm ja genereerige tulemus.");
+                return;
+            }
+
+            // Get the contract signing date
+            const contractDate = document.getElementById('contractSigningDate').value;
+            if (!contractDate) {
+                alert("Palun sisestage lepingu allkirjastamise kuupäev.");
+                return;
+            }
+
+            const procurementName = document.getElementById('name').value;
+            if (!procurementName) {
+                alert("Palun sisestage hanke nimi.");
+                return;
+            }
+
+            // Calculate the timeline
+            const timeline = calculateTimeline(procedureDetails, contractDate);
+
+            // Populate the timeline modal
+            document.getElementById('timeline-procurement-name').textContent = procurementName;
+            document.getElementById('timeline-contract-date').textContent = contractDate;
+            document.getElementById('days-to-start').textContent = timeline.daysToStart;
+
+            // Clear existing timeline steps
+            const timelineStepsContainer = document.getElementById('timeline-steps');
+            timelineStepsContainer.innerHTML = '';
+
+            // Add timeline steps
+            const stepTemplate = document.getElementById('timeline-step-template');
+            timeline.steps.forEach((step, index) => {
+                const stepClone = document.importNode(stepTemplate.content, true);
+                const stepElement = document.createElement('div');
+                stepElement.className = `timeline-step ${step.status}`;
+
+                stepClone.querySelector('.step-name').textContent = `${index + 1}. ${step.step}`;
+                stepClone.querySelector('.step-date-range').textContent = `${step.startDate} - ${step.endDate}`;
                 stepClone.querySelector('.step-duration').textContent = `Kestus: ${step.duration} päeva`;
-            } else if (step.daysFromToday) {
-                stepClone.querySelector('.step-duration').textContent = `${step.daysFromToday > 0 ? 'Aega on jäänud:' : 'Hilinenud:'} ${Math.abs(step.daysFromToday)} päeva`;
+
+                const progressBar = stepClone.querySelector('.step-progress-bar');
+                progressBar.style.width = `${step.progress}%`;
+
+                // Add appropriate color class based on status
+                if (step.status === 'completed') {
+                    progressBar.classList.add('bg-green-500');
+                } else if (step.status === 'current') {
+                    progressBar.classList.add('bg-blue-500');
+                } else if (step.status === 'future') {
+                    progressBar.classList.add('bg-gray-500');
+                } else if (step.status === 'overdue') {
+                    progressBar.classList.add('bg-red-500');
+                }
+
+                stepElement.appendChild(stepClone);
+                timelineStepsContainer.appendChild(stepElement);
+            });
+
+            // Show the modal using Alpine.js
+            const timelineModal = document.getElementById('timelineModal');
+            if (timelineModal.__x) {
+                timelineModal.__x.updateElements(timelineModal);
+                timelineModal.__x.$data.open = true;
+            } else {
+                console.error("Alpine.js not initialized on timeline modal");
+                // Fallback to manual display
+                timelineModal.style.display = 'flex';
             }
+        }
 
-            timelineStepsContainer.appendChild(stepClone);
-        });
+        // Expose the showTimelineModal function to the window object
+        window.showTimelineModal = showTimelineModal;
 
-        // Show the modal
-        document.getElementById('timelineModal').classList.add('modal-open');
-    }
+        // Function to export timeline to Excel
+        function exportTimelineToExcel() {
+            // Get the procurement name for the filename
+            const procurementName = document.getElementById('timeline-procurement-name').textContent;
+            const filename = `${procurementName}_ajakava.xlsx`;
 
-    // Function to close the timeline modal
-    function closeTimelineModal() {
-        document.getElementById('timelineModal').classList.remove('modal-open');
-    }
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            const wsData = [
+                ['Riigihanke ajakava'],
+                ['Hanke nimi:', procurementName],
+                ['Lepingu allkirjastamine:', document.getElementById('timeline-contract-date').textContent],
+                ['Alustamiseni jäänud:', document.getElementById('days-to-start').textContent + ' päeva'],
+                [''],
+                ['Etapp', 'Alguskuupäev', 'Lõppkuupäev', 'Kestus', 'Staatus']
+            ];
 
-    // Function to export timeline to Excel
-    function exportTimelineToExcel() {
-        // Get the procurement name for the filename
-        const procurementName = document.getElementById('timeline-procurement-name').textContent;
-        const filename = `${procurementName}_ajakava.xlsx`;
+            // Add data rows
+            document.querySelectorAll('.timeline-step').forEach((step, index) => {
+                const stepName = step.querySelector('.step-name').textContent;
+                const dateRange = step.querySelector('.step-date-range').textContent;
+                const duration = step.querySelector('.step-duration').textContent;
+                const status = step.classList.contains('completed') ? 'Lõpetatud' :
+                    step.classList.contains('current') ? 'Käimas' :
+                        step.classList.contains('overdue') ? 'Hilinenud' : 'Tulevikus';
 
-        // Create workbook and worksheet
-        const wb = XLSX.utils.book_new();
-        const wsData = [
-            ['Riigihanke ajakava'],
-            ['Hanke nimi:', procurementName],
-            ['Lepingu allkirjastamine:', document.getElementById('timeline-contract-date').textContent],
-            [''],
-            ['Etapp', 'Alguskuupäev', 'Lõppkuupäev', 'Kestus']
-        ];
+                const [startDate, endDate] = dateRange.split(' - ');
 
-        // Add data rows
-        document.querySelectorAll('#timeline-steps li').forEach(step => {
-            const stepName = step.querySelector('.step-name').textContent;
-            const dateRange = step.querySelector('.step-date-range').textContent;
-            const duration = step.querySelector('.step-duration').textContent;
+                wsData.push([stepName, startDate, endDate, duration, status]);
+            });
 
-            const [startDate, endDate] = dateRange.split(' - ');
+            // Create worksheet and add to workbook
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, 'Ajakava');
 
-            wsData.push([stepName, startDate, endDate, duration]);
-        });
+            // Save the file
+            XLSX.writeFile(wb, filename);
+        }
 
-        // Create worksheet and add to workbook
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        XLSX.utils.book_append_sheet(wb, ws, 'Ajakava');
+        // Function to export timeline to PDF
+        function exportTimelineToPDF() {
+            const procurementName = document.getElementById('timeline-procurement-name').textContent;
+            const filename = `${procurementName}_ajakava.pdf`;
 
-        // Save the file
-        XLSX.writeFile(wb, filename);
-    }
+            // Create a new jsPDF instance
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-    // Function to export timeline to PDF
-    function exportTimelineToPDF() {
-        const procurementName = document.getElementById('timeline-procurement-name').textContent;
-        const filename = `${procurementName}_ajakava.pdf`;
+            // Add title
+            doc.setFontSize(16);
+            doc.text('Riigihanke ajakava', 14, 20);
 
-        // Create a new jsPDF instance
-        const doc = new jsPDF();
-
-        // Add title
-        doc.setFontSize(16);
-        doc.text('Riigihanke ajakava', 14, 20);
-
-        // Add procurement details
-        doc.setFontSize(12);
-        doc.text(`Hanke nimi: ${procurementName}`, 14, 30);
-        doc.text(`Lepingu allkirjastamine: ${document.getElementById('timeline-contract-date').textContent}`, 14, 40);
-        doc.text(`Alustamiseni on jäänud: ${document.getElementById('days-to-start').textContent} päeva`, 14, 50);
-
-        // Add timeline data
-        let yPosition = 70;
-
-        document.querySelectorAll('#timeline-steps li').forEach((step, index) => {
-            const stepName = step.querySelector('.step-name').textContent;
-            const dateRange = step.querySelector('.step-date-range').textContent;
-            const duration = step.querySelector('.step-duration').textContent;
-
-            // Check if we need a new page
-            if (yPosition > 260) {
-                doc.addPage();
-                yPosition = 20;
-            }
-
+            // Add procurement details
             doc.setFontSize(12);
-            doc.text(`${index + 1}. ${stepName}`, 14, yPosition);
-            yPosition += 10;
+            doc.text(`Hanke nimi: ${procurementName}`, 14, 30);
+            doc.text(`Lepingu allkirjastamine: ${document.getElementById('timeline-contract-date').textContent}`, 14, 40);
+            doc.text(`Alustamiseni on jäänud: ${document.getElementById('days-to-start').textContent} päeva`, 14, 50);
 
-            doc.setFontSize(10);
-            doc.text(dateRange, 20, yPosition);
-            yPosition += 6;
+            // Add timeline data
+            let yPosition = 70;
 
-            doc.text(duration, 20, yPosition);
-            yPosition += 15;
+            document.querySelectorAll('.timeline-step').forEach((step, index) => {
+                const stepName = step.querySelector('.step-name').textContent;
+                const dateRange = step.querySelector('.step-date-range').textContent;
+                const duration = step.querySelector('.step-duration').textContent;
+                const status = step.classList.contains('completed') ? 'Lõpetatud' :
+                    step.classList.contains('current') ? 'Käimas' :
+                        step.classList.contains('overdue') ? 'Hilinenud' : 'Tulevikus';
+
+                // Check if we need a new page
+                if (yPosition > 260) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+
+                doc.setFontSize(12);
+                doc.text(`${stepName}`, 14, yPosition);
+                yPosition += 10;
+
+                doc.setFontSize(10);
+                doc.text(`${dateRange}`, 20, yPosition);
+                yPosition += 6;
+
+                doc.text(`${duration} (${status})`, 20, yPosition);
+                yPosition += 15;
+            });
+
+            // Save the PDF
+            doc.save(filename);
+        }
+
+        // Add the timeline button to the result card
+        function addTimelineButton() {
+            // Check if the button already exists
+            if (document.getElementById('showTimelineButton')) {
+                return;
+            }
+
+            // Find the result card actions
+            const resultCardActions = document.querySelector('.result-card .card-actions');
+            if (!resultCardActions) {
+                const resultCard = document.querySelector('.result-card');
+                if (resultCard) {
+                    // Create card actions if they don't exist
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'card-actions justify-end mt-4';
+                    resultCard.appendChild(actionsDiv);
+
+                    // Add the timeline button
+                    const timelineButton = createTimelineButton();
+                    actionsDiv.appendChild(timelineButton);
+                }
+            } else {
+                // Add the timeline button to existing card actions
+                const timelineButton = createTimelineButton();
+                resultCardActions.appendChild(timelineButton);
+            }
+        }
+
+        // Create the timeline button
+        function createTimelineButton() {
+            const timelineButton = document.createElement('button');
+            timelineButton.id = 'showTimelineButton';
+            timelineButton.className = 'btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105';
+            timelineButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> Näita ajakava';
+            timelineButton.addEventListener('click', showTimelineModal);
+            return timelineButton;
+        }
+
+        // Add timeline toggle to dropdown menu
+        function addTimelineToggleToDropdown() {
+            // Check if the dropdown menu exists
+            const dropdownMenu = document.querySelector('.dropdown-menu, [role="menu"]');
+            if (dropdownMenu) {
+                // Check if the toggle already exists
+                if (!document.getElementById('toggleTimelineButton')) {
+                    const toggleButton = document.createElement('button');
+                    toggleButton.id = 'toggleTimelineButton';
+                    toggleButton.className = 'block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105';
+                    toggleButton.setAttribute('role', 'menuitem');
+                    toggleButton.innerHTML = '<i class="fas fa-calendar-alt mr-2"></i> Ajakava';
+                    toggleButton.addEventListener('click', showTimelineModal);
+
+                    // Add to dropdown menu
+                    dropdownMenu.appendChild(toggleButton);
+                }
+            }
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add event listeners for modal buttons
+            document.getElementById('exportExcel').addEventListener('click', exportTimelineToExcel);
+            document.getElementById('exportPDF').addEventListener('click', exportTimelineToPDF);
+
+            // Add the timeline button to the result card when it's generated
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        // Check if the result card has been added
+                        if (document.querySelector('.result-card')) {
+                            addTimelineButton();
+                        }
+                    }
+                });
+            });
+
+            // Start observing the result container
+            const resultContainer = document.getElementById('resultContainer');
+            if (resultContainer) {
+                observer.observe(resultContainer, { childList: true, subtree: true });
+            }
+
+            // Add timeline toggle to dropdown menu
+            addTimelineToggleToDropdown();
+
+            // Check if Alpine.js is loaded, if not load it
+            if (typeof Alpine === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js';
+                script.defer = true;
+                document.head.appendChild(script);
+            }
+
+            // Load required libraries dynamically if not already loaded
+            if (typeof XLSX === 'undefined') {
+                loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+            }
+
+            if (typeof jspdf === 'undefined') {
+                loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+            }
         });
 
-        // Save the PDF
-        doc.save(filename);
-    }
-
-    // Event listeners
-    document.addEventListener('DOMContentLoaded', function () {
-        // Add button to show timeline modal
-        const resultCardFooter = document.querySelector('.result-card .card-actions');
-        const timelineButton = document.createElement('button');
-        timelineButton.className = 'btn btn-primary';
-        timelineButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> Näita ajakava';
-        timelineButton.addEventListener('click', showTimelineModal);
-        resultCardFooter.appendChild(timelineButton);
-
-        // Add event listeners for modal buttons
-        document.getElementById('closeTimelineModal').addEventListener('click', closeTimelineModal);
-        document.getElementById('exportExcel').addEventListener('click', exportTimelineToExcel);
-        document.getElementById('exportPDF').addEventListener('click', exportTimelineToPDF);
-
-        // Load required libraries dynamically
-        loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
-        loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-    });
-
-    // Helper function to load scripts dynamically
-    function loadScript(url) {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = url;
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
-</script>
+        // Helper function to load scripts dynamically
+        function loadScript(url) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = url;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+    </script>
 </body>
 
 </html>

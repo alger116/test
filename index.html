@@ -65,6 +65,9 @@
         <!-- Sidebar Container -->
         <div id="sidebarContainer"></div>
 
+        <!-- Timeline Container -->
+        <div id="timelineContainer"></div>
+
         <!-- Modern Navbar with Active Tab Highlighting -->
         <header class="bg-gradient-to-r from-blue-300 to-blue-500 text-black p-2 shadow-md w-full sticky top-0 z-50">
             <div class="container flex justify-baseline">
@@ -121,6 +124,11 @@
                                     class="block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105"
                                     role="menuitem">
                                     <i class="fas fa-tools mr-2"></i> Tööriist
+                                </button>
+                                <button id="toggleTimelineButton"
+                                    class="block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105"
+                                    role="menuitem">
+                                    <i class="fas fa-calendar-alt mr-2"></i> Ajakava
                                 </button>
                                 <button id="showSavedSearches"
                                     class="px-4 py-2 text-sm text-gray-800 hover:bg-blue-200/70 hover:text-black w-full text-left transition transform hover:scale-105 protected-section hidden"
@@ -274,9 +282,9 @@
         </header>
         <footer
             class="bg-opacity-80 from-blue-500 to-indigo-600 text-black py-2 fixed bottom-0 left-0 w-full shadow-md backdrop-blur-md">
-            <div class="container mx-auto flex justify-between items-center px-6 text-sm">
+            <div class="container flex justify-between items-center px-6 text-sm">
                 <p class="text-sm">&copy; 2025 Riigihanke Andmed. Kõik õigused kaitstud.</p>
-                <div class="flex space-x-4">
+                <div class="flex space-x-2">
                     <a href="#" class="hover:underline">Lingid</a>
                     <a href="#" class="hover:underline">Kasutusjuhend</a>
                     <a href="#" class="hover:underline">Kontakt</a>
@@ -289,7 +297,7 @@
             <div id="toolTab" class="flex justify-center">
                 <div class="bg-white p-8 rounded-xl shadow-lg max-w-xl w-full border border-gray-100"
                     id="formContainer">
-                    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Riigihanke andmed</h2>
+                    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Sisesta andmed</h2>
                     <form id="procurementForm" class="space-y-6">
                         <div>
                             <label for="name" class="block text-gray-700 font-semibold mb-1">Riigihanke nimetus:</label>
@@ -394,14 +402,14 @@
                         </div>
                         <div class="flex justify-between space-x-4 mt-4">
                             <button id="calculateTime"
-                                class="w-full bg-blue-500 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:bg-blue-600 hover:scale-105 hover:shadow-lg transition-all duration-300">
+                                class="w-full bg-sky-500 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:bg-sky-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
                                 <i class="fas fa-calculator mr-2"></i> Arvuta aeg
                             </button>
                             <div x-data="{ added: false }" class="relative">
                                 <!-- ✅ Lisa hange tabelisse nupp (hidden vaikimisi) -->
                                 <button id="updateProcurement"
                                     @click="added = true; setTimeout(() => added = false, 2000)"
-                                    class="w-full bg-green-500 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:bg-green-600 hover:scale-105 hover:shadow-lg transition-all duration-300 hidden">
+                                    class="w-full bg-emerald-500 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:bg-emerald-700 hover:scale-105 hover:shadow-lg transition-all duration-300 hidden">
                                     ✅ Lisa hange tabelisse
                                 </button>
 
@@ -1917,10 +1925,12 @@
                 }
 
                 function extractStepDays() {
-                    return Array.from(document.querySelectorAll('[id^="days-"]')).map((el, index) => {
+                    return Array.from(document.querySelectorAll('[id^="days-"]')).map(el => {
+                        // Extract the original index from the element ID
+                        const originalIndex = parseInt(el.id.replace('days-', ''), 10);
                         let daysText = el.innerText;
                         let days = parseInt(daysText.match(/\d+/)?.[0] || "0", 10);
-                        return { index, element: el, days };
+                        return { index: originalIndex, element: el, days };
                     });
                 }
 
@@ -1979,6 +1989,17 @@
                         initializeAdjustButtons();
                         updateTotalDuration();  // 🔥 Ensures total duration starts correctly
                         updateProgressBars();   // 🔥 Ensures progress bars scale correctly on load
+
+                        // Add event listener for timeline button
+                        document.getElementById('toggleTimelineButton').addEventListener('click', function () {
+                            const timelineModal = document.getElementById('timelineModal');
+                            if (timelineModal && timelineModal.__x) {
+                                timelineModal.__x.$data.open = true;
+                            } else {
+                                // If Alpine.js is not initialized, call the showTimelineModal function directly
+                                showTimelineModal();
+                            }
+                        });
                     }
 
                     async function registerUser(email, password) {
@@ -2100,6 +2121,42 @@
                     });
 
                     console.log("✅ Otsingud lisatud tabelisse!");
+                }
+
+                // Function to show the timeline modal
+                function showTimelineModal() {
+                    // Get the procedure details from the result card
+                    const procedureDetails = [];
+                    document.querySelectorAll('.result-card .step-row, .result-card li').forEach(row => {
+                        const stepName = row.querySelector('.step-name') ?
+                            row.querySelector('.step-name').textContent :
+                            row.textContent.split(':')[0].trim();
+
+                        const daysElement = row.querySelector('[id^="days-"]');
+                        if (daysElement) {
+                            const days = daysElement.textContent;
+                            procedureDetails.push({ step: stepName, days: days });
+                        }
+                    });
+
+                    if (procedureDetails.length === 0) {
+                        console.error("No procedure details found in the result card");
+                        alert("Ei leitud menetluse üksikasju. Palun täitke vorm ja genereerige tulemus.");
+                        return;
+                    }
+
+                    // Get the contract signing date
+                    const contractDate = document.getElementById('contractSigningDate').value;
+                    if (!contractDate) {
+                        alert("Palun sisestage lepingu allkirjastamise kuupäev.");
+                        return;
+                    }
+
+                    const procurementName = document.getElementById('name').value;
+                    if (!procurementName) {
+                        alert("Palun sisestage hanke nimi.");
+                        return;
+                    }
                 }
             </script>
 
@@ -2629,7 +2686,34 @@
 
                     // Initialize Alpine.js again to detect new content
                     document.dispatchEvent(new Event("alpine:init"));
+
+                    // Load Timeline
+                    try {
+                        const timelineResponse = await fetch("timeline.html");
+                        document.getElementById("timelineContainer").innerHTML = await timelineResponse.text();
+                        console.log("Timeline loaded successfully");
+                    } catch (error) {
+                        console.error("Error loading timeline:", error);
+                    }
                 });
+            </script>
+
+            <script>
+                // Load sidebar
+                fetch('sidebar.html')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('sidebarContainer').innerHTML = html;
+                    })
+                    .catch(error => console.error('Error loading sidebar:', error));
+
+                // Load timeline
+                fetch('timeline.html')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('timelineContainer').innerHTML = html;
+                    })
+                    .catch(error => console.error('Error loading timeline:', error));
             </script>
     </body>
 
