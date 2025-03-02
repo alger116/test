@@ -66,7 +66,9 @@
         <div id="sidebarContainer"></div>
 
         <!-- Timeline Container -->
-        <div id="timelineContainer"></div>
+        <div id="timelineContainer">
+            {% include timeline.html %}
+        </div>
 
         <!-- Modern Navbar with Active Tab Highlighting -->
         <header class="bg-gradient-to-r from-blue-300 to-blue-500 text-black p-2 shadow-md w-full sticky top-0 z-50">
@@ -2736,9 +2738,6 @@
                     }
                 });
             </script>
-
-            <!-- ✅ Sidebar Container -->
-            <div id="sidebarContainer" x-data="{ sidebarOpen: localStorage.getItem('sidebarOpen') === 'true' }"></div>
 
             <script>
                 async function loadSidebar() {
