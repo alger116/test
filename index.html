@@ -1149,7 +1149,36 @@
                     // ✅ Uuendame tabelis kuvamist ja progressiribasid
                     updateSavedSearchesTable();
                     updateTotalDuration();
-                    updateProgressBars();
+
+                    // Use the immediate update for the progress bar of the changed element
+                    const progressBar = document.getElementById(`progress-${index}`);
+                    if (progressBar) {
+                        const totalDuration = parseInt(totalDurationElement?.innerText, 10) || 1;
+                        let progressWidth = (days / totalDuration) * 100 * 1.25;
+
+                        // Kill any existing animations
+                        gsap.killTweensOf(progressBar);
+
+                        // Update color immediately
+                        progressBar.classList.remove("bg-blue-500", "bg-green-500", "bg-yellow-500", "bg-red-500");
+                        if (progressWidth >= 25) {
+                            progressBar.classList.add("bg-red-500");
+                        } else if (progressWidth >= 14) {
+                            progressBar.classList.add("bg-yellow-500");
+                        } else {
+                            progressBar.classList.add("bg-green-500");
+                        }
+
+                        // Animate just this bar
+                        gsap.to(progressBar, {
+                            width: `${progressWidth}%`,
+                            duration: 0.2,  // Faster animation
+                            ease: "power1.out"
+                        });
+                    }
+
+                    // Use debounced update for all other bars
+                    debouncedUpdateProgressBars();
                 }
 
                 const savedSearches = [];
@@ -1885,10 +1914,11 @@
                     updateTotalDuration(); // Ensure total duration is calculated and progress bars are updated on load
                 });
 
-                function updateProgressBars() {
+                // Immediate update function (no animation)
+                function updateProgressBarsImmediate() {
                     const stepData = extractStepDays();
                     const totalDurationElement = document.getElementById('totalDuration');
-                    const totalDuration = parseInt(totalDurationElement?.innerText, 10) || 1; // Get total durationtotal duration
+                    const totalDuration = parseInt(totalDurationElement?.innerText, 10) || 1;
 
                     stepData.forEach(step => {
                         const progressBar = document.getElementById(`progress-${step.index}`);
@@ -1905,10 +1935,10 @@
                             let progressWidth = (step.days / totalDuration) * 100 * 1.25;
                             progressBar.dataset.progress = progressWidth.toFixed(2);
 
-                            // 🚀 FORCE width and color immediately before animation
-                            progressBar.style.width = `${progressWidth}%`;
+                            // Kill any existing animations on this element
+                            gsap.killTweensOf(progressBar);
 
-                            // lisa värvid
+                            // Update colors
                             progressBar.classList.remove("bg-blue-500", "bg-green-500", "bg-yellow-500", "bg-red-500");
                             if (progressWidth >= 25) {
                                 progressBar.classList.add("bg-red-500"); // suur ajakulu
@@ -1917,9 +1947,37 @@
                             } else {
                                 progressBar.classList.add("bg-green-500"); // väike ajakulu
                             }
-                            setTimeout(() => {
-                                gsap.to(progressBar, { width: `${progressWidth}%`, duration: 0.5, ease: "ease-in-out" });
-                            }, 10); // delay 10ms ootab et värvid oleks näha
+
+                            // Set width immediately
+                            progressBar.style.width = `${progressWidth}%`;
+                        }
+                    });
+                }
+
+                // Animated update function (with smooth transition)
+                function updateProgressBars() {
+                    // For rapid clicks, use the debounced version
+                    debouncedUpdateProgressBars();
+
+                    // For immediate visual feedback, update colors right away
+                    const stepData = extractStepDays();
+                    const totalDurationElement = document.getElementById('totalDuration');
+                    const totalDuration = parseInt(totalDurationElement?.innerText, 10) || 1;
+
+                    stepData.forEach(step => {
+                        const progressBar = document.getElementById(`progress-${step.index}`);
+                        if (progressBar && !step.element.innerText.includes("Ei kohaldu")) {
+                            // Update colors immediately for visual feedback
+                            let progressWidth = (step.days / totalDuration) * 100 * 1.25;
+
+                            progressBar.classList.remove("bg-blue-500", "bg-green-500", "bg-yellow-500", "bg-red-500");
+                            if (progressWidth >= 25) {
+                                progressBar.classList.add("bg-red-500");
+                            } else if (progressWidth >= 14) {
+                                progressBar.classList.add("bg-yellow-500");
+                            } else {
+                                progressBar.classList.add("bg-green-500");
+                            }
                         }
                     });
                 }
@@ -2158,6 +2216,21 @@
                         return;
                     }
                 }
+
+                // Debounce function to prevent multiple rapid calls
+                function debounce(func, wait) {
+                    let timeout;
+                    return function (...args) {
+                        const context = this;
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => func.apply(context, args), wait);
+                    };
+                }
+
+                // Create debounced version of updateProgressBars
+                const debouncedUpdateProgressBars = debounce(function () {
+                    updateProgressBarsImmediate();
+                }, 50); // 50ms delay
             </script>
 
             <style>
@@ -2308,7 +2381,9 @@
                             initializeAdjustButtons();
                             updateTotalDuration();  // 🔥 Ensures total duration starts correctly
                             updateProgressBars();   // 🔥 Ensures progress bars scale correctly on load
-                            setTimeout(updateProgressBars, 500); // 🔥 Second pass to ensure visibility
+                            requestAnimationFrame(() => {
+                                requestAnimationFrame(updateProgressBarsImmediate); // Double RAF for ensuring DOM updates
+                            });
                         }
                     });
                 });
