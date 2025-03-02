@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="et">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar</title>
+    <link href="./dist/output.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+
 <!-- sidebar.html -->
 <aside x-data :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     class="fixed inset-y-0 left-0 w-64 bg-white text-black-500 flex flex-col transition-all duration-300">

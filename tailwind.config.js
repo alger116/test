@@ -4,6 +4,7 @@ module.exports = {
     "./index.html", // ✅ Main HTML file
     "./admin.html",
     "./login.html",
+    "./sidebar.html",
     "./timeline.html",
     "./register.html",
     "./_layouts/**/*.html", // ✅ Jekyll layouts
@@ -21,6 +22,15 @@ module.exports = {
         background: "hsl(217, 100%, 50%)",
         text: "hsl(217, 100%, 50%)",
         accent: "hsl(217, 100%, 50%)",
+        // New color palette - using HSL format for Tailwind v4 compatibility
+        "ocean-blue": "hsl(201, 100%, 36%)",
+        "cloudy-sky": "hsl(196, 53%, 78%)",
+        "fresh-lime": "hsl(82, 81%, 44%)",
+        evergreen: "hsl(154, 42%, 30%)",
+        "deep-burgundy": "hsl(345, 100%, 25%)",
+        "golden-sand": "hsl(33, 57%, 62%)",
+        "vanilla-latte": "hsl(39, 67%, 88%)",
+        "teal-forest": "hsl(194, 47%, 34%)",
       },
       spacing: {
         "progress-margin": "4px", // Adjust spacing under progress bars
