@@ -171,6 +171,39 @@
             width: 95%;
         }
     }
+
+    .toggle-button {
+        margin: 20px 0;
+        padding: 10px 15px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .toggle-button:hover {
+        background-color: #45a049;
+    }
+
+    #timeline-container.list-view .timeline {
+        display: block;
+    }
+
+    #timeline-container.list-view .timeline-item {
+        margin-bottom: 20px;
+        display: block;
+        width: 100%;
+    }
+
+    #timeline-container.list-view .timeline-content {
+        margin-left: 0;
+    }
+
+    #timeline-Container {
+        display: block !important;
+        visibility: visible !important;
+    }
 </style>
 
 <script>
@@ -550,6 +583,17 @@
         if (typeof jspdf === 'undefined') {
             loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
         }
+
+        const toggleButton = document.getElementById('toggleTimelineButton');
+        const timelineContainer = document.getElementById('timeline-container');
+
+        toggleButton.addEventListener('click', function () {
+            if (timelineContainer.classList.contains('list-view')) {
+                timelineContainer.classList.remove('list-view');
+            } else {
+                timelineContainer.classList.add('list-view');
+            }
+        });
     });
 
     // Helper function to load scripts dynamically
@@ -562,4 +606,15 @@
             document.head.appendChild(script);
         });
     }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            const timelineResponse = await fetch("timeline.html");
+            const timelineHtml = await timelineResponse.text();
+            document.getElementById("timeline-Container").innerHTML = timelineHtml;
+            console.log("Timeline loaded successfully");
+        } catch (error) {
+            console.error("Error loading timeline:", error);
+        }
+    });
 </script>
