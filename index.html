@@ -7,7 +7,7 @@
     <title>Riigihanke Andmed</title>
     <link href="./dist/output.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="config.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
@@ -68,93 +68,98 @@
         <!-- Timeline Container -->
         <div id="timelineContainer">
             {% include timeline.html %}
+
         </div>
 
         <!-- Modern Navbar with Active Tab Highlighting -->
         <header class="bg-gradient-to-r from-blue-300 to-blue-500 text-black p-2 shadow-md w-full sticky top-0 z-50">
-            <div class="container flex justify-baseline">
-                <!-- ✅ Hamburger Menu (Responsive) -->
-                <button @click="sidebarOpen = !sidebarOpen"
-                    class="btn btn-primary hover:text-white transition transform hover:scale-105" aria-label="open">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16m-7 6h7" />
-                    </svg>
-                </button>
-                <!-- ✅ Title + Dropdown (Left Side) -->
-                <div class="flex items-center space-x-4 ml-4">
-                    <h1 class="text-2xl font-bold">
-                        <a href="index.html" class="hover:underline">Riigihanke andmed</a>
-                    </h1>
+            <div class="w-full px-4 flex justify-between items-center">
+                <!-- ✅ Left Side with Hamburger and Title -->
+                <div class="flex items-center">
+                    <!-- ✅ Hamburger Menu (Responsive) -->
+                    <button @click="sidebarOpen = !sidebarOpen"
+                        class="btn btn-primary hover:text-white transition transform hover:scale-105" aria-label="open">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                    <!-- ✅ Title + Dropdown (Left Side) -->
+                    <div class="flex items-center space-x-4 ml-4">
+                        <h1 class="text-2xl font-bold">
+                            <a href="index.html" class="hover:underline">Riigihanke andmed</a>
+                        </h1>
 
-                    <!-- ✅ Dropdown Button (Aligned Right, Opens Down) -->
-                    <div x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false"
-                        class="dropdown dropdown-hover relative">
-                        <button id="dropdownButton"
-                            class="btn btn-primary hover:text-white transition transform hover:scale-105"
-                            aria-label="open">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 12h16m-7 6h7" />
-                            </svg>
-                        </button>
+                        <!-- ✅ Dropdown Button (Aligned Right, Opens Down) -->
+                        <div x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false"
+                            class="dropdown dropdown-hover relative">
+                            <button id="dropdownButton"
+                                class="btn btn-primary hover:text-white transition transform hover:scale-105"
+                                aria-label="open">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6h16M4 12h16m-7 6h7" />
+                                </svg>
+                            </button>
 
-                        <!-- ✅ Keskendatud sisselogimise teade -->
-                        <div id="loginNotification"
-                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hidden">
-                            ✅
-                        </div>
-                        <div id="notification"
-                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hidden">
-                            Andmete salvestamiseks peab olema sisse logitud!
-                        </div>
+                            <!-- ✅ Keskendatud sisselogimise teade -->
+                            <div id="loginNotification" role="alert"
+                                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hidden">
+                                ✅
+                            </div>
+                            <div id="notification"
+                                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hidden">
+                                Andmete salvestamiseks peab olema sisse logitud!
+                            </div>
 
-                        <!-- ✅ Dropdown Menu (Now Opens Down) -->
-                        <div x-show="open"
-                            class="absolute left-0 top-full mt-1 w-56 rounded-md shadow-xl bg-gray/80 backdrop-blur-md z-50"
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 transform scale-95"
-                            x-transition:enter-end="opacity-100 transform scale-100"
-                            x-transition:leave="transition ease-in duration-150"
-                            x-transition:leave-start="opacity-100 transform scale-100"
-                            x-transition:leave-end="opacity-0 transform scale-95">
-                            <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="dropdownButton">
+                            <!-- ✅ Dropdown Menu (Now Opens Down) -->
+                            <div x-show="open"
+                                class="absolute left-0 top-full mt-1 w-56 rounded-md shadow-xl bg-gray/80 backdrop-blur-md z-50"
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 transform scale-95"
+                                x-transition:enter-end="opacity-100 transform scale-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 transform scale-100"
+                                x-transition:leave-end="opacity-0 transform scale-95">
+                                <div class="py-1" role="menu" aria-orientation="vertical"
+                                    aria-labelledby="dropdownButton">
 
-                                <button id="showForm"
-                                    class="block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105"
-                                    role="menuitem">
-                                    <i class="fas fa-tools mr-2"></i> Tööriist
-                                </button>
-                                <button id="toggleTimelineButton"
-                                    class="block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105"
-                                    role="menuitem">
-                                    <i class="fas fa-calendar-alt mr-2"></i> Ajakava
-                                </button>
-                                <button id="showSavedSearches"
-                                    class="px-4 py-2 text-sm text-gray-800 hover:bg-blue-200/70 hover:text-black w-full text-left transition transform hover:scale-105 protected-section hidden"
-                                    class="px-4 py-2 text-sm text-gray-800 hover:bg-blue-200 hover:text-black w-full text-left transition transform hover:scale-105 protected-section hidden"
-                                    role="menuitem">
-                                    <i class="fas fa-folder-open mr-2"></i> Hanked
-                                </button>
-                                <button id="settingsButton"
-                                    class="px-4 py-2 text-sm text-gray-800 hover:bg-blue-200 hover:text-black w-full text-left transition transform hover:scale-105 protected-section hidden"
-                                    role="menuitem">
-                                    <i class="fas fa-cog mr-2"></i> Seaded
-                                </button>
-                                <button id="adminTab"
-                                    class="px-4 py-2 text-sm text-gray-800 hover:bg-blue-200 hover:text-black w-full text-left transition transform hover:scale-105 protected-section hidden"
-                                    role=" menuitem">
-                                    <i class="fas fa-user-shield mr-2"></i> Admin
-                                </button>
+                                    <button id="showForm"
+                                        class="block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105"
+                                        role="menuitem">
+                                        <i class="fas fa-tools mr-2"></i> Tööriist
+                                    </button>
+                                    <button id="toggleTimelineButton"
+                                        class="block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105"
+                                        role="menuitem">
+                                        <i class="fas fa-calendar-alt mr-2"></i> Ajakava
+                                    </button>
+                                    <button id="showSavedSearches"
+                                        class="px-4 py-2 text-sm text-gray-800 hover:bg-blue-200/70 hover:text-black w-full text-left transition transform hover:scale-105 protected-section hidden"
+                                        role="menuitem">
+                                        <i class="fas fa-folder-open mr-2"></i> Hanked
+                                    </button>
+                                    <button id="settingsButton"
+                                        class="px-4 py-2 text-sm text-gray-800 hover:bg-blue-200 hover:text-black w-full text-left transition transform hover:scale-105 protected-section hidden"
+                                        role="menuitem">
+                                        <i class="fas fa-cog mr-2"></i> Seaded
+                                    </button>
+                                    <button id="adminTab"
+                                        class="px-4 py-2 text-sm text-gray-800 hover:bg-blue-200 hover:text-black w-full text-left transition transform hover:scale-105 protected-section hidden"
+                                        role=" menuitem">
+                                        <i class="fas fa-user-shield mr-2"></i> Admin
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- ✅ Right Side (Login, Register, Logout, Dark Mode) -->
-                <nav class="flex space-x-4 items-center">
+                <div class="flex items-center space-x-4">
+                    <!-- Login Button -->
                     <div x-data="{ open: false }" class="relative">
                         <!-- ✅ Login Button (Opens Modal) -->
                         <button id="loginButton" @click="open = true"
@@ -197,56 +202,17 @@
                         </div>
                     </div>
 
-
-
-                    <!-- ✅ Firebase Login Script -->
-                    <script type="module">
-                        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-
-                        window.login = async () => {
-                            try {
-                                const email = document.getElementById("emailLogin").value;
-                                const password = document.getElementById("passwordLogin").value;
-                                await signInWithEmailAndPassword(auth, email, password);
-
-                                // ✅ Kuvame teate
-                                const notification = document.getElementById("loginNotification");
-                                notification.classList.remove("hidden");
-
-                                // ✅ Sulgeme teate automaatselt 2 sekundi pärast
-                                setTimeout(() => {
-                                    notification.classList.add("hidden");
-                                }, 2000);
-
-                                // ✅ Sulgeme modaalakna Alpine.js kaudu
-                                setTimeout(() => {
-                                    const modal = document.querySelector('[x-ref="loginModal"]');
-                                    if (modal && modal.__x) {
-                                        modal.__x.$data.open = false;
-                                    }
-                                }, 100);
-                            } catch (error) {
-                                alert("Sisselogimine ebaõnnestus: " + error.message);
-                            }
-                        };
-                    </script>
-
-                    <a href="register.html" id="registerButton"
-                        class="save-button bg-green-500 text-white px-3 py-1 rounded-lg flex items-center justify-center shadow-md hover:bg-green-600 hover:scale-105 hover:shadow-lg transition-all duration-300">
-                        <i class="fas fa-user-plus mr-2"></i> Registreeri
-                    </a>
-
-                    <!-- Right Side: User Menu -->
-                    <div x-data="{ open: false }" class="absolute right-10">
+                    <!-- User Menu -->
+                    <div x-data="{ open: false }" class="relative">
                         <button @click="open = !open"
-                            class="flex items-center space-x-2 text-white-100 hover:text-green-500 transition-all duration-300">
+                            class="flex items-center space-x-2 hover:text-green-500 transition-all duration-300">
                             <span id="userEmail" class="font-semibold">Kasutaja</span>
                             <i class="fas fa-user-circle text-2xl"></i>
                         </button>
 
                         <!-- User Dropdown -->
                         <div x-show="open" @click.away="open = false"
-                            class="absolute right-0 mt-2 w-48 bg-white bg-opacity-95 border rounded-lg shadow-md">
+                            class="absolute right-0 mt-2 w-48 bg-white bg-opacity-95 border rounded-lg shadow-md z-50">
                             <button id="changeEmail"
                                 class="block w-full text-left px-4 py-2 text-sm text-blue-500 hover:bg-gray-100">
                                 <i class="fas fa-envelope mr-2"></i> Muuda e-post
@@ -255,33 +221,67 @@
                                 class="block w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-gray-100">
                                 <i class="fas fa-key mr-2"></i> Muuda parool
                             </button>
+                            <a href="register.html" id="registerButton"
+                                class="block w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-gray-100 hidden">
+                                <i class="fas fa-user-plus mr-2"></i> Registreeri
+                            </a>
                             <button id="logoutButton"
                                 class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V7m0 3V6m0 10v-3" />
-                                </svg>
                                 <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
                             </button>
 
-
-
                             <!-- ✅ Dark Mode Toggle -->
-                            <div class="flex items-center space-x-2">
-                                <span class="text-sm text-black-100"></span>
+                            <div
+                                class="flex items-center justify-between px-4 py-2 text-sm text-gray-800 hover:bg-gray-100">
+                                <span>Tume režiim</span>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="toggleDarkMode" class="sr-only peer">
                                     <div
-                                        class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 transition-all duration-300 hidden">
+                                        class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 transition-all duration-300">
                                     </div>
                                     <div
-                                        class="w-5 h-5 bg-white rounded-full shadow-md absolute left-0.5 top-0.5 peer-checked:translate-x-full transition-transform duration-30 hidden">
+                                        class="w-5 h-5 bg-white rounded-full shadow-md absolute left-0.5 top-0.5 peer-checked:translate-x-full transition-transform duration-300">
                                     </div>
                                 </label>
-                                <span class="text-sm text-gray-200"></span>
                             </div>
-                </nav>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
+
+        <!-- ✅ Firebase Login Script -->
+        <script type="module">
+            import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+
+            window.login = async () => {
+                try {
+                    const email = document.getElementById("emailLogin").value;
+                    const password = document.getElementById("passwordLogin").value;
+                    await signInWithEmailAndPassword(auth, email, password);
+
+                    // ✅ Kuvame teate
+                    const notification = document.getElementById("loginNotification");
+                    notification.classList.remove("hidden");
+
+                    // ✅ Sulgeme teate automaatselt 2 sekundi pärast
+                    setTimeout(() => {
+                        notification.classList.add("hidden");
+                    }, 2000);
+
+                    // ✅ Sulgeme modaalakna Alpine.js kaudu
+                    setTimeout(() => {
+                        const modal = document.querySelector('[x-ref="loginModal"]');
+                        if (modal && modal.__x) {
+                            modal.__x.$data.open = false;
+                        }
+                    }, 100);
+                } catch (error) {
+                    alert("Sisselogimine ebaõnnestus: " + error.message);
+                }
+            };
+        </script>
+
         <footer
             class="bg-opacity-80 from-blue-500 to-indigo-600 text-black py-2 fixed bottom-0 left-0 w-full shadow-md backdrop-blur-md">
             <div class="container flex justify-between items-center px-6 text-sm">
@@ -294,8 +294,6 @@
             </div>
         </footer>
         <main class="container mx-auto p-6 pt-32">
-            </div>
-            </div>
             <div id="toolTab" class="flex justify-center">
                 <div class="bg-white p-8 rounded-xl shadow-lg max-w-xl w-full border border-gray-100"
                     id="formContainer">
@@ -411,7 +409,7 @@
                                 <!-- ✅ Lisa hange tabelisse nupp (hidden vaikimisi) -->
                                 <button id="updateProcurement"
                                     @click="added = true; setTimeout(() => added = false, 2000)"
-                                    class="w-full bg-emerald-500 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:bg-emerald-700 hover:scale-105 hover:shadow-lg transition-all duration-300 hidden">
+                                    class="w-full bg-emerald-500 text-white px-6 py-3 rounded-lg flex-1 items-center justify-center shadow-md hover:bg-emerald-700 hover:scale-105 hover:shadow-lg transition-all duration-300 hidden">
                                     ✅ Lisa hange tabelisse
                                 </button>
 
@@ -423,7 +421,7 @@
                             </div>
                         </div>
                     </form>
-                    <div class="hidden flex space-x-3 mt-6">
+                    <div class="hidden space-x-3 mt-6">
                         <button id="clearFields"
                             class="clear-button bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:from-red-600 hover:to-red-700 hover:scale-105 hover:shadow-lg transition-all duration-300"
                             aria-label="Clear Fields">
@@ -467,7 +465,7 @@
                             <!-- 🔥 Firestore data will be inserted here -->
                         </tbody>
                     </table>
-                    </table>
+
                     <div class="flex gap-4 mt-8 justify-center">
                         <button id="saveToExcel"
                             class="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2 rounded-lg shadow-md hover:from-green-600 hover:to-green-700 hover:scale-105 transition-all duration-300"
@@ -566,8 +564,6 @@
                     </button>
                 </div>
             </div>
-            </div>
-            </div>
             <div class="container bg-white p-6 rounded-lg shadow-lg hidden" id="historyContainer">
                 <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">📜 Arvutuste Ajalugu</h2>
 
@@ -625,7 +621,7 @@
 
             <!-- ✅ Kinnituse modal kustutamiseks -->
             <div id="deleteConfirmModal"
-                class="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black/30 hidden">
+                class="fixed inset-0 items-center justify-center backdrop-blur-md bg-black/30 hidden">
                 <div class="bg-white p-6 rounded-lg shadow-lg w-96 text-center">
                     <h2 class="text-xl font-bold mb-4">Kustutamine</h2>
                     <p class="text-gray-600 mb-6">Oled kindel, et kustutame?</p>
@@ -638,11 +634,11 @@
                 </div>
             </div>
             <div id="successAlert" role="alert"
-                class="alert alert-success fixed top-16 left-1/2 transform -translate-x-1/2 z-50 transition transform scale-95 opacity-0 hidden">
+                class="alert alert-success fixed top-16 left-1/2 transform -translate-x-1/2 z-50 transition scale-95 opacity-0 hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
-                    viewBox="0 0 24 24"></svg>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span id="alertMessage">Andmed salvestatud!</span>
             </div>
@@ -2701,10 +2697,12 @@
                 document.getElementById("logoutButton").addEventListener("click", async () => {
                     try {
                         await signOut(auth);
-                        alert("Oled välja logitud!");
-                        location.reload();
+                        showToast("Oled edukalt välja logitud!", "success");
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000); // Give time for the user to see the notification
                     } catch (error) {
-                        alert("Väljalogimine ebaõnnestus: " + error.message);
+                        showToast("Väljalogimine ebaõnnestus: " + error.message, "error");
                     }
                 });
 
@@ -2788,6 +2786,188 @@
                         document.getElementById('timelineContainer').innerHTML = html;
                     })
                     .catch(error => console.error('Error loading timeline:', error));
+            </script>
+
+            <style>
+                /* Toast notification styles */
+                .toast-container {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 1000;
+                }
+
+                .toast {
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 16px 20px;
+                    border-radius: 8px;
+                    margin-bottom: 10px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    min-width: 250px;
+                    max-width: 350px;
+                    opacity: 0;
+                    transform: translateY(-20px);
+                    transition: opacity 0.3s, transform 0.3s;
+                }
+
+                .toast.show {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+                .toast-content {
+                    display: flex;
+                    align-items: center;
+                }
+
+                .toast-icon {
+                    margin-right: 12px;
+                    font-size: 20px;
+                }
+
+                .toast-close {
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 16px;
+                    cursor: pointer;
+                    padding: 0 5px;
+                }
+
+                .toast-error {
+                    background-color: #f44336;
+                }
+
+                .toast-info {
+                    background-color: #2196F3;
+                }
+            </style>
+
+            <script type="module">
+
+                // Toast notification function
+                function showToast(message, type = 'success') {
+                    // Create toast container if it doesn't exist
+                    let container = document.querySelector('.toast-container');
+                    if (!container) {
+                        container = document.createElement('div');
+                        container.className = 'toast-container';
+                        document.body.appendChild(container);
+                    }
+
+                    // Create toast element
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'info' ? 'toast-info' : ''}`;
+
+                    // Create toast content
+                    const content = document.createElement('div');
+                    content.className = 'toast-content';
+
+                    // Add icon based on type
+                    const icon = document.createElement('span');
+                    icon.className = 'toast-icon';
+                    if (type === 'success') {
+                        icon.innerHTML = '✓';
+                    } else if (type === 'error') {
+                        icon.innerHTML = '✗';
+                    } else {
+                        icon.innerHTML = 'ℹ';
+                    }
+                    content.appendChild(icon);
+
+                    // Add message
+                    const text = document.createElement('span');
+                    text.textContent = message;
+                    content.appendChild(text);
+
+                    toast.appendChild(content);
+
+                    // Add close button
+                    const closeBtn = document.createElement('button');
+                    closeBtn.className = 'toast-close';
+                    closeBtn.innerHTML = '×';
+                    closeBtn.addEventListener('click', () => {
+                        toast.remove();
+                    });
+                    toast.appendChild(closeBtn);
+
+                    // Add to container
+                    container.appendChild(toast);
+
+                    // Show toast with animation
+                    setTimeout(() => {
+                        toast.classList.add('show');
+                    }, 10);
+
+                    // Auto remove after 5 seconds
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        setTimeout(() => {
+                            toast.remove();
+                        }, 300);
+                    }, 5000);
+                }
+
+                // Listen for authentication state changes
+                onAuthStateChanged(auth, (user) => {
+                    const userEmailElement = document.getElementById("userEmail");
+                    if (user) {
+                        // User is signed in
+                        userEmailElement.textContent = user.email;
+                        document.getElementById("logoutButton").classList.remove("hidden");
+                    } else {
+                        // No user signed in
+                        userEmailElement.textContent = "Pole sisse logitud";
+                        document.getElementById("logoutButton").classList.add("hidden");
+                    }
+                });
+
+                // Logout function
+                document.getElementById("logoutButton").addEventListener("click", async () => {
+                    try {
+                        await signOut(auth);
+                        showToast("Oled edukalt välja logitud!", "success");
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000); // Give time for the user to see the notification
+                    } catch (error) {
+                        showToast("Väljalogimine ebaõnnestus: " + error.message, "error");
+                    }
+                });
+
+                // Change email function
+                document.getElementById("changeEmail").addEventListener("click", async () => {
+                    const newEmail = prompt("Sisesta uus e-post:");
+                    if (newEmail) {
+                        try {
+                            await updateEmail(auth.currentUser, newEmail);
+                            alert("E-post uuendatud! Logi uuesti sisse.");
+                            await signOut(auth);
+                            location.reload();
+                        } catch (error) {
+                            alert("E-posti muutmine ebaõnnestus: " + error.message);
+                        }
+                    }
+                });
+
+                // Change password function
+                document.getElementById("changePassword").addEventListener("click", async () => {
+                    const newPassword = prompt("Sisesta uus parool:");
+                    if (newPassword) {
+                        try {
+                            await updatePassword(auth.currentUser, newPassword);
+                            alert("Parool uuendatud! Logi uuesti sisse.");
+                            await signOut(auth);
+                            location.reload();
+                        } catch (error) {
+                            alert("Parooli muutmine ebaõnnestus: " + error.message);
+                        }
+                    }
+                });
             </script>
     </body>
 
