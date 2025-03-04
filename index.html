@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="et">
 
-<head>1
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riigihanke Andmed</title>
@@ -448,13 +448,12 @@
 
             <!-- Timeline Container - Fully hidden by default -->
             <div id="timeline-Container" class="hidden"
-                style="display: none; width: 100%; margin: 20px 0; padding: 15px; background-color: #f9fafb; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); min-height: 200px;">
-                <div id="timelineContainer" class="p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+                style="display: none; width: 100%; margin: 20px 0; padding: 1px; background-color: bg-gray-100 ; border-radius: 1px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); min-height: 200px;">
+                <div id="timelineContainer" class="p-6 bg-gray-100 rounded-xl">
                     <h3 class="font-bold text-2xl mb-6 text-blue-600 text-center">Riigihanke eelduslik ajakava</h3>
 
                     <!-- Timeline header - Card style -->
-                    <div
-                        class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 shadow-md mb-8 border border-blue-100">
+                    <div class="bg-white rounded-xl p-5 shadow-md mb-8 border">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
                                 <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Hanke nimi</div>
@@ -477,7 +476,7 @@
 
                     <!-- Days countdown from today - More prominent -->
                     <div
-                        class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-xl mb-8 flex items-center shadow-lg">
+                        class="bg-gradient-to-r from-sky-200 to-sky-400 text-white p-5 rounded-xl mb-8 flex items-center shadow-lg">
                         <div class="bg-white/20 p-3 rounded-full mr-4">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor" class="w-8 h-8">
@@ -486,7 +485,7 @@
                             </svg>
                         </div>
                         <div>
-                            <div class="text-sm uppercase tracking-wider font-medium text-blue-100">Ajaline info</div>
+                            <div class="text-sm uppercase tracking-wider font-medium text-white">Ajaline info</div>
                             <div class="text-xl font-bold">Alustamiseni on jäänud <span id="day-to-start"
                                     class="text-2xl bg-white/20 px-2 py-1 rounded-md ml-1">-100</span>
                                 päeva</div>
@@ -495,12 +494,8 @@
 
                     <!-- Timeline visualization - Modern vertical timeline -->
                     <div
-                        class="timeline-container bg-gradient-to-br from-gray-50 to-blue-50 backdrop-blur-sm rounded-xl shadow-md border border-blue-100">
+                        class="timeline-container bg-gradient-to-br from-gray-50 to-gray-100 backdrop-blur-sm rounded-xl shadow-md border border-gray-100">
                         <div class="relative py-6 px-4">
-                            <div
-                                class="absolute top-0 bottom-0 left-12 w-1 bg-gradient-to-b from-blue-400 via-indigo-400 to-purple-400 rounded-full">
-                            </div>
-
                             <div id="timeline-steps" class="space-y-12">
                                 <!-- Sample timeline step -->
                                 <div class="timeline-step completed relative pl-16">
@@ -611,11 +606,11 @@
                                 <div class="timeline-step current relative pl-16">
                                     <div class="absolute left-9 transform -translate-x-1/2 flex flex-col items-center">
                                         <div
-                                            class="w-7 h-7 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 border-4 border-white shadow-md z-10 flex items-center justify-center animate-pulse">
+                                            class="w-7 h-7 rounded-full bg-gradient-to-r from-gray-400 to-blue-500 border-4 border-white shadow-md z-10 flex items-center justify-center animate-pulse">
                                             <div class="w-2 h-2 bg-white rounded-full"></div>
                                         </div>
                                         <div
-                                            class="h-full w-1 bg-gradient-to-b from-blue-400 to-blue-500 absolute top-7 opacity-25">
+                                            class="h-full w-1 bg-gradient-to-b from-gray-50 to-gray-200 absolute top-7 opacity-25">
                                         </div>
                                     </div>
 
