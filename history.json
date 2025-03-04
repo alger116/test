@@ -1,0 +1,128 @@
+[
+  {
+    "name": "1",
+    "cost": 1,
+    "procedureType": "Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks",
+    "contractSigningDate": "2025-01-31T00:00:00.000Z",
+    "procedureDuration": 53,
+    "procedureDetails": [
+      {
+        "step": "Riigihanke alusdokumentide koostamine",
+        "days": "kuni 10 tööpäeva"
+      },
+      {
+        "step": "Taotluste esitamine RHRis",
+        "days": "Ei kohaldu antud menetluses."
+      },
+      {
+        "step": "Pakkumuste esitamine RHRis",
+        "days": "15 päeva"
+      },
+      {
+        "step": "Pakkumuste hindamine",
+        "days": "5 päeva"
+      },
+      {
+        "step": "Vastavaks ja edukaks tunnistamise otsus",
+        "days": "3 päeva"
+      },
+      {
+        "step": "Pakkujate hindamine",
+        "days": "3 päeva"
+      },
+      {
+        "step": "Eduka kõrvaldamata jätmine ja kval",
+        "days": "3 päeva"
+      },
+      {
+        "step": "Hankija ei või anda nõustumust sõlmida hankeleping enne 14 päeva möödumist peale otsust 2 (Jah, seal sees on ka 10 päevane ooteaeg)",
+        "days": "14 päeva"
+      }
+    ],
+    "requestSubmissionDate": "2024-12-09"
+  },
+  {
+    "name": "1",
+    "cost": 1,
+    "procedureType": "Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks",
+    "contractSigningDate": "2025-01-31T00:00:00.000Z",
+    "procedureDuration": 68,
+    "procedureDetails": [
+      {
+        "step": "Riigihanke alusdokumentide koostamine",
+        "days": "kuni 10 tööpäeva"
+      },
+      {
+        "step": "Taotluste esitamine RHRis",
+        "days": "15 päeva"
+      },
+      {
+        "step": "Pakkumuste esitamine RHRis",
+        "days": "15 päeva"
+      },
+      {
+        "step": "Pakkumuste hindamine",
+        "days": "5 päeva"
+      },
+      {
+        "step": "Vastavaks ja edukaks tunnistamise otsus",
+        "days": "3 päeva"
+      },
+      {
+        "step": "Pakkujate hindamine",
+        "days": "3 päeva"
+      },
+      {
+        "step": "Eduka kõrvaldamata jätmine ja kval",
+        "days": "3 päeva"
+      },
+      {
+        "step": "Hankija ei või anda nõustumust sõlmida hankeleping enne 14 päeva möödumist peale otsust 2 (Jah, seal sees on ka 10 päevane ooteaeg)",
+        "days": "14 päeva"
+      }
+    ],
+    "requestSubmissionDate": "2024-11-24"
+  },
+  {
+    "name": "1",
+    "cost": 1,
+    "procedureType": "Avatud hankemenetlus asjade hankelepingu sõlmimiseks",
+    "contractSigningDate": "2025-01-31T00:00:00.000Z",
+    "procedureDuration": 53,
+    "procedureDetails": [
+      {
+        "step": "Riigihanke alusdokumentide koostamine",
+        "days": "kuni 10 tööpäeva"
+      },
+      {
+        "step": "Taotluste esitamine RHRis",
+        "days": "Ei kohaldu antud menetluses."
+      },
+      {
+        "step": "Pakkumuste esitamine RHRis",
+        "days": "15 päeva"
+      },
+      {
+        "step": "Pakkumuste hindamine",
+        "days": "5 päeva"
+      },
+      {
+        "step": "Vastavaks ja edukaks tunnistamise otsus",
+        "days": "3 päeva"
+      },
+      {
+        "step": "Pakkujate hindamine",
+        "days": "3 päeva"
+      },
+      {
+        "step": "Eduka kõrvaldamata jätmine ja kval",
+        "days": "3 päeva"
+      },
+      {
+        "step": "Hankija ei või anda nõustumust sõlmida hankeleping enne 14 päeva möödumist peale otsust 2 (Jah, seal sees on ka 10 päevane ooteaeg)",
+        "days": "14 päeva"
+      }
+    ],
+    "requestSubmissionDate": "2024-12-09"
+  }
+]

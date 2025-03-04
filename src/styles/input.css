@@ -1,0 +1,39 @@
+@tailwind utilities;
+@import "tailwindcss";
+@layer preflight;
+
+@layer theme;
+@layer base;
+@layer components;
+
+@layer components {
+  optgroup {
+    @apply font-bold text-gray-800 bg-gray-100;
+  }
+}
+@layer utilities;
+
+@layer utilities {
+  .bg-blue-500-50 {
+    background-color: color-mix(
+      in oklab,
+      var(--color-blue-500) 50%,
+      transparent
+    );
+  }
+
+  @property --tw-gradient-from {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #0000;
+  }
+}
+
+:root {
+  --bg-color: #fff;
+  --text-color: #1e293b;
+}
+.dark {
+  --bg-color: #0f172a;
+  --text-color: #f8fafc;
+}
