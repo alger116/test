@@ -295,11 +295,95 @@
             </div>
         </footer>
         <main class="container mx-auto p-6 pt-32">
-            <div id="toolTab" class="flex justify-center">
-                <div class="bg-white p-8 rounded-xl shadow-lg max-w-xl w-full border border-gray-100"
-                    id="formContainer">
+            <div id="toolTab" class="flex flex-nowrap justify-center flex-start gap-0">
+                <!-- Timeline Container - Moved inside toolTab and positioned left -->
+                <div id="timeline-Container"
+                    class="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full border-white hidden min-h-[400px]">
+                    <div id="timelineContainer" class="p-4 bg-white rounded-lg shadow-md">
+                        <h3 class="font-bold text-2xl mb-6 text-blue-600 text-center hidden">Riigihanke eelduslik
+                            ajakava</h3>
+
+                        <!-- Timeline header - Card style -->
+                        <div class="bg-white rounded-lg p-5 shadow-md mb-8 hidden">
+                            <div class=" grid-cols-1 flex flex-row gap-4">
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                                    <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Hanke nimi</div>
+                                    <div class="font-bold text-lg text-gray-800"><span id="timeline-procurement-name"
+                                            class="text-blue-600"></span></div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                                    <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Maksumus</div>
+                                    <div class="font-bold text-lg text-gray-800"><span id="timeline-procurement-cost"
+                                            class="text-green-600"></span> €</div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                                    <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Lepingu
+                                        allkirjastamine
+                                    </div>
+                                    <div class="font-bold text-lg text-gray-800"><span id="timeline-contract-date"
+                                            class="text-purple-600"></span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Days countdown from today - More prominent -->
+                        <div
+                            class="bg-gradient-to-r from-sky-200 to-sky-400 text-white p-5 rounded-lg mb-8 flex items-center shadow-lg">
+                            <div class="bg-white/20 p-3 rounded-full mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-sm uppercase tracking-wider font-medium text-white"></div>
+                                <div class="text-xl font-bold">Alustamiseni on jäänud <span id="day-to-start"
+                                        class="text-2xl bg-white/20 px-2 py-1 rounded-md ml-1">-100</span>
+                                    päeva</div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline visualization - Modern vertical timeline -->
+                        <div class="timeline-container bg-white rounded-lg shadow-md">
+                            <div class="relative py-6 px-4">
+                                <div id="timeline-steps" class="space-y-12">
+                                    <!-- Timeline steps will be dynamically generated -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export buttons - Improved -->
+                        <div class="mt-8 flex flex-wrap gap-4 justify-center">
+                            <button id="exportExcel"
+                                onclick="alert('Excel export functionality would go here'); console.log('Export to Excel clicked');"
+                                class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Salvesta Excelisse
+                            </button>
+                            <button id="exportPDF"
+                                onclick="alert('PDF export functionality would go here'); console.log('Export to PDF clicked');"
+                                class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Salvesta PDF-ina
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Container - Middle -->
+                <div id="formContainer"
+                    class="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full border border-gray-100 min-h-[400px]">
                     <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Sisesta andmed</h2>
-                    <form id="procurementForm" class="space-y-6">
+                    <form id="procurementForm" class="space-y-4">
                         <div>
                             <label for="name" class="block text-gray-700 font-semibold mb-1">Riigihanke nimetus:</label>
                             <input type="text" id="name" name="name"
@@ -401,7 +485,7 @@
                             <input type="date" id="contractSigningDate" name="contractSigningDate"
                                 class="w-full p-2 border rounded" required>
                         </div>
-                        <div class="flex justify-between space-x-4 mt-4">
+                        <div class="flex justify-center space-x-4 mt-4">
                             <button id="calculateTime"
                                 class="w-full bg-sky-500 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:bg-sky-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
                                 <i class="fas fa-calculator mr-2"></i> Arvuta aeg
@@ -440,299 +524,13 @@
                         </button>
                     </div>
                 </div>
-                <div class="container bg-white p-8 rounded-xl shadow-lg max-w-xl w-full border border-gray-100  hidden"
+
+                <!-- Result Container - Right -->
+                <div class="container bg-white p-8 rounded-xl shadow-lg max-w-lg w-full border border-gray-100 hidden"
                     id="resultContainer">
                     <div id="result" class="result-card"></div>
                 </div>
             </div>
-
-            <!-- Timeline Container - Fully hidden by default -->
-            <div id="timeline-Container" class="hidden"
-                style="display: none; width: 100%; margin: 20px 0; padding: 1px; background-color: bg-gray-100 ; border-radius: 1px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); min-height: 200px;">
-                <div id="timelineContainer" class="p-6 bg-gray-100 rounded-xl">
-                    <h3 class="font-bold text-2xl mb-6 text-blue-600 text-center">Riigihanke eelduslik ajakava</h3>
-
-                    <!-- Timeline header - Card style -->
-                    <div class="bg-white rounded-xl p-5 shadow-md mb-8 border">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
-                                <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Hanke nimi</div>
-                                <div class="font-bold text-lg text-gray-800"><span id="timeline-procurement-name"
-                                        class="text-blue-600"></span></div>
-                            </div>
-                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
-                                <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Maksumus</div>
-                                <div class="font-bold text-lg text-gray-800"><span id="timeline-procurement-cost"
-                                        class="text-green-600"></span> €</div>
-                            </div>
-                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
-                                <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Lepingu allkirjastamine
-                                </div>
-                                <div class="font-bold text-lg text-gray-800"><span id="timeline-contract-date"
-                                        class="text-purple-600"></span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Days countdown from today - More prominent -->
-                    <div
-                        class="bg-gradient-to-r from-sky-200 to-sky-400 text-white p-5 rounded-xl mb-8 flex items-center shadow-lg">
-                        <div class="bg-white/20 p-3 rounded-full mr-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <div class="text-sm uppercase tracking-wider font-medium text-white">Ajaline info</div>
-                            <div class="text-xl font-bold">Alustamiseni on jäänud <span id="day-to-start"
-                                    class="text-2xl bg-white/20 px-2 py-1 rounded-md ml-1">-100</span>
-                                päeva</div>
-                        </div>
-                    </div>
-
-                    <!-- Timeline visualization - Modern vertical timeline -->
-                    <div
-                        class="timeline-container bg-gradient-to-br from-gray-50 to-gray-100 backdrop-blur-sm rounded-xl shadow-md border border-gray-100">
-                        <div class="relative py-6 px-4">
-                            <div id="timeline-steps" class="space-y-12">
-                                <!-- Sample timeline step -->
-                                <div class="timeline-step completed relative pl-16">
-                                    <div class="absolute left-9 transform -translate-x-1/2 flex flex-col items-center">
-                                        <div
-                                            class="w-7 h-7 rounded-full bg-gradient-to-r from-green-400 to-green-500 border-4 border-white shadow-md z-10 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                    d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </div>
-                                        <div
-                                            class="h-full w-1 bg-gradient-to-b from-green-400 to-green-500 absolute top-7 opacity-25">
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
-                                        <time
-                                            class="inline-block mb-2 px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                            16.12.2024 - 15.1.2025
-                                        </time>
-                                        <h3 class="text-xl font-bold text-gray-800 mb-2">Hanke ettevalmistamine</h3>
-                                        <p class="text-gray-600 mb-3">Hankedokumentide koostamine ja avaldamine</p>
-                                        <div class="flex items-center text-green-600 font-medium">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Lõpetatud
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Sample timeline step -->
-                                <div class="timeline-step completed relative pl-16">
-                                    <div class="absolute left-9 transform -translate-x-1/2 flex flex-col items-center">
-                                        <div
-                                            class="w-7 h-7 rounded-full bg-gradient-to-r from-green-400 to-green-500 border-4 border-white shadow-md z-10 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                    d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </div>
-                                        <div
-                                            class="h-full w-1 bg-gradient-to-b from-green-400 to-green-500 absolute top-7 opacity-25">
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
-                                        <time
-                                            class="inline-block mb-2 px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                            15.1.2025 - 14.2.2025
-                                        </time>
-                                        <h3 class="text-xl font-bold text-gray-800 mb-2">Pakkumuste esitamine</h3>
-                                        <p class="text-gray-600 mb-3">Pakkujad esitavad oma pakkumused</p>
-                                        <div class="flex items-center text-green-600 font-medium">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Lõpetatud
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Sample timeline step -->
-                                <div class="timeline-step completed relative pl-16">
-                                    <div class="absolute left-9 transform -translate-x-1/2 flex flex-col items-center">
-                                        <div
-                                            class="w-7 h-7 rounded-full bg-gradient-to-r from-green-400 to-green-500 border-4 border-white shadow-md z-10 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                    d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </div>
-                                        <div
-                                            class="h-full w-1 bg-gradient-to-b from-green-400 to-green-500 absolute top-7 opacity-25">
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
-                                        <time
-                                            class="inline-block mb-2 px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                            14.2.2025 - 1.3.2025
-                                        </time>
-                                        <h3 class="text-xl font-bold text-gray-800 mb-2">Pakkumuste hindamine</h3>
-                                        <p class="text-gray-600 mb-3">Pakkumuste läbivaatamine ja hindamine</p>
-                                        <div class="flex items-center text-green-600 font-medium">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Lõpetatud
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Sample timeline step - Current -->
-                                <div class="timeline-step current relative pl-16">
-                                    <div class="absolute left-9 transform -translate-x-1/2 flex flex-col items-center">
-                                        <div
-                                            class="w-7 h-7 rounded-full bg-gradient-to-r from-gray-400 to-blue-500 border-4 border-white shadow-md z-10 flex items-center justify-center animate-pulse">
-                                            <div class="w-2 h-2 bg-white rounded-full"></div>
-                                        </div>
-                                        <div
-                                            class="h-full w-1 bg-gradient-to-b from-gray-50 to-gray-200 absolute top-7 opacity-25">
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-2 border-blue-100">
-                                        <time
-                                            class="inline-block mb-2 px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                                            16.3.2025
-                                        </time>
-                                        <h3 class="text-xl font-bold text-gray-800 mb-2">Lepingu sõlmimine</h3>
-                                        <p class="text-gray-600 mb-3">Hankelepingu allkirjastamine</p>
-                                        <div class="flex items-center text-blue-600 font-medium">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Tulevikus
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Sample timeline step - Future -->
-                                <div class="timeline-step future relative pl-16">
-                                    <div class="absolute left-9 transform -translate-x-1/2 flex flex-col items-center">
-                                        <div
-                                            class="w-7 h-7 rounded-full bg-gradient-to-r from-gray-300 to-gray-400 border-4 border-white shadow-md z-10">
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 opacity-75">
-                                        <time
-                                            class="inline-block mb-2 px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
-                                            17.3.2025 - 13.9.2025
-                                        </time>
-                                        <h3 class="text-xl font-bold text-gray-800 mb-2">Lepingu täitmine</h3>
-                                        <p class="text-gray-600 mb-3">Hankelepingu täitmine</p>
-                                        <div class="flex items-center text-gray-600 font-medium">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Tulevikus
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Export buttons - Improved -->
-                    <div class="mt-8 flex flex-wrap gap-4 justify-center">
-                        <button id="exportExcel"
-                            onclick="alert('Excel export functionality would go here'); console.log('Export to Excel clicked');"
-                            class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Salvesta Excelisse
-                        </button>
-                        <button id="exportPDF"
-                            onclick="alert('PDF export functionality would go here'); console.log('Export to PDF clicked');"
-                            class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
-                            Salvesta PDF-ina
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <style>
-                /* Timeline container styles */
-                .timeline-container {
-                    max-height: 70vh;
-                    overflow-y: auto;
-                    padding: 1rem;
-                    margin-bottom: 1rem;
-                    scrollbar-width: thin;
-                    scrollbar-color: rgba(59, 130, 246, 0.5) rgba(229, 231, 235, 0.5);
-                }
-
-                .timeline-container::-webkit-scrollbar {
-                    width: 8px;
-                }
-
-                .timeline-container::-webkit-scrollbar-track {
-                    background: rgba(229, 231, 235, 0.5);
-                    border-radius: 10px;
-                }
-
-                .timeline-container::-webkit-scrollbar-thumb {
-                    background-color: rgba(59, 130, 246, 0.5);
-                    border-radius: 10px;
-                }
-
-                /* Animation for current step */
-                @keyframes pulse {
-                    0% {
-                        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-                    }
-
-                    70% {
-                        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-                    }
-
-                    100% {
-                        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-                    }
-                }
-
-                .animate-pulse {
-                    animation: pulse 2s infinite;
-                }
-            </style>
 
             <!-- The saved searches container is hidden by default and will be shown when the user clicks the "Show Saved Searches" button -->
             <div class="container bg-white p-6 rounded-lg shadow-lg hidden" id="savedSearchesContainer">
@@ -767,8 +565,8 @@
                         </button>
                         <button id="loadFromFirestore"
                             class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-700 hover:scale-105 transition-all duration-300"
-                            aria-label="Load Firestore Data">
-                            📂 Näita eelnevaid hankeid
+                            aria-label="Load from Firestore">
+                            📥 Lae
                         </button>
                     </div>
                 </div>
@@ -2620,11 +2418,10 @@
                 #timeline-Container {
                     display: block;
                     width: 100%;
-                    margin: 20px 0;
-                    padding: 15px;
-                    background-color: #f9fafb;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    margin: 0px 0;
+                    padding: 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 2px 4px rgb(248, 247, 247);
                 }
             </style>
             <script>
@@ -3288,6 +3085,51 @@
             </script>
             <!-- Timeline initialization script -->
             <script src="timeline-init.js"></script>
+
+            <style>
+                /* Timeline container styles */
+                .timeline-container {
+                    max-height: 70vh;
+                    overflow-y: auto;
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(59, 130, 246, 0.5) rgba(229, 231, 235, 0.5);
+                }
+
+                .timeline-container::-webkit-scrollbar {
+                    width: 8px;
+                }
+
+                .timeline-container::-webkit-scrollbar-track {
+                    background: rgba(229, 231, 235, 0.5);
+                    border-radius: 10px;
+                }
+
+                .timeline-container::-webkit-scrollbar-thumb {
+                    background-color: rgba(59, 130, 246, 0.5);
+                    border-radius: 10px;
+                }
+
+                /* Animation for current step */
+                @keyframes pulse {
+                    0% {
+                        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+                    }
+
+                    70% {
+                        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+                    }
+
+                    100% {
+                        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+                    }
+                }
+
+                .animate-pulse {
+                    animation: pulse 2s infinite;
+                }
+            </style>
     </body>
 
 </html>
