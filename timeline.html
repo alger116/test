@@ -7,6 +7,189 @@
     <div class="modal-box w-11/12 max-w-5xl bg-white/90 backdrop-blur-md shadow-xl rounded-lg">
         <h3 class="font-bold text-2xl mb-4 text-blue-dark">Riigihanke ajakava</h3>
 
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
+
+            .timeline-cards {
+                --col-gap: 2rem;
+                --row-gap: 2rem;
+                --line-w: 0.25rem;
+                display: grid;
+                grid-template-columns: var(--line-w) 1fr;
+                grid-auto-columns: max-content;
+                column-gap: var(--col-gap);
+                list-style: none;
+                width: min(60rem, 90%);
+                margin-inline: auto;
+                padding: 0;
+            }
+
+            /* line */
+            .timeline-cards::before {
+                content: "";
+                grid-column: 1;
+                grid-row: 1 / span 20;
+                background: rgb(225, 225, 225);
+                border-radius: calc(var(--line-w) / 2);
+            }
+
+            /* row gaps */
+            .timeline-cards li:not(:last-child) {
+                margin-bottom: var(--row-gap);
+            }
+
+            /* card */
+            .timeline-cards li {
+                grid-column: 2;
+                --inlineP: 1.5rem;
+                margin-inline: var(--inlineP);
+                grid-row: span 2;
+                display: grid;
+                grid-template-rows: min-content min-content min-content;
+            }
+
+            /* date */
+            .timeline-cards li .date {
+                --dateH: 3rem;
+                height: var(--dateH);
+                margin-inline: calc(var(--inlineP) * -1);
+                text-align: center;
+                background-color: var(--accent-color);
+                color: white;
+                font-size: 1.25rem;
+                font-weight: 700;
+                display: grid;
+                place-content: center;
+                position: relative;
+                border-radius: calc(var(--dateH) / 2) 0 0 calc(var(--dateH) / 2);
+            }
+
+            /* date flap */
+            .timeline-cards li .date::before {
+                content: "";
+                width: var(--inlineP);
+                aspect-ratio: 1;
+                background: var(--accent-color);
+                background-image: linear-gradient(rgba(0, 0, 0, 0.2) 100%, transparent);
+                position: absolute;
+                top: 100%;
+                clip-path: polygon(0 0, 100% 0, 0 100%);
+                right: 0;
+            }
+
+            /* circle */
+            .timeline-cards li .date::after {
+                content: "";
+                position: absolute;
+                width: 2rem;
+                aspect-ratio: 1;
+                background: white;
+                border: 0.3rem solid var(--accent-color);
+                border-radius: 50%;
+                top: 50%;
+                transform: translate(50%, -50%);
+                right: calc(100% + var(--col-gap) + var(--line-w) / 2);
+            }
+
+            /* title descr */
+            .timeline-cards li .title,
+            .timeline-cards li .descr {
+                background: white;
+                position: relative;
+                padding-inline: 1.5rem;
+            }
+
+            .timeline-cards li .title {
+                overflow: hidden;
+                padding-block-start: 1.5rem;
+                padding-block-end: 1rem;
+                font-weight: 500;
+                font-size: 1.25rem;
+            }
+
+            .timeline-cards li .descr {
+                padding-block-end: 1.5rem;
+                font-weight: 300;
+            }
+
+            /* shadows */
+            .timeline-cards li .title::before,
+            .timeline-cards li .descr::before {
+                content: "";
+                position: absolute;
+                width: 90%;
+                height: 0.5rem;
+                background: rgba(0, 0, 0, 0.5);
+                left: 50%;
+                border-radius: 50%;
+                filter: blur(4px);
+                transform: translate(-50%, 50%);
+            }
+
+            .timeline-cards li .title::before {
+                bottom: calc(100% + 0.125rem);
+            }
+
+            .timeline-cards li .descr::before {
+                z-index: -1;
+                bottom: 0.25rem;
+            }
+
+            @media (min-width: 40rem) {
+                .timeline-cards {
+                    grid-template-columns: 1fr var(--line-w) 1fr;
+                }
+
+                .timeline-cards::before {
+                    grid-column: 2;
+                }
+
+                .timeline-cards li:nth-child(odd) {
+                    grid-column: 1;
+                }
+
+                .timeline-cards li:nth-child(even) {
+                    grid-column: 3;
+                }
+
+                /* start second card */
+                .timeline-cards li:nth-child(2) {
+                    grid-row: 2/4;
+                }
+
+                .timeline-cards li:nth-child(odd) .date::before {
+                    clip-path: polygon(0 0, 100% 0, 100% 100%);
+                    left: 0;
+                }
+
+                .timeline-cards li:nth-child(odd) .date::after {
+                    transform: translate(-50%, -50%);
+                    left: calc(100% + var(--col-gap) + var(--line-w) / 2);
+                }
+
+                .timeline-cards li:nth-child(odd) .date {
+                    border-radius: 0 calc(var(--dateH) / 2) calc(var(--dateH) / 2) 0;
+                }
+            }
+
+            /* Status colors */
+            .timeline-cards li.completed {
+                --accent-color: #4CAD73;
+            }
+
+            .timeline-cards li.current {
+                --accent-color: #1B5F8C;
+            }
+
+            .timeline-cards li.future {
+                --accent-color: #41516C;
+            }
+
+            .timeline-cards li.overdue {
+                --accent-color: #E24A68;
+            }
+        </style>
+
         <!-- Timeline header -->
         <div class="flex flex-col md:flex-row justify-between mb-4 gap-2">
             <div class="font-semibold text-lg">Hanke nimi: <span id="timeline-procurement-name"
@@ -28,11 +211,9 @@
 
         <!-- Timeline visualization -->
         <div class="timeline-container bg-white/50 backdrop-blur-sm rounded-lg shadow-md">
-            <ol class="relative border-l-2 border-blue-400 dark:border-blue-600 ml-4">
-                <div id="timeline-steps" class="space-y-6 py-4">
-                    <!-- Timeline steps will be inserted here -->
-                </div>
-            </ol>
+            <ul class="timeline-cards" id="timeline-steps">
+                <!-- Timeline steps will be dynamically generated -->
+            </ul>
         </div>
 
         <!-- Export buttons -->

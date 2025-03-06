@@ -59,6 +59,191 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
+
+        .timeline-cards {
+            --col-gap: 2rem;
+            --row-gap: 2rem;
+            --line-w: 0.25rem;
+            display: grid;
+            grid-template-columns: var(--line-w) 1fr;
+            grid-auto-columns: max-content;
+            column-gap: var(--col-gap);
+            list-style: none;
+            width: min(60rem, 90%);
+            margin-inline: auto;
+            padding: 0;
+        }
+
+        /* line */
+        .timeline-cards::before {
+            content: "";
+            grid-column: 1;
+            grid-row: 1 / span 20;
+            background: rgb(225, 225, 225);
+            border-radius: calc(var(--line-w) / 2);
+        }
+
+        /* row gaps */
+        .timeline-cards li:not(:last-child) {
+            margin-bottom: var(--row-gap);
+        }
+
+        /* card */
+        .timeline-cards li {
+            grid-column: 2;
+            --inlineP: 1.5rem;
+            margin-inline: var(--inlineP);
+            grid-row: span 2;
+            display: grid;
+            grid-template-rows: min-content min-content min-content;
+        }
+
+        /* date */
+        .timeline-cards li .date {
+            --dateH: 3rem;
+            height: var(--dateH);
+            margin-inline: calc(var(--inlineP) * -1);
+            text-align: center;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: grid;
+            place-content: center;
+            position: relative;
+            border-radius: calc(var(--dateH) / 2) 0 0 calc(var(--dateH) / 2);
+        }
+
+        /* date flap */
+        .timeline-cards li .date::before {
+            content: "";
+            width: var(--inlineP);
+            aspect-ratio: 1;
+            background: var(--accent-color);
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2) 100%, transparent);
+            position: absolute;
+            top: 100%;
+            clip-path: polygon(0 0, 100% 0, 0 100%);
+            right: 0;
+        }
+
+        /* circle */
+        .timeline-cards li .date::after {
+            content: "";
+            position: absolute;
+            width: 2rem;
+            aspect-ratio: 1;
+            background: white;
+            border: 0.3rem solid var(--accent-color);
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(50%, -50%);
+            right: calc(100% + var(--col-gap) + var(--line-w) / 2);
+        }
+
+        /* title descr */
+        .timeline-cards li .title,
+        .timeline-cards li .descr {
+            background: white;
+            position: relative;
+            padding-inline: 1.5rem;
+        }
+
+        .timeline-cards li .title {
+            overflow: hidden;
+            padding-block-start: 1.5rem;
+            padding-block-end: 1rem;
+            font-weight: 500;
+            font-size: 1.25rem;
+        }
+
+        .timeline-cards li .descr {
+            padding-block-end: 1.5rem;
+            font-weight: 300;
+        }
+
+        /* shadows */
+        .timeline-cards li .title::before,
+        .timeline-cards li .descr::before {
+            content: "";
+            position: absolute;
+            width: 90%;
+            height: 0.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            left: 50%;
+            border-radius: 50%;
+            filter: blur(4px);
+            transform: translate(-50%, 50%);
+        }
+
+        .timeline-cards li .title::before {
+            bottom: calc(100% + 0.125rem);
+        }
+
+        .timeline-cards li .descr::before {
+            z-index: -1;
+            bottom: 0.25rem;
+        }
+
+        @media (min-width: 40rem) {
+            .timeline-cards {
+                grid-template-columns: 1fr var(--line-w) 1fr;
+            }
+
+            .timeline-cards::before {
+                grid-column: 2;
+            }
+
+            .timeline-cards li:nth-child(odd) {
+                grid-column: 1;
+            }
+
+            .timeline-cards li:nth-child(even) {
+                grid-column: 3;
+            }
+
+            /* start second card */
+            .timeline-cards li:nth-child(2) {
+                grid-row: 2/4;
+            }
+
+            .timeline-cards li:nth-child(odd) .date::before {
+                clip-path: polygon(0 0, 100% 0, 100% 100%);
+                left: 0;
+            }
+
+            .timeline-cards li:nth-child(odd) .date::after {
+                transform: translate(-50%, -50%);
+                left: calc(100% + var(--col-gap) + var(--line-w) / 2);
+            }
+
+            .timeline-cards li:nth-child(odd) .date {
+                border-radius: 0 calc(var(--dateH) / 2) calc(var(--dateH) / 2) 0;
+            }
+        }
+
+        /* Status colors */
+        .timeline-cards li.completed {
+            --accent-color: #4CAD73;
+        }
+
+        .timeline-cards li.current {
+            --accent-color: #1B5F8C;
+        }
+
+        .timeline-cards li.future {
+            --accent-color: #41516C;
+        }
+
+        .timeline-cards li.overdue {
+            --accent-color: #E24A68;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -294,7 +479,7 @@
             class="bg-opacity-80 from-blue-500 to-indigo-600 text-black py-2 fixed bottom-0 left-0 w-full shadow-md backdrop-blur-md">
             <div class="container flex justify-between items-center px-6 text-sm">
                 <p class="text-sm">&copy; 2025 Riigihanke Andmed. Kõik õigused kaitstud.</p>
-                <div class="flex space-x-2">
+                <div class="space-x-2 hidden">
                     <a href="#" class="hover:underline">Lingid</a>
                     <a href="#" class="hover:underline">Kasutusjuhend</a>
                     <a href="#" class="hover:underline">Kontakt</a>
@@ -305,9 +490,9 @@
             <div id="toolTab" class="flex flex-wrap md:flex-nowrap justify-center gap-0 space-x-0 space-y-0">
                 <!-- Timeline Container - Moved inside toolTab and positioned left -->
                 <div id="timeline-Container"
-                    class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full border border-gray-100 hidden min-h-[350px] -mx-[-5px]">
+                    class="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full border border-gray-100 hidden min-h-[350px] -mx-[-5px]">
                     <div id="timelineContainer" class="p-3 bg-white rounded-lg shadow-md">
-                        <h3 class="font-bold text-2xl mb-6 text-blue-600 text-center hidden">Riigihanke eelduslik
+                        <h3 class="font-bold text-lg mb-6 text-blue-600 text-center hidden">Riigihanke eelduslik
                             ajakava</h3>
 
                         <!-- Timeline header - Card style -->
@@ -353,18 +538,16 @@
 
                         <!-- Timeline visualization - Modern vertical timeline -->
                         <div class="timeline-container bg-white rounded-lg shadow-md">
-                            <div class="relative py-6 px-4">
-                                <div id="timeline-steps" class="space-y-12">
-                                    <!-- Timeline steps will be dynamically generated -->
-                                </div>
-                            </div>
+                            <ul class="timeline-cards" id="timeline-steps">
+                                <!-- Timeline steps will be dynamically generated -->
+                            </ul>
                         </div>
 
                         <!-- Export buttons - Improved -->
                         <div class="mt-8 flex flex-wrap gap-4 justify-center">
                             <button id="exportExcel"
-                                onclick="alert('Excel export functionality would go here'); console.log('Export to Excel clicked');"
-                                class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg flex items-center">
+                                class="hidden bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg flex items-center"
+                                onclick="alert('Excel export functionality would go here'); console.log('Export to Excel clicked');">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -373,7 +556,6 @@
                                 Salvesta Excelisse
                             </button>
                             <button id="exportPDF"
-                                onclick="alert('PDF export functionality would go here'); console.log('Export to PDF clicked');"
                                 class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
@@ -533,14 +715,14 @@
                 </div>
 
                 <!-- Result Container - Right -->
-                <div class="container bg-white p-6 rounded-xl shadow-lg max-w-md w-full border border-gray-100 hidden -mx-[-2px]"
+                <div class="container bg-white p-6 rounded-xl shadow-lg max-w-lg w-full border border-gray-100 hidden -mx-[-2px]"
                     id="resultContainer">
                     <div id="result" class="result-card"></div>
                 </div>
             </div>
 
             <!-- The saved searches container is hidden by default and will be shown when the user clicks the "Show Saved Searches" button -->
-            <div class="container bg-white p-5 rounded-lg shadow-lg max-w-4xl mx-auto hidden"
+            <div class="container bg-white p-5 rounded-lg shadow-lg max-w-full mx-auto hidden"
                 id="savedSearchesContainer">
                 <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">📁 Salvestatud Hanked</h2>
                 <div class="overflow-x-auto bg-gray-100 p-4 rounded-lg shadow-md">
@@ -2366,6 +2548,137 @@
 
                 // Also update timeline when Calculate button is clicked
                 document.getElementById('calculateTime').addEventListener('click', updateTimelineHeader);
+
+                // Function to generate and download PDF
+                function generatePDF() {
+                    // Get timeline data
+                    const procurementName = document.getElementById('name').value || 'Riigihanke';
+                    const timelineSteps = document.getElementById('timeline-steps');
+
+                    // Create a new jsPDF instance
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF('p', 'mm', 'a4');
+
+                    // Add title
+                    doc.setFontSize(20);
+                    doc.setTextColor(0, 0, 255);
+                    doc.text(`${procurementName} Ajakava`, 105, 20, { align: 'center' });
+
+                    // Add current date
+                    doc.setFontSize(12);
+                    doc.setTextColor(100, 100, 100);
+                    const today = new Date();
+                    doc.text(`Genereeritud: ${today.toLocaleDateString('et-EE')}`, 105, 30, { align: 'center' });
+
+                    // Capture timeline data
+                    const timelineData = [];
+                    if (timelineSteps && timelineSteps.children.length > 0) {
+                        Array.from(timelineSteps.children).forEach((step, index) => {
+                            const title = step.querySelector('.font-bold')?.textContent || `Samm ${index + 1}`;
+                            const date = step.querySelector('.text-blue-600')?.textContent || 'Kuupäev määramata';
+                            timelineData.push({ title, date });
+                        });
+                    } else {
+                        // If no timeline steps, get form data
+                        const form = document.getElementById('procurementForm');
+                        if (form) {
+                            const formData = new FormData(form);
+                            for (const [key, value] of formData.entries()) {
+                                timelineData.push({ title: key, date: value });
+                            }
+                        }
+                    }
+
+                    // Add timeline data to PDF
+                    doc.setFontSize(14);
+                    doc.setTextColor(0, 0, 0);
+                    let yPos = 50;
+
+                    timelineData.forEach((item, index) => {
+                        doc.setFontSize(12);
+                        doc.setTextColor(0, 0, 150);
+                        doc.text(`${index + 1}. ${item.title}`, 20, yPos);
+
+                        doc.setFontSize(11);
+                        doc.setTextColor(80, 80, 80);
+                        doc.text(item.date, 20, yPos + 6);
+
+                        // Add a line separator
+                        if (index < timelineData.length - 1) {
+                            doc.setDrawColor(200, 200, 200);
+                            doc.line(20, yPos + 10, 190, yPos + 10);
+                        }
+
+                        yPos += 20;
+                    });
+
+                    // Add footer
+                    doc.setFontSize(10);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text('© 2025 Riigihanke Andmed. Kõik õigused kaitstud.', 105, 280, { align: 'center' });
+
+                    // Save the PDF
+                    doc.save(`${procurementName.replace(/\s+/g, '_')}_ajakava.pdf`);
+                }
+
+                // Simpler PDF export function using html2pdf
+                function exportToPDF() {
+                    // Get the timeline container
+                    const timelineContainer = document.querySelector('.timeline-container');
+
+                    // If timeline container is not found or empty, show an alert
+                    if (!timelineContainer || !timelineContainer.innerHTML.trim()) {
+                        alert('Ajakava andmed puuduvad. Palun täitke vorm ja arvutage ajakava enne PDF-i salvestamist.');
+                        return;
+                    }
+
+                    // Create a clone of the timeline container to modify for PDF
+                    const pdfContent = document.createElement('div');
+                    pdfContent.innerHTML = timelineContainer.innerHTML;
+                    pdfContent.style.padding = '20px';
+                    pdfContent.style.backgroundColor = 'white';
+
+                    // Add a title to the PDF
+                    const title = document.createElement('h1');
+                    const procurementName = document.getElementById('name').value || 'Riigihanke';
+                    title.textContent = procurementName + ' Ajakava';
+                    title.style.textAlign = 'center';
+                    title.style.color = '#1a56db';
+                    title.style.marginBottom = '20px';
+                    pdfContent.prepend(title);
+
+                    // Add generation date
+                    const dateInfo = document.createElement('p');
+                    dateInfo.textContent = 'Genereeritud: ' + new Date().toLocaleDateString('et-EE');
+                    dateInfo.style.textAlign = 'center';
+                    dateInfo.style.color = '#666';
+                    dateInfo.style.marginBottom = '30px';
+                    pdfContent.insertBefore(dateInfo, pdfContent.children[1]);
+
+                    // Add footer
+                    const footer = document.createElement('p');
+                    footer.textContent = '© 2025 Riigihanke Andmed. Kõik õigused kaitstud.';
+                    footer.style.textAlign = 'center';
+                    footer.style.color = '#999';
+                    footer.style.marginTop = '30px';
+                    footer.style.fontSize = '10px';
+                    pdfContent.appendChild(footer);
+
+                    // Configure PDF options
+                    const opt = {
+                        margin: [10, 10, 10, 10],
+                        filename: `${procurementName.replace(/\s+/g, '_')}_ajakava.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+
+                    // Generate and download the PDF
+                    html2pdf().from(pdfContent).set(opt).save();
+                }
+
+                // Make exportToPDF globally accessible
+                window.exportToPDF = exportToPDF;
             </script>
 
             <style>

@@ -239,61 +239,52 @@ document.addEventListener("DOMContentLoaded", function () {
       // Format dates for display
       const formattedStartDate = formatDate(currentDate);
       const formattedEndDate = formatDate(stepEndDate);
+      const dateDisplay = `${formattedStartDate} - ${formattedEndDate}`;
 
-      // Create timeline step HTML
-      const stepHTML = `
-            <li class="timeline-step ${status} mb-10 ml-6">
-                <div class="absolute w-3 h-3 rounded-full mt-1.5 -left-1.5 border border-white 
-                    ${
-                      status === "completed"
-                        ? "bg-green-500"
-                        : status === "current"
-                          ? "bg-blue-500"
-                          : "bg-gray-500"
-                    }">
-                </div>
-                <time class="mb-1 text-sm font-normal leading-none text-gray-500">
-                    ${formattedStartDate} - ${formattedEndDate}
-                </time>
-                <h3 class="text-lg font-semibold text-gray-900">${detail.step}</h3>
-                <p class="mb-4 text-base font-normal text-gray-600">${detail.days}</p>
-                <div class="text-sm text-gray-500">
-                    ${
-                      status === "completed"
-                        ? "Lõpetatud"
-                        : status === "current"
-                          ? "Käimas"
-                          : "Tulevikus"
-                    }
-                </div>
-            </li>
-        `;
+      // Create step element using the new card format
+      const stepElement = document.createElement("li");
+      stepElement.className = `${status}`;
+
+      // Set accent color based on status
+      let accentColor;
+      switch (status) {
+        case "completed":
+          accentColor = "#4CAD73"; // Green
+          break;
+        case "current":
+          accentColor = "#1B5F8C"; // Blue
+          break;
+        case "overdue":
+          accentColor = "#E24A68"; // Red
+          break;
+        default:
+          accentColor = "#41516C"; // Gray-blue
+      }
+
+      stepElement.innerHTML = `
+        <div class="date">${dateDisplay}</div>
+        <div class="title">${detail.step}</div>
+        <div class="descr">${detail.days}</div>
+      `;
 
       // Add step to timeline
-      timelineSteps.innerHTML += stepHTML;
+      timelineSteps.appendChild(stepElement);
 
       // Update current date for next step
       currentDate = new Date(stepEndDate);
     });
 
     // Add final step for contract signing
-    const contractSigningHTML = `
-        <li class="timeline-step ${today >= endDate ? "completed" : "future"} mb-10 ml-6">
-            <div class="absolute w-3 h-3 rounded-full mt-1.5 -left-1.5 border border-white 
-                ${today >= endDate ? "bg-green-500" : "bg-gray-500"}">
-            </div>
-            <time class="mb-1 text-sm font-normal leading-none text-gray-500">
-                ${formatDate(endDate)}
-            </time>
-            <h3 class="text-lg font-semibold text-gray-900">Lepingu sõlmimine</h3>
-            <p class="mb-4 text-base text-gray-600">Hankelepingu allkirjastamine</p>
-            <div class="text-sm text-gray-500">
-                ${today >= endDate ? "Lõpetatud" : "Tulevikus"}
-            </div>
-        </li>
+    const contractStatus = today >= endDate ? "completed" : "future";
+    const stepElement = document.createElement("li");
+    stepElement.className = contractStatus;
+    stepElement.innerHTML = `
+      <div class="date">${formatDate(endDate)}</div>
+      <div class="title">Lepingu sõlmimine</div>
+      <div class="descr">Hankelepingu allkirjastamine</div>
     `;
 
-    timelineSteps.innerHTML += contractSigningHTML;
+    timelineSteps.appendChild(stepElement);
   }
   // After generating steps
   gsap.from(".timeline-step", {
@@ -432,7 +423,113 @@ function initializeTimeline() {
     if (exportPDFBtn) {
       exportPDFBtn.onclick = function () {
         console.log("Export to PDF clicked");
-        alert("PDF export functionality would go here");
+        // Simple direct PDF export implementation
+        const timelineContainer = document.querySelector(".timeline-container");
+        if (!timelineContainer) {
+          alert("Timeline container not found");
+          return;
+        }
+
+        // Create a simple PDF using jsPDF directly
+        try {
+          const { jsPDF } = window.jspdf;
+          if (!jsPDF) {
+            alert("PDF library not loaded. Please try again later.");
+            return;
+          }
+
+          const doc = new jsPDF("p", "mm", "a4");
+
+          // Add title
+          const procurementName =
+            document.getElementById("name")?.value ||
+            document.getElementById("timeline-procurement-name")?.textContent ||
+            "Riigihanke";
+          doc.setFontSize(20);
+          doc.setTextColor(0, 0, 255);
+          doc.text(`${procurementName} Ajakava`, 105, 20, { align: "center" });
+
+          // Add current date
+          doc.setFontSize(12);
+          doc.setTextColor(100, 100, 100);
+          const today = new Date();
+          doc.text(
+            `Genereeritud: ${today.toLocaleDateString("et-EE")}`,
+            105,
+            30,
+            { align: "center" },
+          );
+
+          // Get timeline steps
+          const timelineSteps = document.getElementById("timeline-steps");
+          let yPos = 50;
+
+          if (timelineSteps && timelineSteps.children.length > 0) {
+            // Process each timeline step
+            Array.from(timelineSteps.children).forEach((step, index) => {
+              // Extract step information
+              const title =
+                step.querySelector(".title")?.textContent ||
+                step.querySelector("h3")?.textContent ||
+                `Samm ${index + 1}`;
+              const date =
+                step.querySelector(".date")?.textContent ||
+                step.querySelector("time")?.textContent ||
+                "";
+              const description =
+                step.querySelector(".descr")?.textContent ||
+                step.querySelector("p")?.textContent ||
+                "";
+
+              // Add to PDF
+              doc.setFontSize(14);
+              doc.setTextColor(0, 0, 150);
+              doc.text(`${index + 1}. ${title}`, 20, yPos);
+              yPos += 8;
+
+              doc.setFontSize(11);
+              doc.setTextColor(80, 80, 80);
+              doc.text(`${date}`, 20, yPos);
+              yPos += 6;
+
+              doc.setFontSize(10);
+              doc.text(`${description}`, 20, yPos);
+              yPos += 10;
+
+              // Add separator
+              doc.setDrawColor(200, 200, 200);
+              doc.line(20, yPos, 190, yPos);
+              yPos += 15;
+
+              // Check if we need a new page
+              if (yPos > 270) {
+                doc.addPage();
+                yPos = 20;
+              }
+            });
+          } else {
+            // No timeline steps found
+            doc.setFontSize(14);
+            doc.setTextColor(100, 100, 100);
+            doc.text("Ajakava andmed puuduvad", 105, yPos, { align: "center" });
+          }
+
+          // Add footer
+          doc.setFontSize(10);
+          doc.setTextColor(150, 150, 150);
+          doc.text(
+            "© 2025 Riigihanke Andmed. Kõik õigused kaitstud.",
+            105,
+            280,
+            { align: "center" },
+          );
+
+          // Save the PDF
+          doc.save(`${procurementName.replace(/\s+/g, "_")}_ajakava.pdf`);
+        } catch (error) {
+          console.error("Error generating PDF:", error);
+          alert("PDF genereerimine ebaõnnestus. Proovige hiljem uuesti.");
+        }
       };
     }
 
@@ -530,27 +627,30 @@ function generateTimelineSteps(container, contractDate, today) {
         ? startDateStr
         : `${startDateStr} - ${endDateStr}`;
 
-    // Create step element
+    // Create step element using the new card format
     const stepElement = document.createElement("li");
-    stepElement.className = `timeline-step ${status} mb-10 ml-6`;
+    stepElement.className = `${status}`;
+
+    // Set accent color based on status
+    let accentColor;
+    switch (status) {
+      case "completed":
+        accentColor = "#4CAD73"; // Green
+        break;
+      case "current":
+        accentColor = "#1B5F8C"; // Blue
+        break;
+      case "overdue":
+        accentColor = "#E24A68"; // Red
+        break;
+      default:
+        accentColor = "#41516C"; // Gray-blue
+    }
+
     stepElement.innerHTML = `
-      <div class="absolute w-3 h-3 rounded-full mt-1.5 -left-1.5 border border-white bg-${status === "completed" ? "green" : status === "current" ? "blue" : status === "overdue" ? "red" : "gray"}-500"></div>
-      <time class="mb-1 text-sm font-normal leading-none text-gray-500">
-        ${dateDisplay}
-      </time>
-      <h3 class="text-lg font-semibold text-gray-900">${step.title}</h3>
-      <p class="mb-4 text-base font-normal text-gray-600">${step.description}</p>
-      <div class="text-sm text-gray-500">
-        ${
-          status === "completed"
-            ? "Lõpetatud"
-            : status === "current"
-              ? "Käimas"
-              : status === "overdue"
-                ? "Hilinenud"
-                : "Tulevikus"
-        }
-      </div>
+      <div class="date">${dateDisplay}</div>
+      <div class="title">${step.title}</div>
+      <div class="descr">${step.description}</div>
     `;
 
     container.appendChild(stepElement);
