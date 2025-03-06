@@ -126,7 +126,7 @@
                                     <button id="showForm"
                                         class="block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105"
                                         role="menuitem">
-                                        <i class="fas fa-tools mr-2"></i> Tööriist
+                                        <i class="fas fa-tools mr-2"></i> Rakendus
                                     </button>
                                     <button id="showSavedSearches"
                                         class="px-4 py-2 text-sm text-gray-800 hover:bg-blue-200/70 hover:text-black w-full text-left transition transform hover:scale-105 protected-section hidden"
@@ -302,11 +302,11 @@
             </div>
         </footer>
         <main class="container mx-auto p-6 pt-32">
-            <div id="toolTab" class="flex flex-nowrap justify-center flex-start gap-0">
+            <div id="toolTab" class="flex flex-wrap md:flex-nowrap justify-center gap-0 space-x-0 space-y-0">
                 <!-- Timeline Container - Moved inside toolTab and positioned left -->
                 <div id="timeline-Container"
-                    class="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full border-white hidden min-h-[400px]">
-                    <div id="timelineContainer" class="p-4 bg-white rounded-lg shadow-md">
+                    class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full border border-gray-100 hidden min-h-[350px] -mx-[-5px]">
+                    <div id="timelineContainer" class="p-3 bg-white rounded-lg shadow-md">
                         <h3 class="font-bold text-2xl mb-6 text-blue-600 text-center hidden">Riigihanke eelduslik
                             ajakava</h3>
 
@@ -388,7 +388,7 @@
 
                 <!-- Form Container - Middle -->
                 <div id="formContainer"
-                    class="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full border border-gray-100 min-h-[400px]">
+                    class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full border border-gray-100 min-h-[350px] -mx-[-5px]">
                     <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Sisesta andmed</h2>
                     <form id="procurementForm" class="space-y-4">
                         <div>
@@ -533,14 +533,15 @@
                 </div>
 
                 <!-- Result Container - Right -->
-                <div class="container bg-white p-8 rounded-xl shadow-lg max-w-lg w-full border border-gray-100 hidden"
+                <div class="container bg-white p-6 rounded-xl shadow-lg max-w-md w-full border border-gray-100 hidden -mx-[-2px]"
                     id="resultContainer">
                     <div id="result" class="result-card"></div>
                 </div>
             </div>
 
             <!-- The saved searches container is hidden by default and will be shown when the user clicks the "Show Saved Searches" button -->
-            <div class="container bg-white p-6 rounded-lg shadow-lg hidden" id="savedSearchesContainer">
+            <div class="container bg-white p-5 rounded-lg shadow-lg max-w-4xl mx-auto hidden"
+                id="savedSearchesContainer">
                 <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">📁 Salvestatud Hanked</h2>
                 <div class="overflow-x-auto bg-gray-100 p-4 rounded-lg shadow-md">
                     <table class="w-full border-collapse shadow-lg rounded-lg overflow-hidden">
