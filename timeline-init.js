@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ${formatDate(endDate)}
             </time>
             <h3 class="text-lg font-semibold text-gray-900">Lepingu sõlmimine</h3>
-            <p class="mb-4 text-base font-normal text-gray-600">Hankelepingu allkirjastamine</p>
+            <p class="mb-4 text-base text-gray-600">Hankelepingu allkirjastamine</p>
             <div class="text-sm text-gray-500">
                 ${today >= endDate ? "Lõpetatud" : "Tulevikus"}
             </div>
@@ -295,6 +295,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     timelineSteps.innerHTML += contractSigningHTML;
   }
+  // After generating steps
+  gsap.from(".timeline-step", {
+    opacity: 0,
+    y: 50,
+    duration: 0.8,
+    stagger: 0.2, // Each step animates sequentially
+    ease: "power2.out",
+  });
 
   // Function to calculate procedure duration based on procedure type
   function calculateProcedureDuration(procedureType) {

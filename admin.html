@@ -12,14 +12,12 @@
     <link href="./dist/output.css" rel="stylesheet">
 </head>
 
-<body>
-    <ul id="userList"></ul>
-
+<body class="bg-gray-100">
     <script type="module">
         // Import Firebase Modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc }
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc }
             from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
         // Firebase Configuration (Must match index.html)
@@ -37,6 +35,18 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // Make Firebase functions available globally
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.addDoc = addDoc;
+        window.signOut = signOut;
+        window.auth = auth;
 
         // ✅ Debugging: Check if Firebase is initialized correctly
         console.log("Firebase initialized:", app);
@@ -80,6 +90,28 @@
                     alert("Permission error. Check Firestore rules.");
                 }
             });
+
+            // Setup logout functionality
+            const logoutButton = document.getElementById("logoutButton");
+            const logoutButtonDropdown = document.getElementById("logoutButtonDropdown");
+
+            if (logoutButton) {
+                logoutButton.addEventListener("click", handleLogout);
+            }
+
+            if (logoutButtonDropdown) {
+                logoutButtonDropdown.addEventListener("click", handleLogout);
+            }
+
+            function handleLogout() {
+                signOut(auth).then(() => {
+                    alert("Logged out successfully.");
+                    window.location.href = "/index.html";
+                }).catch((error) => {
+                    console.error("Error logging out:", error);
+                    alert("Logout failed.");
+                });
+            }
         });
 
         async function loadUsers() {
@@ -92,6 +124,11 @@
                 console.log("Firestore Response:", userDocs.docs);
 
                 const userTable = document.getElementById("userTable");
+                if (!userTable) {
+                    console.error("User table not found in DOM");
+                    return;
+                }
+
                 userTable.innerHTML = ""; // Clear table before loading
 
                 userDocs.forEach(docSnapshot => {
@@ -104,8 +141,8 @@
                         <td class="border px-4 py-2">${userData.role}</td>
                         <td class="border px-4 py-2">${userData.approved}</td>
                         <td class="border px-4 py-2">
-                            <button class="approve-btn bg-green-500 text-white px-2 py-1 rounded" onclick="approveUser('${docSnapshot.id}')" aria-label="Approve User">Approve</button>
-                            <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded" onclick="deleteUser('${docSnapshot.id}')" aria-label="Delete User">Delete</button>
+                            <button class="approve-btn bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors duration-300" onclick="approveUser('${docSnapshot.id}')" aria-label="Approve User">Approve</button>
+                            <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors duration-300" onclick="deleteUser('${docSnapshot.id}')" aria-label="Delete User">Delete</button>
                         </td>
                     `;
                     userTable.appendChild(userRow);
@@ -116,25 +153,6 @@
                 alert("Error loading user data. Check Firestore rules.");
             }
         }
-
-        const deleteSearch = async (index) => {
-            const user = auth.currentUser;
-            if (!user) return;
-
-            try {
-                const userDoc = await getDoc(doc(window.db, "users", user.uid));
-                if (userDoc.exists()) {
-                    let searches = userDoc.data().searches || [];
-                    searches.splice(index, 1); // Eemalda otsing massiivist
-
-                    await updateDoc(doc(window.db, "users", user.uid), { searches });
-                    console.log("✅ Otsing kustutatud Firestore'ist.");
-                    loadUserSearches(); // Uuenda vaadet
-                }
-            } catch (error) {
-                console.error("❌ Otsingu kustutamise viga:", error);
-            }
-        };
 
         window.approveUser = async (userId) => {
             try {
@@ -161,23 +179,8 @@
                 alert("Failed to delete user.");
             }
         };
-
-        // Function to logout
-        window.logoutAdmin = () => {
-            signOut(auth).then(() => {
-                alert("Logged out successfully.");
-                window.location.href = "/index.html";
-            }).catch((error) => {
-                console.error("Error logging out:", error);
-                alert("Logout failed.");
-            });
-        };
     </script>
-</body>
 
-</html>
-
-<body class="bg-gray-100">
     <div class="flex h-screen">
         <!-- Sidebar -->
         <aside class="w-45 bg-blue-700 text-white p-6">
@@ -187,13 +190,44 @@
                 <li><button id="settingsButton" class="block hover:underline">⚙️ Seaded</button></li>
                 <li><a href="#" class="block hover:underline">👥 Kasutajad</a></li>
                 <li><a href="#" class="block hover:underline">📊 Statistika</a></li>
-                <li><button id="logoutButton" class="mt-4 w-full bg-red-600 px-4 py-2 rounded">Log Out</button></li>
+                <li><button id="logoutButton"
+                        class="mt-4 w-full bg-red-600 px-4 py-2 rounded hover:bg-red-700 transition-colors duration-300">Logi
+                        välja</button></li>
             </ul>
         </aside>
 
         <!-- Main Content -->
         <main class="flex-1 p-6">
-            <h1 class="text-3xl font-bold"></h1>
+            <!-- Header with User Dropdown -->
+            <header class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">Admin Panel</h1>
+
+                <!-- User Dropdown -->
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open"
+                        class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors duration-300">
+                        <i class="fas fa-user-circle text-xl"></i>
+                        <span class="hidden md:inline">Admin</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+
+                    <div x-show="open" @click.away="open = false"
+                        class="absolute right-0 mt-2 w-48 bg-white bg-opacity-95 border rounded-lg shadow-md z-50">
+                        <button id="changeEmail"
+                            class="block w-full text-left px-4 py-2 text-sm text-blue-500 hover:bg-gray-100 transition-colors duration-300">
+                            <i class="fas fa-envelope mr-2"></i> Muuda e-post
+                        </button>
+                        <button id="changePassword"
+                            class="block w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-gray-100 transition-colors duration-300">
+                            <i class="fas fa-key mr-2"></i> Muuda parool
+                        </button>
+                        <button id="logoutButtonDropdown"
+                            class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 transition-colors duration-300">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
+                        </button>
+                    </div>
+                </div>
+            </header>
 
             <!-- User Management Table -->
             <div class="bg-white mt-6 p-6 rounded shadow">
@@ -216,9 +250,72 @@
                 <h2 class="text-xl font-semibold">Seaded</h2>
                 <p class="text-gray-600 mt-2">Siin saad muuta administraatori seadeid.</p>
 
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700">Dark Mode</label>
-                    <input type="checkbox" id="toggleDarkMode" class="mt-1">
+                <!-- Form Section -->
+                <form id="settingsForm" class="flex-1 space-y-6 bg-gray-50 p-4 rounded-lg shadow-md mt-4">
+                    <h3 class="text-lg font-bold text-gray-800">📑 Menetlusliigi sätted</h3>
+
+                    <div class="relative">
+                        <label for="documentPreparationDays" class="block text-gray-700 mb-1">📄 Riigihanke
+                            alusdokumentide koostamine (päevad):</label>
+                        <input type="number" id="documentPreparationDays" name="documentPreparationDays"
+                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Sisesta päevad" required>
+                    </div>
+
+                    <div class="relative">
+                        <label for="offerEvaluationDays" class="block text-gray-700 mb-1">🧐 Pakkumuste hindamine
+                            (päevad):</label>
+                        <input type="number" id="offerEvaluationDays" name="offerEvaluationDays"
+                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Sisesta päevad" required>
+                    </div>
+
+                    <div class="relative">
+                        <label for="decisionDays" class="block text-gray-700 mb-1">✅ Vastavaks ja edukaks tunnistamise
+                            otsus (päevad):</label>
+                        <input type="number" id="decisionDays" name="decisionDays"
+                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Sisesta päevad" required>
+                    </div>
+
+                    <div class="relative">
+                        <label for="bidderEvaluationDays" class="block text-gray-700 mb-1">📊 Pakkujate hindamine
+                            (päevad):</label>
+                        <input type="number" id="bidderEvaluationDays" name="bidderEvaluationDays"
+                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Sisesta päevad" required>
+                    </div>
+
+                    <div class="relative">
+                        <label for="successfulBidderDays" class="block text-gray-700 mb-1">🏆 Eduka kõrvaldamata jätmine
+                            ja kval (päevad):</label>
+                        <input type="number" id="successfulBidderDays" name="successfulBidderDays"
+                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Sisesta päevad" required>
+                    </div>
+
+                    <div class="relative">
+                        <label for="waitingPeriodDays" class="block text-gray-700 mb-1">⏳ Ooteaeg (päevad):</label>
+                        <input type="number" id="waitingPeriodDays" name="waitingPeriodDays"
+                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Sisesta päevad" required>
+                    </div>
+                </form>
+
+                <!-- Procedure Type Selection -->
+                <div class="flex-1 bg-gray-50 p-4 rounded-lg shadow-md mt-4">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">🛠️ Menetlusliigid</h3>
+                    <select id="procedureTypeSelect"
+                        class="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                    <div id="procedureTypeSettings" class="mt-4 space-y-4">
+                        <!-- Procedure type settings will be displayed here -->
+                    </div>
+                    <button id="addProcedureTypeButton"
+                        class="w-full flex items-center justify-center gap-2 mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white p-3 rounded-lg shadow-md hover:from-green-600 hover:to-green-700 hover:scale-105 transition-all duration-300">
+                        ➕ Lisa Menetlusliik
+                    </button>
                 </div>
             </div>
             <!-- ✅ Settings Section (Hidden by Default) -->
@@ -227,19 +324,240 @@
             </div>
 
             <script>
+                // Define default settings
+                const defaultSettings = {
+                    documentPreparationDays: 10,
+                    offerEvaluationDays: 5,
+                    decisionDays: 3,
+                    bidderEvaluationDays: 5,
+                    successfulBidderDays: 3,
+                    waitingPeriodDays: 10
+                };
+
+                // Initialize settings with defaults
+                let settings = { ...defaultSettings };
+
+                const procedureData = {
+                    "Lihthankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 30000 },
+                    "Lihthankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 30000 },
+                    "Lihthankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Avatud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Avatud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 25, piirmäär: 150000 },
+                    "Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Piiratud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 25, piirmäär: 150000 },
+                    "Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 25, piirmäär: 150000 },
+                    "Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Võistlev dialoog asjade hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Võistlev dialoog teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
+                    "Võistlev dialoog ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 25, piirmäär: 150000 },
+                    "Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 25, piirmäär: 150000 },
+                    "Kontsessioonimenetlus koos eraldi taotluse esitamisega": { taotlusteAeg: 30, pakkumusteAeg: 17, piirmäär: 300000 },
+                    "Kontsessioonimenetlus ilma eraldi taotlust esitamata": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 300000 },
+                    "Sotsiaalteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 300000 },
+                    "Eriteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 60000 },
+                };
+
+                const internationalProcedureData = {
+                    "Avatud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 143000 },
+                    "Avatud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 143000 },
+                    "Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 45, piirmäär: 5538000 },
+                    "Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
+                    "Piiratud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
+                    "Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000 },
+                    "Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
+                    "Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
+                    "Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000 },
+                    "Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
+                    "Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
+                    "Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000 },
+                    "Võistlev dialoog asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
+                    "Võistlev dialoog teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
+                    "Võistlev dialoog ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000 },
+                    "Kontsessioonimenetlus koos eraldi taotluse esitamisega": { taotlusteAeg: 30, pakkumusteAeg: 17, piirmäär: 5538000 },
+                    "Kontsessioonimenetlus ilma eraldi taotlust esitamata": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 5538000 },
+                    "Sotsiaalteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000 },
+                    "Eriteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000 }
+                };
+
+
                 document.addEventListener("DOMContentLoaded", () => {
                     const settingsButton = document.getElementById("settingsButton");
                     const settingsContainer = document.getElementById("settingsContainer");
+                    const procedureTypeSelect = document.getElementById("procedureTypeSelect");
+                    const addProcedureTypeButton = document.getElementById("addProcedureTypeButton");
+                    const settingsForm = document.getElementById("settingsForm");
 
-                    // ✅ Fix: Ensure elements exist before adding event listeners
                     if (!settingsButton || !settingsContainer) {
                         console.error("❌ settingsButton or settingsContainer not found in the DOM!");
                         return;
                     }
 
+                    // Load saved settings from localStorage
+                    loadSavedSettings();
+
                     settingsButton.addEventListener("click", () => {
                         settingsContainer.classList.toggle("hidden");
+                        loadSettings();
+                        loadProcedureTypes();
                     });
+
+                    // Handle settings form submission
+                    if (settingsForm) {
+                        settingsForm.addEventListener('submit', function (event) {
+                            event.preventDefault();
+                            settings.documentPreparationDays = parseInt(document.getElementById('documentPreparationDays').value);
+                            settings.offerEvaluationDays = parseInt(document.getElementById('offerEvaluationDays').value);
+                            settings.decisionDays = parseInt(document.getElementById('decisionDays').value);
+                            settings.bidderEvaluationDays = parseInt(document.getElementById('bidderEvaluationDays').value);
+                            settings.successfulBidderDays = parseInt(document.getElementById('successfulBidderDays').value);
+                            settings.waitingPeriodDays = parseInt(document.getElementById('waitingPeriodDays').value);
+                            saveSettings();
+                            alert('Settings saved successfully!');
+                        });
+                    }
+
+                    // Add procedure type button event listener
+                    if (addProcedureTypeButton) {
+                        addProcedureTypeButton.addEventListener('click', function () {
+                            addProcedureType();
+                        });
+                    }
+
+                    // Procedure type select change event listener
+                    if (procedureTypeSelect) {
+                        procedureTypeSelect.addEventListener('change', function () {
+                            const selectedType = this.value;
+                            loadProcedureTypeSettings(selectedType);
+                        });
+                    }
+
+                    // Function to load settings into form
+                    function loadSettings() {
+                        document.getElementById('documentPreparationDays').value = settings.documentPreparationDays;
+                        document.getElementById('offerEvaluationDays').value = settings.offerEvaluationDays;
+                        document.getElementById('decisionDays').value = settings.decisionDays;
+                        document.getElementById('bidderEvaluationDays').value = settings.bidderEvaluationDays;
+                        document.getElementById('successfulBidderDays').value = settings.successfulBidderDays;
+                        document.getElementById('waitingPeriodDays').value = settings.waitingPeriodDays;
+                    }
+
+                    // Function to save settings to localStorage
+                    function saveSettings() {
+                        localStorage.setItem('procurementSettings', JSON.stringify(settings));
+                        localStorage.setItem('procedureData', JSON.stringify(procedureData));
+                    }
+
+                    // Function to load saved settings from localStorage
+                    function loadSavedSettings() {
+                        const savedSettings = localStorage.getItem('procurementSettings');
+                        if (savedSettings) {
+                            settings = JSON.parse(savedSettings);
+                        }
+
+                        const savedProcedureData = localStorage.getItem('procedureData');
+                        if (savedProcedureData) {
+                            const parsedData = JSON.parse(savedProcedureData);
+                            // Merge with default procedure data to ensure all properties exist
+                            Object.keys(parsedData).forEach(key => {
+                                procedureData[key] = parsedData[key];
+                            });
+                        }
+                    }
+
+                    // Load procedure types from local procedureData
+                    function loadProcedureTypes() {
+                        const select = document.getElementById('procedureTypeSelect');
+                        select.innerHTML = '';
+
+                        for (const type in procedureData) {
+                            const option = document.createElement('option');
+                            option.value = type;
+                            option.textContent = type;
+                            select.appendChild(option);
+                        }
+
+                        if (select.options.length > 0) {
+                            loadProcedureTypeSettings(select.options[0].value);
+                        }
+                    }
+
+                    // Load settings for a specific procedure type
+                    async function loadProcedureTypeSettings(type) {
+                        const procedure = procedureData[type];
+                        const container = document.getElementById('procedureTypeSettings');
+                        container.innerHTML = `
+                            <div class="procedure-type">
+                                <label for="procedureTypeName" class="block text-gray-700">Menetlusliik:</label>
+                                <input type="text" id="procedureTypeName" value="${type}" required><br><br>
+                                <label for="requestDays" class="block text-gray-700">Taotluste esitamise päevad:</label>
+                                <input type="number" id="requestDays" value="${procedure.taotlusteAeg}" required><br><br>
+                                <label for="offerDays" class="block text-gray-700">Pakkumuste esitamise päevad:</label>
+                                <input type="number" id="offerDays" value="${procedure.pakkumusteAeg}" required><br><br>
+                                <label for="useInternationalThreshold" class="block text-gray-700">Kasuta rahvusvahelisi tähtaegu:</label>
+                                <input type="checkbox" id="useInternationalThreshold" ${procedure.useInternational ? 'checked' : ''} onchange="toggleInternationalThreshold('${type}')"><br><br>
+                                <button onclick="deleteProcedureType('${type}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition transform hover:scale-105">Kustuta</button>
+                                <button onclick="saveProcedureType('${type}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition transform hover:scale-105">Salvesta</button>
+                            </div>
+                        `;
+                    }
+
+                    // Function to add a new procedure type
+                    function addProcedureType() {
+                        const container = document.getElementById('procedureTypeSettings');
+                        container.innerHTML = `
+                            <div class="procedure-type">
+                                <label for="procedureTypeName" class="block text-gray-700">Menetlusliik:</label>
+                                <input type="text" id="procedureTypeName" required><br><br>
+                                <label for="requestDays" class="block text-gray-700">Taotluste esitamise päevad:</label>
+                                <input type="number" id="requestDays" required><br><br>
+                                <label for="offerDays" class="block text-gray-700">Pakkumuste esitamise päevad:</label>
+                                <input type="number" id="offerDays" required><br><br>
+                                <label for="useInternationalThreshold" class="block text-gray-700">Kasuta rahvusvahelisi tähtaegu:</label>
+                                <input type="checkbox" id="useInternationalThreshold" onchange="toggleInternationalThreshold()"><br><br>
+                                <button onclick="saveNewProcedureType()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition transform hover:scale-105">Salvesta</button>
+                            </div>
+                        `;
+                    }
+
+                    // Make functions available globally
+                    window.toggleInternationalThreshold = function (type) {
+                        const useInternational = document.getElementById('useInternationalThreshold').checked;
+                        const procedure = useInternational ? internationalProcedureData[type] : procedureData[type];
+                        document.getElementById('requestDays').value = procedure.taotlusteAeg;
+                        document.getElementById('offerDays').value = procedure.pakkumusteAeg;
+                    };
+
+                    window.deleteProcedureType = function (type) {
+                        delete procedureData[type];
+                        loadProcedureTypes();
+                        saveSettings();
+                    };
+
+                    window.saveProcedureType = function (oldType) {
+                        const newType = document.getElementById('procedureTypeName').value;
+                        const requestDays = parseInt(document.getElementById('requestDays').value);
+                        const offerDays = parseInt(document.getElementById('offerDays').value);
+                        const useInternational = document.getElementById('useInternationalThreshold').checked;
+                        delete procedureData[oldType];
+                        procedureData[newType] = { taotlusteAeg: requestDays, pakkumusteAeg: offerDays, piirmäär: 60000, useInternational }; // Default piirmäär
+                        loadProcedureTypes();
+                        saveSettings();
+                    };
+
+                    window.saveNewProcedureType = function () {
+                        const newType = document.getElementById('procedureTypeName').value;
+                        const requestDays = parseInt(document.getElementById('requestDays').value);
+                        const offerDays = parseInt(document.getElementById('offerDays').value);
+                        const useInternational = document.getElementById('useInternationalThreshold').checked;
+                        procedureData[newType] = { taotlusteAeg: requestDays, pakkumusteAeg: offerDays, piirmäär: 60000, useInternational }; // Default piirmäär
+                        loadProcedureTypes();
+                        saveSettings();
+                    };
                 });
             </script>
         </main>

@@ -204,6 +204,20 @@
         display: block !important;
         visibility: visible !important;
     }
+
+    .timeline-step.current {
+        animation: pulseGlow 1.5s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+        0% {
+            box-shadow: 0 0 0px rgba(59, 130, 246, 0.5);
+        }
+
+        100% {
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+        }
+    }
 </style>
 
 <script>
@@ -354,12 +368,17 @@
             const stepElement = document.createElement('div');
             stepElement.className = `timeline-step ${step.status}`;
 
+            // Add current class to the current step
+            const today = new Date().toISOString().split('T')[0];
+            stepElement.classList.add(today >= step.startDate && today <= step.endDate ? "current" : "");
+
             stepClone.querySelector('.step-name').textContent = `${index + 1}. ${step.step}`;
             stepClone.querySelector('.step-date-range').textContent = `${step.startDate} - ${step.endDate}`;
             stepClone.querySelector('.step-duration').textContent = `Kestus: ${step.duration} päeva`;
 
             const progressBar = stepClone.querySelector('.step-progress-bar');
             progressBar.style.width = `${step.progress}%`;
+            progressBar.dataset.progress = step.progress;
 
             // Add appropriate color class based on status
             if (step.status === 'completed') {
@@ -609,10 +628,33 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         try {
+            // Load GSAP if not already loaded
+            if (typeof gsap === 'undefined') {
+                await loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js');
+            }
+
             const timelineResponse = await fetch("timeline.html");
             const timelineHtml = await timelineResponse.text();
             document.getElementById("timeline-Container").innerHTML = timelineHtml;
             console.log("Timeline loaded successfully");
+
+            // Animate progress bars dynamically
+            document.querySelectorAll(".step-progress-bar").forEach((bar) => {
+                gsap.to(bar, {
+                    width: bar.dataset.progress + "%",
+                    duration: 0.8,
+                    ease: "power2.out"
+                });
+            });
+
+            // After generating steps
+            gsap.from(".timeline-step", {
+                opacity: 0,
+                y: 50,
+                duration: 0.8,
+                stagger: 0.2, // Each step animates sequentially
+                ease: "power2.out"
+            });
         } catch (error) {
             console.error("Error loading timeline:", error);
         }
