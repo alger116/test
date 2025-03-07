@@ -34,6 +34,15 @@
       var(--color-blue-500) 50%,
       transparent
     );
+    @apply bg-gradient-to-r from-sky-100 to-sky-600;
+    @apply text-black;
+    @apply rounded-lg;
+    @apply shadow-md;
+    @apply hover:scale-105;
+    @apply hover:shadow-lg;
+    @apply transition-all;
+    @apply duration-300;
+    @apply ease-in-out;
   }
 
   @property --tw-gradient-from {

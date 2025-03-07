@@ -1,39 +1,61 @@
 <!DOCTYPE html>
 <aside x-data :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-    class="fixed inset-y-0 left-0 w-56 rounded-md shadow-xl bg-gray-100 backdrop-blur-xl text-black-500 flex flex-col transition-all duration-300 border border-white/30">
+        class="fixed inset-y-0 left-0 w-56 rounded-md text-black-500 flex flex-col transition-all duration-300">
 
-    <div class="flex items-center justify-between px-4 py-3 bg-gray/80 backdrop-blur-xl rounded-t-md">
-        <h2 class="text-lg font-semibold"></h2>
-        <button @click="sidebarOpen = !sidebarOpen; localStorage.setItem('sidebarOpen', sidebarOpen)"
-            class="text-gray-400 hover:text-black transition transform hover:scale-105">
-            <i class="fas fa-bars"></i>
-        </button>
-    </div>
+        <div class="flex items-center justify-between px-4 py-3 bg-gray/80 backdrop-blur-xl rounded-t-md">
+                <h2 class="text-lg font-semibold"></h2>
+                <button @mouseenter="sidebarOpen = true"
+                        @mouseleave="sidebarOpen = false; localStorage.setItem('sidebarOpen', sidebarOpen)"
+                        class="text-gray-400 hover:text-black transition transform hover:scale-105">
+                        <i class=""></i>
+                </button>
+        </div>
 
-    <nav class="flex-1 w-56 rounded-md shadow-xl bg-gray/80 backdrop-blur-md z-50">
-        <ul class="mt-4">
-            <li><a href="dashboard.html"
-                    class="block px-4 py-2 text-sm font-bold text-gray-800 hover:bg-white/30 hover:text-black transition transform hover:scale-105">Ülevaade</a>
-            </li>
-            <li><a href="procurement-forms.html"
-                    class="block px-4 py-2 text-sm font-bold text-gray-800 hover:bg-white/30 hover:text-black transition transform hover:scale-105">Ostud</a>
-            </li>
-            <li><a href="data-analysis.html"
-                    class="block px-4 py-2 text-sm font-bold text-gray-800 hover:bg-white/30 hover:text-black transition transform hover:scale-105">Statistika</a>
-            </li>
-            <li><a href="reports.html"
-                    class="block px-4 py-2 text-sm font-bold text-gray-800 hover:bg-white/30 hover:text-black transition transform hover:scale-105">Summerimine</a>
-            </li>
-            <li><a href="excel.html"
-                    class="block px-4 py-2 text-sm font-bold text-gray-800 hover:bg-white/30 hover:text-black transition transform hover:scale-105">Excel</a>
-            </li>
-            <li><a href="pdf.html"
-                    class="block px-4 py-2 text-sm font-bold text-gray-800 hover:bg-white/30 hover:text-black transition transform hover:scale-105">PDF</a>
-            </li>
-            <li><a href="cpv-koodid.html"
-                    class="block px-4 py-2 text-sm font-bold text-gray-800 hover:bg-white/30 hover:text-black transition transform hover:scale-105">CPV
-                    Koodid</a>
-            </li>
-        </ul>
-    </nav>
+        <nav class="flex-1 w-52 rounded-xl bg-white/10 backdrop-blur-xl border-white/20 p-2">
+                <ul class="mt-2 space-y-2">
+                        <li>
+                                <a href="dashboard.html"
+                                        class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                                                hover:scale-105 hover:shadow-lg transition-all duration-300 ease-in-out">
+                                        🏠 Ülevaade
+                                </a>
+                        </li>
+                        <li>
+                                <a href="procurement-forms.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
+                                        🛒 Ostud
+                                </a>
+                        </li>
+                        <li>
+                                <a href="data-analysis.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
+                                        📊 Statistika
+                                </a>
+                        </li>
+                        <li>
+                                <a href="reports.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
+                                        📑 Summerimine
+                                </a>
+                        </li>
+                        <li>
+                                <a href="excel.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
+                                        📂 Excel
+                                </a>
+                        </li>
+                        <li>
+                                <a href="pdf.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
+                                        📄 PDF
+                                </a>
+                        </li>
+                        <li>
+                                <a href="admin.html"
+                                        class="block px-6 py-3 text-lg font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                                                hover:scale-105 hover:shadow-lg hover:bg-emerald-300 transition-all duration-300 ease-in-out">
+                                        🔥 Admin</a>
+                        </li>
+                </ul>
+        </nav>
 </aside>
