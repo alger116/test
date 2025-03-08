@@ -67,7 +67,7 @@
 
         .timeline-cards {
             --col-gap: 2rem;
-            --row-gap: 2rem;
+            --row-gap: 0rem;
             --line-w: 0.25rem;
             display: grid;
             grid-template-columns: var(--line-w) 1fr;
@@ -78,6 +78,7 @@
             margin-inline: auto;
             padding: 0;
         }
+
 
         /* line */
         .timeline-cards::before {
@@ -157,9 +158,9 @@
         .timeline-cards li .title {
             overflow: hidden;
             padding-block-start: 1.5rem;
-            padding-block-end: 1rem;
-            font-weight: 500;
-            font-size: 1.25rem;
+            padding-block-end: 0rem;
+            font-weight: 300;
+            font-size: 1rem;
         }
 
         .timeline-cards li .descr {
@@ -496,7 +497,7 @@
         <div id="toolTab" class="flex flex-wrap md:flex-nowrap justify-center gap-0 space-x-0 space-y-0">
             <!-- Timeline Container - Moved inside toolTab and positioned left -->
             <div id="timeline-Container"
-                class="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full border border-gray-100 hidden min-h-[350px] -mx-[-5px]">
+                class="bg-white p-6 rounded-xl shadow-lg max-w-3xl w-full border border-gray-100 hidden min-h-[350px] -mx-[-5px]">
                 <div id="timelineContainer" class="p-3 bg-white rounded-lg shadow-md">
                     <h3 class="font-bold text-lg mb-6 text-blue-600 text-center hidden">Riigihanke eelduslik
                         ajakava</h3>
@@ -527,11 +528,11 @@
                     <!-- Days countdown from today - More prominent -->
                     <div class="bg-gradient-to-r bg-white text-black p-5 rounded-lg mb-8 flex items-center shadow-lg">
                         <div class="bg-white/20 p-3 rounded-full mr-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
+                            <!-- Remove the existing icon and replace it with the hoverable button -->
+                            <button id="hoverableButton"
+                                class="btn bg-amber-300 hover:bg-amber-700 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
+                                Vajuta siia!
+                            </button>
                         </div>
                         <div>
                             <div class="text-sm uppercase tracking-wider font-medium text-white"></div>
@@ -540,6 +541,7 @@
                                 päeva</div>
                         </div>
                     </div>
+                    <div id="toastNotification" class="toast hidden">TESETSTSETSE</div>
 
                     <!-- Timeline visualization - Modern vertical timeline -->
                     <div class="timeline-container bg-white rounded-lg shadow-md">
@@ -575,7 +577,7 @@
 
             <!-- Form Container - Middle -->
             <div id="formContainer"
-                class="bg-white p-5 rounded-xl shadow-lg max-w-md w-full border border-gray-100 min-h-[350px] -mx-[-5px]">
+                class="bg-white p-5 rounded-xl shadow-lg max-w-md w-full border border-gray-100 min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
                 <h2 class="text-2xl font-bold text-center mb-5 text-gray-800">Sisesta andmed</h2>
                 <form id="procurementForm" class="space-y-4">
                     <div>
@@ -1430,6 +1432,7 @@
                 // ✅ Uuendame tabelis kuvamist ja progressiribasid
                 updateSavedSearchesTable();
                 updateTotalDuration();
+                updateTimelineCards();
 
                 // Use the immediate update for the progress bar of the changed element
                 const progressBar = document.getElementById(`progress-${index}`);
@@ -1460,6 +1463,7 @@
 
                 // Use debounced update for all other bars
                 debouncedUpdateProgressBars();
+
             }
 
             const savedSearches = [];
@@ -1591,59 +1595,58 @@
             });
 
             document.getElementById('saveToExcel').addEventListener('click', function () {
-                if (savedSearches.length === 0) {
+                const table = document.getElementById("savedSearchesTableBody");
+                const rows = table.getElementsByTagName("tr");
+
+                if (rows.length === 0) {
                     alert("Salvestatud otsinguid ei ole.");
                     return;
                 }
 
-                // Define column headers
                 const headers = [
-                    "Riigihanke Eseme Nimetus",
-                    "Riigihanke Menetluse Liik",
-                    "Riigihanke Korraldamise Eeldatav Aeg",
-                    "Riigihanke Eeldatav Maksumus (ilma KM-ta)",
-                    "Sõlmitava Lepingu Kehtivusaeg",
-                    "Riigihanke Eest Vastutav Isik",
-                    "Tehnilise Kirjelduse Eest Vastutav Isik"
+                    "Riigihanke Nimetus",
+                    "Riigihanke menetlusliik",
+                    "Riigihanke korraldamise eeldatav aeg",
+                    "Riigihanke eeldatav maksumus (ilma KM-ta)",
+                    "Sõlmitava lepingu kehtivusaeg",
+                    "Riigihanke eest vastutav isik",
+                    "Tehnilise kirjelduse eest vastutav isik"
                 ];
 
-                // Prepare data rows
-                const data = savedSearches.map(procurement => [
-                    procurement.name || "",
-                    procurement.procedureType || "",
-                    getQuarter(procurement.applicationDate || "Määramata"),
-                    procurement.cost || "",
-                    "",  // Empty field for contract duration
-                    "",  // Empty field for responsible person
-                    ""   // Empty field for technical responsible person
-                ]);
+                const data = [];
+                data.push(headers);
 
-                // Combine headers and data
-                const worksheetData = [headers, ...data];
+                for (let row of rows) {
+                    const cells = row.getElementsByTagName("td");
+                    if (cells.length > 0) {
+                        data.push([
+                            cells[0].innerText.trim(), // Name
+                            cells[1].innerText.trim(), // Procedure Type
+                            getQuarter(cells[3].innerText.trim()), // Estimated Time
+                            cells[2].innerText.trim(), // Cost
+                            "",  // Empty field for contract duration
+                            "",  // Empty field for responsible person
+                            ""   // Empty field for technical responsible person
+                        ]);
+                    }
+                }
 
-                // Create a new workbook and worksheet
                 const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-
-                // Auto-width for columns
+                const ws = XLSX.utils.aoa_to_sheet(data);
                 ws['!cols'] = headers.map(() => ({ wch: 25 }));
 
-                // Apply table formatting
                 const range = XLSX.utils.decode_range(ws['!ref']);
                 ws['!autofilter'] = { ref: XLSX.utils.encode_range(range) };
 
-                // Add worksheet to workbook
                 XLSX.utils.book_append_sheet(wb, ws, "Hankeplaan");
-
-                // Export to .xlsx file
                 XLSX.writeFile(wb, "hankeplaan.xlsx");
             });
 
-            const getQuarter = (dateString) => {
-                if (!dateString || dateString === "Määramata") return "Määramata"; // If no date, return "Määramata"
+            function getQuarter(dateString) {
+                if (!dateString || dateString === "Määramata") return "Määramata";
 
                 const dateParts = dateString.split('.');
-                if (dateParts.length !== 3) return "Määramata"; // Expecting "dd.mm.yyyy" format
+                if (dateParts.length !== 3) return "Määramata";
 
                 const month = parseInt(dateParts[1], 10);
                 const year = dateParts[2];
@@ -1653,8 +1656,9 @@
                 if (month >= 7 && month <= 9) return `3. kvartal ${year}`;
                 if (month >= 10 && month <= 12) return `4. kvartal ${year}`;
 
-                return "Määramata"; // Ensure a valid return value
-            };
+                return "Määramata";
+            }
+
             // ✅ Defineerime muutuja üleval, et vältida "not defined" viga
             let resultContainerHTML = "";
 
@@ -1947,7 +1951,7 @@
                     let searches = userDoc.data().searches || [];
                     console.log("📜 Laetud otsingud Firestore'ist:", searches);
 
-                    // ✅ Teisendame kuupäevad õigesse formaati
+                    // ✅ Teisendame kuupäevad õigesse formaati ja lisame tabelisse
                     searches = searches.map(search => ({
                         ...search,
                         requestSubmissionDate: formatDate(search.requestSubmissionDate || "Määramata"),
@@ -1959,6 +1963,7 @@
                     console.error("❌ Otsingute laadimise viga Firestore'ist:", error);
                 }
             }
+
 
             document.getElementById('toggleDarkMode').addEventListener('click', function () {
                 document.body.classList.toggle('bg-gray-900');
@@ -2821,6 +2826,8 @@
 
                     updateTotalDuration(); // Update total duration
                     updateProgressBars();  // Update progress bars dynamically
+                    // ✅ Immediately recalculate everything by re-running the main function
+                    initializeTimeline();
                 }
 
                 function initializeAdjustButtons() {
@@ -3236,7 +3243,7 @@
             }
 
             .toast {
-                background-color: #4CAF50;
+                background-color: #b24325;
                 color: white;
                 padding: 16px 20px;
                 border-radius: 8px;
@@ -3452,6 +3459,33 @@
                 animation: pulse 2s infinite;
             }
         </style>
+
+        <script>
+            // Function to show toast notification
+            function showToast(message) {
+                const toast = document.getElementById('toastNotification');
+                toast.textContent = message;
+                toast.classList.remove('hidden'); // Ensure the toast is visible
+                toast.classList.add('show');
+
+                // Hide the toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.classList.add('hidden'); // Hide it again
+                }, 5000);
+            }
+
+            // Add event listeners for hover
+            const hoverableButton = document.getElementById('hoverableButton');
+            hoverableButton.addEventListener('mouseenter', () => {
+                showToast('NB! Tegu on üksnes näidis ajakavaga, reaalne ajakava palun pange paika vastavalt enda tööplaanile!');
+            });
+            hoverableButton.addEventListener('mouseleave', () => {
+                const toast = document.getElementById('toastNotification');
+                toast.classList.remove('show');
+                toast.classList.add('hidden'); // Hide it when mouse leaves
+            });
+        </script>
 
 </body>
 

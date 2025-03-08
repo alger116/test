@@ -188,6 +188,24 @@
             .timeline-cards li.overdue {
                 --accent-color: #E24A68;
             }
+
+            /* Toast notification styles */
+            .toast {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 5px;
+                transition: opacity 0.3s ease;
+                opacity: 0;
+                z-index: 1000;
+            }
+
+            .toast.show {
+                opacity: 1;
+            }
         </style>
 
         <!-- Timeline header -->
@@ -210,9 +228,9 @@
         </div>
 
         <!-- Timeline visualization -->
-        <div class="timeline-container bg-white/50 backdrop-blur-sm rounded-lg shadow-md">
+        <div id="timeline-Container" class="hidden">
             <ul class="timeline-cards" id="timeline-steps">
-                <!-- Timeline steps will be dynamically generated -->
+                <!-- Timeline steps will be dynamically generated here -->
             </ul>
         </div>
 
@@ -240,7 +258,12 @@
                 class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
                 Sulge
             </button>
+            <button id="hoverableButton"
+                class="btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
+                Hover me for info
+            </button>
         </div>
+        <div id="toastNotification" class="toast hidden">Your custom message here!</div>
     </div>
 </div>
 
@@ -839,5 +862,27 @@
         } catch (error) {
             console.error("Error loading timeline:", error);
         }
+    });
+
+    // Function to show toast notification
+    function showToast(message) {
+        const toast = document.getElementById('toastNotification');
+        toast.textContent = message;
+        toast.classList.add('show');
+
+        // Hide the toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Add event listeners for hover
+    const hoverableButton = document.getElementById('hoverableButton');
+    hoverableButton.addEventListener('mouseenter', () => {
+        showToast('Alustamisega oled hiljaks jäänud 45 päeva!');
+    });
+    hoverableButton.addEventListener('mouseleave', () => {
+        const toast = document.getElementById('toastNotification');
+        toast.classList.remove('show');
     });
 </script>

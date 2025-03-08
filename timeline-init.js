@@ -1,51 +1,29 @@
-// Initialize timeline when the DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("Timeline initialization script loaded");
+  document.body.addEventListener("click", function (event) {});
 
-  // Listen for form submission to update the timeline
-  const procurementForm = document.getElementById("procurementForm");
-  if (procurementForm) {
-    console.log("Found procurement form, adding submit listener");
-    procurementForm.addEventListener("submit", function (event) {
-      // Don't add another event listener, just update the timeline after form submission
-      setTimeout(initializeTimeline, 500); // Give time for the form handler to update the DOM
-    });
-  } else {
-    console.warn("Procurement form not found");
-  }
-
-  // Initialize timeline with any existing data
   initializeTimeline();
 
-  // Get the timeline container and toggle button
   const timelineContainer = document.getElementById("timeline-Container");
   const toggleTimelineButton = document.getElementById("toggleTimelineButton");
 
-  // Make sure timeline is hidden by default
   if (timelineContainer) {
     timelineContainer.classList.add("hidden");
     timelineContainer.style.display = "none";
   }
 
-  // Set up the toggle button
   if (toggleTimelineButton) {
-    // Set initial button text
     toggleTimelineButton.innerHTML =
       '<i class="fas fa-calendar-alt mr-2"></i> Näita ajakava';
 
-    // Add click event listener
     toggleTimelineButton.addEventListener("click", function () {
       if (timelineContainer.classList.contains("hidden")) {
-        // Show timeline
         timelineContainer.classList.remove("hidden");
         timelineContainer.style.display = "block";
         toggleTimelineButton.innerHTML =
           '<i class="fas fa-calendar-alt mr-2"></i> Peida ajakava';
 
-        // Update timeline content when showing
         updateTimelineContent();
       } else {
-        // Hide timeline
         timelineContainer.classList.add("hidden");
         timelineContainer.style.display = "none";
         toggleTimelineButton.innerHTML =
@@ -54,14 +32,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Hide timeline when navigating to other tabs/pages
   const navigationButtons = document.querySelectorAll(
     "#dropdownButton, #showForm, #showSavedSearches, #settingsButton, #adminTab",
   );
 
   navigationButtons.forEach((button) => {
     button.addEventListener("click", function () {
-      // Hide timeline if it's visible
       if (
         timelineContainer &&
         !timelineContainer.classList.contains("hidden")
@@ -69,7 +45,6 @@ document.addEventListener("DOMContentLoaded", function () {
         timelineContainer.classList.add("hidden");
         timelineContainer.style.display = "none";
 
-        // Update button text
         if (toggleTimelineButton) {
           toggleTimelineButton.innerHTML =
             '<i class="fas fa-calendar-alt mr-2"></i> Näita ajakava';
@@ -78,14 +53,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Also hide timeline when clicking on any tab in the sidebar
   const sidebarLinks = document.querySelectorAll(
     "#sidebarContainer a, #sidebarContainer button",
   );
 
   sidebarLinks.forEach((link) => {
     link.addEventListener("click", function () {
-      // Hide timeline if it's visible
       if (
         timelineContainer &&
         !timelineContainer.classList.contains("hidden")
@@ -93,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
         timelineContainer.classList.add("hidden");
         timelineContainer.style.display = "none";
 
-        // Update button text
         if (toggleTimelineButton) {
           toggleTimelineButton.innerHTML =
             '<i class="fas fa-calendar-alt mr-2"></i> Näita ajakava';
@@ -102,13 +74,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Function to hide timeline
   window.hideTimeline = function () {
     if (timelineContainer && !timelineContainer.classList.contains("hidden")) {
       timelineContainer.classList.add("hidden");
       timelineContainer.style.display = "none";
 
-      // Update button text
       if (toggleTimelineButton) {
         toggleTimelineButton.innerHTML =
           '<i class="fas fa-calendar-alt mr-2"></i> Näita ajakava';
@@ -116,7 +86,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  // Add this function to the global closeAllTabs function if it exists
   const originalCloseAllTabs = window.closeAllTabs;
   if (typeof originalCloseAllTabs === "function") {
     window.closeAllTabs = function () {
@@ -125,86 +94,87 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  // Function to update timeline content based on form data
   function updateTimelineContent() {
-    // Get values from form
     const name = document.getElementById("name").value || "";
     const cost = document.getElementById("cost").value || "";
-    const contractDate =
-      document.getElementById("contractSigningDate").value || "";
+    const contractDateInput = document.getElementById("contractSigningDate");
+    const contractDate = contractDateInput
+      ? contractDateInput.value.trim()
+      : null;
 
-    // Update timeline header
+    console.log("Contract Date Retrieved:", contractDate);
+
+    if (!contractDate || isNaN(new Date(contractDate).getTime())) {
+      console.warn("⚠ Contract signing date is missing or invalid.");
+      return;
+    }
+
+    const formattedContractDate = formatDate(contractDate);
+    if (formattedContractDate === "Määramata") {
+      console.error("❌ Invalid contract signing date after formatting.");
+      return;
+    }
+
     document.getElementById("timeline-procurement-name").textContent = name;
     document.getElementById("timeline-procurement-cost").textContent = cost;
+    document.getElementById("timeline-contract-date").textContent =
+      formattedContractDate;
 
-    if (contractDate) {
-      // Format contract date using existing formatDate function
-      document.getElementById("timeline-contract-date").textContent =
-        formatDate(contractDate);
+    const procedureType = document.getElementById("procedureType").value;
+    const procurement = new PublicProcurement(
+      name,
+      cost,
+      procedureType,
+      contractDate,
+    );
+    const requestSubmissionDate = procurement.calculateRequestSubmissionDate();
 
-      // Calculate request submission date (taotluse esitamise kuupäev)
-      const procedureType = document.getElementById("procedureType").value;
-      const procurement = new PublicProcurement(
-        name,
-        cost,
-        procedureType,
-        contractDate,
-      );
-      const requestSubmissionDate =
-        procurement.calculateRequestSubmissionDate();
+    const today = new Date();
+    const submissionDateObj = new Date(requestSubmissionDate);
+    const daysToStart = Math.ceil(
+      (submissionDateObj - today) / (1000 * 60 * 60 * 24),
+    );
 
-      // Calculate days until start (days from today to request submission date)
-      const today = new Date();
-      const submissionDateObj = new Date(requestSubmissionDate);
-      const daysToStart = Math.ceil(
-        (submissionDateObj - today) / (1000 * 60 * 60 * 24),
-      );
+    const daysToStartElement = document.getElementById("day-to-start");
+    if (daysToStartElement) {
+      daysToStartElement.textContent = daysToStart;
 
-      // Update days countdown
-      const daysToStartElement = document.getElementById("day-to-start");
-      if (daysToStartElement) {
-        daysToStartElement.textContent = daysToStart;
-
-        // Update styling based on days remaining
-        if (daysToStart < 0) {
-          daysToStartElement.classList.add("text-red-600");
-          daysToStartElement.parentElement.innerHTML = `<span class="text-lg">Alustamisega oled hiljaks jäänud <span id="day-to-start" 
-                    class="font-bold text-xl text-red-600">${Math.abs(daysToStart)}</span> 
-                    päeva</span>`;
-        } else {
-          daysToStartElement.classList.remove("text-red-600");
-          daysToStartElement.parentElement.innerHTML = `<span class="text-lg">Alustamiseni on jäänud <span id="day-to-start" 
-                    class="font-bold text-xl">${daysToStart}</span> 
-                    päeva</span>`;
-        }
+      if (daysToStart < 0) {
+        daysToStartElement.classList.add("text-red-600");
+        daysToStartElement.parentElement.innerHTML = `<span class="text-lg">Alustamisega oled hiljaks jäänud <span id="day-to-start" 
+                  class="font-bold text-xl text-red-600">${Math.abs(daysToStart)}</span> 
+                  päeva</span>`;
+      } else {
+        daysToStartElement.classList.remove("text-red-600");
+        daysToStartElement.parentElement.innerHTML = `<span class="text-lg">Alustamiseni on jäänud <span id="day-to-start" 
+                  class="font-bold text-xl">${daysToStart}</span> 
+                  päeva</span>`;
       }
+    }
 
-      // Update timeline steps based on the dates
+    if (contractDate && !isNaN(new Date(contractDate).getTime())) {
       updateTimelineSteps(requestSubmissionDate, contractDate);
+    } else {
+      console.error(
+        "❌ Contract signing date is invalid. Timeline update skipped.",
+      );
     }
   }
 
-  // Function to update timeline steps based on contract date
   function updateTimelineSteps(requestSubmissionDate, contractDate) {
-    // Convert string dates to Date objects
     const startDate = new Date(requestSubmissionDate);
     const endDate = new Date(contractDate);
 
-    // Get procedure type and details
     const procedureType = document.getElementById("procedureType").value;
     const procedure = procedureData[procedureType] || {};
 
-    // Get timeline steps container
     const timelineSteps = document.getElementById("timeline-steps");
     if (!timelineSteps) return;
 
-    // Clear existing steps
     timelineSteps.innerHTML = "";
 
-    // Get today's date for status calculation
     const today = new Date();
 
-    // Create timeline steps based on procedure details
     const procurement = new PublicProcurement(
       document.getElementById("name").value,
       document.getElementById("cost").value,
@@ -212,23 +182,17 @@ document.addEventListener("DOMContentLoaded", function () {
       contractDate,
     );
 
-    // Get procedure details
     const procedureDetails = procurement.procedureDetails;
 
-    // Calculate dates for each step
     let currentDate = new Date(startDate);
 
-    // Add steps to timeline
     procedureDetails.forEach((detail, index) => {
-      // Extract days from detail.days (format: "X päeva")
       const daysMatch = detail.days.match(/(\d+)/);
       const days = daysMatch ? parseInt(daysMatch[1]) : 0;
 
-      // Calculate end date for this step
       const stepEndDate = new Date(currentDate);
       stepEndDate.setDate(stepEndDate.getDate() + days);
 
-      // Determine step status
       let status = "future";
       if (today > stepEndDate) {
         status = "completed";
@@ -236,29 +200,26 @@ document.addEventListener("DOMContentLoaded", function () {
         status = "current";
       }
 
-      // Format dates for display
       const formattedStartDate = formatDate(currentDate);
       const formattedEndDate = formatDate(stepEndDate);
       const dateDisplay = `${formattedStartDate} - ${formattedEndDate}`;
 
-      // Create step element using the new card format
       const stepElement = document.createElement("li");
       stepElement.className = `${status}`;
 
-      // Set accent color based on status
       let accentColor;
       switch (status) {
         case "completed":
-          accentColor = "#4CAD73"; // Green
+          accentColor = "#4CAD73";
           break;
         case "current":
-          accentColor = "#1B5F8C"; // Blue
+          accentColor = "#1B5F8C";
           break;
         case "overdue":
-          accentColor = "#E24A68"; // Red
+          accentColor = "#E24A68";
           break;
         default:
-          accentColor = "#41516C"; // Gray-blue
+          accentColor = "#41516C";
       }
 
       stepElement.innerHTML = `
@@ -267,14 +228,11 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="descr">${detail.days}</div>
       `;
 
-      // Add step to timeline
       timelineSteps.appendChild(stepElement);
 
-      // Update current date for next step
       currentDate = new Date(stepEndDate);
     });
 
-    // Add final step for contract signing
     const contractStatus = today >= endDate ? "completed" : "future";
     const stepElement = document.createElement("li");
     stepElement.className = contractStatus;
@@ -286,435 +244,421 @@ document.addEventListener("DOMContentLoaded", function () {
 
     timelineSteps.appendChild(stepElement);
   }
-  // After generating steps
+
   gsap.from(".timeline-step", {
     opacity: 0,
     y: 50,
     duration: 0.8,
-    stagger: 0.2, // Each step animates sequentially
+    stagger: 0.2,
     ease: "power2.out",
   });
 
-  // Function to calculate procedure duration based on procedure type
   function calculateProcedureDuration(procedureType) {
-    // This should match your existing logic for calculating procedure duration
-    // For now, returning a placeholder value
-    return 60; // Default 60 days
+    return 60;
   }
-});
 
-// Main function to initialize the timeline
-function initializeTimeline() {
-  console.log("Initializing timeline");
+  function initializeTimeline() {
+    console.log("Initializing timeline");
 
-  try {
-    // Get data from the result container if it exists
-    const resultContainer = document.getElementById("resultContainer");
-    const isResultVisible =
-      resultContainer && !resultContainer.classList.contains("hidden");
+    const resultCards = document.querySelectorAll(".result-card");
+    if (!resultCards.length) {
+      console.warn("No result cards found, skipping timeline update");
+      return;
+    }
 
-    console.log("Result container visible:", isResultVisible);
-
-    // Get procurement data from the form or result
-    let procurementData = {};
-
-    if (isResultVisible) {
-      // Get data from the result container
-      const nameElement = document.getElementById("name");
-      const costElement = document.getElementById("cost");
-      const procedureTypeElement = document.getElementById("procedureType");
-      const contractDateElement = document.getElementById(
-        "contractSigningDate",
+    let updatedSteps = [];
+    resultCards.forEach((card, index) => {
+      const stepName = card.querySelector(".step-name")?.textContent.trim();
+      const daysElement = card.querySelector(`#days-${index}`);
+      const days = parseInt(
+        daysElement?.innerText.match(/\d+/)?.[0] || "0",
+        10,
       );
-      const requestSubmissionDateElement = document.getElementById(
-        "requestSubmissionDate",
-      );
-
-      if (
-        nameElement &&
-        costElement &&
-        procedureTypeElement &&
-        contractDateElement
-      ) {
-        procurementData = {
-          name: nameElement.value,
-          cost: parseFloat(costElement.value),
-          procedureType: procedureTypeElement.value,
-          contractDate: contractDateElement.value,
-          requestSubmissionDate: requestSubmissionDateElement
-            ? requestSubmissionDateElement.innerText
-            : null,
-        };
-
-        console.log("Using form data for timeline:", procurementData);
-      } else {
-        console.warn("Could not find all form elements");
+      if (stepName && daysElement) {
+        updatedSteps.push({ step: stepName, days: days });
       }
-    }
+    });
 
-    // Update the timeline header
-    const nameElement = document.getElementById("timeline-procurement-name");
-    const dateElement = document.getElementById("timeline-contract-date");
-    const daysElement = document.getElementById("day-to-start");
-
-    if (!nameElement || !dateElement || !daysElement) {
-      console.error("Timeline header elements not found");
+    if (!updatedSteps.length) {
+      console.warn("No steps extracted from result cards");
       return;
     }
 
-    // Use form data if available, otherwise use existing data
-    if (procurementData.name) {
-      nameElement.textContent = procurementData.name;
-    }
+    console.log("Updated Steps:", updatedSteps);
+    updateTimelineSteps(updatedSteps);
 
-    let contractDate;
+    try {
+      const resultContainer = document.getElementById("resultContainer");
+      const isResultVisible =
+        resultContainer && !resultContainer.classList.contains("hidden");
 
-    if (procurementData.contractDate) {
-      // Parse the contract date from the form (YYYY-MM-DD) to display format (DD.MM.YYYY)
-      contractDate = new Date(procurementData.contractDate);
-      if (!isNaN(contractDate.getTime())) {
-        dateElement.textContent = contractDate.toLocaleDateString("et-EE");
-      }
-    } else {
-      // Parse the contract date from the displayed format (DD.MM.YYYY) to Date object
-      const displayedDate = dateElement.textContent;
-      const dateParts = displayedDate.split(".");
-      if (dateParts.length === 3) {
-        const contractDateStr = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-        contractDate = new Date(contractDateStr);
-      }
-    }
+      console.log("Result container visible:", isResultVisible);
 
-    if (!contractDate || isNaN(contractDate.getTime())) {
-      console.error("Invalid contract date");
-      return;
-    }
+      let procurementData = {};
 
-    // Calculate days to start
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    contractDate.setHours(0, 0, 0, 0);
-    const daysToStart = Math.ceil(
-      (contractDate - today) / (1000 * 60 * 60 * 24),
-    );
-    daysElement.textContent = daysToStart;
+      if (isResultVisible) {
+        const nameElement = document.getElementById("name");
+        const costElement = document.getElementById("cost");
+        const procedureTypeElement = document.getElementById("procedureType");
+        const contractDateElement = document.getElementById(
+          "contractSigningDate",
+        );
+        const requestSubmissionDateElement = document.getElementById(
+          "requestSubmissionDate",
+        );
 
-    // Get the timeline steps container
-    const timelineStepsContainer = document.getElementById("timeline-steps");
-    if (!timelineStepsContainer) {
-      console.error("Timeline steps container not found");
-      return;
-    }
+        if (
+          nameElement &&
+          costElement &&
+          procedureTypeElement &&
+          contractDateElement
+        ) {
+          procurementData = {
+            name: nameElement.value,
+            cost: parseFloat(costElement.value),
+            procedureType: procedureTypeElement.value,
+            contractDate: contractDateElement.value,
+            requestSubmissionDate: requestSubmissionDateElement
+              ? requestSubmissionDateElement.innerText
+              : null,
+          };
 
-    // Generate new timeline steps based on the contract date
-    generateTimelineSteps(timelineStepsContainer, contractDate, today);
-
-    // Set up export buttons
-    const exportExcelBtn = document.getElementById("exportExcel");
-    const exportPDFBtn = document.getElementById("exportPDF");
-
-    if (exportExcelBtn) {
-      exportExcelBtn.onclick = function () {
-        console.log("Export to Excel clicked");
-        alert("Excel export functionality would go here");
-      };
-    }
-
-    if (exportPDFBtn) {
-      exportPDFBtn.onclick = function () {
-        console.log("Export to PDF clicked");
-        // Simple direct PDF export implementation
-        const timelineContainer = document.querySelector(".timeline-container");
-        if (!timelineContainer) {
-          alert("Timeline container not found");
-          return;
+          console.log("Using form data for timeline:", procurementData);
+        } else {
+          console.warn("Could not find all form elements");
         }
+      }
 
-        // Create a simple PDF using jsPDF directly
-        try {
-          const { jsPDF } = window.jspdf;
-          if (!jsPDF) {
-            alert("PDF library not loaded. Please try again later.");
+      const nameElement = document.getElementById("timeline-procurement-name");
+      const dateElement = document.getElementById("timeline-contract-date");
+      const daysElement = document.getElementById("day-to-start");
+
+      if (!nameElement || !dateElement || !daysElement) {
+        console.error("Timeline header elements not found");
+        return;
+      }
+
+      if (procurementData.name) {
+        nameElement.textContent = procurementData.name;
+      }
+
+      let contractDate;
+
+      if (procurementData.contractDate) {
+        contractDate = new Date(procurementData.contractDate);
+        if (!isNaN(contractDate.getTime())) {
+          dateElement.textContent = contractDate.toLocaleDateString("et-EE");
+        }
+      } else {
+        const displayedDate = dateElement.textContent;
+        const dateParts = displayedDate.split(".");
+        if (dateParts.length === 3) {
+          const contractDateStr = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+          contractDate = new Date(contractDateStr);
+        }
+      }
+
+      if (!contractDate || isNaN(contractDate.getTime())) {
+        console.error("Invalid contract date");
+        return;
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      contractDate.setHours(0, 0, 0, 0);
+      const daysToStart = Math.ceil(
+        (contractDate - today) / (1000 * 60 * 60 * 24),
+      );
+      daysElement.textContent = daysToStart;
+
+      const timelineStepsContainer = document.getElementById("timeline-steps");
+      if (!timelineStepsContainer) {
+        console.error("Timeline steps container not found");
+        return;
+      }
+
+      generateTimelineSteps(timelineStepsContainer, contractDate, today);
+
+      const exportExcelBtn = document.getElementById("exportExcel");
+      const exportPDFBtn = document.getElementById("exportPDF");
+
+      if (exportExcelBtn) {
+        exportExcelBtn.onclick = function () {
+          console.log("Export to Excel clicked");
+          alert("Excel export functionality would go here");
+        };
+      }
+
+      if (exportPDFBtn) {
+        exportPDFBtn.onclick = function () {
+          console.log("Export to PDF clicked");
+          const timelineContainer = document.querySelector(
+            ".timeline-container",
+          );
+          if (!timelineContainer) {
+            alert("Timeline container not found");
             return;
           }
 
-          const doc = new jsPDF("p", "mm", "a4");
+          try {
+            const { jsPDF } = window.jspdf;
+            if (!jsPDF) {
+              alert("PDF library not loaded. Please try again later.");
+              return;
+            }
 
-          // Add title
-          const procurementName =
-            document.getElementById("name")?.value ||
-            document.getElementById("timeline-procurement-name")?.textContent ||
-            "Riigihanke";
-          doc.setFontSize(20);
-          doc.setTextColor(0, 0, 255);
-          doc.text(`${procurementName} Ajakava`, 105, 20, { align: "center" });
+            const doc = new jsPDF("p", "mm", "a4");
 
-          // Add current date
-          doc.setFontSize(12);
-          doc.setTextColor(100, 100, 100);
-          const today = new Date();
-          doc.text(
-            `Genereeritud: ${today.toLocaleDateString("et-EE")}`,
-            105,
-            30,
-            { align: "center" },
-          );
-
-          // Get timeline steps
-          const timelineSteps = document.getElementById("timeline-steps");
-          let yPos = 50;
-
-          if (timelineSteps && timelineSteps.children.length > 0) {
-            // Process each timeline step
-            Array.from(timelineSteps.children).forEach((step, index) => {
-              // Extract step information
-              const title =
-                step.querySelector(".title")?.textContent ||
-                step.querySelector("h3")?.textContent ||
-                `Samm ${index + 1}`;
-              const date =
-                step.querySelector(".date")?.textContent ||
-                step.querySelector("time")?.textContent ||
-                "";
-              const description =
-                step.querySelector(".descr")?.textContent ||
-                step.querySelector("p")?.textContent ||
-                "";
-
-              // Add to PDF
-              doc.setFontSize(14);
-              doc.setTextColor(0, 0, 150);
-              doc.text(`${index + 1}. ${title}`, 20, yPos);
-              yPos += 8;
-
-              doc.setFontSize(11);
-              doc.setTextColor(80, 80, 80);
-              doc.text(`${date}`, 20, yPos);
-              yPos += 6;
-
-              doc.setFontSize(10);
-              doc.text(`${description}`, 20, yPos);
-              yPos += 10;
-
-              // Add separator
-              doc.setDrawColor(200, 200, 200);
-              doc.line(20, yPos, 190, yPos);
-              yPos += 15;
-
-              // Check if we need a new page
-              if (yPos > 270) {
-                doc.addPage();
-                yPos = 20;
-              }
+            const procurementName =
+              document.getElementById("name")?.value ||
+              document.getElementById("timeline-procurement-name")
+                ?.textContent ||
+              "Riigihanke";
+            doc.setFontSize(20);
+            doc.setTextColor(0, 0, 255);
+            doc.text(`${procurementName} Ajakava`, 105, 20, {
+              align: "center",
             });
-          } else {
-            // No timeline steps found
-            doc.setFontSize(14);
+
+            doc.setFontSize(12);
             doc.setTextColor(100, 100, 100);
-            doc.text("Ajakava andmed puuduvad", 105, yPos, { align: "center" });
+            const today = new Date();
+            doc.text(
+              `Genereeritud: ${today.toLocaleDateString("et-EE")}`,
+              105,
+              30,
+              { align: "center" },
+            );
+
+            const timelineSteps = document.getElementById("timeline-steps");
+            let yPos = 50;
+
+            if (timelineSteps && timelineSteps.children.length > 0) {
+              Array.from(timelineSteps.children).forEach((step, index) => {
+                const title =
+                  step.querySelector(".title")?.textContent ||
+                  step.querySelector("h3")?.textContent ||
+                  `Samm ${index + 1}`;
+                const date =
+                  step.querySelector(".date")?.textContent ||
+                  step.querySelector("time")?.textContent ||
+                  "";
+                const description =
+                  step.querySelector(".descr")?.textContent ||
+                  step.querySelector("p")?.textContent ||
+                  "";
+
+                doc.setFontSize(14);
+                doc.setTextColor(0, 0, 150);
+                doc.text(`${index + 1}. ${title}`, 20, yPos);
+                yPos += 8;
+
+                doc.setFontSize(11);
+                doc.setTextColor(80, 80, 80);
+                doc.text(`${date}`, 20, yPos);
+                yPos += 6;
+
+                doc.setFontSize(10);
+                doc.text(`${description}`, 20, yPos);
+                yPos += 10;
+
+                doc.setDrawColor(200, 200, 200);
+                doc.line(20, yPos, 190, yPos);
+                yPos += 15;
+
+                if (yPos > 270) {
+                  doc.addPage();
+                  yPos = 20;
+                }
+              });
+            } else {
+              doc.setFontSize(14);
+              doc.setTextColor(100, 100, 100);
+              doc.text("Ajakava andmed puuduvad", 105, yPos, {
+                align: "center",
+              });
+            }
+
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text(
+              "© 2025 Riigihanke Andmed. Kõik õigused kaitstud.",
+              105,
+              280,
+              { align: "center" },
+            );
+
+            doc.save(`${procurementName.replace(/\s+/g, "_")}_ajakava.pdf`);
+          } catch (error) {
+            console.error("Error generating PDF:", error);
+            alert("PDF genereerimine ebaõnnestus. Proovige hiljem uuesti.");
           }
+        };
+      }
 
-          // Add footer
-          doc.setFontSize(10);
-          doc.setTextColor(150, 150, 150);
-          doc.text(
-            "© 2025 Riigihanke Andmed. Kõik õigused kaitstud.",
-            105,
-            280,
-            { align: "center" },
-          );
-
-          // Save the PDF
-          doc.save(`${procurementName.replace(/\s+/g, "_")}_ajakava.pdf`);
-        } catch (error) {
-          console.error("Error generating PDF:", error);
-          alert("PDF genereerimine ebaõnnestus. Proovige hiljem uuesti.");
-        }
-      };
+      console.log("Timeline initialized successfully");
+    } catch (error) {
+      console.error("Error initializing timeline:", error);
     }
-
-    console.log("Timeline initialized successfully");
-  } catch (error) {
-    console.error("Error initializing timeline:", error);
   }
-}
 
-// Function to generate timeline steps
-function generateTimelineSteps(container, contractDate, today) {
-  // Clear existing steps
-  container.innerHTML = "";
+  function generateTimelineSteps(container, contractDate, today) {
+    container.innerHTML = "";
 
-  // Define steps based on contract date
-  const steps = [];
+    const steps = [];
 
-  // Step 1: Preparation (90 days before contract)
-  const prepStartDate = new Date(contractDate);
-  prepStartDate.setDate(prepStartDate.getDate() - 90);
-  const prepEndDate = new Date(prepStartDate);
-  prepEndDate.setDate(prepEndDate.getDate() + 30);
+    const prepStartDate = new Date(contractDate);
+    prepStartDate.setDate(prepStartDate.getDate() - 90);
+    const prepEndDate = new Date(prepStartDate);
+    prepEndDate.setDate(prepEndDate.getDate() + 30);
 
-  steps.push({
-    title: "Hanke ettevalmistamine",
-    description: "Hankedokumentide koostamine ja avaldamine",
-    startDate: prepStartDate,
-    endDate: prepEndDate,
-  });
+    steps.push({
+      title: "Hanke ettevalmistamine",
+      description: "Hankedokumentide koostamine ja avaldamine",
+      startDate: prepStartDate,
+      endDate: prepEndDate,
+    });
 
-  // Step 2: Submission (60 days before contract)
-  const submissionStartDate = new Date(contractDate);
-  submissionStartDate.setDate(submissionStartDate.getDate() - 60);
-  const submissionEndDate = new Date(submissionStartDate);
-  submissionEndDate.setDate(submissionEndDate.getDate() + 30);
+    const submissionStartDate = new Date(contractDate);
+    submissionStartDate.setDate(submissionStartDate.getDate() - 60);
+    const submissionEndDate = new Date(submissionStartDate);
+    submissionEndDate.setDate(submissionEndDate.getDate() + 30);
 
-  steps.push({
-    title: "Pakkumuste esitamine",
-    description: "Pakkujad esitavad oma pakkumused",
-    startDate: submissionStartDate,
-    endDate: submissionEndDate,
-  });
+    steps.push({
+      title: "Pakkumuste esitamine",
+      description: "Pakkujad esitavad oma pakkumused",
+      startDate: submissionStartDate,
+      endDate: submissionEndDate,
+    });
 
-  // Step 3: Evaluation (30 days before contract)
-  const evalStartDate = new Date(contractDate);
-  evalStartDate.setDate(evalStartDate.getDate() - 30);
-  const evalEndDate = new Date(evalStartDate);
-  evalEndDate.setDate(evalEndDate.getDate() + 15);
+    const evalStartDate = new Date(contractDate);
+    evalStartDate.setDate(evalStartDate.getDate() - 30);
+    const evalEndDate = new Date(evalStartDate);
+    evalEndDate.setDate(evalEndDate.getDate() + 15);
 
-  steps.push({
-    title: "Pakkumuste hindamine",
-    description: "Pakkumuste läbivaatamine ja hindamine",
-    startDate: evalStartDate,
-    endDate: evalEndDate,
-  });
+    steps.push({
+      title: "Pakkumuste hindamine",
+      description: "Pakkumuste läbivaatamine ja hindamine",
+      startDate: evalStartDate,
+      endDate: evalEndDate,
+    });
 
-  // Step 4: Contract signing
-  steps.push({
-    title: "Lepingu sõlmimine",
-    description: "Hankelepingu allkirjastamine",
-    startDate: contractDate,
-    endDate: contractDate,
-  });
+    steps.push({
+      title: "Lepingu sõlmimine",
+      description: "Hankelepingu allkirjastamine",
+      startDate: contractDate,
+      endDate: contractDate,
+    });
 
-  // Step 5: Contract execution (starts day after signing, lasts 180 days)
-  const executionStartDate = new Date(contractDate);
-  executionStartDate.setDate(executionStartDate.getDate() + 1);
-  const executionEndDate = new Date(executionStartDate);
-  executionEndDate.setDate(executionEndDate.getDate() + 180);
+    const executionStartDate = new Date(contractDate);
+    executionStartDate.setDate(executionStartDate.getDate() + 1);
+    const executionEndDate = new Date(executionStartDate);
+    executionEndDate.setDate(executionEndDate.getDate() + 180);
 
-  steps.push({
-    title: "Lepingu täitmine",
-    description: "Hankelepingu täitmine",
-    startDate: executionStartDate,
-    endDate: executionEndDate,
-  });
+    steps.push({
+      title: "Lepingu täitmine",
+      description: "Hankelepingu täitmine",
+      startDate: executionStartDate,
+      endDate: executionEndDate,
+    });
 
-  // Render steps
-  steps.forEach((step) => {
-    // Determine status based on current date
-    let status = "future";
-    if (today > step.endDate) {
-      status = "completed";
-    } else if (today >= step.startDate && today <= step.endDate) {
-      status = "current";
-    } else if (step.startDate < today) {
-      status = "overdue";
-    }
+    steps.forEach((step) => {
+      let status = "future";
+      if (today > step.endDate) {
+        status = "completed";
+      } else if (today >= step.startDate && today <= step.endDate) {
+        status = "current";
+      } else if (step.startDate < today) {
+        status = "overdue";
+      }
 
-    // Format dates for display
-    const startDateStr = step.startDate.toLocaleDateString("et-EE");
-    const endDateStr = step.endDate.toLocaleDateString("et-EE");
-    const dateDisplay =
-      startDateStr === endDateStr
-        ? startDateStr
-        : `${startDateStr} - ${endDateStr}`;
+      const startDateStr = step.startDate.toLocaleDateString("et-EE");
+      const endDateStr = step.endDate.toLocaleDateString("et-EE");
+      const dateDisplay =
+        startDateStr === endDateStr
+          ? startDateStr
+          : `${startDateStr} - ${endDateStr}`;
 
-    // Create step element using the new card format
-    const stepElement = document.createElement("li");
-    stepElement.className = `${status}`;
+      const stepElement = document.createElement("li");
+      stepElement.className = `${status}`;
 
-    // Set accent color based on status
-    let accentColor;
-    switch (status) {
-      case "completed":
-        accentColor = "#4CAD73"; // Green
-        break;
-      case "current":
-        accentColor = "#1B5F8C"; // Blue
-        break;
-      case "overdue":
-        accentColor = "#E24A68"; // Red
-        break;
-      default:
-        accentColor = "#41516C"; // Gray-blue
-    }
+      let accentColor;
+      switch (status) {
+        case "completed":
+          accentColor = "#4CAD73";
+          break;
+        case "current":
+          accentColor = "#1B5F8C";
+          break;
+        case "overdue":
+          accentColor = "#E24A68";
+          break;
+        default:
+          accentColor = "#41516C";
+      }
 
-    stepElement.innerHTML = `
+      stepElement.innerHTML = `
       <div class="date">${dateDisplay}</div>
       <div class="title">${step.title}</div>
       <div class="descr">${step.description}</div>
     `;
 
-    container.appendChild(stepElement);
-  });
-}
-
-// Helper function to parse Estonian date format (DD.MM.YYYY)
-function parseEstonianDate(dateStr) {
-  if (!dateStr || typeof dateStr !== "string") {
-    console.warn("Invalid date input:", dateStr);
-    return null;
+      container.appendChild(stepElement);
+    });
   }
 
-  // Skip status indicators or non-date text
-  const statusIndicators = ["Lõpetatud", "Käimas", "Hilinenud", "Tulevikus"];
-  if (statusIndicators.includes(dateStr.trim())) {
-    console.log("Skipping status indicator:", dateStr);
-    return null;
+  function parseEstonianDate(dateStr) {
+    if (!dateStr || typeof dateStr !== "string") {
+      console.warn("Invalid date input:", dateStr);
+      return null;
+    }
+
+    const statusIndicators = ["Lõpetatud", "Käimas", "Hilinenud", "Tulevikus"];
+    if (statusIndicators.includes(dateStr.trim())) {
+      console.log("Skipping status indicator:", dateStr);
+      return null;
+    }
+
+    const parts = dateStr.trim().split(".");
+    if (parts.length < 3) {
+      console.warn("Invalid date format:", dateStr);
+      return null;
+    }
+
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    let year = parseInt(parts[2], 10);
+
+    if (isNaN(day) || isNaN(month) || isNaN(year)) {
+      console.warn("Invalid date components:", dateStr);
+      return null;
+    }
+
+    if (year < 100) {
+      year = 2000 + year;
+    }
+
+    if (
+      day < 1 ||
+      day > 31 ||
+      month < 1 ||
+      month > 12 ||
+      year < 2000 ||
+      year > 2100
+    ) {
+      console.warn("Date components out of range:", dateStr);
+      return null;
+    }
+
+    const formattedMonth = month.toString().padStart(2, "0");
+    const formattedDay = day.toString().padStart(2, "0");
+
+    const date = new Date(`${year}-${formattedMonth}-${formattedDay}`);
+    if (isNaN(date.getTime())) {
+      console.warn("Invalid date result:", dateStr);
+      return null;
+    }
+
+    return date;
   }
-
-  const parts = dateStr.trim().split(".");
-  if (parts.length < 3) {
-    console.warn("Invalid date format:", dateStr);
-    return null;
-  }
-
-  // Validate day, month, year
-  const day = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10);
-  let year = parseInt(parts[2], 10);
-
-  if (isNaN(day) || isNaN(month) || isNaN(year)) {
-    console.warn("Invalid date components:", dateStr);
-    return null;
-  }
-
-  // Handle case where year might be abbreviated
-  if (year < 100) {
-    year = 2000 + year; // Assume 21st century for abbreviated years
-  }
-
-  // Validate ranges
-  if (
-    day < 1 ||
-    day > 31 ||
-    month < 1 ||
-    month > 12 ||
-    year < 2000 ||
-    year > 2100
-  ) {
-    console.warn("Date components out of range:", dateStr);
-    return null;
-  }
-
-  // Format month and day with leading zeros if needed
-  const formattedMonth = month.toString().padStart(2, "0");
-  const formattedDay = day.toString().padStart(2, "0");
-
-  // Create date object and validate
-  const date = new Date(`${year}-${formattedMonth}-${formattedDay}`);
-  if (isNaN(date.getTime())) {
-    console.warn("Invalid date result:", dateStr);
-    return null;
-  }
-
-  return date;
-}
+});
