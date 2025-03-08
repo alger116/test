@@ -17,6 +17,17 @@
             animation: fadeIn 0.3s ease-out;
         }
 
+        .loader {
+            border-top-color: #8b5cf6;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -266,7 +277,6 @@
             </div>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             let questionCounter = 6; // Starting from 6 since we already have 5 questions
@@ -275,40 +285,57 @@
             document.getElementById('addQuestion').addEventListener('click', function () {
                 const newQuestionContainer = document.createElement('div');
                 newQuestionContainer.className = 'bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 animate-in';
-                newQuestionContainer.innerHTML = `
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-            <div class="flex-1">
-              <div class="flex items-center mb-2">
-                <input type="text" placeholder="Sisesta küsimus..." class="question-text w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out">
-              </div>
-              <input type="text" id="q${questionCounter}" name="q${questionCounter}" class="form-input w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out">
-            </div>
-            <div class="checkbox-modern">
-              <input type="checkbox" id="c${questionCounter}" class="check-item" data-question="">
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-            <button type="button" class="delete-question text-gray-400 hover:text-red-500 transition-colors duration-200">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
-            </button>
-          </div>
-        `;
 
-                document.getElementById('additionalQuestions').appendChild(newQuestionContainer);
+                const questionLabel = document.createElement('div');
+                questionLabel.className = 'flex items-center mb-2';
 
-                // Update the data-question attribute when question text changes
-                const questionTextInput = newQuestionContainer.querySelector('.question-text');
-                const checkbox = newQuestionContainer.querySelector('.check-item');
+                const questionInput = document.createElement('input');
+                questionInput.type = 'text';
+                questionInput.placeholder = 'Sisesta küsimus...';
+                questionInput.className = 'question-text w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out';
 
-                questionTextInput.addEventListener('input', function () {
-                    checkbox.setAttribute('data-question', this.value);
-                });
+                questionLabel.appendChild(questionInput);
+                newQuestionContainer.appendChild(questionLabel);
 
-                // Delete question
-                const deleteButton = newQuestionContainer.querySelector('.delete-question');
+                const answerInput = document.createElement('input');
+                answerInput.type = 'text';
+                answerInput.id = `q${questionCounter}`;
+                answerInput.name = `q${questionCounter}`;
+                answerInput.className = 'form-input w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out';
+
+                newQuestionContainer.appendChild(answerInput);
+
+                const checkbox = document.createElement('div');
+                checkbox.className = 'checkbox-modern';
+
+                const checkItem = document.createElement('input');
+                checkItem.type = 'checkbox';
+                checkItem.id = `c${questionCounter}`;
+                checkItem.className = 'check-item';
+                checkItem.setAttribute('data-question', '');
+
+                checkbox.appendChild(checkItem);
+
+                const checkIcon = document.createElement('svg');
+                checkIcon.className = 'w-4 h-4 text-white';
+                checkIcon.setAttribute('fill', 'none');
+                checkIcon.setAttribute('stroke', 'currentColor');
+                checkIcon.setAttribute('viewBox', '0 0 24 24');
+                checkIcon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                checkIcon.setAttribute('stroke-linecap', 'round');
+                checkIcon.setAttribute('stroke-linejoin', 'round');
+                checkIcon.setAttribute('stroke-width', '3');
+                checkIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>';
+
+                checkbox.appendChild(checkIcon);
+
+                newQuestionContainer.appendChild(checkbox);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.type = 'button';
+                deleteButton.className = 'delete-question text-gray-400 hover:text-red-500 transition-colors duration-200';
+                deleteButton.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>';
+
                 deleteButton.addEventListener('click', function () {
                     newQuestionContainer.classList.add('opacity-0', 'transform', 'translate-y-4');
                     setTimeout(() => {
@@ -316,21 +343,39 @@
                     }, 300);
                 });
 
+                newQuestionContainer.appendChild(deleteButton);
+
+                document.getElementById('additionalQuestions').appendChild(newQuestionContainer);
+
+                // Update the data-question attribute when question text changes
+                const questionTextInput = newQuestionContainer.querySelector('.question-text');
+                const checkboxInput = newQuestionContainer.querySelector('.check-item');
+
+                questionTextInput.addEventListener('input', function () {
+                    checkboxInput.setAttribute('data-question', this.value);
+                });
+
+                // Add the checkbox change event listener
+                checkItem.addEventListener('change', () => {
+                    const answerInput = document.getElementById(`q${questionCounter}`);
+                    if (checkItem.checked && !answerInput.value.trim()) {
+                        alert('Palun sisesta vastus enne märkimist!');
+                        checkItem.checked = false;
+                    }
+                });
+
                 questionCounter++;
             });
 
             // Play bingo
-            document.getElementById('playBingo').addEventListener('click', function () {
+            document.getElementById('playBingo').addEventListener('click', async function () {
                 const resultElement = document.getElementById('result');
                 resultElement.innerHTML = `<div class="flex justify-center items-center py-4">
-          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-violet-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span>Genereerin...</span>
-        </div>`;
+                    <div class="loader h-5 w-5"></div>
+                    <span>Genereerin...</span>
+                </div>`;
 
-                setTimeout(() => {
+                setTimeout(async () => {
                     let prompt = "Analüüsi järgnevaid andmeid ostumenetluse kohta:\n\n";
                     let hasCheckedItems = false;
 
@@ -347,41 +392,72 @@
                     });
 
                     if (!hasCheckedItems) {
-                        document.getElementById('result').innerHTML = `
-              <div class="flex items-center text-amber-600">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                </svg>
-                Palun märkige vähemalt üks vastus ja sisestage vastus.
-              </div>
-            `;
+                        resultElement.innerHTML = `
+                            <div class="flex items-center text-amber-600">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                Palun märkige vähemalt üks vastus ja sisestage vastus.
+                            </div>
+                        `;
                         return;
                     }
 
                     prompt += "Palun anna soovitus edasisteks sammudeks ostumenetluses.";
 
-                    // Here you would typically send the prompt to a chat bot API
-                    // For demo purposes, we'll just display the prompt
-                    document.getElementById('result').innerHTML = `
-            <div class="space-y-4">
-              <div class="pb-3 border-b border-gray-200">
-                <p class="font-medium text-gray-700">Genereeritud prompt chat-botile:</p>
-              </div>
-              <pre class="bg-gray-50 p-4 rounded-lg text-sm overflow-auto whitespace-pre-wrap text-gray-700 border border-gray-200">${prompt}</pre>
-              <div class="mt-4 p-4 bg-violet-50 rounded-lg border border-violet-100">
-                <div class="flex items-center mb-2">
-                  <svg class="w-5 h-5 mr-2 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                  </svg>
-                  <span class="font-medium text-gray-700">Chatboti vastus:</span>
-                </div>
-                <p class="text-gray-600">Siin oleks chat-boti vastus...</p>
-              </div>
-            </div>
-          `;
+                    // Get the response from the ChatGPT API
+                    const botResponse = await getChatGPTResponse(prompt);
+                    resultElement.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="pb-3 border-b border-gray-200">
+                                <p class="font-medium text-gray-700">Genereeritud prompt chat-botile:</p>
+                            </div>
+                            <pre class="bg-gray-50 p-4 rounded-lg text-sm overflow-auto whitespace-pre-wrap text-gray-700 border border-gray-200">${botResponse}</pre>
+                            <div class="mt-4 p-4 bg-violet-50 rounded-lg border border-violet-100">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 mr-2 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                                    </svg>
+                                    <span class="font-medium text-gray-700">Chatboti vastus:</span>
+                                </div>
+                                <p class="text-gray-600">${botResponse}</p>
+                            </div>
+                        </div>
+                    `;
                 }, 1500);
             });
         });
+
+        async function getChatGPTResponse(prompt) {
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}` // Ensure API_KEY is defined in your script
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-3.5-turbo",
+                        messages: [{ role: "user", content: prompt }]
+                    })
+                });
+
+                const data = await response.json();
+                return data.choices[0].message.content;
+            } catch (error) {
+                console.error('Viga API päringus:', error);
+                showError('Viga vastuse genereerimisel');
+                return 'Viga vastuse genereerimisel';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-toast';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
     </script>
 </body>
 

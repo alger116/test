@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.6.0/dist/full.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ApexCharts/3.35.5/apexcharts.min.js"></script>
+    <style>
+        .container-card {
+            transition: all 0.3s ease;
+        }
+
+        .container-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <div class="p-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Ülevaade</h1>
+            <div class="flex space-x-2">
+                <button class="btn btn-sm btn-primary">Export</button>
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-sm btn-ghost m-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                        </svg>
+                    </label>
+                    <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                        <li><a>Refresh Data</a></li>
+                        <li><a>Settings</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Data Container 1: Stats Card -->
+            <div id="container-stats" class="container-card card bg-white shadow-md">
+                <div class="card-body">
+                    <h2 class="card-title text-gray-700 mb-4">Peamised näitajad</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="stat bg-blue-50 rounded-xl p-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="stat-icon bg-blue-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="stat-title text-sm text-gray-500">Revenue</div>
+                                    <div class="stat-value text-2xl font-bold text-blue-600">$24,780</div>
+                                    <div class="stat-desc text-green-500 text-xs">↑ 12.5%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat bg-purple-50 rounded-xl p-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="stat-icon bg-purple-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="stat-title text-sm text-gray-500">Users</div>
+                                    <div class="stat-value text-2xl font-bold text-purple-600">8,492</div>
+                                    <div class="stat-desc text-green-500 text-xs">↑ 23.8%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat bg-amber-50 rounded-xl p-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="stat-icon bg-amber-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="stat-title text-sm text-gray-500">Orders</div>
+                                    <div class="stat-value text-2xl font-bold text-amber-600">942</div>
+                                    <div class="stat-desc text-green-500 text-xs">↑ 8.2%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat bg-emerald-50 rounded-xl p-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="stat-icon bg-emerald-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-500" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="stat-title text-sm text-gray-500">Conversion</div>
+                                    <div class="stat-value text-2xl font-bold text-emerald-600">24.3%</div>
+                                    <div class="stat-desc text-red-500 text-xs">↓ 1.8%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Container 2: Line Chart -->
+            <div id="container-chart" class="container-card card bg-white shadow-md lg:col-span-2">
+                <div class="card-body">
+                    <h2 class="card-title text-gray-700 mb-4">Trendid</h2>
+                    <div class="tabs tabs-boxed mb-4 bg-gray-100 inline-flex">
+                        <a class="tab tab-active">Nädal</a>
+                        <a class="tab">Kuu</a>
+                        <a class="tab">Aasta</a>
+                    </div>
+                    <div>
+                        <canvas id="revenueChart" class="w-full h-64"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Container 3: Table -->
+            <div id="container-table" class="container-card card bg-white shadow-md lg:col-span-2">
+                <div class="card-body">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="card-title text-gray-700">Viimased otsingud</h2>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" placeholder="Search..."
+                                class="input input-sm input-bordered w-full max-w-xs" />
+                            <button class="btn btn-sm btn-ghost">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra w-full">
+                            <thead>
+                                <tr>
+                                    <th>Kasutaja</th>
+                                    <th>Päevi menetluse alustamiseni</th>
+                                    <th>Menetluse nimi</th>
+                                    <th>Taolutse aeg</th>
+                                    <th>Maksumus</th>
+                                    <th>Staatus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#TR-7842</td>
+                                    <td>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="avatar">
+                                                <div
+                                                    class="mask mask-squircle w-8 h-8 bg-blue-100 flex items-center justify-center">
+                                                    <span class="text-blue-600 font-medium">JD</span>
+                                                </div>
+                                            </div>
+                                            <div>John Doe</div>
+                                        </div>
+                                    </td>
+                                    <td>Premium Plan</td>
+                                    <td>2025-03-05</td>
+                                    <td>$299.00</td>
+                                    <td><span class="badge badge-success">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#TR-7841</td>
+                                    <td>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="avatar">
+                                                <div
+                                                    class="mask mask-squircle w-8 h-8 bg-purple-100 flex items-center justify-center">
+                                                    <span class="text-purple-600 font-medium">AS</span>
+                                                </div>
+                                            </div>
+                                            <div>Anna Smith</div>
+                                        </div>
+                                    </td>
+                                    <td>Basic Plan</td>
+                                    <td>2025-03-04</td>
+                                    <td>$99.00</td>
+                                    <td><span class="badge badge-success">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#TR-7840</td>
+                                    <td>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="avatar">
+                                                <div
+                                                    class="mask mask-squircle w-8 h-8 bg-green-100 flex items-center justify-center">
+                                                    <span class="text-green-600 font-medium">RJ</span>
+                                                </div>
+                                            </div>
+                                            <div>Robert Johnson</div>
+                                        </div>
+                                    </td>
+                                    <td>Enterprise Plan</td>
+                                    <td>2025-03-03</td>
+                                    <td>$999.00</td>
+                                    <td><span class="badge badge-warning">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#TR-7839</td>
+                                    <td>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="avatar">
+                                                <div
+                                                    class="mask mask-squircle w-8 h-8 bg-amber-100 flex items-center justify-center">
+                                                    <span class="text-amber-600 font-medium">EM</span>
+                                                </div>
+                                            </div>
+                                            <div>Emily Miller</div>
+                                        </div>
+                                    </td>
+                                    <td>Custom Plan</td>
+                                    <td>2025-03-02</td>
+                                    <td>$599.00</td>
+                                    <td><span class="badge badge-error">Failed</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 flex justify-between">
+                        <span class="text-sm text-gray-500">Showing 4 of 243 transactions</span>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-ghost">«</button>
+                            <button class="btn btn-sm btn-active">1</button>
+                            <button class="btn btn-sm btn-ghost">2</button>
+                            <button class="btn btn-sm btn-ghost">3</button>
+                            <button class="btn btn-sm btn-ghost">»</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Container 4: Donut Chart -->
+            <div id="container-donut" class="container-card card bg-white shadow-md">
+                <div class="card-body">
+                    <h2 class="card-title text-gray-700 mb-4">Maksumused ja liigid</h2>
+                    <div id="donutChart" class="w-full h-64"></div>
+                    <div class="grid grid-cols-2 gap-2 mt-4">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+                            <span class="text-sm text-gray-600">Direct Sales</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
+                            <span class="text-sm text-gray-600">Partner Sales</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
+                            <span class="text-sm text-gray-600">Affiliates</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
+                            <span class="text-sm text-gray-600">Online Store</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Container 5: Activity Feed -->
+            <div id="container-activity" class="container-card card bg-white shadow-md">
+                <div class="card-body">
+                    <h2 class="card-title text-gray-700 mb-4">Aktiivsus</h2>
+                    <div class="max-h-96 overflow-y-auto pr-2">
+                        <ul class="space-y-3">
+                            <li class="flex items-start space-x-3">
+                                <div class="relative mt-1">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                    </div>
+                                    <div class="absolute top-8 bottom-0 left-4 w-0.5 bg-gray-200"></div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between">
+                                        <p class="text-sm font-medium text-gray-900">New user registered</p>
+                                        <p class="text-xs text-gray-500">10m ago</p>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Emily Miller just created an account</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <div class="relative mt-1">
+                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <div class="absolute top-8 bottom-0 left-4 w-0.5 bg-gray-200"></div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between">
+                                        <p class="text-sm font-medium text-gray-900">Order completed</p>
+                                        <p class="text-xs text-gray-500">25m ago</p>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Order #TR-7842 was successfully delivered</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <div class="relative mt-1">
+                                    <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-600"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
+                                    <div class="absolute top-8 bottom-0 left-4 w-0.5 bg-gray-200"></div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between">
+                                        <p class="text-sm font-medium text-gray-900">Payment failed</p>
+                                        <p class="text-xs text-gray-500">1h ago</p>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Transaction #TR-7839 for Emily Miller was declined
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <div class="relative mt-1">
+                                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                        </svg>
+                                    </div>
+                                    <div class="absolute top-8 bottom-0 left-4 w-0.5 bg-gray-200"></div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between">
+                                        <p class="text-sm font-medium text-gray-900">New comment</p>
+                                        <p class="text-xs text-gray-500">2h ago</p>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Robert Johnson left a review on Enterprise Plan</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <div class="relative mt-1">
+                                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between">
+                                        <p class="text-sm font-medium text-gray-900">Product deleted</p>
+                                        <p class="text-xs text-gray-500">3h ago</p>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Admin removed "Legacy Basic Plan" from offerings
+                                    </p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Line Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'This Week',
+                    data: [3200, 4100, 3800, 5200, 4800, 6100, 7200],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Last Week',
+                    data: [2800, 3600, 3200, 4600, 4200, 5400, 6300],
+                    borderColor: 'rgb(209, 213, 219)',
+                    backgroundColor: 'rgba(209, 213, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            drawBorder: false,
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false,
+                        }
+                    }
+                }
+            }
+        });
+
+        // Initialize Donut Chart
+        const donutOptions = {
+            series: [44, 25, 13, 18],
+            chart: {
+                type: 'donut',
+                height: 250
+            },
+            colors: ['#3b82f6', '#a855f7', '#f59e0b', '#10b981'],
+            labels: ['Direct Sales', 'Partner Sales', 'Affiliates', 'Online Store'],
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }],
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '65%'
+                    }
+                }
+            }
+        };
+
+        const donutChart = new ApexCharts(document.querySelector("#donutChart"), donutOptions);
+        donutChart.render();
+
+        // Data Container Integration
+        // This code demonstrates how external data can be integrated
+
+        // Example function to update container data
+        function updateContainerData(containerId, data) {
+            // This is a placeholder function that would be implemented
+            // to update each container with specific data
+            console.log(`Updating ${containerId} with data:`, data);
+
+            switch (containerId) {
+                case 'container-stats':
+                    // Update stats container
+                    // Example: document.querySelector('#container-stats .revenue').textContent = data.revenue;
+                    break;
+                case 'container-chart':
+                    // Update chart container
+                    // Example: revenueChart.data.datasets[0].data = data.chartData; revenueChart.update();
+                    break;
+                case 'container-table':
+                    // Update table container
+                    // Example: Populate table with data.transactions
+                    break;
+                case 'container-donut':
+                    // Update donut chart
+                    // Example: donutChart.updateSeries(data.donutData);
+                    break;
+                case 'container-activity':
+                    // Update activity feed
+                    // Example: Render activity items from data.activities
+                    break;
+            }
+        }
+
+        // Example of how external systems would call this function
+        // updateContainerData('container-stats', { revenue: '$25,120', users: '8,500', orders: '950', conversion: '24.5%' });
+    </script>
+</body>
+
+</html>
