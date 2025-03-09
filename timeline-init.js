@@ -245,13 +245,18 @@ document.addEventListener("DOMContentLoaded", function () {
     timelineSteps.appendChild(stepElement);
   }
 
-  gsap.from(".timeline-step", {
-    opacity: 0,
-    y: 50,
-    duration: 0.8,
-    stagger: 0.2,
-    ease: "power2.out",
-  });
+  const timelineSteps = document.querySelectorAll(".timeline-step");
+  if (timelineSteps.length > 0) {
+    gsap.to(timelineSteps, {
+      opacity: 0,
+      y: 50,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: "power2.out",
+    });
+  } else {
+    console.warn("GSAP target .timeline-step not found.");
+  }
 
   function calculateProcedureDuration(procedureType) {
     return 60;

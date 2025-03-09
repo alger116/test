@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@2.6.0/dist/full.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ApexCharts/3.35.5/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
         .container-card {
             transition: all 0.3s ease;
@@ -35,6 +36,10 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Ülevaade</h1>
+            <a href="/index.html" class="flex items-center gap-2 text-blue-600 hover:text-blue-800">
+                <i class="fas fa-home text-xl"></i>
+                <span class="font-semibold">Avalehele</span>
+            </a>
             <div class="flex space-x-2">
                 <button class="btn btn-sm btn-primary">Export</button>
                 <div class="dropdown dropdown-end">
@@ -483,36 +488,60 @@
 
         // Example function to update container data
         function updateContainerData(containerId, data) {
-            // This is a placeholder function that would be implemented
-            // to update each container with specific data
             console.log(`Updating ${containerId} with data:`, data);
 
             switch (containerId) {
                 case 'container-stats':
                     // Update stats container
-                    // Example: document.querySelector('#container-stats .revenue').textContent = data.revenue;
                     break;
                 case 'container-chart':
                     // Update chart container
-                    // Example: revenueChart.data.datasets[0].data = data.chartData; revenueChart.update();
                     break;
                 case 'container-table':
                     // Update table container
-                    // Example: Populate table with data.transactions
+                    const tableBody = document.querySelector('#container-table tbody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+
+                    data.forEach(search => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${search.user}</td>
+                            <td>${search.daysToProcess}</td>
+                            <td>${search.processName}</td>
+                            <td>${search.requestTime}</td>
+                            <td>${search.cost}</td>
+                            <td><span class="badge ${search.status === 'Completed' ? 'badge-success' : 'badge-error'}">${search.status}</span></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
                     break;
                 case 'container-donut':
                     // Update donut chart
-                    // Example: donutChart.updateSeries(data.donutData);
                     break;
                 case 'container-activity':
                     // Update activity feed
-                    // Example: Render activity items from data.activities
                     break;
             }
         }
 
         // Example of how external systems would call this function
         // updateContainerData('container-stats', { revenue: '$25,120', users: '8,500', orders: '950', conversion: '24.5%' });
+
+        // Example data structure for savedSearchesContainer
+        const savedSearchesContainer = [
+            { user: 'John Doe', daysToProcess: 5, processName: 'Premium Plan', requestTime: '2025-03-05', cost: '$299.00', status: 'Completed' },
+            { user: 'Anna Smith', daysToProcess: 3, processName: 'Basic Plan', requestTime: '2025-03-04', cost: '$99.00', status: 'Completed' },
+            { user: 'Robert Johnson', daysToProcess: 2, processName: 'Enterprise Plan', requestTime: '2025-03-03', cost: '$999.00', status: 'Pending' },
+            { user: 'Emily Miller', daysToProcess: 1, processName: 'Custom Plan', requestTime: '2025-03-02', cost: '$599.00', status: 'Failed' }
+        ];
+
+        // Call the function to update the table
+        updateContainerData('container-table', savedSearchesContainer);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Call the function to populate the table with data from savedSearchesContainer
+            updateContainerData('container-table', savedSearchesContainer);
+        });
     </script>
 </body>
 

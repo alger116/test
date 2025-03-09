@@ -275,7 +275,8 @@
                 </button>
                 <!-- ✅ Title + Dropdown (Left Side) -->
                 <div class="flex items-center space-x-4 ml-4">
-                    <h1 class="text-2xl font-bold">
+                    <h1
+                        class="text-2xl bg-gradient-to-r from-blue-600 to-cyan-500 text-transparent bg-clip-text font-bold">
                         <a href="index.html" class="hover:underline">Riigihanke andmed</a>
                     </h1>
 
@@ -541,7 +542,6 @@
                                 päeva</div>
                         </div>
                     </div>
-                    <div id="toastNotification" class="toast hidden">TESETSTSETSE</div>
 
                     <!-- Timeline visualization - Modern vertical timeline -->
                     <div class="timeline-container bg-white rounded-lg shadow-md">
@@ -1599,7 +1599,7 @@
                 const rows = table.getElementsByTagName("tr");
 
                 if (rows.length === 0) {
-                    alert("Salvestatud otsinguid ei ole.");
+                    alert("Uus hankeid salvestamiseks ei ole.");
                     return;
                 }
 
@@ -2359,7 +2359,7 @@
             //firestore salvstamine
             document.getElementById("saveToFirestore").addEventListener("click", async function () {
                 if (savedSearches.length === 0) {
-                    alert("Salvestatud otsinguid ei ole.");
+                    alert("Uusi hankeid salvestamiseks ei ole.");
                     return;
                 }
 

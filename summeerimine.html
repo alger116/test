@@ -1,5 +1,76 @@
 <!DOCTYPE html>
 <html lang="et">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+
+<nav class="fixed top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div class="container mx-auto max-w-7xl px-6">
+        <div class="flex items-center justify-between h-16">
+            <!-- Left Section - Logo/Home -->
+            <a href="/index.html" class="flex items-center gap-2 text-blue-600 hover:text-blue-800">
+                <i class="fas fa-home text-xl"></i>
+                <span class="font-semibold">Avalehele</span>
+            </a>
+        </div>
+    </div>
+</nav>
+<script>
+    const firebaseConfig = {
+
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const chatFunction = firebase.functions().httpsCallable('chat');
+
+    let userId = Date.now().toString(); // Simple unauthenticated user ID
+
+    async function sendMessage() {
+        const userInput = document.getElementById('userInput');
+        const prompt = userInput.value.trim();
+
+        if (!prompt) return;
+
+        // Append user message
+        appendMessage(prompt, 'user');
+
+        try {
+            // Call Firebase Cloud Function
+            const response = await firebase.functions().httpsCallable('chat')({
+                userId: userId,
+                prompt: prompt
+            });
+
+            appendMessage(response.data.response, 'bot');
+        } catch (error) {
+            appendMessage('Viga vastuse saamisel', 'error');
+        }
+
+        userInput.value = '';
+    }
+
+    function appendMessage(text, sender) {
+        const chatContainer = document.getElementById('chatContainer');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `p-3 rounded-lg max-w-[80%] ${sender === 'user' ? 'bg-violet-100 ml-auto' :
+            sender === 'error' ? 'bg-red-100' : 'bg-gray-100'
+            }`;
+        messageDiv.textContent = text;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log(document.getElementById('sendBtn')); // Check if this is null
+        console.log(document.getElementById('userInput')); // Check if this is null
+
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    });
+</script>
 
 <head>
     <meta charset="UTF-8">
@@ -240,17 +311,17 @@
 
                     <!-- Results Area -->
                     <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm mt-4">
-                        <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-violet-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Bingo tulemus
-                        </h3>
-                        <div id="result"
-                            class="bg-gray-50 p-5 rounded-lg border border-gray-200 min-h-24 text-gray-600">
-                            Tulemust pole veel genereeritud. Vastake küsimustele ja vajutage "Mängi bingot".
+                        <div id="chatContainer" class="h-96 overflow-y-auto space-y-4 mb-4">
+                            <!-- Chat messages will be rendered here -->
+                        </div>
+
+                        <div class="flex gap-2">
+                            <input id="userInput" type="text" placeholder="Sisesta küsimus..."
+                                class="flex-1 px-4 py-2 border rounded-lg">
+                            <button id="sendBtn"
+                                class="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700">
+                                Saada
+                            </button>
                         </div>
                     </div>
 
@@ -276,6 +347,9 @@
                 </svg>
             </div>
         </div>
+    </div>
+    <div id="result" class="bg-gray-50 p-5 rounded-lg border border-gray-200 min-h-24 text-gray-600">
+        Tulemust pole veel genereeritud. Vastake küsimustele ja vajutage "Mängi bingot".
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -370,6 +444,12 @@
             // Play bingo
             document.getElementById('playBingo').addEventListener('click', async function () {
                 const resultElement = document.getElementById('result');
+                console.log(resultElement); // Debugging line
+                if (!resultElement) {
+                    console.error('Result element not found!');
+                    return; // Exit if the element is not found
+                }
+
                 resultElement.innerHTML = `<div class="flex justify-center items-center py-4">
                     <div class="loader h-5 w-5"></div>
                     <span>Genereerin...</span>
@@ -406,7 +486,8 @@
                     prompt += "Palun anna soovitus edasisteks sammudeks ostumenetluses.";
 
                     // Get the response from the ChatGPT API
-                    const botResponse = await getChatGPTResponse(prompt);
+                    const userId = "user123"; // Replace with actual user ID
+                    const botResponse = await getChatGPTResponse(prompt, userId);
                     resultElement.innerHTML = `
                         <div class="space-y-4">
                             <div class="pb-3 border-b border-gray-200">
@@ -428,24 +509,12 @@
             });
         });
 
-        async function getChatGPTResponse(prompt) {
+        async function getChatGPTResponse(prompt, userId) {
             try {
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}` // Ensure API_KEY is defined in your script
-                    },
-                    body: JSON.stringify({
-                        model: "gpt-3.5-turbo",
-                        messages: [{ role: "user", content: prompt }]
-                    })
-                });
-
-                const data = await response.json();
-                return data.choices[0].message.content;
+                const response = await chatFunction({ prompt: prompt, userId: userId });
+                return response.data.response;
             } catch (error) {
-                console.error('Viga API päringus:', error);
+                console.error('Error calling chat function:', error);
                 showError('Viga vastuse genereerimisel');
                 return 'Viga vastuse genereerimisel';
             }

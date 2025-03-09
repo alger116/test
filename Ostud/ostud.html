@@ -1,0 +1,131 @@
+<!-- ostud.html -->
+<!DOCTYPE html>
+<html lang="et" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ostumenetlused</title>
+    <link rel="stylesheet" href="../dist/output.css">
+    <script defer src="ostud.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <!-- Modern Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="container mx-auto max-w-7xl px-6">
+            <div class="flex items-center justify-between h-16">
+                <!-- Left Section - Logo/Home -->
+                <a href="/index.html" class="flex items-center gap-2 text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-home text-xl"></i>
+                    <span class="font-semibold">Avalehele</span>
+                </a>
+
+                <!-- Center Section - Navigation -->
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="ylevaade.html"
+                        class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-chart-area"></i>
+                        Ülevaade
+                    </a>
+                    <a href="statistika.html"
+                        class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-chart-pie"></i>
+                        Statistika
+                    </a>
+                    <a href="cpv.html"
+                        class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-code"></i>
+                        CPV Koodid
+                    </a>
+                    <a href="piirmaarad.html"
+                        class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-chart-line"></i>
+                        Piirmäärad
+                    </a>
+                    <a href="satted.html"
+                        class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-cogs"></i>
+                        Sätted
+                    </a>
+                </div>
+
+                <!-- Right Section - Actions -->
+                <div class="flex items-center gap-4">
+                    <button onclick="lisaOst()" class="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
+                               rounded-lg shadow hover:shadow-md transition-all hover:scale-[1.02]">
+                        <i class="fas fa-plus"></i>
+                        Lisa ost
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto max-w-7xl p-6">
+        <!-- Main Content Section -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2 relative">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
+                    Ostumenetlused
+                </span>
+                <div class="h-1 bg-gradient-to-r from-blue-500 to-cyan-400 w-24 mt-2 rounded-full"></div>
+            </h1>
+            <p class="text-gray-500 mt-4">Halda oma hankeprotsesse efektiivselt</p>
+        </div>
+
+        <!-- Search/Filter Section -->
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="relative">
+                <input type="text" id="search" placeholder="Otsi ostu..." class="w-full pl-12 pr-4 py-3 border-0 rounded-xl shadow-sm 
+                           bg-white/90 backdrop-blur-sm focus:ring-2 focus:ring-blue-300
+                           focus:border-blue-500 placeholder-gray-400" oninput="otsiOst()">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+
+            <select id="filter" class="w-full px-4 py-3 border-0 rounded-xl shadow-sm 
+                       bg-white/90 backdrop-blur-sm focus:ring-2 focus:ring-blue-300
+                       appearance-none">
+                <option value="">Kõik menetlused</option>
+                <option value="alla_piirmäära">Alla piirmäära</option>
+                <option value="ule_piirmaara">Üle piirmäära</option>
+            </select>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gradient-to-r from-blue-600 to-cyan-500 text-white">
+                    <tr>
+                        <th class="p-4 text-left font-semibold">Menetluse lõpp</th>
+                        <th class="p-4 text-left font-semibold">Eeldatav maksumus</th>
+                        <th class="p-4 text-left font-semibold">Reaalne maksumus</th>
+                        <th class="p-4 text-left font-semibold">Piirmäärani</th>
+                        <th class="p-4 text-left font-semibold">Pakkuja</th>
+                        <th class="p-4 text-left font-semibold">Märkused</th>
+                        <th class="p-4 text-left font-semibold">Tegevused</th>
+                    </tr>
+                </thead>
+                <tbody id="ostud-body" class="divide-y divide-gray-100/70">
+                    <!-- Dünaamiline sisu -->
+                </tbody>
+            </table>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden p-8 text-center text-gray-400">
+                <i class="fas fa-inbox text-4xl mb-4"></i>
+                <p>Ühtegi menetlust ei leitud</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button (Mobile) -->
+    <button class="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white 
+                   rounded-full shadow-xl flex items-center justify-center
+                   hover:bg-blue-700 transition-transform hover:scale-110" onclick="lisaOst()">
+        <i class="fas fa-plus text-xl"></i>
+    </button>
+</body>
+
+</html>
