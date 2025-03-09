@@ -1,0 +1,18 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access to all documents
+    match /{document=**} {
+      allow read: if request.auth != null;
+    }
+
+    // Allow authenticated users to update their own documents
+    match /users/{userId} {
+      allow update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow admin users to update any document in the users collection
+    match /users/{userId} {
+      allow update: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}

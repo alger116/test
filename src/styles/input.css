@@ -1,0 +1,62 @@
+@tailwind utilities;
+@import "tailwindcss";
+@layer preflight;
+
+@layer theme;
+@layer base;
+@layer components;
+
+@layer components {
+  optgroup {
+    @apply font-bold text-gray-800 bg-gray-100;
+  }
+  .container {
+    @apply max-w-4xl mx-auto p-4;
+  }
+
+  input[type="text"],
+  select,
+  button {
+    @apply text-sm p-2;
+  }
+
+  header,
+  footer {
+    @apply text-sm p-2;
+  }
+}
+@layer utilities;
+
+@layer utilities {
+  .bg-blue-500-50 {
+    background-color: color-mix(
+      in oklab,
+      var(--color-blue-500) 50%,
+      transparent
+    );
+    @apply bg-gradient-to-r from-sky-100 to-sky-600;
+    @apply text-black;
+    @apply rounded-lg;
+    @apply shadow-md;
+    @apply hover:scale-105;
+    @apply hover:shadow-lg;
+    @apply transition-all;
+    @apply duration-300;
+    @apply ease-in-out;
+  }
+
+  @property --tw-gradient-from {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: #0000;
+  }
+}
+
+:root {
+  --bg-color: #fff;
+  --text-color: #1e293b;
+}
+.dark {
+  --bg-color: #0f172a;
+  --text-color: #f8fafc;
+}
