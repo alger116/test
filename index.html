@@ -248,7 +248,7 @@
 </head>
 
 <body class="bg-gradient-to-br bg-white min-h-screen flex flex-col"
-    x-data="{ sidebarOpen: localStorage.getItem('sidebarOpen') === 'true', sidebarHovered: false }">
+    x-data="{ sidebarOpen: localStorage.getItem('sidebarOpen') === 'true', sidebarHovered: false, }">
 
     <!-- Sidebar Container -->
     <div id="sidebarContainer" class="bg-gray-100 shadow-lg transition-all duration-300"
@@ -275,7 +275,7 @@
                 <!-- ✅ Title + Dropdown (Left Side) -->
                 <div class="flex items-center space-x-4 ml-4">
                     <h1
-                        class="text-2xl bg-gradient-to-r from-blue-600 to-cyan-500 text-transparent bg-clip-text font-bold">
+                        class="text-2xl bg-gradient-to-r from-blue-600 to-cyan-500 text-transparent bg-clip-text font-bold transform hover:scale-105 protected-section">
                         <a href="index.html" class="hover:underline">Riigihanke andmed</a>
                     </h1>
 
@@ -328,7 +328,7 @@
             <div class="flex-1 flex justify-center items-center space-x-4">
                 <!-- Rakendus Button -->
                 <button id="showForm"
-                    class="px-3 py-1.5 text-lg font-bold text-gray-800 rounded-lg hover:bg-emerald-300 hover:text-black transition transform hover:scale-105 flex items-center">
+                    class="hidden px-3 py-1.5 text-lg font-bold text-gray-800 rounded-lg hover:bg-emerald-300 hover:text-black transition transform hover:scale-105 flex items-center">
                     <i class="fas fa-tools mr-2"></i> Rakendus
                 </button>
 
@@ -357,7 +357,7 @@
 
                     <!-- ✅ Modal -->
                     <div x-show="open" x-cloak x-ref="loginModal"
-                        class="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-black/30">
+                        class="fixed inset-50 left-300 flex items-center justify-center backdrop-blur-md bg-black/30">
                         <div class="card w-96 bg-white shadow-xl p-8 rounded-xl border border-gray-200 relative">
                             <!-- ❌ Close Button -->
                             <button @click="open = false"
@@ -379,6 +379,10 @@
                                 <label class="label text-gray-700 font-medium">Parool</label>
                                 <input type="password" id="passwordLogin" placeholder="Sisesta oma parool"
                                     class="input input-bordered w-full text-gray-900 shadow-md rounded-lg p-3 focus:ring-2 focus:ring-blue-400 transition-all duration-300" />
+                            </div>
+                            <div class="form-control w-full mb-3 flex items-center">
+                                <input type="checkbox" id="rememberMe" class="mr-2">
+                                <label for="rememberMe" class="text-gray-700 font-medium">Pea meeles mind</label>
                             </div>
 
                             <!-- ✅ Login Button -->
@@ -409,19 +413,19 @@
                         x-transition:leave-start="opacity-100 transform scale-100"
                         x-transition:leave-end="opacity-0 transform scale-95">
                         <button id="changeEmail"
-                            class="block w-full text-left px-4 py-2 text-sm text-blue-500 hover:bg-green-100 transition-colors duration-300">
+                            class="block w-full text-left px-4 py-2 text-sm text-blue-500 hover:bg-green-100 transition-colors duration-300 transform hover:scale-105 protected-section">
                             <i class="fas fa-envelope mr-2"></i> Muuda e-post
                         </button>
                         <button id="changePassword"
-                            class="block w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-green-100 transition-colors duration-300">
+                            class="block w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-green-100 transition-colors duration-300 transform hover:scale-105 protected-section">
                             <i class="fas fa-key mr-2"></i> Muuda parool
                         </button>
                         <a href="register.html" id="registerButton"
-                            class="w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-green-100 transition-colors duration-300 hidden">
+                            class="w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-green-100 transition-colors duration-300 hidden transform hover:scale-105 protected-section">
                             <i class="fas fa-user-plus mr-2"></i> Registreeri
                         </a>
                         <button id="logoutButton"
-                            class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-green-100 transition-colors duration-300">
+                            class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-green-100 transition-colors duration-300 transform hover:scale-105 protected-section">
                             <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
                         </button>
                         <button id="settingsButton"
@@ -458,6 +462,14 @@
             try {
                 const email = document.getElementById("emailLogin").value;
                 const password = document.getElementById("passwordLogin").value;
+                const rememberMe = document.getElementById("rememberMe").checked;
+                if (rememberMe) {
+                    localStorage.setItem("rememberedEmail", email);
+                    localStorage.setItem("rememberedPassword", password);
+                } else {
+                    localStorage.removeItem("rememberedEmail");
+                    localStorage.removeItem("rememberedPassword");
+                }
                 await signInWithEmailAndPassword(auth, email, password);
 
                 // ✅ Kuvame teate
@@ -480,6 +492,18 @@
                 alert("Sisselogimine ebaõnnestus: " + error.message);
             }
         };
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedEmail = localStorage.getItem("rememberedEmail");
+            const savedPassword = localStorage.getItem("rememberedPassword");
+            if (savedEmail && savedPassword) {
+                document.getElementById("emailLogin").value = savedEmail;
+                document.getElementById("passwordLogin").value = savedPassword;
+                document.getElementById("rememberMe").checked = true;
+            }
+        });
     </script>
 
     <footer
@@ -732,7 +756,7 @@
             <div class="overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-md">
                 <table class="w-full border-collapse rounded-lg overflow-hidden">
                     <thead>
-                        <tr class="bg-gradient-to-r from-blue-100 to-blue-400 text-black text-left">
+                        <tr class="bg-gradient-to-r from-blue-200 to-blue-500 text-black text-left">
                             <th class="p-4">📌 Nimi</th>
                             <th class="p-4">📜 Menetlusliik</th>
                             <th class="p-4">💰 Maksumus (€)</th>
@@ -3163,10 +3187,16 @@
                     // User is signed in
                     userEmailElement.textContent = user.email;
                     document.getElementById("logoutButton").classList.remove("hidden");
+                    document.getElementById("toggleTimelineButton")?.classList.remove("hidden");
+                    document.getElementById("sidebarContainer")?.classList.remove("hidden");
+                    document.getElementById("userEmail")?.parentElement.classList.remove("hidden");
                 } else {
                     // No user signed in
                     userEmailElement.textContent = "Pole sisse logitud";
                     document.getElementById("logoutButton").classList.add("hidden");
+                    document.getElementById("toggleTimelineButton")?.classList.add("hidden");
+                    document.getElementById("sidebarContainer")?.classList.add("hidden");
+                    document.getElementById("userEmail")?.parentElement.classList.add("hidden");
                 }
             });
 

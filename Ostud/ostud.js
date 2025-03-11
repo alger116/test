@@ -42,17 +42,39 @@ function laeOstud() {
   });
 }
 
+function togglePurchaseModal(show) {
+  const modal = document.getElementById("addPurchaseModal");
+  modal.classList.toggle("hidden", !show);
+}
+
 function lisaOst() {
+  const kuupaev = document.getElementById("purchaseDate").value.trim();
+  const eeldatav = parseFloat(
+    document.getElementById("expectedCost").value.trim(),
+  );
+  const reaalne = parseFloat(
+    document.getElementById("actualCost").value.trim(),
+  );
+  const pakkuja = document.getElementById("supplier").value.trim();
+  const markused = document.getElementById("notes").value.trim();
+
+  if (!kuupaev || isNaN(eeldatav) || isNaN(reaalne) || !pakkuja) {
+    alert("Palun täida kõik nõutud väljad!");
+    return;
+  }
+
   const uusOst = {
-    kuupaev: prompt("Sisesta menetluse lõpp kuupäev (YYYY-MM-DD):"),
-    eeldatav: parseFloat(prompt("Sisesta eeldatav maksumus (€):")),
-    reaalne: parseFloat(prompt("Sisesta reaalne maksumus (€):")),
+    kuupaev,
+    eeldatav,
+    reaalne,
     piirmaar: 29999.99,
-    pakkuja: prompt("Sisesta pakkuja nimi:"),
-    markused: prompt("Lisa märkused (vajadusel):"),
+    pakkuja,
+    markused,
   };
+
   ostud.push(uusOst);
   laeOstud();
+  togglePurchaseModal(false);
 }
 
 function kustutaOst(index) {
