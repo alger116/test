@@ -257,6 +257,7 @@
         <!-- Sidebar content goes here -->
     </div>
 
+
     <!-- Modern Navbar with Active Tab Highlighting -->
     <header class="bg-gradient-to-r backdrop-blur-2xl text-black py-4 px-6 w-full bg-fixed top-0 z-50">
         <div class="w-full px-4 flex justify-between items-center">
@@ -496,7 +497,7 @@
         <div id="toolTab" class="flex flex-wrap md:flex-nowrap justify-center gap-0 space-x-0 space-y-0">
             <!-- Timeline Container - Moved inside toolTab and positioned left -->
             <div id="timeline-Container"
-                class="bg-white p-6 rounded-xl shadow-lg max-w-3xl w-full border border-gray-100 hidden min-h-[350px] -mx-[-5px]">
+                class="bg-white p-6 rounded-xl shadow-lg max-w-5xl w-full border border-indigo-300 hidden min-h-[350px] -mx-[-5px]">
                 <div id="timelineContainer" class="p-3 bg-white rounded-lg shadow-md">
                     <h3 class="font-bold text-lg mb-6 text-blue-600 text-center hidden">Riigihanke eelduslik
                         ajakava</h3>
@@ -575,7 +576,7 @@
 
             <!-- Form Container - Middle -->
             <div id="formContainer"
-                class="bg-white p-5 rounded-xl shadow-lg max-w-md w-full border border-gray-100 min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
+                class="bg-white p-5 rounded-xl shadow-lg max-w-md w-full border border-indigo-300 min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
                 <h2 class="text-2xl font-bold text-center mb-5 text-gray-800">Sisesta andmed</h2>
                 <form id="procurementForm" class="space-y-4">
                     <div>
@@ -719,7 +720,7 @@
             </div>
 
             <!-- Result Container - Right -->
-            <div class="container bg-white p-6 rounded-xl shadow-lg max-w-lg w-full border border-gray-100 hidden -mx-[-2px]"
+            <div class="container bg-white p-6 rounded-xl shadow-lg max-w-lg w-full border border-indigo-300 hidden -mx-[-2px]"
                 id="resultContainer">
                 <div id="result" class="result-card"></div>
             </div>
@@ -727,7 +728,7 @@
 
         <!-- The saved searches container is hidden by default and will be shown when the user clicks the "Show Saved Searches" button -->
         <div class="container bg-white p-5 rounded-lg shadow-lg max-w-full mx-auto hidden" id="savedSearchesContainer">
-            <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">📁 Salvestatud Hanked</h2>
+            <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Salvestatud Hanked</h2>
             <div class="overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-md">
                 <table class="w-full border-collapse rounded-lg overflow-hidden">
                     <thead>
@@ -761,6 +762,17 @@
                         aria-label="Load from Firestore">
                         📥 Lae
                     </button>
+                </div>
+            </div>
+
+            <div class="mt-4 flex justify-between">
+                <span class="text-sm text-gray-500"></span>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-ghost">«</button>
+                    <button class="btn btn-sm btn-active">1</button>
+                    <button class="btn btn-sm btn-ghost">2</button>
+                    <button class="btn btn-sm btn-ghost">3</button>
+                    <button class="btn btn-sm btn-ghost">»</button>
                 </div>
             </div>
 
