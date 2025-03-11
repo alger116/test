@@ -251,16 +251,14 @@
     x-data="{ sidebarOpen: localStorage.getItem('sidebarOpen') === 'true', sidebarHovered: false }">
 
     <!-- Sidebar Container -->
-    <div id="sidebarContainer" @mouseenter="sidebarHovered = true; sidebarOpen = true"
+    <div id="sidebarContainer" class="bg-gray-100 shadow-lg transition-all duration-300"
+        @mouseenter="sidebarHovered = true; sidebarOpen = true"
         @mouseleave="sidebarHovered = false; if (!sidebarHovered) sidebarOpen = false">
-        <div id="sidebarContent" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
-            <!-- Sidebar content goes here -->
-        </div>
+        <!-- Sidebar content goes here -->
     </div>
 
-
     <!-- Modern Navbar with Active Tab Highlighting -->
-    <header class="bg-gradient-to-r backdrop-blur-2xl text-black p-2 w-full bg-fixed top-0 z-50">
+    <header class="bg-gradient-to-r backdrop-blur-2xl text-black py-4 px-6 w-full bg-fixed top-0 z-50">
         <div class="w-full px-4 flex justify-between items-center">
             <!-- ✅ Left Side with Hamburger and Title -->
             <div class="flex items-center">
