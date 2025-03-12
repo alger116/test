@@ -69,7 +69,7 @@
             --col-gap: 2rem;
             --row-gap: 0rem;
             --line-w: 0.25rem;
-            display: grid;
+            display: flexbox;
             grid-template-columns: var(--line-w) 1fr;
             grid-auto-columns: max-content;
             column-gap: var(--col-gap);
@@ -77,6 +77,11 @@
             width: min(60rem, 90%);
             margin-inline: auto;
             padding: 0;
+
+
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+
         }
 
 
@@ -85,7 +90,6 @@
             content: "";
             grid-column: 1;
             grid-row: 1 / span 20;
-            background: rgb(225, 225, 225);
             border-radius: calc(var(--line-w) / 2);
         }
 
@@ -102,6 +106,11 @@
             grid-row: span 2;
             display: grid;
             grid-template-rows: min-content min-content min-content;
+
+            -webkit-backdrop-filter: blur(10px);
+
+
+            padding: 1rem;
         }
 
         /* date */
@@ -150,9 +159,12 @@
         /* title descr */
         .timeline-cards li .title,
         .timeline-cards li .descr {
-            background: white;
-            position: relative;
+
+
+            border-radius: 5px;
             padding-inline: 1.5rem;
+
+            position: relative;
         }
 
         .timeline-cards li .title {
@@ -244,10 +256,26 @@
         .timeline-cards li.overdue {
             --accent-color: #E24A68;
         }
+
+        body {
+            background-image: url('./src/tornid_ja_linnamuur_kaupo_kalda_2016.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 
-<body class="bg-gradient-to-br bg-white min-h-screen flex flex-col"
+<body class="backdrop-blur-2xl min-h-screen flex flex-col"
     x-data="{ sidebarOpen: localStorage.getItem('sidebarOpen') === 'true', sidebarHovered: false, }">
 
     <!-- Sidebar Container -->
@@ -259,7 +287,7 @@
 
 
     <!-- Modern Navbar with Active Tab Highlighting -->
-    <header class="bg-gradient-to-r backdrop-blur-2xl text-black py-4 px-6 w-full bg-fixed top-0 z-50">
+    <header class="bg-gradient-to-r backdrop-blur-2xl text-black py-4 px-6 w-full bg-fixed top-0 z-50 glass-effect">
         <div class="w-full px-4 flex justify-between items-center">
             <!-- ✅ Left Side with Hamburger and Title -->
             <div class="flex items-center">
@@ -275,7 +303,7 @@
                 <!-- ✅ Title + Dropdown (Left Side) -->
                 <div class="flex items-center space-x-4 ml-4">
                     <h1
-                        class="text-2xl bg-gradient-to-r from-blue-600 to-cyan-500 text-transparent bg-clip-text font-bold transform hover:scale-105 protected-section">
+                        class="text-2xl bg-gradient-to-r bg-black text-transparent bg-clip-text font-bold transform hover:scale-105 protected-section">
                         <a href="index.html" class="hover:underline">Riigihanke andmed</a>
                     </h1>
 
@@ -527,25 +555,25 @@
 
             <!-- Timeline Container - Moved inside toolTab and positioned left -->
             <div id="timeline-Container"
-                class="bg-white p-6 rounded-xl shadow-lg max-w-5xl w-full border border-indigo-300 hidden min-h-[350px] -mx-[-5px]">
-                <div id="timelineContainer" class="p-3 bg-white rounded-lg shadow-md">
+                class="bg-white/40 p-6 rounded-xl shadow-lg max-w-5xl w-full border border-black hidden min-h-[350px] -mx-[-5px]">
+                <div id="timelineContainer" class=" rounded-lg shadow-md">
                     <h3 class="font-bold text-lg mb-6 text-blue-600 text-center hidden">Riigihanke eelduslik
                         ajakava</h3>
 
                     <!-- Timeline header - Card style -->
-                    <div class="bg-white rounded-lg p-5 shadow-md mb-8 hidden">
+                    <div class="bg-white/40 rounded-lg p-5 shadow-md mb-8 hidden">
                         <div class=" grid-cols-1 flex flex-row gap-4">
-                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
+                            <div class="bg-white/40 p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
                                 <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Hanke nimi</div>
                                 <div class="font-bold text-lg text-gray-800"><span id="timeline-procurement-name"
                                         class="text-blue-600"></span></div>
                             </div>
-                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500">
+                            <div class="bg-white/40 p-4 rounded-lg shadow-sm border-l-4 border-green-500">
                                 <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Maksumus</div>
                                 <div class="font-bold text-lg text-gray-800"><span id="timeline-procurement-cost"
                                         class="text-green-600"></span> €</div>
                             </div>
-                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
+                            <div class="bg-white/40 p-4 rounded-lg shadow-sm border-l-4 border-purple-500">
                                 <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Lepingu
                                     allkirjastamine
                                 </div>
@@ -556,12 +584,13 @@
                     </div>
 
                     <!-- Days countdown from today - More prominent -->
-                    <div class="bg-gradient-to-r bg-white text-black p-5 rounded-lg mb-8 flex items-center shadow-lg">
+                    <div
+                        class="bg-gradient-to-r bg-white/40 text-black p-5 rounded-lg mb-8 flex items-center shadow-lg">
                         <div class="bg-white/20 p-3 rounded-full mr-4">
 
                             <!-- Remove the existing icon and replace it with the hoverable button -->
                             <button id="hoverableButton"
-                                class="btn bg-amber-300 hover:bg-amber-700 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
+                                class="btn bg-amber-300 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition transform hover:scale-105">
                                 Vajuta siia!
                             </button>
                         </div>
@@ -574,7 +603,7 @@
                     </div>
 
                     <!-- Timeline visualization - Modern vertical timeline -->
-                    <div class="timeline-container bg-white rounded-lg shadow-md">
+                    <div class="timeline-container bg-whit/40 rounded-lg shadow-md">
                         <ul class="timeline-cards" id="timeline-steps">
                             <!-- Timeline steps will be dynamically generated -->
                         </ul>
@@ -607,20 +636,20 @@
 
             <!-- Form Container - Middle -->
             <div id="formContainer"
-                class="bg-white p-5 rounded-xl shadow-lg max-w-md w-full border border-indigo-300 min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
+                class="bg-white/40 p-5 rounded-xl shadow-lg max-w-md w-full border border-indigo-300 min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
                 <h2 class="text-2xl font-bold text-center mb-5 text-gray-800">Sisesta andmed</h2>
                 <form id="procurementForm" class="space-y-4">
                     <div>
                         <label for="name" class="block text-gray-700 font-semibold mb-1">Riigihanke nimetus:</label>
                         <input type="text" id="name" name="name"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                            class="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                             required>
                     </div>
                     <div>
                         <label for="cost" class="block text-gray-700 font-semibold mb-1">Riigihanke
                             maksumus:</label>
                         <input type="number" id="cost" name="cost"
-                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                            class="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                             required>
                     </div>
                     <div>
@@ -630,7 +659,7 @@
                                 class="text-blue-500 text-sm roboto opacity-0 transition-opacity duration-300 ml-1"></span>
                         </label>
                         <select id="procedureType" name="procedureType"
-                            class="w-full p-2 border rounded bg-white shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            class="w-full p-2 border rounded bg-white/60 shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             required aria-label="Riigihanke menetlusliik">
 
                             <!-- Placeholder option (disabled & selected by default) -->
@@ -751,19 +780,20 @@
             </div>
 
             <!-- Result Container - Right -->
-            <div class="container bg-white p-6 rounded-xl shadow-lg max-w-lg w-full border border-indigo-300 hidden -mx-[-2px]"
+            <div class="container bg-white/40 p-6 rounded-xl shadow-lg max-w-lg w-full border border-indigo-300 hidden -mx-[-2px]"
                 id="resultContainer">
                 <div id="result" class="result-card"></div>
             </div>
         </div>
 
         <!-- The saved searches container is hidden by default and will be shown when the user clicks the "Show Saved Searches" button -->
-        <div class="container bg-white p-5 rounded-lg shadow-lg max-w-full mx-auto hidden" id="savedSearchesContainer">
+        <div class="container bg-white/40 p-5 rounded-lg shadow-lg max-w-full mx-auto hidden"
+            id="savedSearchesContainer">
             <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Salvestatud Hanked</h2>
-            <div class="overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-md">
+            <div class="overflow-x-auto bg-gray-50/40 p-4 rounded-lg shadow-md">
                 <table class="w-full border-collapse rounded-lg overflow-hidden">
                     <thead>
-                        <tr class="bg-gradient-to-r from-blue-200 to-blue-500 text-black text-left">
+                        <tr class="bg-gradient-to-r from-blue-200/40 to-blue-500/40 text-black text-left">
                             <th class="p-4">📌 Nimi</th>
                             <th class="p-4">📜 Menetlusliik</th>
                             <th class="p-4">💰 Maksumus (€)</th>
@@ -1385,7 +1415,7 @@
                         '<p class="error-message text-red-500 font-bold">NB! Oled hiljaks jäänud planeerimisel!</p>' : '';
 
                     return `
-                    <div class="result-card bg-white p-6 rounded max-w-lg">
+                    <div class="result-card bg-white/40 p-6 rounded max-w-lg scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
                         <h2 class="text-2xl font-bold text-black-500 mb-4">Riigihanke andmed</h2>
                         <p><strong>Riigihanke taotluse esitamise kuupäev:</strong> 
                             <span id="requestSubmissionDate">${formatDate(this.requestSubmissionDate)}</span>
@@ -1759,7 +1789,7 @@
 
                 savedSearches.forEach((search, index) => {
                     const row = `
-        <tr class="border-b even:bg-gray-100 hover:bg-sky-200 transition-all">
+        <tr class="border-b even:bg-white/40 hover:bg-sky-200 transition-all">
             <td class="p-4">${search.name}</td>
             <td class="p-4">${search.procedureType}</td>
             <td class="p-4">${search.cost} €</td>
@@ -2490,7 +2520,7 @@
                 searches.forEach((search, index) => {
                     console.log(`📌 Kuvan otsingu [${index}]:`, search);
                     container.innerHTML += `
-            <tr class="border-b even:bg-gray-100 hover:bg-gray-200 transition-all">
+            <tr class="border-b even:bg-gray-100/40 hover:bg-gray-200 transition-all">
                 <td class="p-4">${search.name}</td>
                 <td class="p-4">${search.procedureType}</td>
                 <td class="p-4">${search.cost} €</td>
@@ -3537,7 +3567,7 @@
                 setTimeout(() => {
                     toastContainer.classList.add("hidden");
                     toastContainer.classList.remove("opacity-100");
-                }, 4000);
+                }, 5000);
             }
 
             // Add event listeners for hover
