@@ -71,6 +71,9 @@
 .inset-0 {
   inset: calc(var(--spacing) * 0);
 }
+.inset-2 {
+  inset: calc(var(--spacing) * 2);
+}
 .inset-50 {
   inset: calc(var(--spacing) * 50);
 }

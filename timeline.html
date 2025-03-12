@@ -10,181 +10,87 @@
         <style>
             @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
 
-            /* Timeline Container */
+            /* Dark Mode Timeline */
             .timeline-cards {
                 display: flex;
                 flex-direction: column;
-                align-items: center;
-                position: relative;
-                width: 100%;
+                gap: 1.5rem;
+                padding: 1rem;
+                max-width: 600px;
+                margin: auto;
+                color: #d1d5db;
+                font-family: 'Poppins', sans-serif;
             }
 
             /* Vertical Line */
             .timeline-cards::before {
                 content: "";
                 position: absolute;
-                width: 4px;
-                background-color: #3a3a3a;
-                top: 0;
-                bottom: 0;
-                left: 50%;
-                transform: translateX(-50%);
+                left: 18px;
+                width: 2px;
+                height: 100%;
+                background: #3a3a3a;
             }
 
-            /* row gaps */
-            .timeline-cards li:not(:last-child) {
-                margin-bottom: var(--row-gap);
-            }
-
-            /* card */
+            /* Timeline Item */
             .timeline-cards li {
-                grid-column: 2;
-                --inlineP: 1.5rem;
-                margin-inline: var(--inlineP);
-                grid-row: span 2;
-                display: grid;
-                grid-template-rows: min-content min-content min-content;
-            }
-
-            /* date */
-            .timeline-cards li .date {
-                --dateH: 3rem;
-                height: var(--dateH);
-                margin-inline: calc(var(--inlineP) * -1);
-                text-align: center;
-                background-color: var(--accent-color);
-                color: white;
-                font-size: 1.25rem;
-                font-weight: 700;
-                display: grid;
-                place-content: center;
                 position: relative;
-                border-radius: calc(var(--dateH) / 2) 0 0 calc(var(--dateH) / 2);
+                padding-left: 3rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
             }
 
-            /* date flap */
-            .timeline-cards li .date::before {
-                content: "";
-                width: var(--inlineP);
-                aspect-ratio: 1;
-                background: var(--accent-color);
-                background-image: linear-gradient(rgba(0, 0, 0, 0.2) 100%, transparent);
-                position: absolute;
-                top: 100%;
-                clip-path: polygon(0 0, 100% 0, 0 100%);
-                right: 0;
-            }
-
-            /* circle */
-            .timeline-cards li .date::after {
+            /* Checkmark and Circle */
+            .timeline-cards li::before {
                 content: "";
                 position: absolute;
-                width: 2rem;
-                aspect-ratio: 1;
-                background: white;
-                border: 0.3rem solid var(--accent-color);
+                left: 10px;
+                top: 5px;
+                width: 18px;
+                height: 18px;
                 border-radius: 50%;
-                top: 50%;
-                transform: translate(50%, -50%);
-                right: calc(100% + var(--col-gap) + var(--line-w) / 2);
+                border: 2px solid #555;
+                background-color: #181818;
             }
 
-            /* title descr */
-            .timeline-cards li .title,
-            .timeline-cards li .descr {
-                background: white;
-                position: relative;
-                padding-inline: 1.5rem;
+            /* Completed Step */
+            .timeline-cards li.completed::before {
+                content: "✔";
+                font-size: 14px;
+                font-weight: bold;
+                color: #10b981;
+                text-align: center;
+                line-height: 18px;
+                background: #10b981;
+                border-color: #10b981;
+            }
+
+            /* Current Step */
+            .timeline-cards li.current::before {
+                border-color: #3b82f6;
+            }
+
+            /* Future Step */
+            .timeline-cards li.future::before {
+                border-color: #555;
+            }
+
+            /* Step Content */
+            .timeline-cards li .date {
+                font-size: 14px;
+                color: #9ca3af;
             }
 
             .timeline-cards li .title {
-                overflow: hidden;
-                padding-block-start: 1.5rem;
-                padding-block-end: 1rem;
-                font-weight: 500;
-                font-size: 1.25rem;
+                font-size: 16px;
+                font-weight: 600;
+                color: white;
             }
 
             .timeline-cards li .descr {
-                padding-block-end: 1.5rem;
-                font-weight: 300;
-            }
-
-            /* shadows */
-            .timeline-cards li .title::before,
-            .timeline-cards li .descr::before {
-                content: "";
-                position: absolute;
-                width: 90%;
-                height: 0.5rem;
-                background: rgba(0, 0, 0, 0.5);
-                left: 50%;
-                border-radius: 50%;
-                filter: blur(4px);
-                transform: translate(-50%, 50%);
-            }
-
-            .timeline-cards li .title::before {
-                bottom: calc(100% + 0.125rem);
-            }
-
-            .timeline-cards li .descr::before {
-                z-index: -1;
-                bottom: 0.25rem;
-            }
-
-            @media (min-width: 40rem) {
-                .timeline-cards {
-                    grid-template-columns: 1fr var(--line-w) 1fr;
-                }
-
-                .timeline-cards::before {
-                    grid-column: 2;
-                }
-
-                .timeline-cards li:nth-child(odd) {
-                    grid-column: 1;
-                }
-
-                .timeline-cards li:nth-child(even) {
-                    grid-column: 3;
-                }
-
-                /* start second card */
-                .timeline-cards li:nth-child(2) {
-                    grid-row: 2/4;
-                }
-
-                .timeline-cards li:nth-child(odd) .date::before {
-                    clip-path: polygon(0 0, 100% 0, 100% 100%);
-                    left: 0;
-                }
-
-                .timeline-cards li:nth-child(odd) .date::after {
-                    transform: translate(-50%, -50%);
-                    left: calc(100% + var(--col-gap) + var(--line-w) / 2);
-                }
-
-                .timeline-cards li:nth-child(odd) .date {
-                    border-radius: 0 calc(var(--dateH) / 2) calc(var(--dateH) / 2) 0;
-                }
-            }
-
-            /* Status colors */
-            .timeline-cards li.completed {
-                --accent-color: #4CAD73;
-            }
-
-            .timeline-cards li.current {
-                --accent-color: #1B5F8C;
-            }
-
-            .timeline-cards li.future {
-                --accent-color: #41516C;
-            }
-
-            .timeline-cards li.overdue {
-                --accent-color: #E24A68;
+                font-size: 14px;
+                color: #9ca3af;
             }
 
             /* Toast notification styles */
@@ -261,626 +167,624 @@
                 Hover me for info
             </button>
         </div>
-        <div id="toastNotification" class="toast hidden">Your custom message here!</div>
     </div>
-</div>
 
-<!-- Timeline step template -->
-<template id="timeline-step-template">
-    <li class="mb-6 ml-6">
-        <span
-            class="absolute flex items-center justify-center w-8 h-8 rounded-full -left-4 ring-4 ring-white dark:ring-gray-900 bg-blue-500 text-white">
-            <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                viewBox="0 0 20 20">
-                <path
-                    d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-            </svg>
-        </span>
-        <div
-            class="p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-md border-l-4 border-blue-500 ml-2 transform transition-all hover:scale-102 hover:shadow-lg">
-            <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white step-name"></h3>
-            <time
-                class="block mb-2 text-sm font-normal leading-none text-blue-600 dark:text-blue-500 step-date-range"></time>
-            <p class="mb-2 text-base font-normal text-gray-600 dark:text-gray-400 step-duration"></p>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1 overflow-hidden">
-                <div class="step-progress-bar h-2.5 rounded-full transition-all duration-500"></div>
+    <!-- Timeline step template -->
+    <template id="timeline-step-template">
+        <li class="mb-6 ml-6">
+            <span
+                class="absolute flex items-center justify-center w-8 h-8 rounded-full -left-4 ring-4 ring-white dark:ring-gray-900 bg-blue-500 text-white">
+                <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                    viewBox="0 0 20 20">
+                    <path
+                        d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                </svg>
+            </span>
+            <div
+                class="p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-md border-l-4 border-blue-500 ml-2 transform transition-all hover:scale-102 hover:shadow-lg">
+                <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white step-name"></h3>
+                <time
+                    class="block mb-2 text-sm font-normal leading-none text-blue-600 dark:text-blue-500 step-date-range"></time>
+                <p class="mb-2 text-base font-normal text-gray-600 dark:text-gray-400 step-duration"></p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1 overflow-hidden">
+                    <div class="step-progress-bar h-2.5 rounded-full transition-all duration-500"></div>
+                </div>
             </div>
-        </div>
-    </li>
-</template>
+        </li>
+    </template>
 
-<style>
-    /* Timeline container styles */
-    .timeline-container {
-        max-height: 60vh;
-        overflow-y: auto;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(59, 130, 246, 0.5) rgba(229, 231, 235, 0.5);
-    }
-
-    .timeline-container::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .timeline-container::-webkit-scrollbar-track {
-        background: rgba(229, 231, 235, 0.5);
-        border-radius: 10px;
-    }
-
-    .timeline-container::-webkit-scrollbar-thumb {
-        background-color: rgba(59, 130, 246, 0.5);
-        border-radius: 10px;
-    }
-
-    /* Timeline step customization */
-    .timeline-container ol {
-        padding-left: 1rem;
-    }
-
-    /* Step status styling */
-    .timeline-step.completed .step-progress-bar {
-        background-color: #10b981;
-    }
-
-    .timeline-step.current .step-progress-bar {
-        background-color: #3b82f6;
-    }
-
-    .timeline-step.future .step-progress-bar {
-        background-color: #6b7280;
-    }
-
-    .timeline-step.overdue .step-progress-bar {
-        background-color: #ef4444;
-    }
-
-    /* Modal styling */
-    .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 50;
-        padding: 1rem;
-    }
-
-    .modal-box {
-        max-height: 85vh;
-        overflow-y: auto;
-        padding: 2rem;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 640px) {
+    <style>
+        /* Timeline container styles */
         .timeline-container {
-            max-height: 70vh;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(59, 130, 246, 0.5) rgba(229, 231, 235, 0.5);
         }
 
-        .modal-action {
-            flex-direction: column;
-            align-items: stretch;
+        .timeline-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .timeline-container::-webkit-scrollbar-track {
+            background: rgba(229, 231, 235, 0.5);
+            border-radius: 10px;
+        }
+
+        .timeline-container::-webkit-scrollbar-thumb {
+            background-color: rgba(59, 130, 246, 0.5);
+            border-radius: 10px;
+        }
+
+        /* Timeline step customization */
+        .timeline-container ol {
+            padding-left: 1rem;
+        }
+
+        /* Step status styling */
+        .timeline-step.completed .step-progress-bar {
+            background-color: #10b981;
+        }
+
+        .timeline-step.current .step-progress-bar {
+            background-color: #3b82f6;
+        }
+
+        .timeline-step.future .step-progress-bar {
+            background-color: #6b7280;
+        }
+
+        .timeline-step.overdue .step-progress-bar {
+            background-color: #ef4444;
+        }
+
+        /* Modal styling */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            padding: 1rem;
         }
 
         .modal-box {
-            padding: 1rem;
-            width: 95%;
-        }
-    }
-
-    .toggle-button {
-        margin: 20px 0;
-        padding: 10px 15px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .toggle-button:hover {
-        background-color: #45a049;
-    }
-
-    #timeline-container.list-view .timeline {
-        display: block;
-    }
-
-    #timeline-container.list-view .timeline-item {
-        margin-bottom: 20px;
-        display: block;
-        width: 100%;
-    }
-
-    #timeline-container.list-view .timeline-content {
-        margin-left: 0;
-    }
-
-    #timeline-Container {
-        display: block !important;
-        visibility: visible !important;
-    }
-
-    .timeline-step.current {
-        animation: pulseGlow 1.5s infinite alternate;
-    }
-
-    @keyframes pulseGlow {
-        0% {
-            box-shadow: 0 0 0px rgba(59, 130, 246, 0.5);
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2rem;
         }
 
-        100% {
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-        }
-    }
-</style>
-
-<script>
-    // Timeline calculation function
-    function calculateTimeline(procedureDetails, contractDate) {
-        // Convert contract date string to Date object
-        let contractDateObj;
-
-        // Handle different date formats (dd.mm.yyyy or yyyy-mm-dd)
-        if (contractDate.includes('.')) {
-            const parts = contractDate.split('.');
-            contractDateObj = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-        } else {
-            contractDateObj = new Date(contractDate);
-        }
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Normalize today to start of day
-
-        // Calculate the start date by working backwards from contract date
-        let currentDate = new Date(contractDateObj);
-        const timelineSteps = [];
-
-        // Calculate total duration
-        const totalDuration = procedureDetails.reduce((sum, step) => {
-            const days = parseInt(step.days.match(/\d+/)[0]);
-            return sum + (isNaN(days) ? 0 : days);
-        }, 0);
-
-        // Calculate the start date by subtracting the total duration from the contract date
-        const startDate = new Date(contractDateObj);
-        startDate.setDate(startDate.getDate() - totalDuration);
-
-        // Calculate days from today to start date
-        const daysToStart = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
-
-        // Now calculate forward from start date for display
-        currentDate = new Date(startDate);
-
-        // Add steps with calculated dates
-        procedureDetails.forEach((step, index) => {
-            const stepStartDate = new Date(currentDate);
-            const days = parseInt(step.days.match(/\d+/)[0]);
-
-            if (!isNaN(days)) {
-                // Calculate end date for this step
-                const stepEndDate = new Date(currentDate);
-                stepEndDate.setDate(stepEndDate.getDate() + days);
-
-                // Determine step status
-                let status = 'future';
-                let progress = 0;
-
-                if (today > stepEndDate) {
-                    status = 'completed';
-                    progress = 100;
-                } else if (today >= stepStartDate && today <= stepEndDate) {
-                    status = 'current';
-                    const totalStepDays = days;
-                    const daysElapsed = Math.ceil((today - stepStartDate) / (1000 * 60 * 60 * 24));
-                    progress = Math.min(100, Math.round((daysElapsed / totalStepDays) * 100));
-                }
-
-                timelineSteps.push({
-                    step: step.step,
-                    startDate: formatDate(stepStartDate),
-                    endDate: formatDate(stepEndDate),
-                    duration: days,
-                    status: status,
-                    progress: progress
-                });
-
-                // Move current date forward for next step
-                currentDate = new Date(stepEndDate);
-            }
-        });
-
-        return {
-            steps: timelineSteps,
-            daysToStart: daysToStart,
-            startDate: formatDate(startDate),
-            totalDuration: totalDuration
-        };
-    }
-
-    // Expose the calculateTimeline function to the window object
-    window.calculateTimeline = calculateTimeline;
-
-    // Helper function to format dates as DD.MM.YYYY
-    function formatDate(date) {
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}.${month}.${year}`;
-    }
-
-    // Function to show the timeline modal
-    function showTimelineModal() {
-        // Get the procedure details from the result card
-        const procedureDetails = [];
-        document.querySelectorAll('.result-card .step-row, .result-card li').forEach(row => {
-            const stepName = row.querySelector('.step-name') ?
-                row.querySelector('.step-name').textContent :
-                row.textContent.split(':')[0].trim();
-
-            const daysElement = row.querySelector('[id^="days-"]');
-            if (daysElement) {
-                const days = daysElement.textContent;
-                procedureDetails.push({ step: stepName, days: days });
-            }
-        });
-
-        if (procedureDetails.length === 0) {
-            console.error("No procedure details found in the result card");
-            alert("Ei leitud menetluse üksikasju. Palun täitke vorm ja genereerige tulemus.");
-            return;
-        }
-
-        // Get the contract signing date
-        const contractDate = document.getElementById('contractSigningDate').value;
-        if (!contractDate) {
-            alert("Palun sisestage lepingu allkirjastamise kuupäev.");
-            return;
-        }
-
-        const procurementName = document.getElementById('name').value;
-        if (!procurementName) {
-            alert("Palun sisestage hanke nimi.");
-            return;
-        }
-
-        // Calculate the timeline
-        const timeline = calculateTimeline(procedureDetails, contractDate);
-
-        // Populate the timeline modal
-        document.getElementById('timeline-procurement-name').textContent = procurementName;
-        document.getElementById('timeline-contract-date').textContent = contractDate;
-        document.getElementById('days-to-start').textContent = timeline.daysToStart;
-
-        // Clear existing timeline steps
-        const timelineStepsContainer = document.getElementById('timeline-steps');
-        timelineStepsContainer.innerHTML = '';
-
-        // Add timeline steps
-        const stepTemplate = document.getElementById('timeline-step-template');
-        timeline.steps.forEach((step, index) => {
-            const stepClone = document.importNode(stepTemplate.content, true);
-            const stepElement = document.createElement('div');
-            stepElement.className = `timeline-step ${step.status}`;
-
-            // Add current class to the current step
-            const today = new Date().toISOString().split('T')[0];
-            stepElement.classList.add(today >= step.startDate && today <= step.endDate ? "current" : "");
-
-            stepClone.querySelector('.step-name').textContent = `${index + 1}. ${step.step}`;
-            stepClone.querySelector('.step-date-range').textContent = `${step.startDate} - ${step.endDate}`;
-            stepClone.querySelector('.step-duration').textContent = `Kestus: ${step.duration} päeva`;
-
-            const progressBar = stepClone.querySelector('.step-progress-bar');
-            progressBar.style.width = `${step.progress}%`;
-            progressBar.dataset.progress = step.progress;
-
-            // Add appropriate color class based on status
-            if (step.status === 'completed') {
-                progressBar.classList.add('bg-green-500');
-            } else if (step.status === 'current') {
-                progressBar.classList.add('bg-blue-500');
-            } else if (step.status === 'future') {
-                progressBar.classList.add('bg-gray-500');
-            } else if (step.status === 'overdue') {
-                progressBar.classList.add('bg-red-500');
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .timeline-container {
+                max-height: 70vh;
             }
 
-            stepElement.appendChild(stepClone);
-            timelineStepsContainer.appendChild(stepElement);
-        });
-
-        // Show the modal using Alpine.js
-        const timelineModal = document.getElementById('timelineModal');
-        if (timelineModal.__x) {
-            timelineModal.__x.updateElements(timelineModal);
-            timelineModal.__x.$data.open = true;
-        } else {
-            console.error("Alpine.js not initialized on timeline modal");
-            // Fallback to manual display
-            timelineModal.style.display = 'flex';
-        }
-    }
-
-    // Expose the showTimelineModal function to the window object
-    window.showTimelineModal = showTimelineModal;
-
-    // Function to export timeline to Excel
-    function exportTimelineToExcel() {
-        // Get the procurement name for the filename
-        const procurementName = document.getElementById('timeline-procurement-name').textContent;
-        const filename = `${procurementName}_ajakava.xlsx`;
-
-        // Create workbook and worksheet
-        const wb = XLSX.utils.book_new();
-        const wsData = [
-            ['Riigihanke ajakava'],
-            ['Hanke nimi:', procurementName],
-            ['Lepingu allkirjastamine:', document.getElementById('timeline-contract-date').textContent],
-            ['Alustamiseni jäänud:', document.getElementById('days-to-start').textContent + ' päeva'],
-            [''],
-            ['Etapp', 'Alguskuupäev', 'Lõppkuupäev', 'Kestus', 'Staatus']
-        ];
-
-        // Add data rows
-        document.querySelectorAll('.timeline-step').forEach((step, index) => {
-            const stepName = step.querySelector('.step-name').textContent;
-            const dateRange = step.querySelector('.step-date-range').textContent;
-            const duration = step.querySelector('.step-duration').textContent;
-            const status = step.classList.contains('completed') ? 'Lõpetatud' :
-                step.classList.contains('current') ? 'Käimas' :
-                    step.classList.contains('overdue') ? 'Hilinenud' : 'Tulevikus';
-
-            const [startDate, endDate] = dateRange.split(' - ');
-
-            wsData.push([stepName, startDate, endDate, duration, status]);
-        });
-
-        // Create worksheet and add to workbook
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        XLSX.utils.book_append_sheet(wb, ws, 'Ajakava');
-
-        // Save the file
-        XLSX.writeFile(wb, filename);
-    }
-
-    // Function to export timeline to PDF
-    function exportTimelineToPDF() {
-        const procurementName = document.getElementById('timeline-procurement-name').textContent;
-        const filename = `${procurementName}_ajakava.pdf`;
-
-        // Create a new jsPDF instance
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Add title
-        doc.setFontSize(16);
-        doc.text('Riigihanke ajakava', 14, 20);
-
-        // Add procurement details
-        doc.setFontSize(12);
-        doc.text(`Hanke nimi: ${procurementName}`, 14, 30);
-        doc.text(`Lepingu allkirjastamine: ${document.getElementById('timeline-contract-date').textContent}`, 14, 40);
-        doc.text(`Alustamiseni on jäänud: ${document.getElementById('days-to-start').textContent} päeva`, 14, 50);
-
-        // Add timeline data
-        let yPosition = 70;
-
-        document.querySelectorAll('.timeline-step').forEach((step, index) => {
-            const stepName = step.querySelector('.step-name').textContent;
-            const dateRange = step.querySelector('.step-date-range').textContent;
-            const duration = step.querySelector('.step-duration').textContent;
-            const status = step.classList.contains('completed') ? 'Lõpetatud' :
-                step.classList.contains('current') ? 'Käimas' :
-                    step.classList.contains('overdue') ? 'Hilinenud' : 'Tulevikus';
-
-            // Check if we need a new page
-            if (yPosition > 260) {
-                doc.addPage();
-                yPosition = 20;
+            .modal-action {
+                flex-direction: column;
+                align-items: stretch;
             }
 
-            doc.setFontSize(12);
-            doc.text(`${stepName}`, 14, yPosition);
-            yPosition += 10;
-
-            doc.setFontSize(10);
-            doc.text(`${dateRange}`, 20, yPosition);
-            yPosition += 6;
-
-            doc.text(`${duration} (${status})`, 20, yPosition);
-            yPosition += 15;
-        });
-
-        // Save the PDF
-        doc.save(filename);
-    }
-
-    // Add the timeline button to the result card
-    function addTimelineButton() {
-        // Check if the button already exists
-        if (document.getElementById('showTimelineButton')) {
-            return;
-        }
-
-        // Find the result card actions
-        const resultCardActions = document.querySelector('.result-card .card-actions');
-        if (!resultCardActions) {
-            const resultCard = document.querySelector('.result-card');
-            if (resultCard) {
-                // Create card actions if they don't exist
-                const actionsDiv = document.createElement('div');
-                actionsDiv.className = 'card-actions justify-end mt-4';
-                resultCard.appendChild(actionsDiv);
-
-                // Add the timeline button
-                const timelineButton = createTimelineButton();
-                actionsDiv.appendChild(timelineButton);
-            }
-        } else {
-            // Add the timeline button to existing card actions
-            const timelineButton = createTimelineButton();
-            resultCardActions.appendChild(timelineButton);
-        }
-    }
-
-    // Create the timeline button
-    function createTimelineButton() {
-        const timelineButton = document.createElement('button');
-        timelineButton.id = 'showTimelineButton';
-        timelineButton.className = 'btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105';
-        timelineButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> Näita ajakava';
-        timelineButton.addEventListener('click', showTimelineModal);
-        return timelineButton;
-    }
-
-    // Add timeline toggle to dropdown menu
-    function addTimelineToggleToDropdown() {
-        // Check if the dropdown menu exists
-        const dropdownMenu = document.querySelector('.dropdown-menu, [role="menu"]');
-        if (dropdownMenu) {
-            // Check if the toggle already exists
-            if (!document.getElementById('toggleTimelineButton')) {
-                const toggleButton = document.createElement('button');
-                toggleButton.id = 'toggleTimelineButton';
-                toggleButton.className = 'block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105';
-                toggleButton.setAttribute('role', 'menuitem');
-                toggleButton.innerHTML = '<i class="fas fa-calendar-alt mr-2"></i> Ajakava';
-                toggleButton.addEventListener('click', showTimelineModal);
-
-                // Add to dropdown menu
-                dropdownMenu.appendChild(toggleButton);
+            .modal-box {
+                padding: 1rem;
+                width: 95%;
             }
         }
-    }
 
-    // Initialize event listeners
-    document.addEventListener('DOMContentLoaded', function () {
-        // Add event listeners for modal buttons
-        document.getElementById('exportExcel').addEventListener('click', exportTimelineToExcel);
-        document.getElementById('exportPDF').addEventListener('click', exportTimelineToPDF);
+        .toggle-button {
+            margin: 20px 0;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-        // Add the timeline button to the result card when it's generated
-        const observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    // Check if the result card has been added
-                    if (document.querySelector('.result-card')) {
-                        addTimelineButton();
+        .toggle-button:hover {
+            background-color: #45a049;
+        }
+
+        #timeline-container.list-view .timeline {
+            display: block;
+        }
+
+        #timeline-container.list-view .timeline-item {
+            margin-bottom: 20px;
+            display: block;
+            width: 100%;
+        }
+
+        #timeline-container.list-view .timeline-content {
+            margin-left: 0;
+        }
+
+        #timeline-Container {
+            display: block !important;
+            visibility: visible !important;
+        }
+
+        .timeline-step.current {
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 0 0 0px rgba(59, 130, 246, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+            }
+        }
+    </style>
+
+    <script>
+        // Timeline calculation function
+        function calculateTimeline(procedureDetails, contractDate) {
+            // Convert contract date string to Date object
+            let contractDateObj;
+
+            // Handle different date formats (dd.mm.yyyy or yyyy-mm-dd)
+            if (contractDate.includes('.')) {
+                const parts = contractDate.split('.');
+                contractDateObj = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            } else {
+                contractDateObj = new Date(contractDate);
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
+            // Calculate the start date by working backwards from contract date
+            let currentDate = new Date(contractDateObj);
+            const timelineSteps = [];
+
+            // Calculate total duration
+            const totalDuration = procedureDetails.reduce((sum, step) => {
+                const days = parseInt(step.days.match(/\d+/)[0]);
+                return sum + (isNaN(days) ? 0 : days);
+            }, 0);
+
+            // Calculate the start date by subtracting the total duration from the contract date
+            const startDate = new Date(contractDateObj);
+            startDate.setDate(startDate.getDate() - totalDuration);
+
+            // Calculate days from today to start date
+            const daysToStart = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
+
+            // Now calculate forward from start date for display
+            currentDate = new Date(startDate);
+
+            // Add steps with calculated dates
+            procedureDetails.forEach((step, index) => {
+                const stepStartDate = new Date(currentDate);
+                const days = parseInt(step.days.match(/\d+/)[0]);
+
+                if (!isNaN(days)) {
+                    // Calculate end date for this step
+                    const stepEndDate = new Date(currentDate);
+                    stepEndDate.setDate(stepEndDate.getDate() + days);
+
+                    // Determine step status
+                    let status = 'future';
+                    let progress = 0;
+
+                    if (today > stepEndDate) {
+                        status = 'completed';
+                        progress = 100;
+                    } else if (today >= stepStartDate && today <= stepEndDate) {
+                        status = 'current';
+                        const totalStepDays = days;
+                        const daysElapsed = Math.ceil((today - stepStartDate) / (1000 * 60 * 60 * 24));
+                        progress = Math.min(100, Math.round((daysElapsed / totalStepDays) * 100));
                     }
+
+                    timelineSteps.push({
+                        step: step.step,
+                        startDate: formatDate(stepStartDate),
+                        endDate: formatDate(stepEndDate),
+                        duration: days,
+                        status: status,
+                        progress: progress
+                    });
+
+                    // Move current date forward for next step
+                    currentDate = new Date(stepEndDate);
                 }
             });
-        });
 
-        // Start observing the result container
-        const resultContainer = document.getElementById('resultContainer');
-        if (resultContainer) {
-            observer.observe(resultContainer, { childList: true, subtree: true });
+            return {
+                steps: timelineSteps,
+                daysToStart: daysToStart,
+                startDate: formatDate(startDate),
+                totalDuration: totalDuration
+            };
+        }
+
+        // Expose the calculateTimeline function to the window object
+        window.calculateTimeline = calculateTimeline;
+
+        // Helper function to format dates as DD.MM.YYYY
+        function formatDate(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        // Function to show the timeline modal
+        function showTimelineModal() {
+            // Get the procedure details from the result card
+            const procedureDetails = [];
+            document.querySelectorAll('.result-card .step-row, .result-card li').forEach(row => {
+                const stepName = row.querySelector('.step-name') ?
+                    row.querySelector('.step-name').textContent :
+                    row.textContent.split(':')[0].trim();
+
+                const daysElement = row.querySelector('[id^="days-"]');
+                if (daysElement) {
+                    const days = daysElement.textContent;
+                    procedureDetails.push({ step: stepName, days: days });
+                }
+            });
+
+            if (procedureDetails.length === 0) {
+                console.error("No procedure details found in the result card");
+                alert("Ei leitud menetluse üksikasju. Palun täitke vorm ja genereerige tulemus.");
+                return;
+            }
+
+            // Get the contract signing date
+            const contractDate = document.getElementById('contractSigningDate').value;
+            if (!contractDate) {
+                alert("Palun sisestage lepingu allkirjastamise kuupäev.");
+                return;
+            }
+
+            const procurementName = document.getElementById('name').value;
+            if (!procurementName) {
+                alert("Palun sisestage hanke nimi.");
+                return;
+            }
+
+            // Calculate the timeline
+            const timeline = calculateTimeline(procedureDetails, contractDate);
+
+            // Populate the timeline modal
+            document.getElementById('timeline-procurement-name').textContent = procurementName;
+            document.getElementById('timeline-contract-date').textContent = contractDate;
+            document.getElementById('days-to-start').textContent = timeline.daysToStart;
+
+            // Clear existing timeline steps
+            const timelineStepsContainer = document.getElementById('timeline-steps');
+            timelineStepsContainer.innerHTML = '';
+
+            // Add timeline steps
+            const stepTemplate = document.getElementById('timeline-step-template');
+            timeline.steps.forEach((step, index) => {
+                const stepClone = document.importNode(stepTemplate.content, true);
+                const stepElement = document.createElement('div');
+                stepElement.className = `timeline-step ${step.status}`;
+
+                // Add current class to the current step
+                const today = new Date().toISOString().split('T')[0];
+                stepElement.classList.add(today >= step.startDate && today <= step.endDate ? "current" : "");
+
+                stepClone.querySelector('.step-name').textContent = `${index + 1}. ${step.step}`;
+                stepClone.querySelector('.step-date-range').textContent = `${step.startDate} - ${step.endDate}`;
+                stepClone.querySelector('.step-duration').textContent = `Kestus: ${step.duration} päeva`;
+
+                const progressBar = stepClone.querySelector('.step-progress-bar');
+                progressBar.style.width = `${step.progress}%`;
+                progressBar.dataset.progress = step.progress;
+
+                // Add appropriate color class based on status
+                if (step.status === 'completed') {
+                    progressBar.classList.add('bg-green-500');
+                } else if (step.status === 'current') {
+                    progressBar.classList.add('bg-blue-500');
+                } else if (step.status === 'future') {
+                    progressBar.classList.add('bg-gray-500');
+                } else if (step.status === 'overdue') {
+                    progressBar.classList.add('bg-red-500');
+                }
+
+                stepElement.appendChild(stepClone);
+                timelineStepsContainer.appendChild(stepElement);
+            });
+
+            // Show the modal using Alpine.js
+            const timelineModal = document.getElementById('timelineModal');
+            if (timelineModal.__x) {
+                timelineModal.__x.updateElements(timelineModal);
+                timelineModal.__x.$data.open = true;
+            } else {
+                console.error("Alpine.js not initialized on timeline modal");
+                // Fallback to manual display
+                timelineModal.style.display = 'flex';
+            }
+        }
+
+        // Expose the showTimelineModal function to the window object
+        window.showTimelineModal = showTimelineModal;
+
+        // Function to export timeline to Excel
+        function exportTimelineToExcel() {
+            // Get the procurement name for the filename
+            const procurementName = document.getElementById('timeline-procurement-name').textContent;
+            const filename = `${procurementName}_ajakava.xlsx`;
+
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            const wsData = [
+                ['Riigihanke ajakava'],
+                ['Hanke nimi:', procurementName],
+                ['Lepingu allkirjastamine:', document.getElementById('timeline-contract-date').textContent],
+                ['Alustamiseni jäänud:', document.getElementById('days-to-start').textContent + ' päeva'],
+                [''],
+                ['Etapp', 'Alguskuupäev', 'Lõppkuupäev', 'Kestus', 'Staatus']
+            ];
+
+            // Add data rows
+            document.querySelectorAll('.timeline-step').forEach((step, index) => {
+                const stepName = step.querySelector('.step-name').textContent;
+                const dateRange = step.querySelector('.step-date-range').textContent;
+                const duration = step.querySelector('.step-duration').textContent;
+                const status = step.classList.contains('completed') ? 'Lõpetatud' :
+                    step.classList.contains('current') ? 'Käimas' :
+                        step.classList.contains('overdue') ? 'Hilinenud' : 'Tulevikus';
+
+                const [startDate, endDate] = dateRange.split(' - ');
+
+                wsData.push([stepName, startDate, endDate, duration, status]);
+            });
+
+            // Create worksheet and add to workbook
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, 'Ajakava');
+
+            // Save the file
+            XLSX.writeFile(wb, filename);
+        }
+
+        // Function to export timeline to PDF
+        function exportTimelineToPDF() {
+            const procurementName = document.getElementById('timeline-procurement-name').textContent;
+            const filename = `${procurementName}_ajakava.pdf`;
+
+            // Create a new jsPDF instance
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add title
+            doc.setFontSize(16);
+            doc.text('Riigihanke ajakava', 14, 20);
+
+            // Add procurement details
+            doc.setFontSize(12);
+            doc.text(`Hanke nimi: ${procurementName}`, 14, 30);
+            doc.text(`Lepingu allkirjastamine: ${document.getElementById('timeline-contract-date').textContent}`, 14, 40);
+            doc.text(`Alustamiseni on jäänud: ${document.getElementById('days-to-start').textContent} päeva`, 14, 50);
+
+            // Add timeline data
+            let yPosition = 70;
+
+            document.querySelectorAll('.timeline-step').forEach((step, index) => {
+                const stepName = step.querySelector('.step-name').textContent;
+                const dateRange = step.querySelector('.step-date-range').textContent;
+                const duration = step.querySelector('.step-duration').textContent;
+                const status = step.classList.contains('completed') ? 'Lõpetatud' :
+                    step.classList.contains('current') ? 'Käimas' :
+                        step.classList.contains('overdue') ? 'Hilinenud' : 'Tulevikus';
+
+                // Check if we need a new page
+                if (yPosition > 260) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+
+                doc.setFontSize(12);
+                doc.text(`${stepName}`, 14, yPosition);
+                yPosition += 10;
+
+                doc.setFontSize(10);
+                doc.text(`${dateRange}`, 20, yPosition);
+                yPosition += 6;
+
+                doc.text(`${duration} (${status})`, 20, yPosition);
+                yPosition += 15;
+            });
+
+            // Save the PDF
+            doc.save(filename);
+        }
+
+        // Add the timeline button to the result card
+        function addTimelineButton() {
+            // Check if the button already exists
+            if (document.getElementById('showTimelineButton')) {
+                return;
+            }
+
+            // Find the result card actions
+            const resultCardActions = document.querySelector('.result-card .card-actions');
+            if (!resultCardActions) {
+                const resultCard = document.querySelector('.result-card');
+                if (resultCard) {
+                    // Create card actions if they don't exist
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'card-actions justify-end mt-4';
+                    resultCard.appendChild(actionsDiv);
+
+                    // Add the timeline button
+                    const timelineButton = createTimelineButton();
+                    actionsDiv.appendChild(timelineButton);
+                }
+            } else {
+                // Add the timeline button to existing card actions
+                const timelineButton = createTimelineButton();
+                resultCardActions.appendChild(timelineButton);
+            }
+        }
+
+        // Create the timeline button
+        function createTimelineButton() {
+            const timelineButton = document.createElement('button');
+            timelineButton.id = 'showTimelineButton';
+            timelineButton.className = 'btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105';
+            timelineButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> Näita ajakava';
+            timelineButton.addEventListener('click', showTimelineModal);
+            return timelineButton;
         }
 
         // Add timeline toggle to dropdown menu
-        addTimelineToggleToDropdown();
+        function addTimelineToggleToDropdown() {
+            // Check if the dropdown menu exists
+            const dropdownMenu = document.querySelector('.dropdown-menu, [role="menu"]');
+            if (dropdownMenu) {
+                // Check if the toggle already exists
+                if (!document.getElementById('toggleTimelineButton')) {
+                    const toggleButton = document.createElement('button');
+                    toggleButton.id = 'toggleTimelineButton';
+                    toggleButton.className = 'block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105';
+                    toggleButton.setAttribute('role', 'menuitem');
+                    toggleButton.innerHTML = '<i class="fas fa-calendar-alt mr-2"></i> Ajakava';
+                    toggleButton.addEventListener('click', showTimelineModal);
 
-        // Check if Alpine.js is loaded, if not load it
-        if (typeof Alpine === 'undefined') {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js';
-            script.defer = true;
-            document.head.appendChild(script);
-        }
-
-        // Load required libraries dynamically if not already loaded
-        if (typeof XLSX === 'undefined') {
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
-        }
-
-        if (typeof jspdf === 'undefined') {
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-        }
-
-        const toggleButton = document.getElementById('toggleTimelineButton');
-        const timelineContainer = document.getElementById('timeline-container');
-
-        toggleButton.addEventListener('click', function () {
-            if (timelineContainer.classList.contains('list-view')) {
-                timelineContainer.classList.remove('list-view');
-            } else {
-                timelineContainer.classList.add('list-view');
+                    // Add to dropdown menu
+                    dropdownMenu.appendChild(toggleButton);
+                }
             }
-        });
-    });
+        }
 
-    // Helper function to load scripts dynamically
-    function loadScript(url) {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = url;
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add event listeners for modal buttons
+            document.getElementById('exportExcel').addEventListener('click', exportTimelineToExcel);
+            document.getElementById('exportPDF').addEventListener('click', exportTimelineToPDF);
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        try {
-            // Load GSAP if not already loaded
-            if (typeof gsap === 'undefined') {
-                await loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js');
-            }
-
-            const timelineResponse = await fetch("timeline.html");
-            const timelineHtml = await timelineResponse.text();
-            document.getElementById("timeline-Container").innerHTML = timelineHtml;
-            console.log("Timeline loaded successfully");
-
-            // Animate progress bars dynamically
-            document.querySelectorAll(".step-progress-bar").forEach((bar) => {
-                gsap.to(bar, {
-                    width: bar.dataset.progress + "%",
-                    duration: 0.8,
-                    ease: "power2.out"
+            // Add the timeline button to the result card when it's generated
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        // Check if the result card has been added
+                        if (document.querySelector('.result-card')) {
+                            addTimelineButton();
+                        }
+                    }
                 });
             });
 
-            // After generating steps
-            gsap.from(".timeline-step", {
-                opacity: 0,
-                y: 50,
-                duration: 0.8,
-                stagger: 0.2, // Each step animates sequentially
-                ease: "power2.out"
+            // Start observing the result container
+            const resultContainer = document.getElementById('resultContainer');
+            if (resultContainer) {
+                observer.observe(resultContainer, { childList: true, subtree: true });
+            }
+
+            // Add timeline toggle to dropdown menu
+            addTimelineToggleToDropdown();
+
+            // Check if Alpine.js is loaded, if not load it
+            if (typeof Alpine === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js';
+                script.defer = true;
+                document.head.appendChild(script);
+            }
+
+            // Load required libraries dynamically if not already loaded
+            if (typeof XLSX === 'undefined') {
+                loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+            }
+
+            if (typeof jspdf === 'undefined') {
+                loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+            }
+
+            const toggleButton = document.getElementById('toggleTimelineButton');
+            const timelineContainer = document.getElementById('timeline-container');
+
+            toggleButton.addEventListener('click', function () {
+                if (timelineContainer.classList.contains('list-view')) {
+                    timelineContainer.classList.remove('list-view');
+                } else {
+                    timelineContainer.classList.add('list-view');
+                }
             });
-        } catch (error) {
-            console.error("Error loading timeline:", error);
+        });
+
+        // Helper function to load scripts dynamically
+        function loadScript(url) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = url;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
         }
-    });
 
-    // Function to show toast notification
-    function showToast(message) {
-        const toast = document.getElementById('toastNotification');
-        toast.textContent = message;
-        toast.classList.add('show');
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                // Load GSAP if not already loaded
+                if (typeof gsap === 'undefined') {
+                    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js');
+                }
 
-        // Hide the toast after 3 seconds
-        setTimeout(() => {
+                const timelineResponse = await fetch("timeline.html");
+                const timelineHtml = await timelineResponse.text();
+                document.getElementById("timeline-Container").innerHTML = timelineHtml;
+                console.log("Timeline loaded successfully");
+
+                // Animate progress bars dynamically
+                document.querySelectorAll(".step-progress-bar").forEach((bar) => {
+                    gsap.to(bar, {
+                        width: bar.dataset.progress + "%",
+                        duration: 0.8,
+                        ease: "power2.out"
+                    });
+                });
+
+                // After generating steps
+                gsap.from(".timeline-step", {
+                    opacity: 0,
+                    y: 50,
+                    duration: 0.8,
+                    stagger: 0.2, // Each step animates sequentially
+                    ease: "power2.out"
+                });
+            } catch (error) {
+                console.error("Error loading timeline:", error);
+            }
+        });
+
+        // Function to show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            // Hide the toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Add event listeners for hover
+        const hoverableButton = document.getElementById('hoverableButton');
+        hoverableButton.addEventListener('mouseenter', () => {
+            showToast('Alustamisega oled hiljaks jäänud 45 päeva!');
+        });
+        hoverableButton.addEventListener('mouseleave', () => {
+            const toast = document.getElementById('toastNotification');
             toast.classList.remove('show');
-        }, 3000);
-    }
-
-    // Add event listeners for hover
-    const hoverableButton = document.getElementById('hoverableButton');
-    hoverableButton.addEventListener('mouseenter', () => {
-        showToast('Alustamisega oled hiljaks jäänud 45 päeva!');
-    });
-    hoverableButton.addEventListener('mouseleave', () => {
-        const toast = document.getElementById('toastNotification');
-        toast.classList.remove('show');
-    });
-</script>
+        });
+    </script>

@@ -62,7 +62,189 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
 
+        .timeline-cards {
+            --col-gap: 2rem;
+            --row-gap: 0rem;
+            --line-w: 0.25rem;
+            display: grid;
+            grid-template-columns: var(--line-w) 1fr;
+            grid-auto-columns: max-content;
+            column-gap: var(--col-gap);
+            list-style: none;
+            width: min(60rem, 90%);
+            margin-inline: auto;
+            padding: 0;
+        }
+
+
+        /* line */
+        .timeline-cards::before {
+            content: "";
+            grid-column: 1;
+            grid-row: 1 / span 20;
+            background: rgb(225, 225, 225);
+            border-radius: calc(var(--line-w) / 2);
+        }
+
+        /* row gaps */
+        .timeline-cards li:not(:last-child) {
+            margin-bottom: var(--row-gap);
+        }
+
+        /* card */
+        .timeline-cards li {
+            grid-column: 2;
+            --inlineP: 1.5rem;
+            margin-inline: var(--inlineP);
+            grid-row: span 2;
+            display: grid;
+            grid-template-rows: min-content min-content min-content;
+        }
+
+        /* date */
+        .timeline-cards li .date {
+            --dateH: 3rem;
+            height: var(--dateH);
+            margin-inline: calc(var(--inlineP) * -1);
+            text-align: center;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 1 rem;
+            font-weight: 700;
+            display: grid;
+            place-content: center;
+            position: relative;
+            border-radius: calc(var(--dateH) / 2) 0 0 calc(var(--dateH) / 2);
+        }
+
+        /* date flap */
+        .timeline-cards li .date::before {
+            content: "";
+            width: var(--inlineP);
+            aspect-ratio: 1;
+            background: var(--accent-color);
+            background-image: linear-gradient(rgba(0, 0, 0, 0.2) 100%, transparent);
+            position: absolute;
+            top: 100%;
+            clip-path: polygon(0 0, 100% 0, 0 100%);
+            right: 0;
+        }
+
+        /* circle */
+        .timeline-cards li .date::after {
+            content: "";
+            position: absolute;
+            width: 2rem;
+            aspect-ratio: 1;
+            background: white;
+            border: 0.3rem solid var(--accent-color);
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(50%, -50%);
+            right: calc(100% + var(--col-gap) + var(--line-w) / 2);
+        }
+
+        /* title descr */
+        .timeline-cards li .title,
+        .timeline-cards li .descr {
+            background: white;
+            position: relative;
+            padding-inline: 1.5rem;
+        }
+
+        .timeline-cards li .title {
+            overflow: hidden;
+            padding-block-start: 1.5rem;
+            padding-block-end: 0rem;
+            font-weight: 300;
+            font-size: 1rem;
+        }
+
+        .timeline-cards li .descr {
+            padding-block-end: 1.5rem;
+            font-weight: 300;
+        }
+
+        /* shadows */
+        .timeline-cards li .title::before,
+        .timeline-cards li .descr::before {
+            content: "";
+            position: absolute;
+            width: 90%;
+            height: 0.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            left: 50%;
+            border-radius: 50%;
+            filter: blur(4px);
+            transform: translate(-50%, 50%);
+        }
+
+        .timeline-cards li .title::before {
+            bottom: calc(100% + 0.125rem);
+        }
+
+        .timeline-cards li .descr::before {
+            z-index: -1;
+            bottom: 0.25rem;
+        }
+
+        @media (min-width: 40rem) {
+            .timeline-cards {
+                grid-template-columns: 1fr var(--line-w) 1fr;
+            }
+
+            .timeline-cards::before {
+                grid-column: 2;
+            }
+
+            .timeline-cards li:nth-child(odd) {
+                grid-column: 1;
+            }
+
+            .timeline-cards li:nth-child(even) {
+                grid-column: 3;
+            }
+
+            /* start second card */
+            .timeline-cards li:nth-child(2) {
+                grid-row: 2/4;
+            }
+
+            .timeline-cards li:nth-child(odd) .date::before {
+                clip-path: polygon(0 0, 100% 0, 100% 100%);
+                left: 0;
+            }
+
+            .timeline-cards li:nth-child(odd) .date::after {
+                transform: translate(-50%, -50%);
+                left: calc(100% + var(--col-gap) + var(--line-w) / 2);
+            }
+
+            .timeline-cards li:nth-child(odd) .date {
+                border-radius: 0 calc(var(--dateH) / 2) calc(var(--dateH) / 2) 0;
+            }
+        }
+
+        /* Status colors */
+        .timeline-cards li.completed {
+            --accent-color: #4CAD73;
+        }
+
+        .timeline-cards li.current {
+            --accent-color: #1B5F8C;
+        }
+
+        .timeline-cards li.future {
+            --accent-color: #41516C;
+        }
+
+        .timeline-cards li.overdue {
+            --accent-color: #E24A68;
+        }
+    </style>
 </head>
 
 <body class="bg-gradient-to-br bg-white min-h-screen flex flex-col"
@@ -335,8 +517,14 @@
             </div>
         </div>
     </footer>
+
     <main class="container mx-auto p-6 pt-32">
+        <div id="toastContainer"
+            class="fixed bg-green-500 text-white px-4 py-3 rounded-lg shadow-md hidden transition-opacity duration-300">
+            <span id="toastMessage"></span>
+        </div>
         <div id="toolTab" class="flex flex-wrap md:flex-nowrap justify-center gap-0 space-x-0 space-y-0">
+
             <!-- Timeline Container - Moved inside toolTab and positioned left -->
             <div id="timeline-Container"
                 class="bg-white p-6 rounded-xl shadow-lg max-w-5xl w-full border border-indigo-300 hidden min-h-[350px] -mx-[-5px]">
@@ -370,6 +558,7 @@
                     <!-- Days countdown from today - More prominent -->
                     <div class="bg-gradient-to-r bg-white text-black p-5 rounded-lg mb-8 flex items-center shadow-lg">
                         <div class="bg-white/20 p-3 rounded-full mr-4">
+
                             <!-- Remove the existing icon and replace it with the hoverable button -->
                             <button id="hoverableButton"
                                 class="btn bg-amber-300 hover:bg-amber-700 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
@@ -779,6 +968,7 @@
             </svg>
             <span id="alertMessage">Andmed salvestatud!</span>
         </div>
+
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
         <script>
 
@@ -3319,18 +3509,35 @@
         </style>
 
         <script>
-            // Function to show toast notification
-            function showToast(message) {
-                const toast = document.getElementById('toastNotification');
-                toast.textContent = message;
-                toast.classList.remove('hidden'); // Ensure the toast is visible
-                toast.classList.add('show');
 
-                // Hide the toast after 3 seconds
+            // Function to show toast notification
+            function showToast(message, event) {
+                const toastContainer = document.getElementById("toastContainer");
+                const toastMessage = document.getElementById("toastMessage");
+
+                if (!toastContainer || !toastMessage) {
+                    console.error("⚠ Error: Toast element not found!");
+                    return;
+                }
+
+                toastMessage.textContent = message;
+
+                // ✅ Position the toast relative to the clicked button
+                if (event) {
+                    const buttonRect = event.target.getBoundingClientRect();
+                    toastContainer.style.position = "absolute";
+                    toastContainer.style.top = `${buttonRect.top + window.scrollY + 40}px`; // Adjust the Y position
+                    toastContainer.style.left = `${buttonRect.left + window.scrollX}px`; // Align with button
+                }
+
+                toastContainer.classList.remove("hidden");
+                toastContainer.classList.add("opacity-100");
+
+                // Hide after 3 seconds
                 setTimeout(() => {
-                    toast.classList.remove('show');
-                    toast.classList.add('hidden'); // Hide it again
-                }, 5000);
+                    toastContainer.classList.add("hidden");
+                    toastContainer.classList.remove("opacity-100");
+                }, 4000);
             }
 
             // Add event listeners for hover
@@ -3340,8 +3547,7 @@
             });
             hoverableButton.addEventListener('mouseleave', () => {
                 const toast = document.getElementById('toastNotification');
-                toast.classList.remove('show');
-                toast.classList.add('hidden'); // Hide it when mouse leaves
+
             });
         </script>
 
