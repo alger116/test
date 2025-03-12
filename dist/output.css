@@ -92,6 +92,9 @@
 .top-0\.5 {
   top: calc(var(--spacing) * 0.5);
 }
+.top-1 {
+  top: calc(var(--spacing) * 1);
+}
 .top-1\/2 {
   top: calc(1/2 * 100%);
 }
@@ -131,6 +134,9 @@
 .bottom-6 {
   bottom: calc(var(--spacing) * 6);
 }
+.-left-1 {
+  left: calc(var(--spacing) * -1);
+}
 .-left-1\.5 {
   left: calc(var(--spacing) * -1.5);
 }
@@ -142,6 +148,9 @@
 }
 .left-0\.5 {
   left: calc(var(--spacing) * 0.5);
+}
+.left-1 {
+  left: calc(var(--spacing) * 1);
 }
 .left-1\/2 {
   left: calc(1/2 * 100%);
@@ -295,6 +304,9 @@
 }
 .m-2 {
   margin: calc(var(--spacing) * 2);
+}
+.m-5 {
+  margin: calc(var(--spacing) * 5);
 }
 .-mx-\[-2px\] {
   margin-inline: calc(-2px * -1);
@@ -591,6 +603,9 @@
 .\!w-full {
   width: 100% !important;
 }
+.w-0 {
+  width: calc(var(--spacing) * 0);
+}
 .w-0\.5 {
   width: calc(var(--spacing) * 0.5);
 }
@@ -799,6 +814,10 @@
   --tw-translate-y: 100%;
   translate: var(--tw-translate-x) var(--tw-translate-y);
 }
+.-translate-x-1 {
+  --tw-translate-x: calc(var(--spacing) * -1);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+}
 .-translate-x-1\/2 {
   --tw-translate-x: calc(calc(1/2 * 100%) * -1);
   translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -809,6 +828,10 @@
 }
 .translate-x-0 {
   --tw-translate-x: calc(var(--spacing) * 0);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+}
+.-translate-y-1 {
+  --tw-translate-y: calc(var(--spacing) * -1);
   translate: var(--tw-translate-x) var(--tw-translate-y);
 }
 .-translate-y-1\/2 {
@@ -1271,6 +1294,11 @@
 .divide-y-reverse {
   :where(& > :not(:last-child)) {
     --tw-divide-y-reverse: 1;
+  }
+}
+.divide-gray-100 {
+  :where(& > :not(:last-child)) {
+    border-color: var(--color-gray-100);
   }
 }
 .divide-gray-100\/70 {
@@ -2053,6 +2081,9 @@
 .p-8 {
   padding: calc(var(--spacing) * 8);
 }
+.px-0 {
+  padding-inline: calc(var(--spacing) * 0);
+}
 .px-0\.5 {
   padding-inline: calc(var(--spacing) * 0.5);
 }
@@ -2118,6 +2149,9 @@
 }
 .pb-3 {
   padding-bottom: calc(var(--spacing) * 3);
+}
+.pl-0 {
+  padding-left: calc(var(--spacing) * 0);
 }
 .pl-0\.5 {
   padding-left: calc(var(--spacing) * 0.5);
