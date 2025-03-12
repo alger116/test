@@ -10,27 +10,25 @@
         <style>
             @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
 
+            /* Timeline Container */
             .timeline-cards {
-                --col-gap: 2rem;
-                --row-gap: 2rem;
-                --line-w: 0.25rem;
-                display: grid;
-                grid-template-columns: var(--line-w) 1fr;
-                grid-auto-columns: max-content;
-                column-gap: var(--col-gap);
-                list-style: none;
-                width: min(60rem, 90%);
-                margin-inline: auto;
-                padding: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                width: 100%;
             }
 
-            /* line */
+            /* Vertical Line */
             .timeline-cards::before {
                 content: "";
-                grid-column: 1;
-                grid-row: 1 / span 20;
-                background: rgb(225, 225, 225);
-                border-radius: calc(var(--line-w) / 2);
+                position: absolute;
+                width: 4px;
+                background-color: #3a3a3a;
+                top: 0;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
             }
 
             /* row gaps */
