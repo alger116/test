@@ -8,7 +8,7 @@
 
 @layer components {
   optgroup {
-    @apply font-bold text-gray-800 bg-gray-100;
+    @apply font-bold text-gray-800 bg-black;
   }
   .container {
     @apply max-w-4xl mx-auto p-4;
@@ -59,4 +59,16 @@
 .dark {
   --bg-color: #0f172a;
   --text-color: #f8fafc;
+}
+
+[data-x-show] {
+  will-change: opacity, transform;
+}
+
+.btn {
+  will-change: transform;
+}
+.btn:hover {
+  transform: scale(1.03); /* 1.05 may feel too slow */
+  transition: transform 0.2s ease-in-out;
 }

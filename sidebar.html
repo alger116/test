@@ -2,7 +2,7 @@
 <aside x-data :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
         class="fixed inset-y-0 left-0 w-56 rounded-md text-black-500 flex flex-col transition-all duration-300">
 
-        <div class="flex items-center justify-between px-4 py-3 bg-gray/80 backdrop-blur-xl rounded-t-md">
+        <div class="flex items-center justify-between px-4 py-3 rounded-t-md">
                 <h2 class="text-lg font-semibold"></h2>
                 <button @mouseenter="sidebarOpen = true"
                         @mouseleave="sidebarOpen = false; localStorage.setItem('sidebarOpen', sidebarOpen)"
@@ -11,49 +11,49 @@
                 </button>
         </div>
 
-        <nav class="flex-1 w-52 rounded-xl bg-white/10 backdrop-blur-xl border-white/20 p-2">
+        <nav class="flex-1 w-52 rounded-xl border-white/20 p-2 mt-8">
                 <ul class="mt-2 space-y-2">
                         <li>
                                 <a href="dashboard.html"
-                                        class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
-                                                hover:scale-105 hover:shadow-lg transition-all duration-300 ease-in-out">
+                                        class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
+                                                hover:scale-105 hover:shadow-lg hover:bg-cyan-700 transition-all duration-300 ease-in-out">
                                         🏠 Ülevaade
                                 </a>
                         </li>
                         <li>
-                                <a href="Ostud/ostud.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
-                        hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
+                                <a href="Ostud/ostud.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-cyan-700 transition-all duration-300 ease-in-out">
                                         🛒 Ostud
                                 </a>
                         </li>
                         <li>
-                                <a href="data-analysis.html" class="hidden px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                                <a href="data-analysis.html" class="hidden px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
                         hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
                                         📊 Statistika
                                 </a>
                         </li>
                         <li>
-                                <a href="summeerimine.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
-                        hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
+                                <a href="summeerimine.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-cyan-700 transition-all duration-300 ease-in-out">
                                         📑 Summerimine
                                 </a>
                         </li>
                         <li>
-                                <a href="excel.html" class="hidden px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                                <a href="excel.html" class="hidden px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
                         hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
                                         📂 Excel
                                 </a>
                         </li>
                         <li>
-                                <a href="pdf.html" class="hidden px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
+                                <a href="pdf.html" class="hidden px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
                         hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
                                         📄 PDF
                                 </a>
                         </li>
                         <li>
                                 <a href="admin.html"
-                                        class="block px-6 py-3 text-lg font-bold text-black bg-gradient-to-r bg-white rounded-lg shadow-md 
-                                                hover:scale-105 hover:shadow-lg hover:bg-emerald-300 transition-all duration-300 ease-in-out">
+                                        class="block px-6 py-3 text-lg font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
+                                                hover:scale-105 hover:shadow-lg hover:bg-cyan-700 transition-all duration-300 ease-in-out">
                                         🔥 Admin</a>
                         </li>
                 </ul>

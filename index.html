@@ -271,7 +271,7 @@
     x-data="{ sidebarOpen: localStorage.getItem('sidebarOpen') === 'true', sidebarHovered: false, }">
 
     <!-- Sidebar Container -->
-    <div id="sidebarContainer" class="bg-gray-100 shadow-lg transition-all duration-300"
+    <div id="sidebarContainer" class=" transition-all duration-300"
         @mouseenter="sidebarHovered = true; sidebarOpen = true"
         @mouseleave="sidebarHovered = false; if (!sidebarHovered) sidebarOpen = false">
         <!-- Sidebar content goes here -->
@@ -425,7 +425,7 @@
 
                     <!-- User Dropdown -->
                     <div x-show="open" @click.away="open = false"
-                        class="absolute dropdown-menu right-0 mt-2 w-48 bg-gray-100 bg-opacity-95 rounded-lg shadow-md z-50"
+                        class="absolute dropdown-menu right-0 mt-2 w-48  bg-opacity-95 rounded-lg z-50"
                         x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 transform scale-95"
                         x-transition:enter-end="opacity-100 transform scale-100"
@@ -433,11 +433,11 @@
                         x-transition:leave-start="opacity-100 transform scale-100"
                         x-transition:leave-end="opacity-0 transform scale-95">
                         <button id="changeEmail"
-                            class="block w-full text-left px-4 py-2 text-sm text-blue-500 hover:bg-green-100 transition-colors duration-300 transform hover:scale-105 protected-section">
+                            class="block w-full text-left px-4 py-2 text-sm text-blue-500 hover:bg-blue-400 transition-colors duration-300 transform hover:scale-105 protected-section hidden">
                             <i class="fas fa-envelope mr-2"></i> Muuda e-post
                         </button>
                         <button id="changePassword"
-                            class="block w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-green-100 transition-colors duration-300 transform hover:scale-105 protected-section">
+                            class="block w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-emerald-200 transition-colors duration-300 transform hover:scale-105 protected-section hidden">
                             <i class="fas fa-key mr-2"></i> Muuda parool
                         </button>
                         <a href="register.html" id="registerButton"
@@ -445,11 +445,11 @@
                             <i class="fas fa-user-plus mr-2"></i> Registreeri
                         </a>
                         <button id="logoutButton"
-                            class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-green-100 transition-colors duration-300 transform hover:scale-105 protected-section">
+                            class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-400 transition-colors duration-300 transform hover:scale-105 protected-section">
                             <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
                         </button>
                         <button id="settingsButton"
-                            class="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-green-100 hover:text-black transition-colors duration-300 transform hover:scale-105 protected-section hidden"
+                            class="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-amber-200 hover:text-black transition-colors duration-300 transform hover:scale-105 protected-section hidden"
                             role="menuitem">
                             <i class="fas fa-cog mr-2"></i> Seaded
                         </button>
@@ -547,7 +547,7 @@
 
             <!-- Timeline Container - Moved inside toolTab and positioned left -->
             <div id="timeline-Container"
-                class="bg-white/40 p-6 rounded-xl shadow-lg max-w-5xl w-full border border-black hidden min-h-[350px] -mx-[-5px]">
+                class="bg-white/40 p-6 rounded-xl shadow-lg max-w-3xl w-full  hidden min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
                 <div id="timelineContainer" class=" rounded-lg shadow-md">
                     <h3 class="font-bold text-lg mb-6 text-blue-600 text-center hidden">Riigihanke eelduslik
                         ajakava</h3>
@@ -628,7 +628,7 @@
 
             <!-- Form Container - Middle -->
             <div id="formContainer"
-                class="bg-white/40 p-5 rounded-xl shadow-lg max-w-md w-full border border-indigo-300 min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
+                class="bg-white/40 p-5 rounded-xl shadow-lg max-w-md w-full  min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
                 <h2 class="text-2xl font-bold text-center mb-5 text-gray-800">Sisesta andmed</h2>
                 <form id="procurementForm" class="space-y-4">
                     <div>
@@ -651,10 +651,11 @@
                                 class="text-blue-500 text-sm roboto opacity-0 transition-opacity duration-300 ml-1"></span>
                         </label>
                         <select id="procedureType" name="procedureType"
-                            class="w-full p-2 border rounded bg-white/60 shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            class="w-full p-2 border rounded shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             required aria-label="Riigihanke menetlusliik">
 
                             <!-- Placeholder option (disabled & selected by default) -->
+
                             <option value="" disabled selected>Vali siit</option>
                             <optgroup label="Avatud hankemenetlus">
                                 <option value="Avatud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade
@@ -734,7 +735,7 @@
                     </div>
                     <div class="flex justify-center space-x-4 mt-4">
                         <button id="calculateTime"
-                            class="w-full bg-sky-500 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:bg-sky-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
+                            class="w-full bg-sky-500/75 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:bg-sky-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
                             <i class="fas fa-calculator mr-2"></i> Arvuta aeg
                         </button>
                         <div x-data="{ added: false }" class="relative">
@@ -772,26 +773,25 @@
             </div>
 
             <!-- Result Container - Right -->
-            <div class="container bg-white/40 p-6 rounded-xl shadow-lg max-w-lg w-full border border-indigo-300 hidden -mx-[-2px]"
+            <div class="container bg-white/40 p-6 rounded-xl shadow-lg max-w-md w-full hidden -mx-[-2px]"
                 id="resultContainer">
                 <div id="result" class="result-card"></div>
             </div>
         </div>
 
         <!-- The saved searches container is hidden by default and will be shown when the user clicks the "Show Saved Searches" button -->
-        <div class="container bg-white/40 p-5 rounded-lg shadow-lg max-w-full mx-auto hidden"
-            id="savedSearchesContainer">
+        <div class="container bg-white/20 p-5 rounded-lg max-w-full mx-auto hidden" id="savedSearchesContainer">
             <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Salvestatud Hanked</h2>
-            <div class="overflow-x-auto bg-gray-50/40 p-4 rounded-lg shadow-md">
+            <div class="overflow-x-auto p-4 rounded-lg ">
                 <table class="w-full border-collapse rounded-lg overflow-hidden">
                     <thead>
-                        <tr class="bg-gradient-to-r from-blue-200/40 to-blue-500/40 text-black text-left">
+                        <tr class="bg-gradient-to-r from-blue-300/40 to-blue-500/40 text-black text-left">
                             <th class="p-4">📌 Nimi</th>
                             <th class="p-4">📜 Menetlusliik</th>
                             <th class="p-4">💰 Maksumus (€)</th>
                             <th class="p-4">📅 Taotluse Kuupäev</th>
                             <th class="p-4">🖊️ Allkirjastamise Kuupäev</th>
-                            <th class="p-4 text-center">✏️ Muuda</th>
+                            <th class="p-4 text-center hidden">✏️ Muuda</th>
                             <th class="p-4 text-center">❌ Kustuta</th>
                         </tr>
                     </thead>
@@ -900,7 +900,7 @@
             <div class="flex-1 bg-gray-50 p-4 rounded-lg shadow-md">
                 <h3 class="text-lg font-bold text-gray-800 mb-3">🛠️ Menetlusliigid</h3>
                 <select id="procedureTypeSelect"
-                    class="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    class="w-full p-3 border rounded-lg bg-white/40 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <!-- Options will be populated dynamically -->
                 </select>
                 <div id="procedureTypeSettings" class="mt-4 space-y-4">
@@ -983,11 +983,7 @@
         </div>
         <div id="successAlert" role="alert"
             class="alert alert-success fixed top-16 left-1/2 transform -translate-x-1/2 z-50 transition scale-95 opacity-0 hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+
             <span id="alertMessage">Andmed salvestatud!</span>
         </div>
 
@@ -1407,7 +1403,7 @@
                         '<p class="error-message text-red-500 font-bold">NB! Oled hiljaks jäänud planeerimisel!</p>' : '';
 
                     return `
-                    <div class="result-card bg-white/40 p-6 rounded max-w-lg scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
+                    <div class="result-card p-6 rounded max-w-md rounded-md scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
                         <h2 class="text-2xl font-bold text-black-500 mb-4">Riigihanke andmed</h2>
                         <p><strong>Riigihanke taotluse esitamise kuupäev:</strong> 
                             <span id="requestSubmissionDate">${formatDate(this.requestSubmissionDate)}</span>
@@ -1781,7 +1777,7 @@
 
                 savedSearches.forEach((search, index) => {
                     const row = `
-        <tr class="border-b even:bg-white/40 hover:bg-sky-200 transition-all">
+        <tr class="border-b even:bg-white/40 hover:bg-gray transition-all">
             <td class="p-4">${search.name}</td>
             <td class="p-4">${search.procedureType}</td>
             <td class="p-4">${search.cost} €</td>
@@ -2512,13 +2508,13 @@
                 searches.forEach((search, index) => {
                     console.log(`📌 Kuvan otsingu [${index}]:`, search);
                     container.innerHTML += `
-            <tr class="border-b even:bg-gray-100/40 hover:bg-gray-200 transition-all">
+            <tr class="border-b hover:bg-gray-400 transition-all">
                 <td class="p-4">${search.name}</td>
                 <td class="p-4">${search.procedureType}</td>
                 <td class="p-4">${search.cost} €</td>
                 <td class="p-4 text-blue-600 font-semibold">${search.requestSubmissionDate}</td>
-                <td class="p-4 text-gray-500">${search.contractSigningDate}</td>
-                <td class="p-4 text-center">
+                <td class="p-4 text-blue-600 font-semibold">${search.contractSigningDate}</td>
+                <td class="p-4 text-center hidden">
                     <button onclick="editSearch(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition transform hover:scale-105">✏️ Muuda</button>
                 </td>
                 <td class="p-4 text-center">
