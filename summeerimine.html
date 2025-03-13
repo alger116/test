@@ -5,7 +5,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 
-<nav class="fixed top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
+<nav class="fixed top-0 z-50  backdrop-blur-md">
     <div class="container mx-auto max-w-7xl px-6">
         <div class="flex items-center justify-between h-16">
             <!-- Left Section - Logo/Home -->
@@ -170,9 +170,9 @@
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-violet-50 to-indigo-100 min-h-screen">
+<body class="bg-gradient-to-br bg-white min-h-screen">
     <div class="container mx-auto px-4 py-12 max-w-xl">
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <div class="bg-indigo-300 rounded-2xl shadow-xl overflow-hidden border border-black">
             <div class="p-6 bg-gradient-to-r from-violet-600 to-indigo-600">
                 <h1 class="text-3xl font-bold text-white tracking-tight">Summeerimise Bingo</h1>
                 <p class="text-violet-100 mt-2 opacity-90">Täida vormis iga rida, lisa "check" mark iga vastuse lõppu!
@@ -189,7 +189,7 @@
                                 <label for="q1" class="block text-sm font-medium text-gray-700 mb-2">Mis on
                                     ostumenetluse nimi?</label>
                                 <input type="text" id="q1" name="q1"
-                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out">
+                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out">
                             </div>
                             <div class="checkbox-modern">
                                 <input type="checkbox" id="c1" class="check-item"
@@ -211,7 +211,7 @@
                                 <label for="q2" class="block text-sm font-medium text-gray-700 mb-2">Kas ostetakse asju
                                     või teenuseid?</label>
                                 <input type="text" id="q2" name="q2"
-                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out">
+                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out">
                             </div>
                             <div class="checkbox-modern">
                                 <input type="checkbox" id="c2" class="check-item"
@@ -233,7 +233,7 @@
                                 <label for="q3" class="block text-sm font-medium text-gray-700 mb-2">Mis on
                                     ostumenetluse CPV kood?</label>
                                 <input type="text" id="q3" name="q3"
-                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out">
+                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out">
                             </div>
                             <div class="checkbox-modern">
                                 <input type="checkbox" id="c3" class="check-item"
@@ -255,7 +255,7 @@
                                 <label for="q4" class="block text-sm font-medium text-gray-700 mb-2">Mis on
                                     ostumenetluse kategooria?</label>
                                 <input type="text" id="q4" name="q4"
-                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out">
+                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out">
                             </div>
                             <div class="checkbox-modern">
                                 <input type="checkbox" id="c4" class="check-item"
@@ -277,7 +277,7 @@
                                 <label for="q5" class="block text-sm font-medium text-gray-700 mb-2">Kas oled viimase 12
                                     kuu jooksul sarnaseid oste teinud? Kui jah, millal ja mis summas!</label>
                                 <textarea id="q5" name="q5" rows="3"
-                                    class="form-textarea w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out"></textarea>
+                                    class="form-textarea w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out"></textarea>
                             </div>
                             <div class="checkbox-modern">
                                 <input type="checkbox" id="c5" class="check-item"
@@ -310,7 +310,7 @@
                     <hr class="my-8 border-gray-200">
 
                     <!-- Results Area -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm mt-4">
+                    <div class="bg-white p-6 rounded-xl border border-black shadow-sm mt-4">
                         <div id="chatContainer" class="h-96 overflow-y-auto space-y-4 mb-4">
                             <!-- Chat messages will be rendered here -->
                         </div>

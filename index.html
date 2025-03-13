@@ -295,7 +295,7 @@
                 <!-- ✅ Title + Dropdown (Left Side) -->
                 <div class="flex items-center space-x-4 ml-4">
                     <h1
-                        class="text-2xl bg-gradient-to-r bg-black text-transparent bg-clip-text font-bold transform hover:scale-105 protected-section">
+                        class="text-xl bg-gradient-to-r bg-black text-transparent bg-clip-text font-bold transform hover:scale-105 protected-section">
                         <a href="index.html" class="hover:underline">Riigihanke andmed</a>
                     </h1>
 
@@ -345,7 +345,7 @@
             </div>
 
             <!-- ✅ Center - Moved Buttons -->
-            <div class="flex-1 flex justify-center items-center space-x-4">
+            <div class="flex-1 flex text-center items-center space-x-4">
                 <!-- Rakendus Button -->
                 <button id="showForm"
                     class="hidden px-3 py-1.5 text-lg font-bold text-gray-800 rounded-lg hover:bg-emerald-300 hover:text-black transition transform hover:scale-105 flex items-center">
@@ -354,7 +354,7 @@
 
                 <!-- Hanked Button -->
                 <button id="showSavedSearches"
-                    class="px-3 py-1.5 text-lg font-bold text-gray-800 rounded-lg hover:bg-emerald-300 hover:text-black transition transform hover:scale-105 protected-section hidden flex items-center">
+                    class="px-3 py-1.5 text-lg font-bold text-black rounded-lg hover:bg-emerald-300 hover:text-black transition transform hover:scale-105 protected-section hidden flex items-center">
                     <i class="fas fa-folder-open mr-2"></i> Hanked
                 </button>
 
@@ -540,20 +540,20 @@
 
     <main class="container mx-auto p-6 pt-32">
         <div id="toastContainer"
-            class="fixed bg-green-500 text-white px-4 py-3 rounded-lg shadow-md hidden transition-opacity duration-300">
+            class="fixed bg-green-500 text-white px-4 py-3 shadow-md hidden transition-opacity duration-300">
             <span id="toastMessage"></span>
         </div>
         <div id="toolTab" class="flex flex-wrap md:flex-nowrap justify-center gap-0 space-x-0 space-y-0">
 
             <!-- Timeline Container - Moved inside toolTab and positioned left -->
             <div id="timeline-Container"
-                class="bg-white/40 p-6 rounded-xl shadow-lg max-w-3xl w-full  hidden min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
-                <div id="timelineContainer" class=" rounded-lg shadow-md">
+                class="bg-white/40 p-6 rounded-xl  max-w-3xl w-full  hidden min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
+                <div id="timelineContainer" class=" rounded-lg">
                     <h3 class="font-bold text-lg mb-6 text-blue-600 text-center hidden">Riigihanke eelduslik
                         ajakava</h3>
 
                     <!-- Timeline header - Card style -->
-                    <div class="bg-white/40 rounded-lg p-5 shadow-md mb-8 hidden">
+                    <div class="bg-white/40 rounded-lg p-5 mb-8 hidden">
                         <div class=" grid-cols-1 flex flex-row gap-4">
                             <div class="bg-white/40 p-4 rounded-lg shadow-sm border-l-4 border-blue-500">
                                 <div class="text-gray-500 text-sm uppercase font-semibold mb-1">Hanke nimi</div>
@@ -576,8 +576,7 @@
                     </div>
 
                     <!-- Days countdown from today - More prominent -->
-                    <div
-                        class="bg-gradient-to-r bg-white/40 text-black p-5 rounded-lg mb-8 flex items-center shadow-lg">
+                    <div class="bg-gradient-to-r bg-white/40 text-black p-5 rounded-lg mb-8 flex items-center">
                         <div class="bg-white/20 p-3 rounded-full mr-4">
 
                             <!-- Remove the existing icon and replace it with the hoverable button -->
@@ -589,7 +588,7 @@
                         <div>
                             <div class="text-sm uppercase tracking-wider font-medium text-white"></div>
                             <div class="text-xl font-bold">Alustamiseni on jäänud <span id="day-to-start"
-                                    class="text-2xl bg-white/20 px-2 py-1 rounded-md ml-1">-100</span>
+                                    class="text-2x px-2 py-1 rounded-md ml-1">-100</span>
                                 päeva</div>
                         </div>
                     </div>
@@ -1393,7 +1392,7 @@
                                 <button onclick="adjustDays(${index}, 1)" class="bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-600 transition transform hover:scale-105">+</button>
                             </div>
                         </div>
-                            <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden mt-1">
+                            <div class="w-full bg-gray-200/20 rounded-full h-4 overflow-hidden mt-1">
                             <div id="progress-${index}" class="progress-bar bg-blue-500 h-4 rounded-full transition-all duration-500" data-progress="0"></div>
                         </div>
                     </li>

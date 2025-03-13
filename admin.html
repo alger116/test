@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/daisyui"></script>
     <script src="https://unpkg.com/@heroicons/react/outline"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -12,7 +12,7 @@
     <link href="./dist/output.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gradient-to-bl from-blue-100 to-blue-200 font-sans">
     <script type="module">
         // Import Firebase Modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
@@ -183,8 +183,8 @@
 
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-45 bg-blue-300 text-white p-6">
-            <h2 class="text-2xl font-bold">Admin Panel</h2>
+        <aside class="w-45 bg-gradient-to-bl from-blue-100 to-blue-200 text-black p-6">
+            <h2 class="text-2xl font-bold">Admin</h2>
             <ul class="mt-6 space-y-4">
                 <li><a href="index.html" class="block hover:underline">🏠 Tagasi</a></li>
                 <li><button id="settingsButton" class="block hover:underline">⚙️ Seaded</button></li>
@@ -200,7 +200,7 @@
         <main class="flex-1 p-6">
             <!-- Header with User Dropdown -->
             <header class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">Admin Panel</h1>
+                <h1 class="text-3xl font-bold text-gray-800"></h1>
 
                 <!-- User Dropdown -->
                 <div class="relative" x-data="{ open: false }">
@@ -230,12 +230,12 @@
             </header>
 
             <!-- User Management Table -->
-            <div class="bg-white mt-6 p-6 rounded shadow">
+            <div class=" mt-6 p-6 rounded shadow">
                 <h2 class="text-lg font-semibold mb-4">Kasutajad</h2>
                 <table class="w-full border-collapse">
                     <thead>
-                        <tr class="bg-gray-200">
-                            <th class="px-4 py-2">Email</th>
+                        <tr class="">
+                            <th class=" px-4 py-2">Email</th>
                             <th class="px-4 py-2">Roll</th>
                             <th class="px-4 py-2">Kinnitatud</th>
                             <th class="px-4 py-2">Tegevused</th>
