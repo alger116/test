@@ -254,13 +254,10 @@ document.addEventListener("DOMContentLoaded", function () {
       stagger: 0.2,
       ease: "power2.out",
     });
-  } else {
-    console.warn("GSAP target .timeline-step not found.");
-  }
-
-  function calculateProcedureDuration(procedureType) {
-    return 60;
-  }
+  } else
+    function calculateProcedureDuration(procedureType) {
+      return 60;
+    }
 
   function initializeTimeline() {
     console.log("Initializing timeline");
@@ -505,6 +502,8 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (error) {
       console.error("Error initializing timeline:", error);
     }
+
+    console.log("Timeline initialization complete");
   }
 
   function generateTimelineSteps(container, contractDate, today) {

@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="config.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
+
 
 
 
@@ -64,198 +67,6 @@
 
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
-
-        .timeline-cards {
-            --col-gap: 2rem;
-            --row-gap: 0rem;
-            --line-w: 0.25rem;
-            display: flexbox;
-            grid-template-columns: var(--line-w) 1fr;
-            grid-auto-columns: max-content;
-            column-gap: var(--col-gap);
-            list-style: none;
-            width: min(60rem, 90%);
-            margin-inline: auto;
-            padding: 0;
-
-
-
-            border-radius: 10px;
-
-        }
-
-
-        /* line */
-        .timeline-cards::before {
-            content: "";
-            grid-column: 1;
-            grid-row: 1 / span 20;
-            border-radius: calc(var(--line-w) / 2);
-        }
-
-        /* row gaps */
-        .timeline-cards li:not(:last-child) {
-            margin-bottom: var(--row-gap);
-        }
-
-        /* card */
-        .timeline-cards li {
-            grid-column: 2;
-            --inlineP: 1.5rem;
-            margin-inline: var(--inlineP);
-            grid-row: span 2;
-            display: grid;
-            grid-template-rows: min-content min-content min-content;
-
-            -webkit-backdrop-filter: blur(10px);
-
-
-            padding: 1rem;
-        }
-
-        /* date */
-        .timeline-cards li .date {
-            --dateH: 3rem;
-            height: var(--dateH);
-            margin-inline: calc(var(--inlineP) * -1);
-            text-align: center;
-            background-color: var(--accent-color);
-            color: white;
-            font-size: 1 rem;
-            font-weight: 700;
-            display: grid;
-            place-content: center;
-            position: relative;
-            border-radius: calc(var(--dateH) / 2) 0 0 calc(var(--dateH) / 2);
-        }
-
-        /* date flap */
-        .timeline-cards li .date::before {
-            content: "";
-            width: var(--inlineP);
-            aspect-ratio: 1;
-            background: var(--accent-color);
-            background-image: linear-gradient(rgba(0, 0, 0, 0.2) 100%, transparent);
-            position: absolute;
-            top: 100%;
-            clip-path: polygon(0 0, 100% 0, 0 100%);
-            right: 0;
-        }
-
-        /* circle */
-        .timeline-cards li .date::after {
-            content: "";
-            position: absolute;
-            width: 2rem;
-            aspect-ratio: 1;
-            background: white;
-            border: 0.3rem solid var(--accent-color);
-            border-radius: 50%;
-            top: 50%;
-            transform: translate(50%, -50%);
-            right: calc(100% + var(--col-gap) + var(--line-w) / 2);
-        }
-
-        /* title descr */
-        .timeline-cards li .title,
-        .timeline-cards li .descr {
-
-
-            border-radius: 5px;
-            padding-inline: 1.5rem;
-
-            position: relative;
-        }
-
-        .timeline-cards li .title {
-            overflow: hidden;
-            padding-block-start: 1.5rem;
-            padding-block-end: 0rem;
-            font-weight: 300;
-            font-size: 1rem;
-        }
-
-        .timeline-cards li .descr {
-            padding-block-end: 1.5rem;
-            font-weight: 300;
-        }
-
-        /* shadows */
-        .timeline-cards li .title::before,
-        .timeline-cards li .descr::before {
-            content: "";
-            position: absolute;
-            width: 90%;
-            height: 0.5rem;
-            background: rgba(0, 0, 0, 0.5);
-            left: 50%;
-            border-radius: 50%;
-            filter: blur(4px);
-            transform: translate(-50%, 50%);
-        }
-
-        .timeline-cards li .title::before {
-            bottom: calc(100% + 0.125rem);
-        }
-
-        .timeline-cards li .descr::before {
-            z-index: -1;
-            bottom: 0.25rem;
-        }
-
-        @media (min-width: 40rem) {
-            .timeline-cards {
-                grid-template-columns: 1fr var(--line-w) 1fr;
-            }
-
-            .timeline-cards::before {
-                grid-column: 2;
-            }
-
-            .timeline-cards li:nth-child(odd) {
-                grid-column: 1;
-            }
-
-            .timeline-cards li:nth-child(even) {
-                grid-column: 3;
-            }
-
-            /* start second card */
-            .timeline-cards li:nth-child(2) {
-                grid-row: 2/4;
-            }
-
-            .timeline-cards li:nth-child(odd) .date::before {
-                clip-path: polygon(0 0, 100% 0, 100% 100%);
-                left: 0;
-            }
-
-            .timeline-cards li:nth-child(odd) .date::after {
-                transform: translate(-50%, -50%);
-                left: calc(100% + var(--col-gap) + var(--line-w) / 2);
-            }
-
-            .timeline-cards li:nth-child(odd) .date {
-                border-radius: 0 calc(var(--dateH) / 2) calc(var(--dateH) / 2) 0;
-            }
-        }
-
-        /* Status colors */
-        .timeline-cards li.completed {
-            --accent-color: #4CAD73;
-        }
-
-        .timeline-cards li.current {
-            --accent-color: #1B5F8C;
-        }
-
-        .timeline-cards li.future {
-            --accent-color: #41516C;
-        }
-
-        .timeline-cards li.overdue {
-            --accent-color: #E24A68;
-        }
 
         body {
             background-image: url('./src/tornid_ja_linnamuur_kaupo_kalda_2016.jpg');
@@ -363,6 +174,13 @@
                     class="hover:bg-emerald-300 text-black text-lg font-bold px-3 py-1.5 rounded-lg flex items-center justify-center hover:shadow-md transition-all duration-300 transform hover:scale-105">
                     <i class="fas fa-calendar-alt mr-1.5"></i> Ajakava
                 </button>
+                <button id="toggleAjakavaButton"
+                    class="hidden hover:bg-emerald-300 text-black text-lg font-bold px-3 py-1.5 rounded-lg  items-center justify-center hover:shadow-md transition-all duration-300 transform hover:scale-105">
+                    <a href="planeerija.html">
+                        <i class="fa-solid fa-tag mr-1.5"></i> Planeerija</a>
+                </button>
+
+
             </div>
 
             <!-- ✅ Right Side (Login, Register, Logout, Dark Mode) -->
@@ -603,7 +421,7 @@
                     <!-- Export buttons - Improved -->
                     <div class="mt-8 flex flex-wrap gap-4 justify-center">
                         <button id="exportExcel"
-                            class="hidden bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg flex items-center"
+                            class="hidden bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg items-center"
                             onclick="alert('Excel export functionality would go here'); console.log('Export to Excel clicked');">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -627,35 +445,38 @@
 
             <!-- Form Container - Middle -->
             <div id="formContainer"
-                class="bg-white/40 p-5 rounded-xl shadow-lg max-w-md w-full  min-h-[350px] -mx-[-5px] scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
-                <h2 class="text-2xl font-bold text-center mb-5 text-gray-800">Sisesta andmed</h2>
+                class="bg-white/40 p-5 rounded-xl shadow-lg max-w-md w-full  min-h-[350px] -mx-[-5px]">
+                <h2 class="text-2xl font-bold text-center mb-5 text-gray-800">Riigihanke andmed</h2>
                 <form id="procurementForm" class="space-y-4">
                     <div>
-                        <label for="name" class="block text-gray-700 font-semibold mb-1">Riigihanke nimetus:</label>
-                        <input type="text" id="name" name="name"
-                            class="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-                            required>
+                        <label for="name" class="block text-gray-700 font-semibold mb-1 ">Riigihanke
+                            nimi</label>
+                        <input type="text" placeholder="Siseta riighanke nimetus" id="name" name="name"
+                            class="w-full text-md text-center p-3  rounded-lg focus:ring-2 hover:bg-white/30 focus:ring-white/30 outline-none scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300"
+                            required autocomplete="off">
                     </div>
                     <div>
-                        <label for="cost" class="block text-gray-700 font-semibold mb-1">Riigihanke
-                            maksumus:</label>
-                        <input type="number" id="cost" name="cost"
-                            class="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                        <label for="cost" class="block text-gray-700 font-semibold mb-1 ">Eeldatav
+                            maksumus</label>
+                        <input type="number" placeholder="Sisesta riigihanke eeldatav maksumus" id="cost" name="cost"
+                            class="w-full text-sm text-center  p-3 rounded-lg focus:ring-2 hover:bg-white/30 focus:ring-white/30 outline-none scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300"
                             required>
                     </div>
                     <div>
                         <label for="procedureType" class="block text-gray-700 font-semibold mb-1">
-                            Riigihanke menetlusliik:
+                            Riigihanke menetlusliik
                             <span id="procedureLabel"
-                                class="text-blue-500 text-sm roboto opacity-0 transition-opacity duration-300 ml-1"></span>
+                                class="text-indigo-600 text-sm roboto opacity-0.5 transition-opacity duration-300 ml-1 scale:100 hover:scale-101 hover:shadow-lg"></span>
                         </label>
+
                         <select id="procedureType" name="procedureType"
-                            class="w-full p-2 border rounded shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            class="w-full p-2 rounded-lg text-sm hover:bg-white/30 focus:ring-white/30 transition-all duration-300"
                             required aria-label="Riigihanke menetlusliik">
 
                             <!-- Placeholder option (disabled & selected by default) -->
-
-                            <option value="" disabled selected>Vali siit</option>
+                            <optgroup label="">
+                                <option value="" disabled selected>Vali menetlusliik</option>
+                            </optgroup>
                             <optgroup label="Avatud hankemenetlus">
                                 <option value="Avatud hankemenetlus asjade hankelepingu sõlmimiseks">Asjade
                                     hankeleping
@@ -724,14 +545,38 @@
                                 <option value="Eriteenuste erimenetlus">Eriteenuste erimenetlus</option>
                             </optgroup>
                         </select>
+
                     </div>
                     <div>
-                        <label for="contractSigningDate" class="block text-gray-700 font-semibold mb-1">Lepingu
-                            allkirjastamise
-                            kuupäev:</label>
-                        <input type="date" id="contractSigningDate" name="contractSigningDate"
-                            class="w-full p-2 border rounded" required>
+                        <label for="contractSigningDate" class="block text-gray-700 font-semibold mb-1">
+                            Lepingu eeldatav allkirjastamine
+                        </label>
+                        <input type="text" id="contractSigningDate" name="contractSigningDate"
+                            class="w-full p-3  border-black rounded-lg text-center text-black cursor-pointer focus:ring-2 hover:bg-white/30 focus:ring-white/30 outline-none scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300"
+                            placeholder="Vali kuupäev" readonly>
+
                     </div>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            var picker = new Pikaday({
+                                field: document.getElementById('contractSigningDate'),
+                                format: 'DD.MM.YYYY',
+                                i18n: {
+                                    previousMonth: 'Eelmine kuu',
+                                    nextMonth: 'Järgmine kuu',
+                                    months: ['Jaanuar', 'Veebruar', 'Märts', 'Aprill', 'Mai', 'Juuni', 'Juuli', 'August', 'September', 'Oktoober', 'November', 'Detsember'],
+                                    weekdays: ['Pühapäev', 'Esmaspäev', 'Teisipäev', 'Kolmapäev', 'Neljapäev', 'Reede', 'Laupäev'],
+                                    weekdaysShort: ['P', 'E', 'T', 'K', 'N', 'R', 'L']
+                                },
+                                onSelect: function (date) {
+                                    const formattedDisplayDate = picker.toString();
+                                    const formattedISODate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+                                    document.getElementById('contractSigningDate').value = formattedISODate;
+                                    document.getElementById('contractSigningDate').setAttribute('data-display', formattedDisplayDate);
+                                }
+                            });
+                        });
+                    </script>
                     <div class="flex justify-center space-x-4 mt-4">
                         <button id="calculateTime"
                             class="w-full bg-sky-500/75 text-white px-6 py-3 rounded-lg flex-1 flex items-center justify-center shadow-md hover:bg-sky-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
@@ -772,7 +617,7 @@
             </div>
 
             <!-- Result Container - Right -->
-            <div class="container bg-white/40 p-6 rounded-xl shadow-lg max-w-md w-full hidden -mx-[-2px]"
+            <div class="container bg-white/40 p-6 rounded-xl shadow-lg max-w-lg w-full hidden -mx-[-2px]"
                 id="resultContainer">
                 <div id="result" class="result-card"></div>
             </div>
@@ -961,9 +806,7 @@
             </tbody>
         </table>
         <!-- Notification System -->
-        <div id="notification" class="fixed bottom-4 right-4 bg-green-500 text-white p-3 rounded-lg shadow-md hidden">
-            ✅ !
-        </div>
+
 
         <!-- ✅ Kinnituse modal kustutamiseks -->
         <div id="deleteConfirmModal" class="fixed inset-0 hidden z-50">
@@ -1398,11 +1241,13 @@
                     </li>
                 `).join('');
 
+
+
                     const errorMessage = new Date(this.requestSubmissionDate) < new Date() ?
                         '<p class="error-message text-red-500 font-bold">NB! Oled hiljaks jäänud planeerimisel!</p>' : '';
 
                     return `
-                    <div class="result-card p-6 rounded max-w-md rounded-md scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300">
+                    <div class="result-card p-4 rounded max-w-md rounded-md">
                         <h2 class="text-2xl font-bold text-black-500 mb-4">Riigihanke andmed</h2>
                         <p><strong>Riigihanke taotluse esitamise kuupäev:</strong> 
                             <span id="requestSubmissionDate">${formatDate(this.requestSubmissionDate)}</span>
@@ -1433,7 +1278,7 @@
                         <td class="border p-2">${this.procedureDuration} päeva</td>
                         <td class="border p-2">${formatDate(this.requestSubmissionDate)}</td>
                         <td class="border p-2">${formatDate(this.contractSigningDate)}</td>
-                        <td class="border p-2"><button class="edit-button bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition transform hover:scale-105" onclick="editSearch(${index})">Muuda</button></td>
+                        <td class="border p-2"><button class="edit-button bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition transform hover:scale-105 hidden" onclick="editSearch(${index})">Muuda</button></td>
                         <td class="border p-2"><button class="delete-button bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition transform hover:scale-105" onclick="deleteSearch(${index})">Kustuta</button></td>
                     </tr>
                 `;
@@ -1658,31 +1503,36 @@
                 const rows = table.getElementsByTagName("tr");
 
                 if (rows.length === 0) {
-                    alert("Uus hankeid salvestamiseks ei ole.");
+                    alert("Uusi hankeid salvestamiseks ei ole.");
                     return;
                 }
 
                 const headers = [
-                    "Riigihanke Nimetus",
-                    "Riigihanke menetlusliik",
-                    "Riigihanke korraldamise eeldatav aeg",
-                    "Riigihanke eeldatav maksumus (ilma KM-ta)",
-                    "Sõlmitava lepingu kehtivusaeg",
-                    "Riigihanke eest vastutav isik",
-                    "Tehnilise kirjelduse eest vastutav isik"
+                    "Riigihanke nimi",
+                    "Menetlusliik",
+                    "Eeldatav korraldamise aeg (kvartal)",
+                    "Eeldatav maksumus (€)",
+                    "Lepingu kehtivusaeg",
+                    "Riigihanke eest vastutav",
+                    "Tehnilise kirjelduse eest vatutav"
                 ];
 
                 const data = [];
                 data.push(headers);
 
+                let totalCost = 0;
+
                 for (let row of rows) {
                     const cells = row.getElementsByTagName("td");
                     if (cells.length > 0) {
+                        const cost = parseFloat(cells[2].innerText.replace(/[^\d,.-]/g, "").replace(",", "."));
+                        totalCost += isNaN(cost) ? 0 : cost;
+
                         data.push([
                             cells[0].innerText.trim(), // Name
                             cells[1].innerText.trim(), // Procedure Type
                             getQuarter(cells[3].innerText.trim()), // Estimated Time
-                            cells[2].innerText.trim(), // Cost
+                            isNaN(cost) ? "" : cost.toFixed(2) + " €", // Cost formatted
                             "",  // Empty field for contract duration
                             "",  // Empty field for responsible person
                             ""   // Empty field for technical responsible person
@@ -1690,12 +1540,33 @@
                     }
                 }
 
+                // Lisa kokkuvõte viimasena
+                data.push([
+                    "KOKKU", "", "", totalCost.toFixed(2) + " €", "", "", ""
+                ]);
+
                 const wb = XLSX.utils.book_new();
                 const ws = XLSX.utils.aoa_to_sheet(data);
-                ws['!cols'] = headers.map(() => ({ wch: 25 }));
 
+                // **Seadista veergude laiused dünaamiliselt**
+                ws['!cols'] = headers.map((header, i) => ({
+                    wch: Math.max(...data.map(row => (row[i] ? row[i].length : 10))) + 2
+                }));
+
+                // **Lisa autofilter**
                 const range = XLSX.utils.decode_range(ws['!ref']);
                 ws['!autofilter'] = { ref: XLSX.utils.encode_range(range) };
+
+                // **Lisa päise stiilid**
+                Object.keys(ws).forEach(cell => {
+                    if (cell.startsWith('A1') || cell.startsWith('B1')) {
+                        ws[cell].s = {
+                            font: { bold: true, color: { rgb: "FFFFFF" } },
+                            fill: { fgColor: { rgb: "4F81BD" } },
+                            alignment: { horizontal: "center" }
+                        };
+                    }
+                });
 
                 XLSX.utils.book_append_sheet(wb, ws, "Hankeplaan");
                 XLSX.writeFile(wb, "hankeplaan.xlsx");
@@ -1783,13 +1654,8 @@
             <td class="p-4 text-blue-600 font-semibold">${formatDate(search.requestSubmissionDate || "Määramata")}</td>
             <td class="p-4 text-blue-600 font-semibold">${formatDate(search.contractSigningDate)}</td>
             <td class="p-4 text-center">
-                <button onclick="editSearch(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition transform hover:scale-105">
-                ✏️ Muuda
-                </button>
-            </td>
-            <td class="p-4 text-center">
                 <button onclick="deleteSearch(${index})" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition transform hover:scale-105">
-                ❌ Kustuta
+                ❌ 
                 </button>
             </td>
         </tr>
@@ -2517,7 +2383,7 @@
                     <button onclick="editSearch(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition transform hover:scale-105">✏️ Muuda</button>
                 </td>
                 <td class="p-4 text-center">
-                    <button onclick="deleteSearch(${index})" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition transform hover:scale-105">❌ Kustuta</button>
+                    <button onclick="deleteSearch(${index})" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition transform hover:scale-105">❌</button>
                 </td>
             </tr>
         `;
@@ -3567,6 +3433,9 @@
 
             });
         </script>
+
+
+
 
 </body>
 

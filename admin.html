@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="./dist/output.css" rel="stylesheet">
+    <script src="config.js"></script>
 </head>
 
 <body class="bg-gradient-to-bl from-blue-100 to-blue-200 font-sans">
@@ -20,38 +21,28 @@
         import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc }
             from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
-        // Firebase Configuration (Must match index.html)
-        const firebaseConfig = {
-            apiKey: "AIzaSyCyT8XLIwrmsYgMYalK9I_lp6OfQucBLR0",
-            authDomain: "kalkulaator-9f3d1.firebaseapp.com",
-            projectId: "kalkulaator-9f3d1",
-            storageBucket: "kalkulaator-9f3d1.appspot.com",
-            messagingSenderId: "127234313724",
-            appId: "1:127234313724:web:1f333fb8f3ff2995bcb679",
-            measurementId: "G-91VSY43W50"
-        };
+        if (!window.FIREBASE_CONFIG) {
+            console.error("⚠ Firebase konfiguratsiooni ei leitud! Kontrolli, kas `config.js` on õigesti laaditud.");
+        } else {
+            const app = initializeApp(window.FIREBASE_CONFIG);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
 
-        // Make Firebase functions available globally
-        window.db = db;
-        window.collection = collection;
-        window.getDocs = getDocs;
-        window.doc = doc;
-        window.getDoc = getDoc;
-        window.updateDoc = updateDoc;
-        window.deleteDoc = deleteDoc;
-        window.addDoc = addDoc;
-        window.signOut = signOut;
-        window.auth = auth;
+            // Make Firebase functions available globally
+            window.db = db;
+            window.collection = collection;
+            window.getDocs = getDocs;
+            window.doc = doc;
+            window.getDoc = getDoc;
+            window.updateDoc = updateDoc;
+            window.deleteDoc = deleteDoc;
+            window.addDoc = addDoc;
+            window.signOut = signOut;
+            window.auth = auth;
+        }
 
-        // ✅ Debugging: Check if Firebase is initialized correctly
-        console.log("Firebase initialized:", app);
-        console.log("Auth instance:", auth);
-        console.log("Firestore instance:", db);
+
 
         document.addEventListener("DOMContentLoaded", () => {
             onAuthStateChanged(auth, async (user) => {
