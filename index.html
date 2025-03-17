@@ -461,10 +461,10 @@
                             required>
                     </div>
                     <div>
-                        <label for="procedureType" class="block text-gray-700 font-semibold mb-1">
-                            Riigihanke menetlusliik
+                        <label for="procedureType" class=" text-gray-700 font-semibold mb-1 flex space-x-2">
+                            <span>Riigihanke menetlusliik</span>
                             <span id="procedureLabel"
-                                class="text-indigo-600 text-sm roboto opacity-0.5 transition-opacity duration-300 ml-1 scale:100 hover:scale-101"></span>
+                                class="text-blue-600 text-sm opacity-0.5 transition-opacity duration-300 scale-100 hover:scale-101"></span>
                         </label>
 
                         <select id="procedureType" name="procedureType"
@@ -575,15 +575,15 @@
                             });
                         });
                     </script>
-                    <div class="flex space-x-4 mt-4">
+                    <div class="flex justify-center space-x-4 mt-4">
                         <button id="calculateTime"
-                            class="bg-sky-500/75 text-white  py-3 w-48 rounded-lg flex-1 items-center justify-center shadow-md hover:bg-sky-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
-                            <i class="fas fa-calculator mr-2"></i> Arvuta aeg
+                            class="bg-sky-500/75 text-white mr-1 py-3 w-40 rounded-md items-center justify-center shadow-md hover:bg-sky-700 hover:scale-102 hover:shadow-lg transition-all duration-300">
+                            <i class="fas fa-calculator"></i> Arvuta aeg
                         </button>
                         <div x-data="{ added: false }" class="relative">
                             <!-- ✅ Lisa hange tabelisse nupp (hidden vaikimisi) -->
                             <button id="updateProcurement" @click="added = true; setTimeout(() => added = false, 2000)"
-                                class="bg-emerald-500 text-white  py-3 w-44 rounded-lg flex-1 items-center justify-center shadow-md hover:bg-emerald-700 hover:scale-105 hover:shadow-lg transition-all duration-300 hidden">
+                                class="bg-emerald-500 text-white  py-3 w-40 rounded-lg  items-center justify-center shadow-md hover:bg-emerald-700 hover:scale-105 hover:shadow-lg transition-all duration-300 hidden">
                                 ✅ Lisa tabelisse
                             </button>
 
@@ -966,7 +966,20 @@
                 const contractSigningDate = document.getElementById("contractSigningDate").value.trim();
 
                 if (!name || !cost || !procedureType || !contractSigningDate) {
-                    alert("Palun täida kõik väljad enne arvutamist!");
+                    // Show custom toast notification
+                    const toast = document.createElement("div");
+                    toast.className = "fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-lg px-6 py-3 rounded-lg shadow-md transition-opacity opacity-0";
+                    toast.innerText = "⚠️ Palun täida kõik väljad enne arvutamist!";
+
+                    document.body.appendChild(toast);
+
+                    // Animate toast
+                    setTimeout(() => toast.classList.add("opacity-100"), 50);
+                    setTimeout(() => {
+                        toast.classList.remove("opacity-100");
+                        setTimeout(() => toast.remove(), 500);
+                    }, 3000);
+
                     return;
                 }
 
@@ -1242,7 +1255,7 @@
 
 
                     const errorMessage = new Date(this.requestSubmissionDate) < new Date() ?
-                        '<p class="error-message text-red-500 font-bold">NB! Oled hiljaks jäänud planeerimisel!</p>' : '';
+                        '<p class="error-message text-red-500 font-bold hidden">NB! Oled hiljaks jäänud planeerimisel!</p>' : '';
 
                     return `
                     <div class="result-card p-0 rounded max-w-md rounded-md">

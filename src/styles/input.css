@@ -38,7 +38,6 @@
       transparent
     );
     @apply bg-gradient-to-r from-sky-100 to-sky-600;
-    @apply text-black;
     @apply rounded-lg;
     @apply shadow-md;
     @apply hover:scale-105;
@@ -324,4 +323,33 @@
 }
 .result-card * {
   border-bottom: none !important;
+}
+.alert {
+  background: linear-gradient(to right, #ff7e5f, #feb47b);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease-in-out;
+}
+.alert::before {
+  content: "⚠️";
+  font-size: 1.2rem;
+}
+.alert .close-btn {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.alert .close-btn:hover {
+  opacity: 0.7;
 }
