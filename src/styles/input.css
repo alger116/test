@@ -76,7 +76,7 @@
   transition: transform 0.2s ease-in-out;
 }
 .timeline-cards {
-  --col-gap: 2rem;
+  --col-gap: 0.5rem;
   --row-gap: 0rem;
   --line-w: 0.25rem;
   display: flexbox;
@@ -84,7 +84,7 @@
   grid-auto-columns: max-content;
   column-gap: var(--col-gap);
   list-style: none;
-  width: min(60rem, 90%);
+  width: min(50rem, 100%);
   margin-inline: auto;
   padding: 0;
 
@@ -101,31 +101,30 @@
 
 /* row gaps */
 .timeline-cards li:not(:last-child) {
-  margin-bottom: var(--row-gap);
+  margin-bottom: calc(var(--row-gap) / 4);
 }
 
 /* card */
 .timeline-cards li {
   grid-column: 2;
-  --inlineP: 1.5rem;
-  margin-inline: var(--inlineP);
+  --inlineP: 0.75rem;
+  margin-inline: calc(var(--inlineP) / 2);
   grid-row: span 2;
   display: grid;
-  grid-template-rows: min-content min-content min-content;
-
-  padding: 1rem;
+  grid-template-rows: min-content min-content;
 }
 
 /* date */
 .timeline-cards li .date {
-  --dateH: 3rem;
+  --dateH: 1.5rem;
   height: var(--dateH);
   margin-inline: calc(var(--inlineP) * -1);
   text-align: center;
   background-color: var(--accent-color);
   color: white;
-  font-size: 1 rem;
-  font-weight: 700;
+  font-size: 0.9 rem; /* Increased for better readability */
+  white-space: normal; /* Allow longer step names to fit */
+
   display: grid;
   place-content: center;
   position: relative;
@@ -149,7 +148,7 @@
 .timeline-cards li .date::after {
   content: "";
   position: absolute;
-  width: 2rem;
+  width: 1.2rem; /* Smaller step indicator circles */
   aspect-ratio: 1;
   background: white;
   border: 0.3rem solid var(--accent-color);
@@ -163,36 +162,22 @@
 .timeline-cards li .title,
 .timeline-cards li .descr {
   border-radius: 5px;
-  padding-inline: 1.5rem;
+  padding-inline: 0.75rem;
 
   position: relative;
 }
 
 .timeline-cards li .title {
   overflow: hidden;
-  padding-block-start: 1.5rem;
+  padding-block-start: 0.5rem; /* Reduced padding */
   padding-block-end: 0rem;
   font-weight: 300;
   font-size: 1rem;
 }
 
 .timeline-cards li .descr {
-  padding-block-end: 1.5rem;
+  padding-block-end: 0.5rem; /* Reduced padding */
   font-weight: 300;
-}
-
-/* shadows */
-.timeline-cards li .title::before,
-.timeline-cards li .descr::before {
-  content: "";
-  position: absolute;
-  width: 90%;
-  height: 0.5rem;
-  background: rgba(0, 0, 0, 0.5);
-  left: 50%;
-  border-radius: 50%;
-  filter: blur(4px);
-  transform: translate(-50%, 50%);
 }
 
 .timeline-cards li .title::before {
@@ -333,4 +318,10 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+.result-card {
+  border-bottom: none !important;
+}
+.result-card * {
+  border-bottom: none !important;
 }

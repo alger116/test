@@ -88,10 +88,7 @@
                 color: white;
             }
 
-            .timeline-cards li .descr {
-                font-size: 14px;
-                color: #9ca3af;
-            }
+
 
             /* Toast notification styles */
             .toast {
@@ -182,10 +179,11 @@
             </span>
             <div
                 class="p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-md border-l-4 border-blue-500 ml-2 transform transition-all hover:scale-102 hover:shadow-lg">
-                <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white step-name"></h3>
+                <div class="date text-white font-semibold text-sm text-center p-2 rounded-lg bg-green-600">
+                    <span class="step-name"></span>
+                </div>
                 <time
-                    class="block mb-2 text-sm font-normal leading-none text-blue-600 dark:text-blue-500 step-date-range"></time>
-                <p class="mb-2 text-base font-normal text-gray-600 dark:text-gray-400 step-duration"></p>
+                    class="block mt-2 text-sm font-normal leading-none text-blue-600 dark:text-blue-500 step-date-range"></time>
                 <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1 overflow-hidden">
                     <div class="step-progress-bar h-2.5 rounded-full transition-all duration-500"></div>
                 </div>
@@ -193,138 +191,6 @@
         </li>
     </template>
 
-    <style>
-        /* Timeline container styles */
-        .timeline-container {
-            max-height: 60vh;
-            overflow-y: auto;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(59, 130, 246, 0.5) rgba(229, 231, 235, 0.5);
-        }
-
-        .timeline-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .timeline-container::-webkit-scrollbar-track {
-            background: rgba(229, 231, 235, 0.5);
-            border-radius: 10px;
-        }
-
-        .timeline-container::-webkit-scrollbar-thumb {
-            background-color: rgba(59, 130, 246, 0.5);
-            border-radius: 10px;
-        }
-
-        /* Timeline step customization */
-        .timeline-container ol {
-            padding-left: 1rem;
-        }
-
-        /* Step status styling */
-        .timeline-step.completed .step-progress-bar {
-            background-color: #10b981;
-        }
-
-        .timeline-step.current .step-progress-bar {
-            background-color: #3b82f6;
-        }
-
-        .timeline-step.future .step-progress-bar {
-            background-color: #6b7280;
-        }
-
-        .timeline-step.overdue .step-progress-bar {
-            background-color: #ef4444;
-        }
-
-        /* Modal styling */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 50;
-            padding: 1rem;
-        }
-
-        .modal-box {
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 2rem;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 640px) {
-            .timeline-container {
-                max-height: 70vh;
-            }
-
-            .modal-action {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .modal-box {
-                padding: 1rem;
-                width: 95%;
-            }
-        }
-
-        .toggle-button {
-            margin: 20px 0;
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .toggle-button:hover {
-            background-color: #45a049;
-        }
-
-        #timeline-container.list-view .timeline {
-            display: block;
-        }
-
-        #timeline-container.list-view .timeline-item {
-            margin-bottom: 20px;
-            display: block;
-            width: 100%;
-        }
-
-        #timeline-container.list-view .timeline-content {
-            margin-left: 0;
-        }
-
-        #timeline-Container {
-            display: block !important;
-            visibility: visible !important;
-        }
-
-        .timeline-step.current {
-            animation: pulseGlow 1.5s infinite alternate;
-        }
-
-        @keyframes pulseGlow {
-            0% {
-                box-shadow: 0 0 0px rgba(59, 130, 246, 0.5);
-            }
-
-            100% {
-                box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-            }
-        }
-    </style>
 
     <script>
         // Timeline calculation function

@@ -1534,9 +1534,6 @@
     border-right-style: var(--tw-border-style);
     border-right-width: 1px;
   }
-  .border-b {
-    border-bottom-style: var(--tw-border-style);
-    border-bottom-width: 1px;
   }
   .border-b-2 {
     border-bottom-style: var(--tw-border-style);
