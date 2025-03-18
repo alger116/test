@@ -13,25 +13,31 @@
   .container {
     @apply max-w-4xl mx-auto p-4;
   }
-  select, option, optgroup {
-    background-color: white !important;
-    color: black !important;
-    -webkit-appearance: none; /* Helps standardize dropdowns */
-    -moz-appearance: none;
-    appearance: none;
-  }
-  input[type="text"],
-  select,
-  button {
-    @apply text-sm p-2;
-  }
-  
-  @supports (-ms-ime-align:auto) { 
-  select, option, optgroup {
-    background-color: white !important;
-    color: black !important;
+/* Ensure background color is applied properly in Edge */
+select, option, optgroup {
+  background-color: white !important;
+  color: black !important;
+}
+
+select {
+  border: 1px solid #d1d5db; /* Tailwind gray-300 */
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+option {
+  background-color: white !important;
+  color: black !important;
+}
+
+/* Edge-specific Fix */
+@supports (-webkit-appearance: none) and (stroke-color: transparent) {
+  select::-ms-expand {
+    display: none; /* Hide default Edge arrow */
   }
 }
+
   header,
   footer {
     @apply text-sm p-2;
