@@ -14,16 +14,13 @@
   .container {
     @apply max-w-4xl mx-auto p-4;
   }
-  select, option, optgroup {
+select, option, optgroup {
   background-color: white !important;
   color: black !important;
+  -webkit-appearance: none; /* Helps standardize dropdowns */
+  -moz-appearance: none;
+  appearance: none;
 }
-.dark select, .dark option, .dark optgroup {
-  background-color: #1e293b !important;
-  color: white !important;
-}
-
-
   input[type="text"],
   select,
   button {
