@@ -468,7 +468,7 @@
                         </label>
 
                         <select id="procedureType" name="procedureType"
-                            class="w-full p-2 rounded-lg text-sm hover:bg-white/30 focus:ring-white/30 transition-all duration-300"
+                            class="w-full p-2 rounded-lg text-gray-700 text-center text-sm hover:bg-white/30 focus:ring-white/30 transition-all duration-300"
                             required aria-label="Riigihanke menetlusliik">
 
                             <!-- Placeholder option (disabled & selected by default) -->
@@ -822,7 +822,7 @@
             </div>
         </div>
         <div id="successAlert" role="alert"
-            class="alert alert-success fixed top-16 left-1/2 transform -translate-x-1/2 z-50 transition scale-95 opacity-0 hidden">
+            class="alert fixed top-16 left-1/2 transform -translate-x-1/2 z-50 transition scale-95 opacity-0 hidden">
 
             <span id="alertMessage">Andmed salvestatud!</span>
         </div>
@@ -2794,14 +2794,16 @@
                 const alertBox = document.getElementById("successAlert");
                 const alertText = document.getElementById("alertMessage");
 
+                if (!alertBox || !alertText) return;
+
                 alertText.innerText = message;
                 alertBox.classList.remove("hidden", "opacity-0", "scale-95");
-                alertBox.classList.add("opacity-100", "scale-100");
+                alertBox.classList.add("show");
 
-                // Peida teade 3 sekundi pärast
+                // Hide alert after 3 seconds
                 setTimeout(() => {
-                    alertBox.classList.add("opacity-0", "scale-95");
-                    setTimeout(() => alertBox.classList.add("hidden"), 300);
+                    alertBox.classList.add("hide");
+                    setTimeout(() => alertBox.classList.add("hidden"), 500);
                 }, 3000);
             }
         </script>

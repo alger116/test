@@ -4077,29 +4077,19 @@
 @layer components;
 @layer components {
   optgroup {
-    background-color: var(--color-black);
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
     color: var(--color-gray-700);
-  }
-  optgroup option {
-    background-color: var(--color-black);
-    text-align: center;
   }
   .container {
     margin-inline: auto;
     max-width: var(--container-4xl);
     padding: calc(var(--spacing) * 4);
-  }
-  input[type="text"], select, button {
-    padding: calc(var(--spacing) * 2);
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-  }
-  header, footer {
-    padding: calc(var(--spacing) * 2);
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
+    header, footer {
+      padding: calc(var(--spacing) * 2);
+      font-size: var(--text-sm);
+      line-height: var(--tw-leading, var(--text-sm--line-height));
+    }
   }
 }
 @layer utilities;
@@ -4146,10 +4136,6 @@
 :root {
   --bg-color: #fff;
   --text-color: #1e293b;
-}
-.dark {
-  --bg-color: #0f172a;
-  --text-color: #f8fafc;
 }
 [data-x-show] {
   will-change: opacity, transform;
@@ -4381,6 +4367,38 @@
 }
 .alert .close-btn:hover {
   opacity: 0.7;
+}
+select {
+  color: black;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 14px;
+}
+option {
+  background-color: white;
+  color: black;
+}
+optgroup {
+  font-weight: bold;
+  color: #374151;
+  background-color: white;
+}
+@supports (-webkit-appearance: none) and (stroke-color: transparent) {
+  select::-ms-expand {
+    display: none;
+  }
+}
+#successAlert {
+  transition: opacity 0.5s ease-out, transform 0.3s ease-in-out;
+}
+#successAlert.show {
+  opacity: 1;
+  transform: scale(1);
+}
+#successAlert.hide {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
 }
 @property --tw-translate-x {
   syntax: "*";
