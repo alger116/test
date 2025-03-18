@@ -10,9 +10,7 @@
   optgroup {
     @apply font-bold text-gray-700 bg-black;
   }
-  optgroup option {
-    @apply text-center bg-black;
-  }
+
   .container {
     @apply max-w-4xl mx-auto p-4;
   }
