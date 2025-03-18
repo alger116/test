@@ -10,23 +10,28 @@
   optgroup {
     @apply font-bold text-gray-700;
   }
-
   .container {
     @apply max-w-4xl mx-auto p-4;
   }
-select, option, optgroup {
-  background-color: white !important;
-  color: black !important;
-  -webkit-appearance: none; /* Helps standardize dropdowns */
-  -moz-appearance: none;
-  appearance: none;
-}
+  select, option, optgroup {
+    background-color: white !important;
+    color: black !important;
+    -webkit-appearance: none; /* Helps standardize dropdowns */
+    -moz-appearance: none;
+    appearance: none;
+  }
   input[type="text"],
   select,
   button {
     @apply text-sm p-2;
   }
-
+  
+  @supports (-ms-ime-align:auto) { 
+  select, option, optgroup {
+    background-color: white !important;
+    color: black !important;
+  }
+}
   header,
   footer {
     @apply text-sm p-2;
