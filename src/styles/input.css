@@ -8,7 +8,7 @@
 
 @layer components {
   optgroup {
-    @apply font-bold text-gray-700 bg-black;
+    @apply font-bold text-gray-700;
   }
 
   .container {
