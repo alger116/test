@@ -667,28 +667,4 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.body.addEventListener("click", function (event) {
-        if (event.target && event.target.classList.contains("adjustDays")) {
-            let stepElement = event.target.closest(".step-row");
-            if (!stepElement) return;
-
-            let daysElement = stepElement.querySelector(".days-value");
-            if (!daysElement) return;
-
-            let currentDays = parseInt(daysElement.textContent, 10);
-            if (isNaN(currentDays)) return;
-
-            let change = event.target.classList.contains("increase") ? 1 : -1;
-            let newDays = Math.max(0, currentDays + change);
-
-            daysElement.textContent = `${newDays} päeva`;
-
-            // Recalculate and update the timeline
-            updateTimeline();
-        }
-    });
-
-    initializeTimeline();
-});
 
