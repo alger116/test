@@ -666,3 +666,82 @@ document.addEventListener("DOMContentLoaded", function () {
     return date;
   }
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.body.addEventListener("click", function (event) {
+        if (event.target && event.target.classList.contains("adjustDays")) {
+            let stepElement = event.target.closest(".step-row");
+            if (!stepElement) return;
+
+            let daysElement = stepElement.querySelector(".days-value");
+            if (!daysElement) return;
+
+            let currentDays = parseInt(daysElement.textContent, 10);
+            if (isNaN(currentDays)) return;
+
+            let change = event.target.classList.contains("increase") ? 1 : -1;
+            let newDays = Math.max(0, currentDays + change);
+
+            daysElement.textContent = `${newDays} päeva`;
+
+            // Recalculate and update the timeline
+            updateTimeline();
+        }
+    });
+
+    initializeTimeline();
+});
+
+function updateTimeline() {
+    let procedureDetails = [];
+
+    // Extract updated step data from the result card
+    document.querySelectorAll('.result-card .step-row').forEach(row => {
+        let stepName = row.querySelector('.step-name')?.textContent.trim();
+        let daysText = row.querySelector('.days-value')?.textContent;
+        let days = parseInt(daysText.match(/\d+/)[0], 10) || 0;
+
+        if (stepName && !isNaN(days)) {
+            procedureDetails.push({ step: stepName, days: days });
+        }
+    });
+
+    if (procedureDetails.length === 0) {
+        console.error("No procedure details found for updating timeline.");
+        return;
+    }
+
+    // Get the contract signing date
+    let contractDate = document.getElementById('contractSigningDate')?.value;
+    if (!contractDate) {
+        console.error("Contract signing date is missing.");
+        return;
+    }
+
+    // Recalculate the timeline based on the updated data
+    let updatedTimeline = calculateTimeline(procedureDetails, contractDate);
+
+    // Update the timeline display
+    document.getElementById('timeline-steps').innerHTML = '';
+
+    let stepTemplate = document.getElementById('timeline-step-template');
+    updatedTimeline.steps.forEach((step, index) => {
+        let stepClone = document.importNode(stepTemplate.content, true);
+
+        stepClone.querySelector('.step-name').textContent = `${index + 1}. ${step.step}`;
+        stepClone.querySelector('.step-date-range').textContent = `${step.startDate} - ${step.endDate}`;
+        stepClone.querySelector('.step-duration').textContent = `Kestus: ${step.duration} päeva`;
+
+        let progressBar = stepClone.querySelector('.step-progress-bar');
+        progressBar.style.width = `${step.progress}%`;
+
+        // Assign colors based on step status
+        if (step.status === 'completed') progressBar.classList.add('bg-green-500');
+        else if (step.status === 'current') progressBar.classList.add('bg-blue-500');
+        else progressBar.classList.add('bg-gray-500');
+
+        document.getElementById('timeline-steps').appendChild(stepClone);
+    });
+
+    console.log("Timeline updated successfully.");
+}
