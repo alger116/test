@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tehnilise Kirjelduse Generaator</title>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add other required CSS and JS dependencies -->
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <div x-data="techDescription" class="container mx-auto px-4 py-8">
+        <!-- Login vorm -->
+        <div x-show="!isLoggedIn" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+            <h1 class="text-2xl font-bold mb-6 text-center">TechSpec</h1>
+            <form @submit.prevent="login">
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2">E-post:</label>
+                    <input type="email" x-model="email" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Parool:</label>
+                    <input type="password" x-model="password" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Logi
+                    sisse</button>
+            </form>
+        </div>
+
+        <!-- Peamine rakendus -->
+        <div x-show="isLoggedIn" class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold">TechSpec - Tehniliste kirjelduste generaator</h1>
+                <button @click="logout" class="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600">Logi
+                    välja</button>
+            </div>
+
+            <!-- Keelevalik -->
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2">Keel:</label>
+                <div class="flex space-x-4">
+                    <label class="flex items-center">
+                        <input type="radio" x-model="language" value="et" class="mr-2">
+                        <span>Eesti</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" x-model="language" value="en" class="mr-2">
+                        <span>Inglise</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Projektitüübi valik -->
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2">Vali tüüp:</label>
+                <select x-model="selectedType" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <option value="">-- Vali --</option>
+                    <option value="toode">Toote kirjeldus</option>
+                    <option value="teenus">Teenuse kirjeldus</option>
+                    <option value="tarkvara">Tarkvara kirjeldus</option>
+                    <option value="muu">Muu</option>
+                </select>
+            </div>
+
+            <!-- Failide üleslaadimine -->
+            <div class="mb-6" x-show="isAdmin">
+                <h2 class="text-xl font-bold mb-4">Lisa näidisfaile andmebaasi</h2>
+                <div class="border-2 border-dashed border-gray-300 rounded-md p-4">
+                    <input type="file" @change="handleFileUpload" multiple class="w-full" accept=".pdf,.doc,.docx">
+                </div>
+                <div x-show="uploading" class="mt-2">
+                    <div class="bg-blue-100 text-blue-700 p-2 rounded">Faile laetakse üles...</div>
+                </div>
+                <button @click="uploadFiles"
+                    class="mt-2 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">Lae failid
+                    üles</button>
+            </div>
+
+            <!-- Kirjelduse sisestamine -->
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2">Sisesta lühikirjeldus:</label>
+                <textarea x-model="userDescription"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md h-32"></textarea>
+            </div>
+
+            <button @click="generateDescription"
+                class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Genereeri kirjeldus</button>
+
+            <!-- AI küsimused -->
+            <div x-show="showQuestions" class="mt-6 bg-yellow-50 p-4 rounded-md">
+                <h3 class="font-bold mb-2">Täpsustav küsimus:</h3>
+                <p x-text="currentQuestion"></p>
+                <textarea x-model="questionAnswer"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md h-20 mt-2"></textarea>
+                <button @click="answerQuestion"
+                    class="mt-2 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Vasta</button>
+            </div>
+
+            <!-- Genereeritud kirjeldus -->
+            <div x-show="generatedDescription" class="mt-6">
+                <h3 class="font-bold mb-2">Genereeritud tehniline kirjeldus:</h3>
+                <div class="bg-white p-4 rounded-md shadow-md">
+                    <div x-html="generatedDescription" class="prose max-w-none"></div>
+                </div>
+                <div class="mt-4 flex space-x-4">
+                    <button @click="editDescription"
+                        class="bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600">Muuda</button>
+                    <button @click="downloadAsWord"
+                        class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">Laadi alla Word
+                        failina</button>
+                    <button @click="requestImprovements"
+                        class="bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600">Palu
+                        täiendusi</button>
+                </div>
+            </div>
+
+            <!-- Muutmise vorm -->
+            <div x-show="isEditing" class="mt-6">
+                <h3 class="font-bold mb-2">Muuda tehnilist kirjeldust:</h3>
+                <textarea x-model="editableDescription"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md h-64"></textarea>
+                <div class="mt-4 flex space-x-4">
+                    <button @click="saveEdits"
+                        class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600">Salvesta
+                        muudatused</button>
+                    <button @click="cancelEdits"
+                        class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Tühista</button>
+                </div>
+            </div>
+
+            <!-- Täienduste vorm -->
+            <div x-show="isRequesting" class="mt-6">
+                <h3 class="font-bold mb-2">Kirjelda soovitud täiendusi:</h3>
+                <textarea x-model="improvementRequest"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md h-32"></textarea>
+                <button @click="submitImprovements"
+                    class="mt-2 bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-600">Saada</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('techDescription', () => ({
+                isLoggedIn: false,
+                isAdmin: false,
+                email: '',
+                password: '',
+                language: 'et',
+                selectedType: '',
+                userDescription: '',
+                generatedDescription: '',
+                editableDescription: '',
+                isEditing: false,
+                isRequesting: false,
+                improvementRequest: '',
+                showQuestions: false,
+                currentQuestion: '',
+                questionAnswer: '',
+                questions: [],
+                answers: {},
+                files: [],
+                uploading: false,
+
+                login() {
+                    // Lihtsustatud login - päris rakenduses peaks kasutama serveripoolset autentimist
+                    if (this.email === 'admin@techspec.ee' && this.password === 'admin123') {
+                        this.isLoggedIn = true;
+                        this.isAdmin = true;
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('isAdmin', 'true');
+                    } else if (this.email === 'user@techspec.ee' && this.password === 'user123') {
+                        this.isLoggedIn = true;
+                        this.isAdmin = false;
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('isAdmin', 'false');
+                    } else {
+                        alert('Vale kasutajanimi või parool');
+                    }
+                },
+
+                logout() {
+                    this.isLoggedIn = false;
+                    this.isAdmin = false;
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('isAdmin');
+                },
+
+                handleFileUpload(event) {
+                    this.files = event.target.files;
+                },
+
+                uploadFiles() {
+                    if (this.files.length === 0) {
+                        alert('Palun vali failid');
+                        return;
+                    }
+
+                    this.uploading = true;
+
+                    // Päris serveripäring failide üleslaadimiseks Firebase Storage'i
+                    const formData = new FormData();
+                    for (let i = 0; i < this.files.length; i++) {
+                        formData.append('files', this.files[i]);
+                    }
+
+                    // Simuleerime üleslaadimist
+                    setTimeout(() => {
+                        this.uploading = false;
+                        alert('Failid edukalt üles laaditud!');
+                        this.files = [];
+                    }, 2000);
+
+                    // Päris rakenduses kasutaks fetch API-t
+                    /*
+                    fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.uploading = false;
+                        alert('Failid edukalt üles laaditud!');
+                        this.files = [];
+                    })
+                    .catch(error => {
+                        this.uploading = false;
+                        alert('Viga failide üleslaadimisel: ' + error);
+                    });
+                    */
+                },
+
+                generateDescription() {
+                    if (!this.userDescription || !this.selectedType) {
+                        alert('Palun täida kõik väljad');
+                        return;
+                    }
+
+                    // Genereeri küsimused vastavalt valitud tüübile
+                    if (this.selectedType === 'toode') {
+                        this.questions = [
+                            'Millised on toote peamised tehnilised näitajad?',
+                            'Kas tootele on erinõudeid garantii osas?',
+                            'Millised standardid peaks toode täitma?'
+                        ];
+                    } else if (this.selectedType === 'teenus') {
+                        this.questions = [
+                            'Mis on teenuse osutamise ajaline kestus?',
+                            'Milliseid kvalifikatsiooninõudeid on teenuse osutajale?',
+                            'Millised on teenuse kvaliteedi mõõdikud?'
+                        ];
+                    } else if (this.selectedType === 'tarkvara') {
+                        this.questions = [
+                            'Milliste süsteemidega peab tarkvara ühilduma?',
+                            'Kas on erinõudeid andmeturbe osas?',
+                            'Millised on jõudlusnõuded tarkvarale?'
+                        ];
+                    } else {
+                        this.questions = [
+                            'Mis on projekti eeldatav ajakava?',
+                            'Kas on olemas eelarvepiirang?',
+                            'Millised on olulisimad tehnilised nõuded?'
+                        ];
+                    }
+
+                    this.showQuestions = true;
+                    this.currentQuestion = this.questions[0];
+                },
+
+                answerQuestion() {
+                    if (!this.questionAnswer) {
+                        alert('Palun vasta küsimusele');
+                        return;
+                    }
+
+                    // Salvesta vastus
+                    this.answers[this.currentQuestion] = this.questionAnswer;
+                    this.questionAnswer = '';
+
+                    // Eemalda vastatud küsimus
+                    this.questions.shift();
+
+                    if (this.questions.length > 0) {
+                        // Näita järgmist küsimust
+                        this.currentQuestion = this.questions[0];
+                    } else {
+                        // Kui kõik küsimused on vastatud, genereeri kirjeldus
+                        this.showQuestions = false;
+                        this.generateFinalDescription();
+                    }
+                },
+
+                generateFinalDescription() {
+                    // Päris rakenduses saadaks andmed AI API-le (nt. OpenAI API)
+                    const data = {
+                        description: this.userDescription,
+                        type: this.selectedType,
+                        language: this.language,
+                        answers: this.answers
+                    };
+
+                    // Simuleerime AI vastust
+                    let descriptionText = '';
+
+                    if (this.language === 'et') {
+                        const questionsArray = Object.keys(this.answers);
+
+                        if (this.selectedType === 'toode') {
+                            descriptionText = `
+                                <h1>Toote tehniline kirjeldus</h1>
+                                
+                                <h2>1. Sissejuhatus</h2>
+                                <p>${this.userDescription}</p>
+                                
+                                <h2>2. Toote ülevaade</h2>
+                                <p>Käesolev kirjeldus määratleb nõuded tootele...</p>
+                                
+                                <h2>3. Tehnilised näitajad</h2>
+                                <p>Vastavalt küsimusele "${questionsArray[0]}" on tehnilised näitajad järgmised:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[0]]}</li>
+                                </ul>
+                                
+                                <h2>4. Standardid ja nõuded</h2>
+                                <p>Vastavalt küsimusele "${questionsArray[2]}" peab toode vastama järgmistele standarditele:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[2]]}</li>
+                                </ul>
+                                
+                                <h2>5. Garantii tingimused</h2>
+                                <p>Vastavalt küsimusele "${questionsArray[1]}" on garantiitingimused järgmised:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[1]]}</li>
+                                </ul>
+                            `;
+                        } else if (this.selectedType === 'teenus') {
+                            descriptionText = `
+                                <h1>Teenuse tehniline kirjeldus</h1>
+                                
+                                <h2>1. Sissejuhatus</h2>
+                                <p>${this.userDescription}</p>
+                                
+                                <h2>2. Teenuse ülevaade</h2>
+                                <p>Käesolev kirjeldus määratleb nõuded teenusele...</p>
+                                
+                                <h2>3. Teenuse osutamise kestus</h2>
+                                <p>Vastavalt küsimusele "${questionsArray[0]}":</p>
+                                <p>${this.answers[questionsArray[0]]}</p>
+                                
+                                <h2>4. Kvalifikatsiooninõuded</h2>
+                                <p>Vastavalt küsimusele "${questionsArray[1]}" on nõuded järgmised:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[1]]}</li>
+                                </ul>
+                                
+                                <h2>5. Kvaliteedi mõõdikud</h2>
+                                <p>Vastavalt küsimusele "${questionsArray[2]}" on kvaliteedi mõõdikud järgmised:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[2]]}</li>
+                                </ul>
+                            `;
+                        } else {
+                            // Üldine või tarkvara mall
+                            descriptionText = `
+                                <h1>Tehniline kirjeldus</h1>
+                                
+                                <h2>1. Sissejuhatus</h2>
+                                <p>${this.userDescription}</p>
+                                
+                                <h2>2. Projekti eesmärgid</h2>
+                                <p>Projekti peamised eesmärgid on järgmised...</p>
+                                
+                                <h2>3. Tehnilised nõuded</h2>
+                                <p>Vastavalt küsimusele "${questionsArray[2]}" on tehnilised nõuded järgmised:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[2]]}</li>
+                                </ul>
+                                
+                                <h2>4. Ajakava</h2>
+                                <p>Vastavalt küsimusele "${questionsArray[0]}":</p>
+                                <p>${this.answers[questionsArray[0]]}</p>
+                                
+                                <h2>5. Eelarve</h2>
+                                <p>Vastavalt küsimusele "${questionsArray[1]}":</p>
+                                <p>${this.answers[questionsArray[1]]}</p>
+                            `;
+                        }
+                    } else {
+                        // Ingliskeelne versioon
+                        const questionsArray = Object.keys(this.answers);
+
+                        if (this.selectedType === 'toode') {
+                            descriptionText = `
+                                <h1>Product Technical Specification</h1>
+                                
+                                <h2>1. Introduction</h2>
+                                <p>${this.userDescription}</p>
+                                
+                                <h2>2. Product Overview</h2>
+                                <p>This specification defines the requirements for the product...</p>
+                                
+                                <h2>3. Technical Parameters</h2>
+                                <p>Based on the question "${questionsArray[0]}", the technical parameters are as follows:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[0]]}</li>
+                                </ul>
+                                
+                                <h2>4. Standards and Requirements</h2>
+                                <p>Based on the question "${questionsArray[2]}", the product must comply with the following standards:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[2]]}</li>
+                                </ul>
+                                
+                                <h2>5. Warranty Conditions</h2>
+                                <p>Based on the question "${questionsArray[1]}", the warranty conditions are as follows:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[1]]}</li>
+                                </ul>
+                            `;
+                        } else {
+                            // Generic English template
+                            descriptionText = `
+                                <h1>Technical Specification</h1>
+                                
+                                <h2>1. Introduction</h2>
+                                <p>${this.userDescription}</p>
+                                
+                                <h2>2. Project Goals</h2>
+                                <p>The main goals of the project are as follows...</p>
+                                
+                                <h2>3. Technical Requirements</h2>
+                                <p>Based on the question "${questionsArray[2]}", the technical requirements are as follows:</p>
+                                <ul>
+                                    <li>${this.answers[questionsArray[2]]}</li>
+                                </ul>
+                                
+                                <h2>4. Timeline</h2>
+                                <p>Based on the question "${questionsArray[0]}":</p>
+                                <p>${this.answers[questionsArray[0]]}</p>
+                                
+                                <h2>5. Budget</h2>
+                                <p>Based on the question "${questionsArray[1]}":</p>
+                                <p>${this.answers[questionsArray[1]]}</p>
+                            `;
+                        }
+                    }
+
+                    this.generatedDescription = descriptionText;
+                },
+
+                editDescription() {
+                    this.editableDescription = this.generatedDescription
+                        .replace(/<[^>]*>/g, '')  // Eemaldame HTML tagid
+                        .replace(/&nbsp;/g, ' ');  // Asendame HTML tühikud tavaliste tühikutega
+                    this.isEditing = true;
+                },
+
+                saveEdits() {
+                    // Siin võiks olla parem HTML formateerimine
+                    this.generatedDescription = this.editableDescription
+                        .split('\n\n')
+                        .map(para => `<p>${para}</p>`)
+                        .join('');
+
+                    this.isEditing = false;
+                },
+
+                cancelEdits() {
+                    this.isEditing = false;
+                },
+
+                requestImprovements() {
+                    this.isRequesting = true;
+                },
+
+                submitImprovements() {
+                    if (!this.improvementRequest) {
+                        alert('Palun kirjelda soovitud täiendusi');
+                        return;
+                    }
+
+                    // Päris rakenduses saadaks päringu AI-le
+                    const currentText = this.generatedDescription;
+
+                    // Simuleerime AI vastust
+                    if (this.language === 'et') {
+                        this.generatedDescription = currentText + `
+                            <h2>6. Täiendused</h2>
+                            <p>Vastavalt kasutaja soovile: ${this.improvementRequest}</p>
+                            <ul>
+                                <li>Täiendatud punkt 1: Lisatud detailid vastavalt nõudmisele.</li>
+                                <li>Täiendatud punkt 2: Täpsustatud tehnilisi parameetreid.</li>
+                                <li>Täiendatud punkt 3: Lisatud kvaliteedinõuded.</li>
+                            </ul>
+                        `;
+                    } else {
+                        this.generatedDescription = currentText + `
+                            <h2>6. Improvements</h2>
+                            <p>According to user request: ${this.improvementRequest}</p>
+                            <ul>
+                                <li>Enhanced point 1: Added details as requested.</li>
+                                <li>Enhanced point 2: Specified technical parameters.</li>
+                                <li>Enhanced point 3: Added quality requirements.</li>
+                            </ul>
+                        `;
+                    }
+
+                    this.isRequesting = false;
+                    this.improvementRequest = '';
+                },
+
+                downloadAsWord() {
+                    // Järgnev on lihtsustatud näide, päris rakenduses peaks olema serveripoolne konverteerimine
+                    const header = `
+                        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                              xmlns:w='urn:schemas-microsoft-com:office:word' 
+                              xmlns='http://www.w3.org/TR/REC-html40'>
+                        <head>
+                            <meta charset="utf-8">
+                            <title>Tehniline kirjeldus</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; }
+                                h1 { color: #2a5885; }
+                                h2 { color: #366799; }
+                                ul { margin-left: 20px; }
+                            </style>
+                        </head>
+                        <body>
+                    `;
+
+                    const footer = `
+                        </body>
+                        </html>
+                    `;
+
+                    const html = header + this.generatedDescription + footer;
+                    const blob = new Blob([html], { type: 'application/msword' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+
+                    // Määrame faili nime vastavalt keelele ja tüübile
+                    const fileType = this.selectedType === 'toode' ? 'toode' :
+                        this.selectedType === 'teenus' ? 'teenus' :
+                            this.selectedType === 'tarkvara' ? 'tarkvara' : 'tehniline';
+
+                    const fileName = this.language === 'et' ?
+                        `${fileType}_kirjeldus.doc` :
+                        `${fileType}_specification.doc`;
+
+                    link.download = fileName;
+                    link.click();
+                },
+
+                init() {
+                    // Kontrollime, kas kasutaja on varem sisse loginud
+                    if (localStorage.getItem('isLoggedIn') === 'true') {
+                        this.isLoggedIn = true;
+                        this.isAdmin = localStorage.getItem('isAdmin') === 'true';
+                    }
+                }
+            }));
+        });
+    </script>
+</body>
+
+</html>
