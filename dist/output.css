@@ -1802,6 +1802,10 @@
   --tw-gradient-position: in oklab;
   background-image: conic-gradient(var(--tw-gradient-stops));
 }
+.bg-gradient-to-b {
+  --tw-gradient-position: to bottom in oklab;
+  background-image: linear-gradient(var(--tw-gradient-stops));
+}
 .bg-gradient-to-bl {
   --tw-gradient-position: to bottom left in oklab;
   background-image: linear-gradient(var(--tw-gradient-stops));
@@ -1830,6 +1834,10 @@
 }
 .from-blue-300\/40 {
   --tw-gradient-from: color-mix(in oklab, var(--color-blue-300) 40%, transparent);
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+}
+.from-blue-400 {
+  --tw-gradient-from: var(--color-blue-400);
   --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
 }
 .from-blue-500 {
@@ -2235,6 +2243,9 @@
 }
 .pl-0\.5 {
   padding-left: calc(var(--spacing) * 0.5);
+}
+.pl-4 {
+  padding-left: calc(var(--spacing) * 4);
 }
 .pl-12 {
   padding-left: calc(var(--spacing) * 12);
@@ -4175,6 +4186,26 @@
   }
 }
 :root {
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+  --color-accent: #14b8a6;
+  --color-accent-light: #5eead4;
+  --color-accent-dark: #0f766e;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --color-surface-50: #ffffff;
+  --color-surface-100: #f9fafb;
+  --color-surface-200: #f3f4f6;
   --bg-color: #fff;
   --text-color: #1e293b;
 }
@@ -4440,6 +4471,40 @@ optgroup {
   opacity: 0;
   transform: scale(0.95);
   pointer-events: none;
+}
+.card {
+  border-radius: var(--radius-xl);
+  background-color: var(--color-white);
+  padding: calc(var(--spacing) * 5);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+}
+.card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.btn:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.btn:hover:after {
+  opacity: 1;
+}
+.btn:active {
+  transform: scale(0.98);
 }
 @property --tw-translate-x {
   syntax: "*";

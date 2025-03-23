@@ -11,7 +11,8 @@
     @apply font-bold text-gray-700;
   }
   .container {
-    @apply max-w-4xl mx-auto p-4;
+    @apply max-w-4xl mx-auto p-4 relative;
+    isolation: isolate;
 
     header,
     footer {
@@ -47,6 +48,34 @@
 }
 
 :root {
+  /* Primary palette - using deeper blues with better contrast */
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+
+  /* Secondary accent colors - teal for contrast */
+  --color-accent: #14b8a6;
+  --color-accent-light: #5eead4;
+  --color-accent-dark: #0f766e;
+
+  /* Status colors with improved visibility */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Background and surface colors */
+  --color-surface-50: #ffffff;
+  --color-surface-100: #f9fafb;
+  --color-surface-200: #f3f4f6;
+
   --bg-color: #fff;
   --text-color: #1e293b;
 }
@@ -384,4 +413,210 @@ optgroup {
   opacity: 0;
   transform: scale(0.95);
   pointer-events: none;
+}
+
+/* Enhanced Card Component */
+.card {
+  @apply bg-white rounded-xl p-5;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.05),
+    0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.card:hover {
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+/* Button enhancements */
+.btn {
+  @apply relative overflow-hidden;
+  transition: all 0.3s ease;
+}
+
+.btn:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn:hover:after {
+  opacity: 1;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* Enhanced Container Styling */
+.container {
+  @apply max-w-4xl mx-auto p-4 relative;
+  isolation: isolate;
+}
+
+/* Container variants */
+.container-card {
+  @apply bg-white rounded-xl p-5 relative overflow-hidden;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.05),
+    0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.container-card:hover {
+  box-shadow:
+    0 15px 30px -5px rgba(0, 0, 0, 0.08),
+    0 10px 15px -3px rgba(0, 0, 0, 0.02);
+  transform: translateY(-2px) scale(1.005);
+}
+
+/* Container with accent border */
+.container-accent {
+  @apply border-l-4 border-primary-500 pl-4;
+  background: linear-gradient(to right, var(--color-primary-50), white);
+}
+
+/* Container with subtle pattern */
+.container-pattern {
+  position: relative;
+}
+
+.container-pattern::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(
+      circle at 25px 25px,
+      var(--color-primary-100) 2px,
+      transparent 0
+    ),
+    radial-gradient(
+      circle at 75px 75px,
+      var(--color-primary-100) 2px,
+      transparent 0
+    );
+  background-size: 100px 100px;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* Container glass effect */
+.container-glass {
+  @apply backdrop-blur-sm;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Container with soft inner shadow */
+.container-inset {
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Container accent elements */
+.container-accent-dot {
+  position: relative;
+}
+
+.container-accent-dot::after {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2);
+}
+
+.container-accent-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.container-accent-line::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-300),
+    var(--color-accent),
+    var(--color-primary-300)
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Container content sections */
+.container-section {
+  @apply py-2 mb-4;
+  position: relative;
+}
+
+.container-section-title {
+  @apply text-base font-medium mb-2 flex items-center;
+  color: var(--color-primary-700);
+}
+
+.container-section-title::before {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  background-color: var(--color-primary-400);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+/* Compact form groups */
+.form-group-compact {
+  @apply flex flex-col mb-3;
+}
+
+.form-group-compact label {
+  @apply text-sm font-medium mb-1 text-gray-700;
+}
+
+.form-group-compact input,
+.form-group-compact select,
+.form-group-compact textarea {
+  @apply rounded-md border-gray-300 shadow-sm;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.form-group-compact input:focus,
+.form-group-compact select:focus,
+.form-group-compact textarea:focus {
+  @apply border-primary-400 ring-1 ring-primary-400;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }

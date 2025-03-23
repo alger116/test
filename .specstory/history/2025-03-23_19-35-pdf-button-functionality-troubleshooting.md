@@ -737,11 +737,816 @@ We need to enhance the PDF export function in the index.html file, as that's whe
 
 ---
 
-Cancelled
+```diff
+  
+                      const { jsPDF } = window.jspdf;
+-                     const doc = new jsPDF();
++                     // Create a new jsPDF instance with better options
++                     const doc = new jsPDF({
++                         orientation: "portrait",
++                         unit: "mm",
++                         format: "a4"
++                     });
+  
+                      // Get timeline data
+                      const procurementName = document.getElementById('name').value || "Hankenimi puudub";
++                     const procedureType = document.getElementById('procedureType').value || "Menetlusliik puudub";
++                     const cost = document.getElementById('cost').value || "Määramata";
+                      const contractDate = document.getElementById('contractSigningDate').value || "Kuupäev puudub";
+                      const daysToStart = document.getElementById('day-to-start')?.textContent || "N/A";
+                      
+-                     // Add title
+-                     doc.setFontSize(18);
+-                     doc.text('Riigihanke ajakava', 105, 20, { align: 'center' });
++                     // Add header with nice blue background
++                     doc.setFillColor(25, 95, 140); // Nice blue color
++                     doc.rect(0, 0, 210, 25, 'F');
++                     
++                     // Add title in white color
++                     doc.setTextColor(255, 255, 255);
++                     doc.setFontSize(24);
++                     doc.setFont("helvetica", "bold");
++                     doc.text('RIIGIHANKE AJAKAVA', 105, 15, { align: 'center' });
++                     
++                     // Reset text color to dark blue for main content
++                     doc.setTextColor(25, 95, 140);
++                     
++                     // Add logo/icon (a simple drawn element)
++                     doc.setLineWidth(0.5);
++                     doc.setDrawColor(25, 95, 140);
++                     doc.setFillColor(240, 240, 245);
++                     doc.circle(30, 40, 10, 'FD'); // Draw a circle
++                     doc.setDrawColor(25, 95, 140);
++                     doc.setLineWidth(0.3);
++                     doc.line(26, 40, 34, 40); // Draw calendar icon
++                     doc.line(30, 36, 30, 44); // Draw calendar icon
++                     
++                     // Add procurement details in a nice box
++                     doc.setFillColor(240, 240, 245);
++                     doc.roundedRect(45, 30, 140, 35, 3, 3, 'F');
++                     
++                     doc.setFontSize(14);
++                     doc.setFont("helvetica", "bold");
++                     doc.text(procurementName, 105, 40, { align: 'center' });
+                      
+-                     // Add procurement details
++                     doc.setFontSize(11);
++                     doc.setFont("helvetica", "normal");
++                     doc.text(`Menetlusliik: ${procedureType}`, 50, 48);
++                     doc.text(`Maksumus: ${cost} €`, 50, 54);
++                     doc.text(`Lepingu allkirjastamine: ${contractDate}`, 50, 60);
++                     
++                     // Add days to start in a highlighted box
++                     let daysColor = "#4CAD73"; // Default green
++                     if (parseInt(daysToStart) < 0) {
++                         daysColor = "#E24A68"; // Red if negative
++                     } else if (parseInt(daysToStart) < 14) {
++                         daysColor = "#F59E0B"; // Yellow/orange if less than 14 days
++                     }
++                     
++                     doc.setFillColor(hexToRgb(daysColor).r, hexToRgb(daysColor).g, hexToRgb(daysColor).b);
++                     doc.roundedRect(20, 75, 170, 15, 3, 3, 'F');
++                     
++                     doc.setTextColor(255, 255, 255);
+                      doc.setFontSize(12);
+-                     doc.text(`Hanke nimi: ${procurementName}`, 20, 40);
+-                     doc.text(`Lepingu allkirjastamine: ${contractDate}`, 20, 50);
+-                     doc.text(`Alustamiseni on jäänud: ${daysToStart} päeva`, 20, 60);
++                     doc.setFont("helvetica", "bold");
++                     doc.text(`Alustamiseni on jäänud: ${daysToStart} päeva`, 105, 84, { align: 'center' });
++                     
++                     // Reset text color for timeline steps
++                     doc.setTextColor(60, 60, 60);
++                     doc.setFont("helvetica", "normal");
++                     
++                     // Draw timeline vertical line
++                     const timelineX = 30;
++                     let timelineStartY = 100;
++                     let currentY = timelineStartY;
++                     
++                     doc.setDrawColor(180, 180, 180);
++                     doc.setLineWidth(0.5);
++                     doc.line(timelineX, timelineStartY, timelineX, 270);
+                      
+-                     // Add timeline steps
+-                     let yPosition = 80;
++                     // Add timeline steps with color coding
+                      const steps = document.querySelectorAll('#timeline-steps li, .timeline-step');
+                      if (steps.length > 0) {
+                                  'Kuupäev puudub';
+                              
++                             // Determine status color
++                             let statusColor = "#41516C"; // Default future
++                             if (step.classList.contains('completed')) {
++                                 statusColor = "#4CAD73"; // Green for completed
++                             } else if (step.classList.contains('current')) {
++                                 statusColor = "#1B5F8C"; // Blue for current
++                             } else if (step.classList.contains('overdue')) {
++                                 statusColor = "#E24A68"; // Red for overdue
++                             }
++                             
+                              // Check if we need a new page
+-                             if (yPosition > 270) {
++                             if (currentY > 260) {
+                                  doc.addPage();
+-                                 yPosition = 20;
+-                             }
+- 
+-                             doc.setFontSize(12);
+-                             doc.text(`${index + 1}. ${stepName}`, 20, yPosition);
+-                             yPosition += 8;
+- 
+-                             doc.setFontSize(10);
+-                             doc.text(`${dateText}`, 30, yPosition);
+-                             yPosition += 15;
++                                 // Continue timeline on new page
++                                 timelineStartY = 20;
++                                 currentY = timelineStartY;
++                                 doc.line(timelineX, timelineStartY, timelineX, 270);
++                             }
++                             
++                             // Draw timeline circle node
++                             doc.setFillColor(hexToRgb(statusColor).r, hexToRgb(statusColor).g, hexToRgb(statusColor).b);
++                             doc.circle(timelineX, currentY, 3, 'F');
++                             
++                             // Draw connecting line from circle to the right
++                             doc.setDrawColor(hexToRgb(statusColor).r, hexToRgb(statusColor).g, hexToRgb(statusColor).b);
++                             doc.line(timelineX + 3, currentY, timelineX + 10, currentY);
++                             
++                             // Draw content box for the step
++                             doc.setFillColor(245, 245, 250);
++                             doc.roundedRect(timelineX + 10, currentY - 10, 150, 20, 2, 2, 'F');
++                             
++                             // Add left border with status color
++                             doc.setDrawColor(hexToRgb(statusColor).r, hexToRgb(statusColor).g, hexToRgb(statusColor).b);
++                             doc.setLineWidth(1.5);
++                             doc.line(timelineX + 10, currentY - 10, timelineX + 10, currentY + 10);
++                             doc.setLineWidth(0.5);
++                             
++                             // Add step number and name
++                             doc.setTextColor(50, 50, 50);
++                             doc.setFont("helvetica", "bold");
++                             doc.setFontSize(11);
++                             doc.text(`${index + 1}. ${stepName}`, timelineX + 15, currentY - 3);
++                             
++                             // Add date
++                             doc.setFont("helvetica", "normal");
++                             doc.setFontSize(9);
++                             doc.setTextColor(100, 100, 100);
++                             doc.text(dateText, timelineX + 15, currentY + 5);
++                             
++                             // Move to next step position
++                             currentY += 25;
+                          });
+                      } else {
+-                         doc.text("Ajakava etappe ei leitud", 20, yPosition);
++                         doc.setTextColor(100, 100, 100);
++                         doc.setFontSize(12);
++                         doc.text("Ajakava etappe ei leitud", 105, 120, { align: 'center' });
++                     }
++                     
++                     // Add footer with page numbers
++                     const pageCount = doc.internal.getNumberOfPages();
++                     doc.setTextColor(150, 150, 150);
++                     doc.setFontSize(8);
++                     for (let i = 1; i <= pageCount; i++) {
++                         doc.setPage(i);
++                         doc.text(`Lk ${i} / ${pageCount}  •  ${procurementName}  •  ${new Date().toLocaleDateString('et-EE')}`, 105, 290, { align: 'center' });
+                      }
+                      
+                      console.log("PDF generated successfully");
+                      
+-                     // Show success message
++                     // Show success message with animation
+                      const toast = document.createElement('div');
+                      toast.style.position = 'fixed';
+                      toast.style.bottom = '20px';
+                      toast.style.right = '20px';
+-                     toast.style.backgroundColor = 'rgba(0, 150, 0, 0.8)';
++                     toast.style.backgroundColor = 'rgba(76, 173, 115, 0.9)';
+                      toast.style.color = 'white';
+-                     toast.style.padding = '10px 20px';
+-                     toast.style.borderRadius = '5px';
++                     toast.style.padding = '12px 20px';
++                     toast.style.borderRadius = '6px';
++                     toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                      toast.style.zIndex = '9999';
+-                     toast.textContent = 'PDF edukalt genereeritud!';
++                     toast.style.display = 'flex';
++                     toast.style.alignItems = 'center';
++                     toast.style.transition = 'all 0.3s ease';
++                     toast.style.transform = 'translateY(100px)';
++                     toast.style.opacity = '0';
++                     toast.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span style="font-weight:500;">PDF edukalt genereeritud!</span>';
+                      document.body.appendChild(toast);
+                      
+                      setTimeout(() => {
++                         toast.style.transform = 'translateY(0)';
++                         toast.style.opacity = '1';
++                     }, 100);
++                     
++                     setTimeout(() => {
++                         toast.style.transform = 'translateY(100px)';
+                          toast.style.opacity = '0';
+-                         setTimeout(() => toast.remove(), 500);
++                         setTimeout(() => toast.remove(), 300);
+                      }, 3000);
+                      
+                  }
+              }
++ 
++             // Helper function to convert hex color to RGB
++             function hexToRgb(hex) {
++                 // Remove # if present
++                 hex = hex.replace(/^#/, '');
++                 
++                 // Parse hex values
++                 const bigint = parseInt(hex, 16);
++                 const r = (bigint >> 16) & 255;
++                 const g = (bigint >> 8) & 255;
++                 const b = bigint & 255;
++                 
++                 return { r, g, b };
++             }
+          </script>
+  
+```
 
 ---
 
+```bash
+ls
+```
 
+```
+viljarpartel@Mac test % ls
+Gemfile                 firebase.json           postcss.config.js
+Gemfile.lock            firestore.rules         register.html
+Ostud                   functions               register.js
+_includes               history                 sidebar.html
+_site                   history.json            src
+admin.html              index.html              summeerimine.html
+auth.js                 jest.config.js          tailwind.config.js
+config.js               login.html              timeline-init.js
+coverage                migrate-history.js      timeline.html
+dashboard.html          node_modules            vendor
+databar                 package-lock.json
+dist                    package.json
+viljarpartel@Mac test %
+```
+
+---
+
+I've enhanced the PDF export functionality in index.html with a more modern and dynamic design. The updated PDF will have:
+
+1. A professional layout with a blue header bar and clean typography
+2. A visually appealing timeline with color-coded status indicators
+3. Elements like boxes, circles, and lines for visual structure
+4. Proper formatting and spacing for better readability
+5. A footer with page numbers and document info
+6. Dynamic coloring of the "days remaining" section based on urgency
+7. An improved success notification with animation and an icon
+
+The PDF layout includes:
+- Document header with title in white on blue background
+- Calendar icon and procurement details in a styled box
+- Color-coded timeline with vertical line and circle markers
+- Each timeline step displayed in a box with colored border
+- Automatic page handling for long timelines
+- Page numbers and document information in the footer
+
+You can test this by clicking the "Salvesta PDF-ina" button to see the improved visual design.
+
+---
+
+_**User**_
+
+thx!
+
+---
+
+_**Assistant**_
+
+You're welcome! The enhanced PDF export functionality is now implemented. The PDF will now include:
+
+- A professional header with title and background
+- Color-coded timeline elements
+- Visual elements like circles and lines for better structure
+- Dynamic coloring based on the urgency status
+- Footer with page numbers
+- Better overall visual layout
+
+If you need any other improvements or have questions about the implementation, just let me know!
+
+---
+
+_**User**_
+
+if you check my index and input files for styles, what would be 3 main upgrade you would do visually that would completely change the visual level of my site
+
+---
+
+_**Assistant**_
+
+Based on the files provided, here are three major visual upgrades that would significantly elevate the look and feel of your site:
+
+## 1. Implement a Cohesive Color System with Depth
+
+The current implementation uses various blues and standard colors, but lacks a cohesive color system. I recommend:
+
+```css:src/styles/input.css
+/* Color System Enhancement */
+:root {
+  /* Primary palette - using deeper blues with better contrast */
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+  
+  /* Secondary accent colors - teal for contrast */
+  --color-accent: #14b8a6;
+  --color-accent-light: #5eead4;
+  --color-accent-dark: #0f766e;
+  
+  /* Status colors with improved visibility */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Background and surface colors */
+  --color-surface-50: #ffffff;
+  --color-surface-100: #f9fafb;
+  --color-surface-200: #f3f4f6;
+}
+```
+
+This creates a professional design language that maintains consistency while allowing for visual hierarchy.
+
+## 2. Add Modern Card and Content Styling with Micro-interactions
+
+Your interface would benefit from modern card styling with subtle animations:
+
+```css:src/styles/input.css
+/* Enhanced Card Component */
+.card {
+  @apply bg-white rounded-xl p-5;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+/* Button enhancements */
+.btn {
+  @apply relative overflow-hidden;
+  transition: all 0.3s ease;
+}
+
+.btn:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn:hover:after {
+  opacity: 1;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+```
+
+This adds subtle depth, hover effects, and micro-interactions that make the interface feel responsive and modern.
+
+## 3. Revamp the Timeline Component with Enhanced Visual Storytelling
+
+Your timeline component could be transformed into a more engaging visual element:
+
+```css:src/styles/input.css
+/* Timeline Visual Enhancement */
+.timeline-cards {
+  --line-w: 0.25rem;
+  --dot-size: 1.5rem;
+  --dot-border: 0.35rem;
+  
+  @apply relative mx-auto;
+  perspective: 1000px;
+}
+
+.timeline-cards::before {
+  content: "";
+  @apply absolute h-full bg-gradient-to-b from-blue-400 to-blue-600;
+  width: var(--line-w);
+  left: calc(50% - var(--line-w)/2);
+  border-radius: 999px;
+  z-index: 0;
+}
+
+.timeline-cards li {
+  @apply relative grid gap-4 mb-8;
+  transform-style: preserve-3d;
+}
+
+.timeline-cards li .date {
+  @apply font-medium text-white text-center py-2 px-4 rounded-lg;
+  background: var(--accent-color);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1), 
+              0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-left: 3px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.timeline-cards li .date::after {
+  content: "";
+  @apply absolute rounded-full;
+  width: var(--dot-size);
+  height: var(--dot-size);
+  background: white;
+  border: var(--dot-border) solid var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15), 
+              0 0 0 8px rgba(var(--accent-color-rgb), 0.1);
+  z-index: 1;
+}
+
+.timeline-cards li .title,
+.timeline-cards li .descr {
+  @apply bg-white rounded-lg p-4;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 
+              0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  border-left: 1px solid rgba(229, 231, 235, 0.7);
+  border-top: 1px solid rgba(229, 231, 235, 0.7);
+  transform: translateZ(5px);
+  transition: transform 0.3s ease;
+}
+
+.timeline-cards li:hover .title,
+.timeline-cards li:hover .descr {
+  transform: translateZ(15px);
+}
+
+/* Status-specific styling with refined color treatments */
+.timeline-cards li.completed .date {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  --accent-color: #10b981;
+  --accent-color-rgb: 16, 185, 129;
+}
+
+.timeline-cards li.current .date {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  --accent-color: #3b82f6;
+  --accent-color-rgb: 59, 130, 246;
+}
+
+.timeline-cards li.future .date {
+  background: linear-gradient(135deg, #93c5fd, #60a5fa);
+  --accent-color: #60a5fa;
+  --accent-color-rgb: 96, 165, 250;
+}
+
+.timeline-cards li.overdue .date {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  --accent-color: #ef4444;
+  --accent-color-rgb: 239, 68, 68;
+}
+```
+
+This creates a visually stunning timeline with depth effects, gradient colors, and subtle 3D transformations that make the timeline feel like an interactive story rather than a flat list.
+
+These three upgrades would transform your site from a functional app to a premium, professional-looking experience with modern design cues, better visual hierarchy, and thoughtful micro-interactions that make the interface more engaging and intuitive.
+
+---
+
+_**User**_
+
+check the container visuals, how would you make them really pop out, but at the same time making sure they remain compact, container visuals are currently mostly in index.html, should we also take them to input.css or no ?
+
+---
+
+_**Assistant**_
+
+Looking at your container visuals, here's how I would make them pop while keeping them compact:
+
+## Enhancing Container Visuals
+
+You should keep most styling in your CSS file rather than inline in HTML for better maintainability. Here's my approach:
+
+### 1. Add Container-Specific Styles to input.css
+
+```css:src/styles/input.css
+/* Enhanced Container Styling */
+.container {
+  @apply max-w-4xl mx-auto p-4 relative;
+  isolation: isolate;
+}
+
+/* Container variants */
+.container-card {
+  @apply bg-white rounded-xl p-5 relative overflow-hidden;
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.05),
+    0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.container-card:hover {
+  box-shadow: 
+    0 15px 30px -5px rgba(0, 0, 0, 0.08),
+    0 10px 15px -3px rgba(0, 0, 0, 0.02);
+  transform: translateY(-2px) scale(1.005);
+}
+
+/* Container with accent border */
+.container-accent {
+  @apply border-l-4 border-primary-500 pl-4;
+  background: linear-gradient(to right, var(--color-primary-50), white);
+}
+
+/* Container with subtle pattern */
+.container-pattern {
+  position: relative;
+}
+
+.container-pattern::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 25px 25px, var(--color-primary-100) 2px, transparent 0),
+    radial-gradient(circle at 75px 75px, var(--color-primary-100) 2px, transparent 0);
+  background-size: 100px 100px;
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* Container glass effect */
+.container-glass {
+  @apply backdrop-blur-sm;
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Container with soft inner shadow */
+.container-inset {
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+```
+
+### 2. Create a Subtle Accent Element for Containers
+
+```css:src/styles/input.css
+/* Container accent elements */
+.container-accent-dot {
+  position: relative;
+}
+
+.container-accent-dot::after {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.2);
+}
+
+.container-accent-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.container-accent-line::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, 
+    var(--color-primary-300),
+    var(--color-accent),
+    var(--color-primary-300));
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+```
+
+### 3. Make Content Sections Stand Out with Compact Visual Hierarchy
+
+```css:src/styles/input.css
+/* Container content sections */
+.container-section {
+  @apply py-2 mb-4;
+  position: relative;
+}
+
+.container-section-title {
+  @apply text-base font-medium mb-2 flex items-center;
+  color: var(--color-primary-700);
+}
+
+.container-section-title::before {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  background-color: var(--color-primary-400);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+/* Compact form groups */
+.form-group-compact {
+  @apply flex flex-col mb-3;
+}
+
+.form-group-compact label {
+  @apply text-sm font-medium mb-1 text-gray-700;
+}
+
+.form-group-compact input,
+.form-group-compact select,
+.form-group-compact textarea {
+  @apply rounded-md border-gray-300 shadow-sm;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-group-compact input:focus,
+.form-group-compact select:focus,
+.form-group-compact textarea:focus {
+  @apply border-primary-400 ring-1 ring-primary-400;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+```
+
+## Implementation Approach
+
+1. **Move styling from HTML to CSS**: Yes, you should move as much styling as possible from index.html to input.css. This makes your code more maintainable and reusable.
+
+2. **Use classes over inline styles**: Instead of individual styling attributes in HTML, use classes that you can apply consistently.
+
+3. **Keep HTML clean with modifier classes**: Instead of different containers with unique styling, use a base container class with modifier classes.
+
+## In Your HTML
+
+```html
+<!-- Before -->
+<div class="container p-4 border rounded-lg shadow-md">
+  <!-- Content -->
+</div>
+
+<!-- After -->
+<div class="container container-card container-accent-line">
+  <div class="container-section">
+    <h3 class="container-section-title">Section Title</h3>
+    <!-- Content -->
+  </div>
+</div>
+```
+
+This approach gives you:
+- Visually engaging containers that still feel compact
+- A consistent design language across your application
+- Easy maintenance and updating of styles
+- Subtle animations and visual cues that draw attention without being distracting
+- Better separation of concerns between HTML structure and CSS styling
+
+The key to making containers "pop" while remaining compact is to use subtle depth, strategic use of color accents, and careful attention to spacing rather than making everything larger or more dramatic.
+
+---
+
+_**User**_
+
+formcontainer would be changed in index then how ? 
+
+---
+
+_**Assistant**_
+
+Based on your updated CSS with the enhanced container styles, here's how I would update the `formContainer` in your index.html to make it really pop while keeping it compact:
+
+```html
+<div id="formContainer" 
+     class="container-card container-accent-line backdrop-blur-md p-5 rounded-xl max-w-md w-90 min-h-[350px]">
+  
+  <div class="container-accent-dot">
+    <h2 class="container-section-title text-2xl font-bold text-center mb-5">Riigihanke andmed</h2>
+  </div>
+  
+  <form id="procurementForm" class="space-y-4">
+    <div class="form-group-compact">
+      <label for="name" class="block text-gray-700 font-semibold mb-1">
+        Riigihanke nimi
+      </label>
+      <input type="text" 
+             placeholder="Siseta riighanke nimetus" 
+             id="name" 
+             name="name"
+             class="w-full text-md text-center p-3 rounded-lg focus:ring-2 focus:ring-primary-400 outline-none transition-all duration-300"
+             required 
+             autocomplete="off">
+    </div>
+    
+    <div class="form-group-compact">
+      <label for="cost" class="block text-gray-700 font-semibold mb-1">
+        Eeldatav maksumus
+      </label>
+      <input type="number" 
+             placeholder="Sisesta riigihanke eeldatav maksumus" 
+             id="cost" 
+             name="cost"
+             class="w-full text-sm text-center p-3 rounded-lg focus:ring-2 focus:ring-primary-400 outline-none transition-all duration-300"
+             required>
+    </div>
+    
+    <div class="form-group-compact">
+      <label for="procedureType" class="text-gray-700 font-semibold mb-1 flex space-x-2">
+        <span>Riigihanke menetlusliik</span>
+        <span id="procedureLabel" class="text-primary-600 text-sm transition-opacity duration-300"></span>
+      </label>
+      
+      <select id="procedureType" 
+              name="procedureType"
+              class="w-full p-2 rounded-lg text-gray-700 text-center text-sm transition-all duration-300"
+              required 
+              aria-label="Riigihanke menetlusliik">
+        <!-- Your existing options remain the same -->
+        <optgroup label="">
+          <option value="" disabled selected>Vali menetlusliik</option>
+        </optgroup>
+        <!-- ... other option groups ... -->
+      </select>
+    </div>
+    
+    <div class="form-group-compact">
+      <label for="contractSigningDate" class="block text-gray-700 font-semibold mb-1">
+        Lepingu eeldatav allkirjastamine
+      </label>
+      <input type="text" 
+             id="contractSigningDate" 
+             name="contractSigningDate"
+             class="w-full p-3 rounded-lg text-center text-black cursor-pointer focus:ring-2 focus:ring-primary-400 outline-none transition-all duration-300"
+             placeholder="Vali kuupäev" 
+             readonly>
+    </div>
+    
+    <!-- Submit button could go here -->
+    <div class="mt-6">
+      <button type="submit" 
+              class="btn w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white py-3 rounded-lg font-medium shadow-md hover:shadow-lg">
+        Genereeri ajakava
+      </button>
+    </div>
+  </form>
+</div>
+```
+
+Key improvements:
+
+1. **Applied Container Classes**: Used the `container-card` and `container-accent-line` classes to add a professional card look with that animated accent line at the bottom.
+
+2. **Added Visual Interest**: The `container-accent-dot` adds a subtle teal dot indicator in the top right to create visual interest.
+
+3. **Improved Form Structure**: Replaced the generic divs with `form-group-compact` for consistent spacing and better focus states.
+
+4. **Simplified Input Styles**: Cleaned up the input styles for consistency while keeping the nice focus effects.
+
+5. **Consistent Color System**: Now using the `--color-primary-*` variables for consistent coloring (focus rings, button gradient).
+
+6. **Added Backdrop Blur**: The `backdrop-blur-md` creates a subtle frosted glass effect that will look great if you have any background elements.
+
+7. **Gradient Submit Button**: Added a gradient background to the submit button that matches your color scheme.
+
+The form now has a much more premium, polished look while still maintaining its compact size. The visual elements like the accent line and dot add interest without taking up extra space, and the consistent styling makes it feel more cohesive.
 
 ---
 
