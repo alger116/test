@@ -1,6 +1,37 @@
 document.addEventListener("DOMContentLoaded", function () {
   document.body.addEventListener("click", function (event) {});
 
+  // Make sure PDF export is available globally
+  if (typeof window.exportTimelineToPDF !== "function") {
+    window.exportTimelineToPDF = function () {
+      // This function will be defined in timeline.html, but we provide a fallback here
+      if (typeof jspdf === "undefined") {
+        console.error("jsPDF library not loaded");
+        alert("PDF library not loaded. Please try again later.");
+
+        // Try to load jsPDF
+        const script = document.createElement("script");
+        script.src =
+          "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+        script.async = true;
+        document.head.appendChild(script);
+        return;
+      }
+
+      console.log("Exporting PDF from timeline-init.js fallback");
+      // Basic implementation if timeline.html's implementation is not available
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("Timeline Export", 10, 10);
+        doc.save("timeline.pdf");
+      } catch (e) {
+        console.error("Error exporting PDF:", e);
+        alert("Failed to export PDF. Error: " + e.message);
+      }
+    };
+  }
+
   initializeTimeline();
 
   const timelineContainer = document.getElementById("timeline-Container");

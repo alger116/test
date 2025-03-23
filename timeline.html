@@ -419,54 +419,75 @@
 
         // Function to export timeline to PDF
         function exportTimelineToPDF() {
-            const procurementName = document.getElementById('timeline-procurement-name').textContent;
-            const filename = `${procurementName}_ajakava.pdf`;
+            // Check if the jsPDF library is loaded
+            if (typeof window.jspdf === 'undefined') {
+                // Load jsPDF and try again when it's available
+                showToast('PDF generaator laadimine...');
+                loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+                    .then(() => {
+                        setTimeout(() => exportTimelineToPDF(), 1000); // Try again after 1 second
+                    })
+                    .catch(err => {
+                        console.error('Failed to load jsPDF:', err);
+                        showToast('PDF genereerimine ebaõnnestus. Proovige uuesti.');
+                    });
+                return;
+            }
 
-            // Create a new jsPDF instance
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            try {
+                const procurementName = document.getElementById('timeline-procurement-name').textContent;
+                const filename = `${procurementName}_ajakava.pdf`;
 
-            // Add title
-            doc.setFontSize(16);
-            doc.text('Riigihanke ajakava', 14, 20);
+                // Create a new jsPDF instance
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
 
-            // Add procurement details
-            doc.setFontSize(12);
-            doc.text(`Hanke nimi: ${procurementName}`, 14, 30);
-            doc.text(`Lepingu allkirjastamine: ${document.getElementById('timeline-contract-date').textContent}`, 14, 40);
-            doc.text(`Alustamiseni on jäänud: ${document.getElementById('days-to-start').textContent} päeva`, 14, 50);
+                // Add title
+                doc.setFontSize(16);
+                doc.text('Riigihanke ajakava', 14, 20);
 
-            // Add timeline data
-            let yPosition = 70;
-
-            document.querySelectorAll('.timeline-step').forEach((step, index) => {
-                const stepName = step.querySelector('.step-name').textContent;
-                const dateRange = step.querySelector('.step-date-range').textContent;
-                const duration = step.querySelector('.step-duration').textContent;
-                const status = step.classList.contains('completed') ? 'Lõpetatud' :
-                    step.classList.contains('current') ? 'Käimas' :
-                        step.classList.contains('overdue') ? 'Hilinenud' : 'Tulevikus';
-
-                // Check if we need a new page
-                if (yPosition > 260) {
-                    doc.addPage();
-                    yPosition = 20;
-                }
-
+                // Add procurement details
                 doc.setFontSize(12);
-                doc.text(`${stepName}`, 14, yPosition);
-                yPosition += 10;
+                doc.text(`Hanke nimi: ${procurementName}`, 14, 30);
+                doc.text(`Lepingu allkirjastamine: ${document.getElementById('timeline-contract-date').textContent}`, 14, 40);
+                doc.text(`Alustamiseni on jäänud: ${document.getElementById('days-to-start').textContent} päeva`, 14, 50);
 
-                doc.setFontSize(10);
-                doc.text(`${dateRange}`, 20, yPosition);
-                yPosition += 6;
+                // Add timeline data
+                let yPosition = 70;
 
-                doc.text(`${duration} (${status})`, 20, yPosition);
-                yPosition += 15;
-            });
+                document.querySelectorAll('.timeline-step').forEach((step, index) => {
+                    const stepName = step.querySelector('.step-name')?.textContent || `Etapp ${index + 1}`;
+                    const dateRange = step.querySelector('.step-date-range')?.textContent || 'Kuupäev puudub';
+                    const duration = step.querySelector('.step-duration')?.textContent || '';
+                    const status = step.classList.contains('completed') ? 'Lõpetatud' :
+                        step.classList.contains('current') ? 'Käimas' :
+                            step.classList.contains('overdue') ? 'Hilinenud' : 'Tulevikus';
 
-            // Save the PDF
-            doc.save(filename);
+                    // Check if we need a new page
+                    if (yPosition > 260) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+
+                    doc.setFontSize(12);
+                    doc.text(`${stepName}`, 14, yPosition);
+                    yPosition += 10;
+
+                    doc.setFontSize(10);
+                    doc.text(`${dateRange}`, 20, yPosition);
+                    yPosition += 6;
+
+                    doc.text(`${duration} (${status})`, 20, yPosition);
+                    yPosition += 15;
+                });
+
+                // Save the PDF
+                doc.save(filename);
+                showToast('PDF edukalt salvestatud!');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showToast('PDF genereerimine ebaõnnestus. Viga: ' + error.message);
+            }
         }
 
         // Add the timeline button to the result card
@@ -512,8 +533,24 @@
         // Initialize event listeners
         document.addEventListener('DOMContentLoaded', function () {
             // Add event listeners for modal buttons
-            document.getElementById('exportExcel').addEventListener('click', exportTimelineToExcel);
-            document.getElementById('exportPDF').addEventListener('click', exportTimelineToPDF);
+            const exportExcelBtn = document.getElementById('exportExcel');
+            const exportPDFBtn = document.getElementById('exportPDF');
+
+            if (exportExcelBtn) {
+                exportExcelBtn.addEventListener('click', exportTimelineToExcel);
+            } else {
+                console.error("Export Excel button not found");
+            }
+
+            if (exportPDFBtn) {
+                exportPDFBtn.addEventListener('click', function () {
+                    console.log("PDF Export button clicked");
+                    console.log("jsPDF library status:", typeof window.jspdf !== 'undefined' ? "Loaded" : "Not loaded");
+                    exportTimelineToPDF();
+                });
+            } else {
+                console.error("Export PDF button not found");
+            }
 
             // Add the timeline button to the result card when it's generated
             const observer = new MutationObserver(function (mutations) {
@@ -528,7 +565,7 @@
             });
 
             // Start observing the result container
-            const rresult = document.getElementById('result-card');
+            const resultContainer = document.getElementById('result-card');
             if (resultContainer) {
                 observer.observe(resultContainer, { childList: true, subtree: true });
             }
@@ -538,40 +575,65 @@
 
             // Check if Alpine.js is loaded, if not load it
             if (typeof Alpine === 'undefined') {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js';
-                script.defer = true;
-                document.head.appendChild(script);
+                loadScript('https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js');
             }
 
-            // Load required libraries dynamically if not already loaded
+            // Load required libraries immediately to ensure they're available when needed
+            const promises = [];
+
             if (typeof XLSX === 'undefined') {
-                loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+                promises.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'));
             }
 
-            if (typeof jspdf === 'undefined') {
-                loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+            if (typeof window.jspdf === 'undefined') {
+                promises.push(loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'));
             }
+
+            // Wait for all libraries to load and then show a success message
+            Promise.all(promises)
+                .then(() => {
+                    console.log('All required libraries loaded successfully');
+                })
+                .catch(error => {
+                    console.error('Error loading libraries:', error);
+                });
 
             const toggleButton = document.getElementById('toggleTimelineButton');
             const timelineContainer = document.getElementById('timeline-container');
 
-            toggleButton.addEventListener('click', function () {
-                if (timelineContainer.classList.contains('list-view')) {
-                    timelineContainer.classList.remove('list-view');
-                } else {
-                    timelineContainer.classList.add('list-view');
-                }
-            });
+            if (toggleButton && timelineContainer) {
+                toggleButton.addEventListener('click', function () {
+                    if (timelineContainer.classList.contains('list-view')) {
+                        timelineContainer.classList.remove('list-view');
+                    } else {
+                        timelineContainer.classList.add('list-view');
+                    }
+                });
+            }
         });
 
         // Helper function to load scripts dynamically
         function loadScript(url) {
             return new Promise((resolve, reject) => {
+                // Check if script is already loaded
+                if (document.querySelector(`script[src="${url}"]`)) {
+                    console.log(`Script already loaded: ${url}`);
+                    resolve();
+                    return;
+                }
+
+                console.log(`Loading script: ${url}`);
                 const script = document.createElement('script');
                 script.src = url;
-                script.onload = resolve;
-                script.onerror = reject;
+                script.async = true;
+                script.onload = () => {
+                    console.log(`Script loaded successfully: ${url}`);
+                    resolve();
+                };
+                script.onerror = (error) => {
+                    console.error(`Failed to load script: ${url}`, error);
+                    reject(new Error(`Failed to load script: ${url}`));
+                };
                 document.head.appendChild(script);
             });
         }
@@ -612,7 +674,15 @@
 
         // Function to show toast notification
         function showToast(message) {
-            const toast = document.getElementById('toastNotification');
+            // Check if toast element exists, if not create it
+            let toast = document.getElementById('toastNotification');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toastNotification';
+                toast.className = 'toast';
+                document.body.appendChild(toast);
+            }
+
             toast.textContent = message;
             toast.classList.add('show');
 
