@@ -137,9 +137,6 @@
 .bottom-full {
   bottom: 100%;
 }
-.-left-1\.5 {
-  left: calc(var(--spacing) * -1.5);
-}
 .-left-4 {
   left: calc(var(--spacing) * -4);
 }
@@ -332,9 +329,6 @@
 .mt-1 {
   margin-top: calc(var(--spacing) * 1);
 }
-.mt-1\.5 {
-  margin-top: calc(var(--spacing) * 1.5);
-}
 .mt-2 {
   margin-top: calc(var(--spacing) * 2);
 }
@@ -394,9 +388,6 @@
 }
 .mb-8 {
   margin-bottom: calc(var(--spacing) * 8);
-}
-.mb-10 {
-  margin-bottom: calc(var(--spacing) * 10);
 }
 .ml-1 {
   margin-left: calc(var(--spacing) * 1);
@@ -581,8 +572,14 @@
 .h-17 {
   height: calc(var(--spacing) * 17);
 }
+.h-20 {
+  height: calc(var(--spacing) * 20);
+}
 .h-24 {
   height: calc(var(--spacing) * 24);
+}
+.h-32 {
+  height: calc(var(--spacing) * 32);
 }
 .h-48 {
   height: calc(var(--spacing) * 48);
@@ -1779,6 +1776,9 @@
 .bg-white\/90 {
   background-color: color-mix(in oklab, var(--color-white) 90%, transparent);
 }
+.bg-yellow-50 {
+  background-color: var(--color-yellow-50);
+}
 .bg-yellow-300 {
   background-color: var(--color-yellow-300);
 }
@@ -2438,8 +2438,8 @@
 .text-blue-600 {
   color: var(--color-blue-600);
 }
-.text-blue-800 {
-  color: var(--color-blue-800);
+.text-blue-700 {
+  color: var(--color-blue-700);
 }
 .text-emerald-500 {
   color: var(--color-emerald-500);
@@ -3307,6 +3307,20 @@
     }
   }
 }
+.hover\:bg-gray-600 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-gray-600);
+    }
+  }
+}
+.hover\:bg-gray-700\/50 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: color-mix(in oklab, var(--color-gray-700) 50%, transparent);
+    }
+  }
+}
 .hover\:bg-green-100 {
   &:hover {
     @media (hover: hover) {
@@ -3318,6 +3332,13 @@
   &:hover {
     @media (hover: hover) {
       background-color: var(--color-green-600);
+    }
+  }
+}
+.hover\:bg-purple-600 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-purple-600);
     }
   }
 }
@@ -3804,6 +3825,7 @@
     --color-amber-200: oklch(0.924 0.12 95.746);
     --color-amber-500: oklch(0.769 0.188 70.08);
     --color-amber-600: oklch(0.666 0.179 58.318);
+    --color-yellow-50: oklch(0.987 0.026 102.212);
     --color-yellow-300: oklch(0.905 0.182 98.111);
     --color-yellow-500: oklch(0.795 0.184 86.047);
     --color-yellow-600: oklch(0.681 0.162 75.834);

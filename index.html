@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
+    <script src="timeline-init.js"></script>
 
 
 
@@ -618,6 +619,8 @@
             <div class="container bg-white/40 p-6 rounded-xl shadow-lg max-w-lg w-95 hidden -mx-[-2px]"
                 id="resultContainer">
                 <div id="result" class="result-card"></div>
+
+
             </div>
         </div>
 
@@ -1242,8 +1245,8 @@
                             <span class="w-3/4">${detail.step}:</span>
                             <span id="days-${index}" class="w-16 text-center font-medium whitespace-nowrap">${detail.days}</span>
                             <div class="flex gap-1 ml-6">
-                                <button onclick="adjustDays(${index}, -1)" class="bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-800 transition transform hover:scale-105">-</button>
-                                <button onclick="adjustDays(${index}, 1)" class="bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-600 transition transform hover:scale-105">+</button>
+                                <button onclick="adjustDays(${index}, -1)" class="adjustDays bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-800 transition transform hover:scale-105">-</button>
+                                <button onclick="adjustDays(${index}, 1)" class="adjustDays bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-600 transition transform hover:scale-105">+</button>
                             </div>
                         </div>
                             <div class="w-full bg-gray-200/20 rounded-full h-4 overflow-hidden mt-1">
@@ -1275,7 +1278,6 @@
                         </ul>
                     </div>
                 `;
-                    return html;
                 }
 
                 generateTableRow(index) {
@@ -1288,8 +1290,8 @@
                         <td class="border p-2">${this.procedureDuration} päeva</td>
                         <td class="border p-2">${formatDate(this.requestSubmissionDate)}</td>
                         <td class="border p-2">${formatDate(this.contractSigningDate)}</td>
-                        <td class="border p-2"><button class="edit-button bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition transform hover:scale-105 hidden" onclick="editSearch(${index})">Muuda</button></td>
-                        <td class="border p-2"><button class="delete-button bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition transform hover:scale-105" onclick="deleteSearch(${index})">Kustuta</button></td>
+                        <td class="border p-2"><button class="adjustDays edit-button bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition transform hover:scale-105 hidden" onclick="editSearch(${index})">Muuda</button></td>
+                        <td class="border p-2"><button class="adjustdays delete-button bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition transform hover:scale-105" onclick="deleteSearch(${index})">Kustuta</button></td>
                     </tr>
                 `;
                 }
@@ -1314,6 +1316,13 @@
                     totalDurationElement.innerText = totalDuration;
                 } else {
                     console.error("❌ Element with id totalDuration not found");
+                }
+                // ⏱️ Värskenda sidebar ajajoont ja modaalset ajajoont
+                if (typeof initializeTimeline === 'function') {
+                    initializeTimeline(); // uuendab sidebar ajajoone täielikult
+                }
+                if (typeof showTimelineModal === 'function') {
+                    showTimelineModal(); // uuendab modal ajajoont
                 }
 
                 // ✅ Otsime hanke nime järgi
@@ -1341,12 +1350,13 @@
                     procurement.requestSubmissionDate = "Määramata";
                 }
 
+
                 document.getElementById('requestSubmissionDate').innerText = formatDate(procurement.requestSubmissionDate);
 
                 // ✅ Uuendame tabelis kuvamist ja progressiribasid
                 updateSavedSearchesTable();
                 updateTotalDuration();
-                updateTimelineCards();
+
 
                 // Use the immediate update for the progress bar of the changed element
                 const progressBar = document.getElementById(`progress-${index}`);
@@ -1377,6 +1387,8 @@
 
                 // Use debounced update for all other bars
                 debouncedUpdateProgressBars();
+
+
 
             }
 
@@ -2492,6 +2504,12 @@
             // Also update timeline when Calculate button is clicked
             document.getElementById('calculateTime').addEventListener('click', updateTimelineHeader);
 
+
+            // 🔄 Käivita adjustDays kuulaja ainult kui ajajoon on loodud
+            if (typeof setupAdjustDaysListeners === 'function') {
+                setupAdjustDaysListeners();
+            }
+
             // Function to generate and download PDF
             function generatePDF() {
                 // Get timeline data
@@ -2775,12 +2793,38 @@
                     });
                 }
 
+                function adjustDays(index, adjustment) {
+                    const daysElement = document.getElementById(`days-${index}`);
+                    if (!daysElement) {
+                        console.error(`Element with id days-${index} not found`);
+                        return;
+                    }
+
+                    let daysText = daysElement.innerText;
+                    let days = parseInt(daysText.match(/\d+/)?.[0] || "0", 10);
+                    days = Math.max(0, days + adjustment);
+                    daysElement.innerText = `${days} päeva`;
+
+                    // Update total duration and progress bars
+                    updateTotalDuration();
+                    updateProgressBars();
+
+                    // Update the procurement object if it exists
+                    const procurement = savedSearches.find(p => p.name === document.getElementById('name').value);
+                    if (procurement) {
+                        procurement.procedureDuration = parseInt(document.getElementById('totalDuration').innerText);
+                        procurement.requestSubmissionDate = procurement.calculateRequestSubmissionDate();
+                        document.getElementById('requestSubmissionDate').innerText = formatDate(procurement.requestSubmissionDate);
+                    }
+                }
+
                 document.addEventListener("readystatechange", function () {
                     if (document.readyState === "complete") {
                         console.log("Page fully loaded. Initializing scripts...");
                         initializeAdjustButtons();
                         updateTotalDuration();  // 🔥 Ensures total duration starts correctly
                         updateProgressBars();   // 🔥 Ensures progress bars scale correctly on load
+
                         requestAnimationFrame(() => {
                             requestAnimationFrame(updateProgressBarsImmediate); // Double RAF for ensuring DOM updates
                         });
@@ -3157,22 +3201,12 @@
                 document.dispatchEvent(new Event("alpine:init"));
             }
 
-            async function loadTimeline() {
-                console.log("Starting to load timeline...");
-                try {
-                    // We're no longer loading external HTML
-                    // Just let the timeline-init.js handle the initialization
-                    console.log("Timeline will be initialized by timeline-init.js");
-                    console.log("Timeline loaded successfully");
-                } catch (error) {
-                    console.error("Error loading timeline:", error);
-                }
-            }
+
 
             // ✅ Load sidebar and timeline when the page loads
             document.addEventListener("DOMContentLoaded", async () => {
                 await loadSidebar();
-                await loadTimeline();
+
             });
         </script>
 
@@ -3356,8 +3390,7 @@
                 }
             });
         </script>
-        <!-- Timeline initialization script -->
-        <script src="timeline-init.js"></script>
+
 
         <style>
             /* Timeline container styles */

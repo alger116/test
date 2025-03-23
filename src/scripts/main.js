@@ -1643,14 +1643,45 @@ document.getElementById("filterByDate").addEventListener("change", function () {
     }
 
     function adjustDays(index, adjustment) {
-      const stepData = extractStepDays().find((step) => step.index === index);
-      if (!stepData) return;
+      const daysElement = document.getElementById(`days-${index}`);
+      if (!daysElement) {
+        console.error(`Element with id days-${index} not found`);
+        return;
+      }
 
-      let newDays = Math.max(0, stepData.days + adjustment);
-      stepData.element.innerText = `${newDays} päeva`;
+      let daysText = daysElement.innerText;
+      let days = parseInt(daysText.match(/\d+/)?.[0] || "0", 10);
+      days = Math.max(0, days + adjustment);
+      daysElement.innerText = `${days} päeva`;
 
-      updateTotalDuration(); // Update total duration
-      updateProgressBars(); // Update progress bars dynamically
+      // Update total duration and progress bars
+      updateTotalDuration();
+      updateProgressBars();
+
+      // Get the timeline modal
+      const timelineModal = document.getElementById("timelineModal");
+      if (timelineModal && timelineModal.__x) {
+        // Force timeline recalculation by reopening the modal
+        timelineModal.__x.$data.open = false;
+        setTimeout(() => {
+          showTimelineModal(); // This will recalculate the timeline
+        }, 100);
+      }
+
+      // Update the procurement object if it exists
+      const procurement = savedSearches.find(
+        (p) => p.name === document.getElementById("name").value,
+      );
+      if (procurement) {
+        procurement.procedureDuration = parseInt(
+          document.getElementById("totalDuration").innerText,
+        );
+        procurement.requestSubmissionDate =
+          procurement.calculateRequestSubmissionDate();
+        document.getElementById("requestSubmissionDate").innerText = formatDate(
+          procurement.requestSubmissionDate,
+        );
+      }
     }
 
     function initializeAdjustButtons() {

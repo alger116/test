@@ -128,12 +128,7 @@
                 päeva</span>
         </div>
 
-        <!-- Timeline visualization -->
-        <div id="timeline-Container" class="hidden">
-            <ul class="timeline-cards" id="timeline-steps">
-                <!-- Timeline steps will be dynamically generated here -->
-            </ul>
-        </div>
+
 
         <!-- Export buttons -->
         <div class="modal-action mt-6 flex flex-wrap gap-3 justify-end">
@@ -191,6 +186,7 @@
         </li>
     </template>
 
+    <div id="timeline-steps"></div>
 
     <script>
         // Timeline calculation function
@@ -511,25 +507,7 @@
             return timelineButton;
         }
 
-        // Add timeline toggle to dropdown menu
-        function addTimelineToggleToDropdown() {
-            // Check if the dropdown menu exists
-            const dropdownMenu = document.querySelector('.dropdown-menu, [role="menu"]');
-            if (dropdownMenu) {
-                // Check if the toggle already exists
-                if (!document.getElementById('toggleTimelineButton')) {
-                    const toggleButton = document.createElement('button');
-                    toggleButton.id = 'toggleTimelineButton';
-                    toggleButton.className = 'block px-4 py-2 text-sm text-gray-800 w-full text-left hover:bg-blue-200/70 hover:text-black transition transform hover:scale-105';
-                    toggleButton.setAttribute('role', 'menuitem');
-                    toggleButton.innerHTML = '<i class="fas fa-calendar-alt mr-2"></i> Ajakava';
-                    toggleButton.addEventListener('click', showTimelineModal);
 
-                    // Add to dropdown menu
-                    dropdownMenu.appendChild(toggleButton);
-                }
-            }
-        }
 
         // Initialize event listeners
         document.addEventListener('DOMContentLoaded', function () {
@@ -550,7 +528,7 @@
             });
 
             // Start observing the result container
-            const resultContainer = document.getElementById('resultContainer');
+            const rresult = document.getElementById('result-card');
             if (resultContainer) {
                 observer.observe(resultContainer, { childList: true, subtree: true });
             }
@@ -653,4 +631,203 @@
             const toast = document.getElementById('toastNotification');
             toast.classList.remove('show');
         });
+
+
+        function adjustDays(index, adjustment) {
+            const daysElement = document.getElementById(`days-${index}`);
+            if (!daysElement) {
+                console.error(`❌ Element with id days-${index} not found`);
+                return;
+            }
+
+            let days = parseInt(daysElement.innerText.match(/\d+/)?.[0] || "0", 10);
+            days = Math.max(0, days + adjustment);
+            daysElement.innerText = `${days} päeva`;
+
+            // Update total duration
+            const totalDurationElement = document.getElementById('totalDuration');
+            if (totalDurationElement) {
+                let totalDuration = Array.from(document.querySelectorAll('[id^="days-"]'))
+                    .reduce((sum, el) => {
+                        const days = parseInt(el.innerText.match(/\d+/)?.[0] || "0", 10);
+                        return sum + days;
+                    }, 0);
+                totalDurationElement.innerText = totalDuration;
+            }
+
+            // Recalculate and update timeline
+            const timelineModal = document.getElementById('timelineModal');
+            if (timelineModal && timelineModal.__x) {
+                // Get all current procedure details
+                const procedureDetails = [];
+                document.querySelectorAll('.result-card .step-row, .result-card li').forEach(row => {
+                    const stepName = row.querySelector('.step-name') ?
+                        row.querySelector('.step-name').textContent :
+                        row.textContent.split(':')[0].trim();
+
+                    const daysEl = row.querySelector('[id^="days-"]');
+                    if (daysEl) {
+                        const days = daysEl.textContent;
+                        procedureDetails.push({ step: stepName, days: days });
+                    }
+                });
+
+                // Get the contract date
+                const contractDate = document.getElementById('contractSigningDate').value;
+
+                // Recalculate timeline with updated values
+                const timeline = calculateTimeline(procedureDetails, contractDate);
+
+                // Update timeline display
+                document.getElementById('days-to-start').textContent = timeline.daysToStart;
+
+                // Clear and rebuild timeline steps
+                const timelineStepsContainer = document.getElementById('timeline-steps');
+                if (timelineStepsContainer) {
+                    timelineStepsContainer.innerHTML = '';
+                    const stepTemplate = document.getElementById('timeline-step-template');
+
+                    timeline.steps.forEach((step, index) => {
+                        const stepClone = document.importNode(stepTemplate.content, true);
+
+                        stepClone.querySelector('.step-name').textContent = `${index + 1}. ${step.step}`;
+                        stepClone.querySelector('.step-date-range').textContent = `${step.startDate} - ${step.endDate}`;
+
+                        const progressBar = stepClone.querySelector('.step-progress-bar');
+                        if (progressBar) {
+                            progressBar.style.width = `${step.progress}%`;
+                            progressBar.dataset.progress = step.progress;
+
+                            // Add appropriate color class
+                            if (step.status === 'completed') {
+                                progressBar.classList.add('bg-green-500');
+                            } else if (step.status === 'current') {
+                                progressBar.classList.add('bg-blue-500');
+                            } else {
+                                progressBar.classList.add('bg-gray-500');
+                            }
+                        }
+
+                        timelineStepsContainer.appendChild(stepClone);
+                        if (typeof window.refreshSidebarTimelineCards === "function") {
+                            window.refreshSidebarTimelineCards();
+                        }
+                    });
+                }
+            }
+        }
+
+        // Add MutationObserver to watch for changes in the result card
+        const resultCardObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                    // Check if the change was in a days element
+                    if (mutation.target.id?.startsWith('days-') ||
+                        mutation.target.parentElement?.id?.startsWith('days-')) {
+                        const timelineModal = document.getElementById('timelineModal');
+                        if (timelineModal && timelineModal.__x) {
+                            timelineModal.__x.$data.open = true; // Reopen modal to refresh
+                        }
+                    }
+                }
+            });
+        });
+
+        // Start observing the result card
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultCard = document.querySelector('.result-card');
+            if (resultCard) {
+                resultCardObserver.observe(resultCard, {
+                    childList: true,
+                    subtree: true,
+                    characterData: true
+                });
+            }
+        });
+
+        function updateTimelineCards() {
+            const procedureDetails = [];
+            document.querySelectorAll('.result-card .step-row, .result-card li').forEach(row => {
+                const stepName = row.querySelector('.step-name') ?
+                    row.querySelector('.step-name').textContent :
+                    row.textContent.split(':')[0].trim();
+
+                const daysElement = row.querySelector('[id^="days-"]');
+                if (daysElement) {
+                    const days = daysElement.textContent;
+                    procedureDetails.push({ step: stepName, days: days });
+                }
+            });
+
+            if (procedureDetails.length === 0) return;
+
+            const contractDate = document.getElementById('contractSigningDate').value;
+            if (!contractDate) return;
+
+            const timeline = calculateTimeline(procedureDetails, contractDate);
+
+            // Update days to start
+            document.getElementById('days-to-start').textContent = timeline.daysToStart;
+
+            // Update timeline steps
+            const timelineStepsContainer = document.getElementById('timeline-steps');
+            if (!timelineStepsContainer) return;
+
+            timelineStepsContainer.innerHTML = '';
+
+            const stepTemplate = document.getElementById('timeline-step-template');
+            timeline.steps.forEach((step, index) => {
+                const stepClone = document.importNode(stepTemplate.content, true);
+                stepClone.querySelector('.step-name').textContent = `${index + 1}. ${step.step}`;
+                stepClone.querySelector('.step-date-range').textContent = `${step.startDate} - ${step.endDate}`;
+
+                const progressBar = stepClone.querySelector('.step-progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = `${step.progress}%`;
+                    progressBar.dataset.progress = step.progress;
+                    progressBar.className = `step-progress-bar h-2.5 rounded-full transition-all duration-500 ${step.status === 'completed' ? 'bg-green-500' :
+                        step.status === 'current' ? 'bg-blue-500' :
+                            'bg-gray-500'
+                        }`;
+                }
+
+                timelineStepsContainer.appendChild(stepClone);
+            });
+        }
+        window.refreshSidebarTimelineCards = function () {
+            // Refresh the sidebar timeline cards
+            updateTimelineCards();
+        }
+        const contractDate = document.getElementById('contractSigningDate').value;
+        const procedureDetails = [];
+
+        document.querySelectorAll('.result-card .step-row, .result-card li').forEach(row => {
+            const stepName = row.querySelector('.step-name') ?
+                row.querySelector('.step-name').textContent :
+                row.textContent.split(':')[0].trim();
+
+            const daysEl = row.querySelector('[id^="days-"]');
+            if (daysEl) {
+                const days = daysEl.textContent;
+                procedureDetails.push({ step: stepName, days: days });
+            }
+        });
+
+        const timeline = calculateTimeline(procedureDetails, contractDate);
+        const cards = document.querySelectorAll('#timeline-Container .timeline-cards li');
+
+        timeline.steps.forEach((step, i) => {
+            const card = cards[i];
+            if (!card) return;
+
+            const date = card.querySelector('.date');
+            const title = card.querySelector('.title');
+            const descr = card.querySelector('.descr');
+
+            if (date) date.textContent = `${step.startDate} - ${step.endDate}`;
+            if (title) title.textContent = step.step;
+            if (descr) descr.textContent = `${step.duration} päeva`;
+        });
+
+
     </script>
