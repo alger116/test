@@ -7,107 +7,7 @@
     <div class="modal-box w-11/12 max-w-5xl bg-white/90 backdrop-blur-md shadow-xl rounded-lg">
         <h3 class="font-bold text-2xl mb-4 text-blue-dark">Riigihanke ajakava</h3>
 
-        <style>
-            @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
 
-            /* Dark Mode Timeline */
-            .timeline-cards {
-                display: flex;
-                flex-direction: column;
-                gap: 1.5rem;
-                padding: 1rem;
-                max-width: 600px;
-                margin: auto;
-                color: #d1d5db;
-                font-family: 'Poppins', sans-serif;
-            }
-
-            /* Vertical Line */
-            .timeline-cards::before {
-                content: "";
-                position: absolute;
-                left: 18px;
-                width: 2px;
-                height: 100%;
-                background: #3a3a3a;
-            }
-
-            /* Timeline Item */
-            .timeline-cards li {
-                position: relative;
-                padding-left: 3rem;
-                display: flex;
-                flex-direction: column;
-                gap: 0.25rem;
-            }
-
-            /* Checkmark and Circle */
-            .timeline-cards li::before {
-                content: "";
-                position: absolute;
-                left: 10px;
-                top: 5px;
-                width: 18px;
-                height: 18px;
-                border-radius: 50%;
-                border: 2px solid #555;
-                background-color: #181818;
-            }
-
-            /* Completed Step */
-            .timeline-cards li.completed::before {
-                content: "✔";
-                font-size: 14px;
-                font-weight: bold;
-                color: #10b981;
-                text-align: center;
-                line-height: 18px;
-                background: #10b981;
-                border-color: #10b981;
-            }
-
-            /* Current Step */
-            .timeline-cards li.current::before {
-                border-color: #3b82f6;
-            }
-
-            /* Future Step */
-            .timeline-cards li.future::before {
-                border-color: #555;
-            }
-
-            /* Step Content */
-            .timeline-cards li .date {
-                font-size: 14px;
-                color: #9ca3af;
-            }
-
-            .timeline-cards li .title {
-                font-size: 16px;
-                font-weight: 600;
-                color: white;
-            }
-
-
-
-            /* Toast notification styles */
-            .toast {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background-color: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 10px 20px;
-                border-radius: 5px;
-                transition: opacity 0.3s ease;
-                opacity: 0;
-                z-index: 1000;
-            }
-
-            .toast.show {
-                opacity: 1;
-            }
-        </style>
 
         <!-- Timeline header -->
         <div class="flex flex-col md:flex-row justify-between mb-4 gap-2">
@@ -127,8 +27,6 @@
             <span class="text-lg">Alustamiseni on jäänud <span id="days-to-start" class="font-bold text-xl"></span>
                 päeva</span>
         </div>
-
-
 
         <!-- Export buttons -->
         <div class="modal-action mt-6 flex flex-wrap gap-3 justify-end">
@@ -154,39 +52,37 @@
                 class="btn bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
                 Sulge
             </button>
-            <button id="hoverableButton"
-                class="btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md shadow-md transition transform hover:scale-105">
-                Hover me for info
-            </button>
         </div>
     </div>
 
     <!-- Timeline step template -->
     <template id="timeline-step-template">
-        <li class="mb-6 ml-6">
-            <span
-                class="absolute flex items-center justify-center w-8 h-8 rounded-full -left-4 ring-4 ring-white dark:ring-gray-900 bg-blue-500 text-white">
-                <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                    viewBox="0 0 20 20">
-                    <path
-                        d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                </svg>
-            </span>
-            <div
-                class="p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-md border-l-4 border-blue-500 ml-2 transform transition-all hover:scale-102 hover:shadow-lg">
-                <div class="date text-white font-semibold text-sm text-center p-2 rounded-lg bg-green-600">
+        <li class="timeline-step mb-6 relative">
+            <button
+                class="info-button absolute w-6 h-6 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 ease-in-out"
+                style="left: -12px; top: 50%; transform: translateY(-50%); z-index: 10;" type="button"
+                aria-label="Show step details">
+                <span class="text-sm font-bold">i</span>
+            </button>
+            <div class="p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-md border-l-4 border-blue-500 ml-6">
+                <div class="date text-white font-semibold text-sm text-center p-2 rounded-lg">
                     <span class="step-name"></span>
                 </div>
-                <time
-                    class="block mt-2 text-sm font-normal leading-none text-blue-600 dark:text-blue-500 step-date-range"></time>
-                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1 overflow-hidden">
-                    <div class="step-progress-bar h-2.5 rounded-full transition-all duration-500"></div>
-                </div>
+                <time class="block mt-2 text-sm font-normal leading-none text-blue-600 step-date-range"></time>
+                <div class="step-duration text-sm text-gray-600"></div>
             </div>
         </li>
     </template>
 
     <div id="timeline-steps"></div>
+
+    <!-- Add this right after the timeline-steps div -->
+    <div id="toastContainer"
+        class="hidden fixed bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 z-50">
+        <span id="toastMessage"></span>
+    </div>
+
+    <div id="toast-container"></div>
 
     <script>
         // Timeline calculation function
@@ -528,8 +424,6 @@
             return timelineButton;
         }
 
-
-
         // Initialize event listeners
         document.addEventListener('DOMContentLoaded', function () {
             // Add event listeners for modal buttons
@@ -692,101 +586,6 @@
             }, 3000);
         }
 
-        // Add event listeners for hover
-        const hoverableButton = document.getElementById('hoverableButton');
-        hoverableButton.addEventListener('mouseenter', () => {
-            showToast('Alustamisega oled hiljaks jäänud 45 päeva!');
-        });
-        hoverableButton.addEventListener('mouseleave', () => {
-            const toast = document.getElementById('toastNotification');
-            toast.classList.remove('show');
-        });
-
-
-        function adjustDays(index, adjustment) {
-            const daysElement = document.getElementById(`days-${index}`);
-            if (!daysElement) {
-                console.error(`❌ Element with id days-${index} not found`);
-                return;
-            }
-
-            let days = parseInt(daysElement.innerText.match(/\d+/)?.[0] || "0", 10);
-            days = Math.max(0, days + adjustment);
-            daysElement.innerText = `${days} päeva`;
-
-            // Update total duration
-            const totalDurationElement = document.getElementById('totalDuration');
-            if (totalDurationElement) {
-                let totalDuration = Array.from(document.querySelectorAll('[id^="days-"]'))
-                    .reduce((sum, el) => {
-                        const days = parseInt(el.innerText.match(/\d+/)?.[0] || "0", 10);
-                        return sum + days;
-                    }, 0);
-                totalDurationElement.innerText = totalDuration;
-            }
-
-            // Recalculate and update timeline
-            const timelineModal = document.getElementById('timelineModal');
-            if (timelineModal && timelineModal.__x) {
-                // Get all current procedure details
-                const procedureDetails = [];
-                document.querySelectorAll('.result-card .step-row, .result-card li').forEach(row => {
-                    const stepName = row.querySelector('.step-name') ?
-                        row.querySelector('.step-name').textContent :
-                        row.textContent.split(':')[0].trim();
-
-                    const daysEl = row.querySelector('[id^="days-"]');
-                    if (daysEl) {
-                        const days = daysEl.textContent;
-                        procedureDetails.push({ step: stepName, days: days });
-                    }
-                });
-
-                // Get the contract date
-                const contractDate = document.getElementById('contractSigningDate').value;
-
-                // Recalculate timeline with updated values
-                const timeline = calculateTimeline(procedureDetails, contractDate);
-
-                // Update timeline display
-                document.getElementById('days-to-start').textContent = timeline.daysToStart;
-
-                // Clear and rebuild timeline steps
-                const timelineStepsContainer = document.getElementById('timeline-steps');
-                if (timelineStepsContainer) {
-                    timelineStepsContainer.innerHTML = '';
-                    const stepTemplate = document.getElementById('timeline-step-template');
-
-                    timeline.steps.forEach((step, index) => {
-                        const stepClone = document.importNode(stepTemplate.content, true);
-
-                        stepClone.querySelector('.step-name').textContent = `${index + 1}. ${step.step}`;
-                        stepClone.querySelector('.step-date-range').textContent = `${step.startDate} - ${step.endDate}`;
-
-                        const progressBar = stepClone.querySelector('.step-progress-bar');
-                        if (progressBar) {
-                            progressBar.style.width = `${step.progress}%`;
-                            progressBar.dataset.progress = step.progress;
-
-                            // Add appropriate color class
-                            if (step.status === 'completed') {
-                                progressBar.classList.add('bg-green-500');
-                            } else if (step.status === 'current') {
-                                progressBar.classList.add('bg-blue-500');
-                            } else {
-                                progressBar.classList.add('bg-gray-500');
-                            }
-                        }
-
-                        timelineStepsContainer.appendChild(stepClone);
-                        if (typeof window.refreshSidebarTimelineCards === "function") {
-                            window.refreshSidebarTimelineCards();
-                        }
-                    });
-                }
-            }
-        }
-
         // Add MutationObserver to watch for changes in the result card
         const resultCardObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -898,6 +697,5 @@
             if (title) title.textContent = step.step;
             if (descr) descr.textContent = `${step.duration} päeva`;
         });
-
-
     </script>
+</div>

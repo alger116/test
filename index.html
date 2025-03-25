@@ -166,15 +166,19 @@
 
                 <!-- Hanked Button -->
                 <button id="showSavedSearches"
-                    class="px-3 py-1.5 text-lg font-bold text-black rounded-lg hover:bg-emerald-300 hover:text-black transition transform hover:scale-105 protected-section hidden items-center">
+                    class="px-3 py-1.5 text-lg font-bold text-black rounded-lg hover:text-black transition transform hover:scale-110 protected-section hidden items-center">
                     <i class="fas fa-folder-open mr-2"></i> Hanked
                 </button>
 
                 <!-- Timeline Toggle Button -->
                 <button id="toggleTimelineButton"
-                    class="hover:bg-emerald-300 text-black text-lg font-bold px-3 py-1.5 rounded-lg flex items-center justify-center hover:shadow-md transition-all duration-300 transform hover:scale-105">
+                    class=" text-black text-lg font-bold px-3 py-1.5 rounded-lg flex items-center justify-center  transition-all duration-300 transform hover:scale-105">
                     <i class="fas fa-calendar-alt mr-1.5"></i> Ajakava
                 </button>
+                <a href="om.html"
+                    class="px-3 py-1.5 text-lg font-bold text-black rounded-lg hover:text-black transition transform hover:scale-110 protected-section items-center inline-flex">
+                    <i class="fas fa-folder-open mr-2"></i> OM test
+                </a>
                 <button id="toggleAjakavaButton"
                     class="hidden hover:bg-emerald-300 text-black text-lg font-bold px-3 py-1.5 rounded-lg  items-center justify-center hover:shadow-md transition-all duration-300 transform hover:scale-105">
                     <a href="planeerija.html">
@@ -236,7 +240,7 @@
                 <!-- User Menu -->
                 <div x-data="{ open: false }" class="relative">
                     <button @click="open = !open"
-                        class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors duration-300">
+                        class="flex items-center space-x-2 rounded-lg text-gray-700 hover:text-blue-600 scale:100 hover:scale-101 transition-all duration-300">
                         <span id="userEmail" class="font-semibold hidden md:inline">Kasutaja</span>
                         <i class="fas fa-user-circle text-xl"></i>
                         <i class="fas fa-chevron-down text-xs"></i>
@@ -264,11 +268,11 @@
                             <i class="fas fa-user-plus mr-2"></i> Registreeri
                         </a>
                         <button id="logoutButton"
-                            class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-400 transition-colors duration-300 transform hover:scale-105 protected-section">
+                            class="block w-full text-left px-4 py-2 text-sm rounded-lg text-red-500 hover:bg-red-400 transition-colors duration-300 transform hover:scale-105 protected-section">
                             <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
                         </button>
                         <button id="settingsButton"
-                            class="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-amber-200 hover:text-black transition-colors duration-300 transform hover:scale-105 protected-section hidden"
+                            class="w-full text-left px-4 py-2 text-sm rounded-lg text-gray-800 hover:bg-amber-200 hover:text-black transition-colors duration-300 transform hover:scale-105 protected-section hidden"
                             role="menuitem">
                             <i class="fas fa-cog mr-2"></i> Seaded
                         </button>
@@ -413,6 +417,7 @@
                     <!-- Timeline visualization - Modern vertical timeline -->
                     <div class="timeline-container bg-whit/40 rounded-lg">
                         <ul class="timeline-cards" id="timeline-steps">
+
                             <!-- Timeline steps will be dynamically generated -->
                         </ul>
                     </div>
@@ -452,7 +457,7 @@
                     <div>
                         <label for="name" class="block text-gray-700 font-semibold mb-1 ">Riigihanke
                             nimi</label>
-                        <input type="text" placeholder="Siseta riighanke nimetus" id="name" name="name"
+                        <input type="text" placeholder="Sisesta riighanke nimetus" id="name" name="name"
                             class="w-full text-md text-center p-3  rounded-lg focus:ring-2 hover:bg-white/30 focus:ring-white/30 outline-none scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300"
                             required autocomplete="off">
                     </div>
@@ -1193,13 +1198,13 @@
                     }
 
                     const details = [
-                        { step: "Riigihanke alusdokumentide koostamine", days: ` ${settings.documentPreparationDays} päeva` },
-                        { step: "Taotluste esitamine RHRis", days: taotlusteAeg ? `${taotlusteAeg} päeva` : "Ei kohaldu" },
-                        { step: "Pakkumuste esitamine RHRis", days: pakkumusteAeg ? `${pakkumusteAeg} päeva` : "Ei kohaldu" },
-                        { step: "Hindamine 1", days: `${settings.offerEvaluationDays} päeva` },
-                        { step: "Otsus 1", days: `${settings.decisionDays} päeva` },
-                        { step: "Hindamine 2", days: `${settings.bidderEvaluationDays} päeva` },
-                        { step: "Otsus 2", days: `${settings.successfulBidderDays} päeva` },
+                        { step: "RHAD koostamine", days: ` ${settings.documentPreparationDays} päeva` },
+                        { step: "RH taotluse esitamine", days: taotlusteAeg ? `${taotlusteAeg} päeva` : "Ei kohaldu" },
+                        { step: "RH pakkumuse esitamine", days: pakkumusteAeg ? `${pakkumusteAeg} päeva` : "Ei kohaldu" },
+                        { step: "Vastavuse kontroll", days: `${settings.offerEvaluationDays} päeva` },
+                        { step: "Vastavaks ja edukaks tunnistamine", days: `${settings.decisionDays} päeva` },
+                        { step: "Kvalifikatsiooni kontroll", days: `${settings.bidderEvaluationDays} päeva` },
+                        { step: "Kvalifitseermise otsus", days: `${settings.successfulBidderDays} päeva` },
                         { step: "Ooteaeg", days: `${settings.waitingPeriodDays} päeva` }
                     ];
                     return details;
@@ -3722,6 +3727,7 @@
 
                 return { r, g, b };
             }
+
         </script>
 
     </main>

@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
     stepElement.className = contractStatus;
     stepElement.innerHTML = `
       <div class="date">${formatDate(endDate)}</div>
-      <div class="title">Lepingu sõlmimine</div>
+      <div class="title">Eeldatav</div>
       <div class="descr">Hankelepingu allkirjastamine</div>
     `;
 
