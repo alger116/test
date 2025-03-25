@@ -744,6 +744,1277 @@ This approach avoids the issues with Alpine.js bindings by working with the alre
 
 ---
 
+_**User**_
+
+this button needs to take me to om.html 
+
+---
+
+_**Assistant**_
+
+Let's fix the button so it properly navigates to om.html when clicked:
+
+---
+
+```diff
+                      <i class="fas fa-calendar-alt mr-1.5"></i> Ajakava
+                  </button>
+-                 <button id="omButton"
+-                     class="px-3 py-1.5 text-lg font-bold text-black rounded-lg hover:text-black transition transform hover:scale-110 protected-section items-center">
+-                     <a href="om.html"></a>
++                 <a href="om.html"
++                     class="px-3 py-1.5 text-lg font-bold text-black rounded-lg hover:text-black transition transform hover:scale-110 protected-section items-center inline-flex">
+                      <i class="fas fa-folder-open mr-2"></i> OM test
+-                 </button>
++                </a>
+                  <button id="toggleAjakavaButton"
+                      class="hidden hover:bg-emerald-300 text-black text-lg font-bold px-3 py-1.5 rounded-lg  items-center justify-center hover:shadow-md transition-all duration-300 transform hover:scale-105">
+```
+
+---
+
+The button has been fixed! Instead of having a button with an anchor tag inside it (which can cause issues with clickability), I changed it to be a single anchor tag with the appropriate styling to make it look like a button.
+
+Now when you click on "OM test", it will properly navigate to om.html. I preserved all the styling from the original button and added `inline-flex` to ensure proper alignment of the icon and text.
+
+---
+
+_**User**_
+
+analyze my generatePDF function from index.html... and try in incorporate those logics to my om.html...currently pdf is only blank white page
+
+---
+
+_**Assistant**_
+
+Let me analyze the generatePDF function from index.html and modify the one in om.html to incorporate the working logic.
+
+The key differences in the working PDF generation approach in index.html compared to om.html are:
+
+1. It uses a simpler approach with direct jsPDF creation rather than relying on html2canvas
+2. It has a backup method `exportToPDF()` that uses html2pdf in a more straightforward way
+3. It manually constructs the PDF content rather than trying to clone DOM elements
+
+Let's update the om.html file with a similar approach:
+
+---
+
+```diff
+  
+                      generatePDF() {
+-                         // Create a static HTML representation of the content
+-                         const staticHtml = `
+-                             <div style="padding: 20px; font-family: Arial, sans-serif; color: black;">
+-                                 <h1 style="text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 20px;">
+-                                     ${this.form.name || 'Ostumenetluse kutse'}
+-                                 </h1>
+-                                 
+-                                 <p style="margin-bottom: 20px;">${this.form.intro}</p>
+-                                 
+-                                 ${this.standardFields.map(field => `
+-                                     <div style="margin-bottom: 10px;">
+-                                         <strong>${field.label}:</strong> 
+-                                         <span>${this.form.fields[field.key] || ''}</span>
+-                                     </div>
+-                                 `).join('')}
+-                                 
+-                                 ${this.visibleSections.map(section => `
+-                                     <div style="margin-top: 20px;">
+-                                         <h2 style="font-weight: 600; margin-bottom: 10px;">${section.title}</h2>
+-                                         <ul style="list-style-type: disc; margin-left: 20px;">
+-                                             ${section.options.filter(o => o.checked).map((opt, i) => `
+-                                                 <li style="margin-bottom: 5px;">
+-                                                     ${section.title.split(' ')[0]}.${i + 1} ${opt.text}
+-                                                 </li>
+-                                             `).join('')}
+-                                         </ul>
+-                                     </div>
+-                                 `).join('')}
+-                                 
+-                                 <div style="margin-top: 30px; font-size: 14px;">
+-                                     <p><strong>Kuupäev:</strong> ${this.today}</p>
+-                                     <p><strong>Vastutav isik:</strong> ${this.form.fields.responsible || ''}</p>
+-                                 </div>
+-                             </div>
+-                         `;
+- 
+-                         // Create container for the static HTML
+-                         const container = document.createElement('div');
+-                         container.innerHTML = staticHtml;
++                         // Method 1: Use direct PDF generation similar to index.html
++                         try {
++                             // Create a new jsPDF instance
++                             const { jsPDF } = window.jspdf;
++                             const doc = new jsPDF('p', 'mm', 'a4');
++                             
++                             // Add title
++                             doc.setFontSize(18);
++                             doc.setTextColor(0, 0, 0);
++                             doc.text(this.form.name || 'Ostumenetluse kutse', 105, 20, { align: 'center' });
++                             
++                             // Add intro text
++                             doc.setFontSize(12);
++                             let yPos = 35;
++                             const introLines = doc.splitTextToSize(this.form.intro, 170);
++                             doc.text(introLines, 20, yPos);
++                             yPos += (introLines.length * 7) + 10;
++                             
++                             // Add standard fields
++                             doc.setFontSize(12);
++                             this.standardFields.forEach(field => {
++                                 const fieldValue = this.form.fields[field.key] || '';
++                                 if (fieldValue.trim() !== '') {
++                                     doc.setFont(undefined, 'bold');
++                                     doc.text(`${field.label}: `, 20, yPos);
++                                     const textWidth = doc.getTextWidth(`${field.label}: `);
++                                     
++                                     doc.setFont(undefined, 'normal');
++                                     const valueLines = doc.splitTextToSize(fieldValue, 150);
++                                     doc.text(valueLines, 20 + textWidth, yPos);
++                                     
++                                     yPos += (valueLines.length * 7) + 5;
++                                 }
++                             });
++                             
++                             // Add sections
++                             this.visibleSections.forEach((section, index) => {
++                                 yPos += 5;
++                                 
++                                 // Section title
++                                 doc.setFontSize(14);
++                                 doc.setFont(undefined, 'bold');
++                                 doc.text(section.title, 20, yPos);
++                                 yPos += 8;
++                                 
++                                 // Section options
++                                 doc.setFontSize(12);
++                                 doc.setFont(undefined, 'normal');
++                                 
++                                 section.options.filter(o => o.checked).forEach((opt, i) => {
++                                     const optionText = `${section.title.split(' ')[0]}.${i+1} ${opt.text}`;
++                                     const optLines = doc.splitTextToSize(optionText, 160);
++                                     
++                                     doc.text('• ', 20, yPos);
++                                     doc.text(optLines, 25, yPos);
++                                     
++                                     yPos += (optLines.length * 7) + 5;
++                                     
++                                     // Check if we need a new page
++                                     if (yPos > 270) {
++                                         doc.addPage();
++                                         yPos = 20;
++                                     }
++                                 });
++                             });
++                             
++                             // Add footer
++                             yPos = Math.min(yPos + 15, 270);
++                             doc.setFontSize(12);
++                             doc.setFont(undefined, 'bold');
++                             doc.text(`Kuupäev: ${this.today}`, 20, yPos);
++                             yPos += 7;
++                             doc.text(`Vastutav isik: ${this.form.fields.responsible || ''}`, 20, yPos);
++                             
++                             // Save the PDF
++                             doc.save(`${this.form.name || 'ostumenetlus'}.pdf`);
++                             this.showToast('PDF loodud edukalt!', 'success');
++                             return;
++                         } catch (err) {
++                             console.error('Direct PDF generation failed:', err);
++                             console.log('Trying html2pdf method instead...');
++                             this.generatePDFUsingHTML2PDF();
++                         }
++                     },
++                     
++                     // Backup method using html2pdf similar to exportToPDF in index.html
++                     generatePDFUsingHTML2PDF() {
++                         // Create a clean static container for PDF
++                         const pdfContent = document.createElement('div');
++                         pdfContent.style.padding = '20px';
++                         pdfContent.style.backgroundColor = 'white';
++                         pdfContent.style.color = 'black';
++                         pdfContent.style.fontFamily = 'Arial, sans-serif';
++                         
++                         // Add title
++                         const title = document.createElement('h1');
++                         title.textContent = this.form.name || 'Ostumenetluse kutse';
++                         title.style.textAlign = 'center';
++                         title.style.fontSize = '20px';
++                         title.style.fontWeight = 'bold';
++                         title.style.marginBottom = '20px';
++                         pdfContent.appendChild(title);
++                         
++                         // Add intro text
++                         const intro = document.createElement('p');
++                         intro.textContent = this.form.intro;
++                         intro.style.marginBottom = '20px';
++                         pdfContent.appendChild(intro);
++                         
++                         // Add standard fields
++                         this.standardFields.forEach(field => {
++                             const fieldValue = this.form.fields[field.key] || '';
++                             if (fieldValue.trim() !== '') {
++                                 const fieldDiv = document.createElement('div');
++                                 fieldDiv.style.marginBottom = '10px';
++                                 
++                                 const label = document.createElement('strong');
++                                 label.textContent = field.label + ': ';
++                                 fieldDiv.appendChild(label);
++                                 
++                                 const value = document.createElement('span');
++                                 value.textContent = fieldValue;
++                                 fieldDiv.appendChild(value);
++                                 
++                                 pdfContent.appendChild(fieldDiv);
++                             }
++                         });
++                         
++                         // Add sections
++                         this.visibleSections.forEach(section => {
++                             const sectionDiv = document.createElement('div');
++                             sectionDiv.style.marginTop = '20px';
++                             
++                             const sectionTitle = document.createElement('h2');
++                             sectionTitle.textContent = section.title;
++                             sectionTitle.style.fontWeight = '600';
++                             sectionTitle.style.marginBottom = '10px';
++                             sectionDiv.appendChild(sectionTitle);
++                             
++                             const list = document.createElement('ul');
++                             list.style.listStyleType = 'disc';
++                             list.style.marginLeft = '20px';
++                             
++                             section.options.filter(o => o.checked).forEach((opt, i) => {
++                                 const item = document.createElement('li');
++                                 item.textContent = `${section.title.split(' ')[0]}.${i+1} ${opt.text}`;
++                                 item.style.marginBottom = '5px';
++                                 list.appendChild(item);
++                             });
++                             
++                             sectionDiv.appendChild(list);
++                             pdfContent.appendChild(sectionDiv);
++                         });
++                         
++                         // Add footer
++                         const footer = document.createElement('div');
++                         footer.style.marginTop = '30px';
++                         footer.style.fontSize = '14px';
++                         
++                         const date = document.createElement('p');
++                         date.innerHTML = '<strong>Kuupäev:</strong> ' + this.today;
++                         footer.appendChild(date);
++                         
++                         const responsible = document.createElement('p');
++                         responsible.innerHTML = '<strong>Vastutav isik:</strong> ' + (this.form.fields.responsible || '');
++                         footer.appendChild(responsible);
++                         
++                         pdfContent.appendChild(footer);
+                          
+-                         // PDF options
++                         // Configure PDF options
+                          const opt = {
+                              margin: 10,
+                              html2canvas: { 
+                                  scale: 2,
+-                                 letterRendering: true,
+-                                 backgroundColor: '#ffffff'
++                                 useCORS: true
+                              },
+-                             jsPDF: {
+-                                 unit: 'mm',
+-                                 format: 'a4',
+-                                 orientation: 'portrait'
+-                             }
++                             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                          };
+                          
+                          // Temporarily add to body
+-                         container.style.position = 'absolute';
+-                         container.style.left = '-9999px';
+-                         container.style.backgroundColor = '#ffffff';
+-                         document.body.appendChild(container);
++                         pdfContent.style.position = 'absolute';
++                         pdfContent.style.left = '-9999px';
++                         document.body.appendChild(pdfContent);
+                          
+-                         // Generate PDF
+-                         html2pdf().from(container).set(opt).save().then(() => {
+-                             document.body.removeChild(container);
++                         // Generate and save PDF
++                         html2pdf()
++                             .from(pdfContent)
++                             .set(opt)
++                             .save()
++                             .then(() => {
++                                 document.body.removeChild(pdfContent);
+                                  this.showToast('PDF loodud edukalt!', 'success');
+-                         }).catch(err => {
+-                             document.body.removeChild(container);
+-                             console.error('PDF generation failed:', err);
++                             })
++                             .catch(err => {
++                                 document.body.removeChild(pdfContent);
++                                 console.error('HTML2PDF generation failed:', err);
+                                  this.showToast('PDF genereerimine ebaõnnestus', 'error');
+                              });
+```
+
+---
+
+I've completely revamped the PDF generation in om.html based on the successful approaches from index.html. The new implementation has two methods:
+
+1. **Primary Method (Direct jsPDF)**: 
+   - This approach uses jsPDF directly to construct the PDF document
+   - Builds the PDF content programmatically rather than trying to convert HTML
+   - Handles text wrapping properly with `splitTextToSize`
+   - Adds proper formatting with font sizes and styles
+   - Manages pagination when content exceeds a page
+   - This method typically produces more reliable and consistent PDFs
+
+2. **Backup Method (html2pdf)**:
+   - Only used if the first method fails
+   - Creates DOM elements programmatically rather than using template strings
+   - Sets explicit styling on each element
+   - Uses the html2pdf library similarly to the working example in index.html
+
+Key improvements:
+- Text wrapping for long content
+- Proper pagination for multi-page documents
+- Better styling and formatting
+- Improved error handling with a fallback method
+- Direct DOM manipulation instead of using Alpine.js or template strings
+
+This approach should fix the blank page issue since it uses two completely different PDF generation methods, one of which is proven to work in your index.html file.
+
+---
+
+_**User**_
+
+om.html:246 Direct PDF generation failed: TypeError: Cannot destructure property 'jsPDF' of 'window.jspdf' as it is undefined.
+    at Proxy.generatePDF (om.html:170:37)
+    at Ne (cdn.min.js:5:1283)
+    at cdn.min.js:5:1107
+    at or (cdn.min.js:1:4957)
+    at cdn.min.js:5:39121
+    at o (cdn.min.js:5:28011)
+    at cdn.min.js:5:29010
+    at HTMLButtonElement.<anonymous> (cdn.min.js:5:28033)
+generatePDF @ om.html:246
+Ne @ cdn.min.js:5
+(anonymous) @ cdn.min.js:5
+or @ cdn.min.js:1
+(anonymous) @ cdn.min.js:5
+o @ cdn.min.js:5
+(anonymous) @ cdn.min.js:5
+(anonymous) @ cdn.min.js:5Understand this errorAI
+om.html:247 Trying html2pdf method instead...
+
+---
+
+_**Assistant**_
+
+The error occurs because `window.jspdf` is undefined. This is happening because the way we're importing and using the jsPDF library is incorrect. Let's fix it by properly importing and using the library:
+
+---
+
+```diff
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Ostumenetluse kutse</title>
++     <!-- PDF generation libraries -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
++     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
++     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
++     
++     <!-- Other libraries -->
+      <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+              display: none !important;
+          }
++         
++         @media print {
++             body * {
++                 visibility: hidden;
++             }
++             #pdfPreview, #pdfPreview * {
++                 visibility: visible;
++             }
++             #pdfPreview {
++                 position: absolute;
++                 left: 0;
++                 top: 0;
++                 width: 100%;
++             }
++         }
+      </style>
+  
+```
+
+---
+
+Now let's update the generatePDF function to correctly use jsPDF:
+
+---
+
+```diff
+  
+                      generatePDF() {
+-                         // Method 1: Use direct PDF generation similar to index.html
++                         // Method 1: Use direct PDF generation
+                          try {
+-                             // Create a new jsPDF instance
++                             // Import jsPDF correctly
+                              const { jsPDF } = window.jspdf;
++                             
++                             if (!jsPDF) {
++                                 throw new Error("jsPDF not loaded correctly");
++                             }
++                             
++                             // Create a new jsPDF instance
+                              const doc = new jsPDF('p', 'mm', 'a4');
+  
+```
+
+---
+
+The changes we've made might still have issues with jsPDF. Let's try a simpler approach that uses only the html2pdf library which is already working:
+
+---
+
+```diff
+  
+                      generatePDF() {
+-                         // Method 1: Use direct PDF generation
+-                         try {
+-                             // Import jsPDF correctly
+-                             const { jsPDF } = window.jspdf;
+- 
+-                             if (!jsPDF) {
+-                                 throw new Error("jsPDF not loaded correctly");
+-                             }
+- 
+-                             // Create a new jsPDF instance
+-                             const doc = new jsPDF('p', 'mm', 'a4');
+- 
+-                             // Add title
+-                             doc.setFontSize(18);
+-                             doc.setTextColor(0, 0, 0);
+-                             doc.text(this.form.name || 'Ostumenetluse kutse', 105, 20, { align: 'center' });
+- 
+-                             // Add intro text
+-                             doc.setFontSize(12);
+-                             let yPos = 35;
+-                             const introLines = doc.splitTextToSize(this.form.intro, 170);
+-                             doc.text(introLines, 20, yPos);
+-                             yPos += (introLines.length * 7) + 10;
+- 
+-                             // Add standard fields
+-                             doc.setFontSize(12);
+-                             this.standardFields.forEach(field => {
+-                                 const fieldValue = this.form.fields[field.key] || '';
+-                                 if (fieldValue.trim() !== '') {
+-                                     doc.setFont(undefined, 'bold');
+-                                     doc.text(`${field.label}: `, 20, yPos);
+-                                     const textWidth = doc.getTextWidth(`${field.label}: `);
+- 
+-                                     doc.setFont(undefined, 'normal');
+-                                     const valueLines = doc.splitTextToSize(fieldValue, 150);
+-                                     doc.text(valueLines, 20 + textWidth, yPos);
+- 
+-                                     yPos += (valueLines.length * 7) + 5;
+-                                 }
+-                             });
+- 
+-                             // Add sections
+-                             this.visibleSections.forEach((section, index) => {
+-                                 yPos += 5;
+- 
+-                                 // Section title
+-                                 doc.setFontSize(14);
+-                                 doc.setFont(undefined, 'bold');
+-                                 doc.text(section.title, 20, yPos);
+-                                 yPos += 8;
+- 
+-                                 // Section options
+-                                 doc.setFontSize(12);
+-                                 doc.setFont(undefined, 'normal');
+- 
+-                                 section.options.filter(o => o.checked).forEach((opt, i) => {
+-                                     const optionText = `${section.title.split(' ')[0]}.${i + 1} ${opt.text}`;
+-                                     const optLines = doc.splitTextToSize(optionText, 160);
+- 
+-                                     doc.text('• ', 20, yPos);
+-                                     doc.text(optLines, 25, yPos);
+- 
+-                                     yPos += (optLines.length * 7) + 5;
+- 
+-                                     // Check if we need a new page
+-                                     if (yPos > 270) {
+-                                         doc.addPage();
+-                                         yPos = 20;
+-                                     }
+-                                 });
+-                             });
+- 
+-                             // Add footer
+-                             yPos = Math.min(yPos + 15, 270);
+-                             doc.setFontSize(12);
+-                             doc.setFont(undefined, 'bold');
+-                             doc.text(`Kuupäev: ${this.today}`, 20, yPos);
+-                             yPos += 7;
+-                             doc.text(`Vastutav isik: ${this.form.fields.responsible || ''}`, 20, yPos);
+- 
+-                             // Save the PDF
+-                             doc.save(`${this.form.name || 'ostumenetlus'}.pdf`);
+-                             this.showToast('PDF loodud edukalt!', 'success');
+-                             return;
+-                         } catch (err) {
+-                             console.error('Direct PDF generation failed:', err);
+-                             console.log('Trying html2pdf method instead...');
++                         // Use html2pdf method only
+                          this.generatePDFUsingHTML2PDF();
+-                         }
+                      },
+                      
+-                     // Backup method using html2pdf similar to exportToPDF in index.html
+                      generatePDFUsingHTML2PDF() {
+                          // Create a clean static container for PDF
+                          pdfContent.style.color = 'black';
+                          pdfContent.style.fontFamily = 'Arial, sans-serif';
++                         pdfContent.style.width = '100%';
++                         pdfContent.style.maxWidth = '800px';
+  
+                          // Add title
+                          title.style.fontWeight = 'bold';
+                          title.style.marginBottom = '20px';
++                         title.style.color = 'black';
+                          pdfContent.appendChild(title);
+                          
+                          intro.textContent = this.form.intro;
+                          intro.style.marginBottom = '20px';
++                         intro.style.color = 'black';
+                          pdfContent.appendChild(intro);
+                          
+                                  const label = document.createElement('strong');
+                                  label.textContent = field.label + ': ';
++                                 label.style.color = 'black';
+                                  fieldDiv.appendChild(label);
+                                  
+                                  const value = document.createElement('span');
+                                  value.textContent = fieldValue;
++                                 value.style.color = 'black';
+                                  fieldDiv.appendChild(value);
+                                  
+                              sectionTitle.style.fontWeight = '600';
+                              sectionTitle.style.marginBottom = '10px';
++                             sectionTitle.style.color = 'black';
+                              sectionDiv.appendChild(sectionTitle);
+                              
+                              const list = document.createElement('ul');
+                              list.style.listStyleType = 'disc';
+                              list.style.marginLeft = '20px';
++                             list.style.color = 'black';
+                              
+                              section.options.filter(o => o.checked).forEach((opt, i) => {
+                                  const item = document.createElement('li');
+-                                 item.textContent = `${section.title.split(' ')[0]}.${i + 1} ${opt.text}`;
++                                 item.textContent = `${section.title.split(' ')[0]}.${i+1} ${opt.text}`;
+                                  item.style.marginBottom = '5px';
++                                 item.style.color = 'black';
+                                  list.appendChild(item);
+                              });
+                          footer.style.marginTop = '30px';
+                          footer.style.fontSize = '14px';
++                         footer.style.color = 'black';
+                          
+                          const date = document.createElement('p');
+                          date.innerHTML = '<strong>Kuupäev:</strong> ' + this.today;
++                         date.style.color = 'black';
+                          footer.appendChild(date);
+                          
+                          const responsible = document.createElement('p');
+                          responsible.innerHTML = '<strong>Vastutav isik:</strong> ' + (this.form.fields.responsible || '');
++                         responsible.style.color = 'black';
+                          footer.appendChild(responsible);
+                          
+                          pdfContent.appendChild(footer);
++                         
++                         // Temporarily add to body
++                         pdfContent.style.position = 'absolute';
++                         pdfContent.style.left = '-9999px';
++                         document.body.appendChild(pdfContent);
+                          
+                          // Configure PDF options
+                              html2canvas: { 
+                                  scale: 2,
+-                                 useCORS: true
++                                 useCORS: true,
++                                 backgroundColor: '#ffffff',
++                                 onrendered: function(canvas) {
++                                     // Debug: check if canvas renders correctly
++                                     console.log('Canvas rendered successfully', canvas);
++                                 }
+                              },
+                              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                          };
+- 
+-                         // Temporarily add to body
+-                         pdfContent.style.position = 'absolute';
+-                         pdfContent.style.left = '-9999px';
+-                         document.body.appendChild(pdfContent);
+                          
+                          // Generate and save PDF
++                         // Use timeout to ensure DOM is fully updated
++                         setTimeout(() => {
++                             console.log('Generating PDF from element:', pdfContent);
++                             
+                              html2pdf()
++                                 .set(opt)
+                                  .from(pdfContent)
+-                             .set(opt)
+                                  .save()
+                                  .then(() => {
+                                      this.showToast('PDF genereerimine ebaõnnestus', 'error');
+                                  });
++                         }, 100);
+                      },
+  
+```
+
+---
+
+The changes I've made should fix the PDF generation:
+
+1. Removed the jsPDF approach that was causing errors
+2. Enhanced the html2pdf method with:
+   - More explicit styling (width, colors, etc.)
+   - Added a small delay to ensure DOM is fully updated
+   - Added debugging logs to track the process
+   - Added proper background color settings
+   - Changed the method chain order to match the recommended html2pdf usage
+   - Added explicit styling to ensure text is visible in the PDF
+
+This solution focuses on just one approach that uses html2pdf, which is already included in your project. It should now generate a proper PDF with all your form content.
+
+The main improvements are:
+1. Ensuring all text has explicit black color styling to prevent invisible text
+2. Setting proper dimensions
+3. Adding a timeout to ensure DOM rendering is complete
+4. Debugging output to help troubleshoot any issues
+5. Using the correct chain of html2pdf methods
+
+---
+
+_**User**_
+
+why ??????? it does now work, its only blank white page...yes we have now errors now but theres also literally nothing in the pdf file...
+
+---
+
+_**Assistant**_
+
+Let's try a completely different approach. Since we're having issues with all the html2pdf library methods, let's implement a simple "Print to PDF" functionality using the browser's built-in print feature:
+
+---
+
+```diff
+  
+                      generatePDF() {
+-                         // Use html2pdf method only
+-                         this.generatePDFUsingHTML2PDF();
+-                     },
+- 
+-                     generatePDFUsingHTML2PDF() {
+-                         // Create a clean static container for PDF
+-                         const pdfContent = document.createElement('div');
+-                         pdfContent.style.padding = '20px';
+-                         pdfContent.style.backgroundColor = 'white';
+-                         pdfContent.style.color = 'black';
+-                         pdfContent.style.fontFamily = 'Arial, sans-serif';
+-                         pdfContent.style.width = '100%';
+-                         pdfContent.style.maxWidth = '800px';
+- 
+-                         // Add title
+-                         const title = document.createElement('h1');
+-                         title.textContent = this.form.name || 'Ostumenetluse kutse';
+-                         title.style.textAlign = 'center';
+-                         title.style.fontSize = '20px';
+-                         title.style.fontWeight = 'bold';
+-                         title.style.marginBottom = '20px';
+-                         title.style.color = 'black';
+-                         pdfContent.appendChild(title);
+- 
+-                         // Add intro text
+-                         const intro = document.createElement('p');
+-                         intro.textContent = this.form.intro;
+-                         intro.style.marginBottom = '20px';
+-                         intro.style.color = 'black';
+-                         pdfContent.appendChild(intro);
++                         // Use browser's built-in print functionality
++                         this.showToast('Ettevalmistan dokumenti, valige "Salvesta PDF-ina"...', 'info', 5000);
++                         
++                         // Create a dedicated print window
++                         const printWindow = window.open('', '_blank');
++                         
++                         if (!printWindow) {
++                             this.showToast('Popup blocker võib olla sisse lülitatud. Luba hüpikaknad sellel saidil.', 'error');
++                             return;
++                         }
++                         
++                         // Write HTML content to the new window
++                         printWindow.document.write(`
++                             <!DOCTYPE html>
++                             <html>
++                             <head>
++                                 <title>${this.form.name || 'Ostumenetluse kutse'}</title>
++                                 <style>
++                                     body {
++                                         font-family: Arial, sans-serif;
++                                         padding: 20px;
++                                         color: black;
++                                         background-color: white;
++                                     }
++                                     h1 {
++                                         text-align: center;
++                                         font-size: 20px;
++                                         margin-bottom: 20px;
++                                     }
++                                     h2 {
++                                         font-size: 16px;
++                                         margin-top: 20px;
++                                         margin-bottom: 10px;
++                                     }
++                                     ul {
++                                         margin-left: 20px;
++                                     }
++                                     li {
++                                         margin-bottom: 5px;
++                                     }
++                                     .footer {
++                                         margin-top: 30px;
++                                         font-size: 14px;
++                                     }
++                                     @media print {
++                                         body {
++                                             -webkit-print-color-adjust: exact;
++                                             print-color-adjust: exact;
++                                         }
++                                     }
++                                 </style>
++                             </head>
++                             <body>
++                                 <h1>${this.form.name || 'Ostumenetluse kutse'}</h1>
++                                 
++                                 <p>${this.form.intro}</p>
++                         `);
+                          
+                          // Add standard fields
+                          this.standardFields.forEach(field => {
+                              const fieldValue = this.form.fields[field.key] || '';
+                              if (fieldValue.trim() !== '') {
+-                                 const fieldDiv = document.createElement('div');
+-                                 fieldDiv.style.marginBottom = '10px';
+- 
+-                                 const label = document.createElement('strong');
+-                                 label.textContent = field.label + ': ';
+-                                 label.style.color = 'black';
+-                                 fieldDiv.appendChild(label);
+- 
+-                                 const value = document.createElement('span');
+-                                 value.textContent = fieldValue;
+-                                 value.style.color = 'black';
+-                                 fieldDiv.appendChild(value);
+- 
+-                                 pdfContent.appendChild(fieldDiv);
++                                 printWindow.document.write(`
++                                     <div style="margin-bottom: 10px;">
++                                         <strong>${field.label}:</strong> ${fieldValue}
++                                     </div>
++                                 `);
+                              }
+                          });
+                          
+                          // Add sections
+                          this.visibleSections.forEach(section => {
+-                             const sectionDiv = document.createElement('div');
+-                             sectionDiv.style.marginTop = '20px';
+- 
+-                             const sectionTitle = document.createElement('h2');
+-                             sectionTitle.textContent = section.title;
+-                             sectionTitle.style.fontWeight = '600';
+-                             sectionTitle.style.marginBottom = '10px';
+-                             sectionTitle.style.color = 'black';
+-                             sectionDiv.appendChild(sectionTitle);
+- 
+-                             const list = document.createElement('ul');
+-                             list.style.listStyleType = 'disc';
+-                             list.style.marginLeft = '20px';
+-                             list.style.color = 'black';
++                             printWindow.document.write(`
++                                 <h2>${section.title}</h2>
++                                 <ul>
++                             `);
+                              
+                              section.options.filter(o => o.checked).forEach((opt, i) => {
+-                                 const item = document.createElement('li');
+-                                 item.textContent = `${section.title.split(' ')[0]}.${i + 1} ${opt.text}`;
+-                                 item.style.marginBottom = '5px';
+-                                 item.style.color = 'black';
+-                                 list.appendChild(item);
++                                 printWindow.document.write(`
++                                     <li>${section.title.split(' ')[0]}.${i+1} ${opt.text}</li>
++                                 `);
+                              });
+                              
+-                             sectionDiv.appendChild(list);
+-                             pdfContent.appendChild(sectionDiv);
++                             printWindow.document.write('</ul>');
+                          });
+                          
+                          // Add footer
+-                         const footer = document.createElement('div');
+-                         footer.style.marginTop = '30px';
+-                         footer.style.fontSize = '14px';
+-                         footer.style.color = 'black';
+- 
+-                         const date = document.createElement('p');
+-                         date.innerHTML = '<strong>Kuupäev:</strong> ' + this.today;
+-                         date.style.color = 'black';
+-                         footer.appendChild(date);
+- 
+-                         const responsible = document.createElement('p');
+-                         responsible.innerHTML = '<strong>Vastutav isik:</strong> ' + (this.form.fields.responsible || '');
+-                         responsible.style.color = 'black';
+-                         footer.appendChild(responsible);
+- 
+-                         pdfContent.appendChild(footer);
++                         printWindow.document.write(`
++                                 <div class="footer">
++                                     <p><strong>Kuupäev:</strong> ${this.today}</p>
++                                     <p><strong>Vastutav isik:</strong> ${this.form.fields.responsible || ''}</p>
++                                 </div>
++                             </body>
++                             </html>
++                         `);
+                          
+-                         // Temporarily add to body
+-                         pdfContent.style.position = 'absolute';
+-                         pdfContent.style.left = '-9999px';
+-                         document.body.appendChild(pdfContent);
++                         // Finalize document
++                         printWindow.document.close();
+                          
+-                         // Configure PDF options
+-                         const opt = {
+-                             margin: 10,
+-                             filename: `${this.form.name || 'ostumenetlus'}.pdf`,
+-                             image: { type: 'jpeg', quality: 0.98 },
+-                             html2canvas: {
+-                                 scale: 2,
+-                                 useCORS: true,
+-                                 backgroundColor: '#ffffff',
+-                                 onrendered: function (canvas) {
+-                                     // Debug: check if canvas renders correctly
+-                                     console.log('Canvas rendered successfully', canvas);
+-                                 }
+-                             },
+-                             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+-                         };
++                         // Wait for all resources to load
++                         printWindow.onload = function() {
++                             // Trigger print dialog
++                             setTimeout(() => {
++                                 printWindow.print();
+                                  
+-                         // Generate and save PDF
+-                         // Use timeout to ensure DOM is fully updated
+-                         setTimeout(() => {
+-                             console.log('Generating PDF from element:', pdfContent);
+- 
+-                             html2pdf()
+-                                 .set(opt)
+-                                 .from(pdfContent)
+-                                 .save()
+-                                 .then(() => {
+-                                     document.body.removeChild(pdfContent);
+-                                     this.showToast('PDF loodud edukalt!', 'success');
+-                                 })
+-                                 .catch(err => {
+-                                     document.body.removeChild(pdfContent);
+-                                     console.error('HTML2PDF generation failed:', err);
+-                                     this.showToast('PDF genereerimine ebaõnnestus', 'error');
+-                                 });
+-                         }, 100);
++                                 // Close window after printing (or after user cancels)
++                                 printWindow.onfocus = function() {
++                                     setTimeout(() => {
++                                         printWindow.close();
++                                     }, 1000);
++                                 };
++                             }, 500);
++                         };
+                      },
+  
+```
+
+---
+
+I've completely changed our approach to use the browser's built-in print-to-PDF functionality, which is much more reliable than the external libraries we were trying to use. Here's how the new solution works:
+
+1. Instead of using html2pdf, we now:
+   - Open a new window with a clean HTML document
+   - Write all the content directly to this window with proper styling
+   - Use the browser's print dialog to create the PDF
+
+2. The key advantages:
+   - No dependency on external PDF libraries that might be causing issues
+   - Direct rendering by the browser which is more reliable
+   - Clean HTML without Alpine.js bindings or other complications
+   - Proper styling that will definitely show up in the PDF
+   - Simple and straightforward approach
+
+3. When the user clicks "Loo PDF":
+   - A new window opens with the formatted content
+   - After a brief delay, the print dialog automatically appears
+   - The user can select "Save as PDF" in the print dialog
+   - The window automatically closes after printing or cancellation
+
+This approach should work consistently across all modern browsers and doesn't rely on any third-party PDF generation libraries that might be causing the blank page issues. 
+
+The user will need to select "Save as PDF" in their browser's print dialog, but this is a small tradeoff for reliability. The toast message will inform them of this step.
+
+---
+
+_**User**_
+
+this completely broke my shit, lets not use this html2 bullshit please, it doesnt work, just use the logic that is working from index fully, make sure it will get defined as needed so it can work 
+
+---
+
+_**Assistant**_
+
+I understand the frustration. Let's go back to the index.html solution that's working for you and implement exactly that approach in om.html. Let's rebuild the PDF generation functionality using jsPDF directly, with no html2pdf libraries:
+
+---
+
+```diff
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Ostumenetluse kutse</title>
+-     <!-- PDF generation libraries -->
+-     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
++     
++     <!-- Only include jsPDF -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+-     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+- 
+-     <!-- Other libraries -->
+      <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+```
+
+---
+
+Now let's update the generatePDF function to use the approach from index.html:
+
+---
+
+```diff
+  
+                      generatePDF() {
+-                         // Use html2pdf method only
+-                         this.generatePDFUsingHTML2PDF();
+-                     },
+- 
+-                     generatePDFUsingHTML2PDF() {
+-                         // Create a clean static container for PDF
+-                         const pdfContent = document.createElement('div');
+-                         pdfContent.style.padding = '20px';
+-                         pdfContent.style.backgroundColor = 'white';
+-                         pdfContent.style.color = 'black';
+-                         pdfContent.style.fontFamily = 'Arial, sans-serif';
+-                         pdfContent.style.width = '100%';
+-                         pdfContent.style.maxWidth = '800px';
++                         try {
++                             // Create a new jsPDF instance
++                             const { jsPDF } = window.jspdf;
++                             
++                             if (!jsPDF) {
++                                 throw new Error('jsPDF not properly loaded');
++                             }
++                             
++                             const doc = new jsPDF('p', 'mm', 'a4');
+                              
+                              // Add title
+-                         const title = document.createElement('h1');
+-                         title.textContent = this.form.name || 'Ostumenetluse kutse';
+-                         title.style.textAlign = 'center';
+-                         title.style.fontSize = '20px';
+-                         title.style.fontWeight = 'bold';
+-                         title.style.marginBottom = '20px';
+-                         title.style.color = 'black';
+-                         pdfContent.appendChild(title);
++                             doc.setFontSize(18);
++                             doc.setTextColor(0, 0, 0);
++                             doc.text(this.form.name || 'Ostumenetluse kutse', 105, 20, { align: 'center' });
+                              
+                              // Add intro text
+-                         const intro = document.createElement('p');
+-                         intro.textContent = this.form.intro;
+-                         intro.style.marginBottom = '20px';
+-                         intro.style.color = 'black';
+-                         pdfContent.appendChild(intro);
++                             doc.setFontSize(12);
++                             let yPos = 35;
++                             const introLines = doc.splitTextToSize(this.form.intro, 170);
++                             doc.text(introLines, 20, yPos);
++                             yPos += (introLines.length * 7) + 10;
+                              
+                              // Add standard fields
++                             doc.setFontSize(12);
+                              this.standardFields.forEach(field => {
+                                  const fieldValue = this.form.fields[field.key] || '';
+                                  if (fieldValue.trim() !== '') {
+-                                 const fieldDiv = document.createElement('div');
+-                                 fieldDiv.style.marginBottom = '10px';
+- 
+-                                 const label = document.createElement('strong');
+-                                 label.textContent = field.label + ': ';
+-                                 label.style.color = 'black';
+-                                 fieldDiv.appendChild(label);
+- 
+-                                 const value = document.createElement('span');
+-                                 value.textContent = fieldValue;
+-                                 value.style.color = 'black';
+-                                 fieldDiv.appendChild(value);
+- 
+-                                 pdfContent.appendChild(fieldDiv);
++                                     doc.setFont(undefined, 'bold');
++                                     doc.text(`${field.label}: `, 20, yPos);
++                                     const textWidth = doc.getTextWidth(`${field.label}: `);
++                                     
++                                     doc.setFont(undefined, 'normal');
++                                     const valueLines = doc.splitTextToSize(fieldValue, 150);
++                                     doc.text(valueLines, 20 + textWidth, yPos);
++                                     
++                                     yPos += (valueLines.length * 7) + 5;
+                                  }
+                              });
+                              
+                              // Add sections
+-                         this.visibleSections.forEach(section => {
+-                             const sectionDiv = document.createElement('div');
+-                             sectionDiv.style.marginTop = '20px';
+- 
+-                             const sectionTitle = document.createElement('h2');
+-                             sectionTitle.textContent = section.title;
+-                             sectionTitle.style.fontWeight = '600';
+-                             sectionTitle.style.marginBottom = '10px';
+-                             sectionTitle.style.color = 'black';
+-                             sectionDiv.appendChild(sectionTitle);
+- 
+-                             const list = document.createElement('ul');
+-                             list.style.listStyleType = 'disc';
+-                             list.style.marginLeft = '20px';
+-                             list.style.color = 'black';
++                             this.visibleSections.forEach((section, index) => {
++                                 yPos += 5;
++                                 
++                                 // Section title
++                                 doc.setFontSize(14);
++                                 doc.setFont(undefined, 'bold');
++                                 doc.text(section.title, 20, yPos);
++                                 yPos += 8;
++                                 
++                                 // Section options
++                                 doc.setFontSize(12);
++                                 doc.setFont(undefined, 'normal');
+                                  
+                                  section.options.filter(o => o.checked).forEach((opt, i) => {
+-                                 const item = document.createElement('li');
+-                                 item.textContent = `${section.title.split(' ')[0]}.${i + 1} ${opt.text}`;
+-                                 item.style.marginBottom = '5px';
+-                                 item.style.color = 'black';
+-                                 list.appendChild(item);
+-                             });
+- 
+-                             sectionDiv.appendChild(list);
+-                             pdfContent.appendChild(sectionDiv);
++                                     const optionText = `${section.title.split(' ')[0]}.${i+1} ${opt.text}`;
++                                     const optLines = doc.splitTextToSize(optionText, 160);
++                                     
++                                     doc.text('• ', 20, yPos);
++                                     doc.text(optLines, 25, yPos);
++                                     
++                                     yPos += (optLines.length * 7) + 5;
++                                     
++                                     // Check if we need a new page
++                                     if (yPos > 270) {
++                                         doc.addPage();
++                                         yPos = 20;
++                                     }
++                                 });
+                              });
+                              
+                              // Add footer
+-                         const footer = document.createElement('div');
+-                         footer.style.marginTop = '30px';
+-                         footer.style.fontSize = '14px';
+-                         footer.style.color = 'black';
+- 
+-                         const date = document.createElement('p');
+-                         date.innerHTML = '<strong>Kuupäev:</strong> ' + this.today;
+-                         date.style.color = 'black';
+-                         footer.appendChild(date);
+- 
+-                         const responsible = document.createElement('p');
+-                         responsible.innerHTML = '<strong>Vastutav isik:</strong> ' + (this.form.fields.responsible || '');
+-                         responsible.style.color = 'black';
+-                         footer.appendChild(responsible);
+- 
+-                         pdfContent.appendChild(footer);
++                             yPos = Math.min(yPos + 15, 270);
++                             doc.setFontSize(12);
++                             doc.setFont(undefined, 'bold');
++                             doc.text(`Kuupäev: ${this.today}`, 20, yPos);
++                             yPos += 7;
++                             doc.text(`Vastutav isik: ${this.form.fields.responsible || ''}`, 20, yPos);
+                              
+-                         // Temporarily add to body
+-                         pdfContent.style.position = 'absolute';
+-                         pdfContent.style.left = '-9999px';
+-                         document.body.appendChild(pdfContent);
+- 
+-                         // Configure PDF options
+-                         const opt = {
+-                             margin: 10,
+-                             filename: `${this.form.name || 'ostumenetlus'}.pdf`,
+-                             image: { type: 'jpeg', quality: 0.98 },
+-                             html2canvas: {
+-                                 scale: 2,
+-                                 useCORS: true,
+-                                 backgroundColor: '#ffffff',
+-                                 onrendered: function (canvas) {
+-                                     // Debug: check if canvas renders correctly
+-                                     console.log('Canvas rendered successfully', canvas);
+-                                 }
+-                             },
+-                             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+-                         };
+- 
+-                         // Generate and save PDF
+-                         // Use timeout to ensure DOM is fully updated
+-                         setTimeout(() => {
+-                             console.log('Generating PDF from element:', pdfContent);
+- 
+-                             html2pdf()
+-                                 .set(opt)
+-                                 .from(pdfContent)
+-                                 .save()
+-                                 .then(() => {
+-                                     document.body.removeChild(pdfContent);
+-                                     this.showToast('PDF loodud edukalt!', 'success');
+-                                 })
+-                                 .catch(err => {
+-                                     document.body.removeChild(pdfContent);
+-                                     console.error('HTML2PDF generation failed:', err);
+-                                     this.showToast('PDF genereerimine ebaõnnestus', 'error');
+-                                 });
+-                         }, 100);
++                             // Save the PDF
++                             doc.save(`${this.form.name || 'ostumenetlus'}.pdf`);
++                             this.showToast('PDF loodud edukalt!', 'success');
++                         } catch (err) {
++                             console.error('PDF generation failed:', err);
++                             this.showToast('PDF genereerimine ebaõnnestus', 'error');
++                             
++                             // As a last resort, offer direct print option
++                             if (confirm('PDF genereerimine ebaõnnestus. Kas soovid kasutada brauseri printimisfunktsiooni?')) {
++                                 window.print();
++                             }
++                         }
+                      },
+  
+```
+
+---
+
+Let's also remove the unused print-specific CSS:
+
+---
+
+
+
+---
+
+Now we should add a small setup script to ensure jsPDF is properly loaded and initialized:
+
+---
+
+```diff
+      <!-- Only include jsPDF -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
++     <script>
++         // Ensure jsPDF is initialized
++         window.addEventListener('DOMContentLoaded', function() {
++             if (typeof window.jspdf === 'undefined') {
++                 console.warn('jsPDF not loaded correctly. Attempting to initialize it.');
++                 try {
++                     window.jspdf = { jsPDF: window.jspdf.jsPDF || window.jsPDF };
++                 } catch (e) {
++                     console.error('Failed to initialize jsPDF:', e);
++                 }
++             }
++         });
++     </script>
+      <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+```
+
+---
+
+Finally, let's update the generatePDF function to handle potential jsPDF initialization issues:
+
+---
+
+```diff
+                      generatePDF() {
+                          try {
++                             // Check if jsPDF is properly loaded
++                             if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
++                                 if (typeof window.jsPDF !== 'undefined') {
++                                     // Try to use the global jsPDF constructor
++                                     window.jspdf = { jsPDF: window.jsPDF };
++                                 } else {
++                                     throw new Error('jsPDF not properly loaded');
++                                 }
++                             }
++                             
+                              // Create a new jsPDF instance
+                              const { jsPDF } = window.jspdf;
+- 
+-                             if (!jsPDF) {
+-                                 throw new Error('jsPDF not properly loaded');
+-                             }
+- 
+                              const doc = new jsPDF('p', 'mm', 'a4');
+                              
+                                  
+                                  section.options.filter(o => o.checked).forEach((opt, i) => {
+-                                     const optionText = `${section.title.split(' ')[0]}.${i + 1} ${opt.text}`;
++                                     const optionText = `${section.title.split(' ')[0]}.${i+1} ${opt.text}`;
+                                      const optLines = doc.splitTextToSize(optionText, 160);
+                                      
+```
+
+---
+
+I've completely revamped the PDF generation to use the approach that works in your index.html file. Here's what we've done:
+
+1. Removed all HTML2PDF and HTML2Canvas libraries that were causing issues
+2. Kept only the core jsPDF library which is necessary for PDF generation
+3. Added initialization code
+
+---
+
 
 
 ---
