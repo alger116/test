@@ -2011,7 +2011,185 @@ I've completely revamped the PDF generation to use the approach that works in yo
 
 1. Removed all HTML2PDF and HTML2Canvas libraries that were causing issues
 2. Kept only the core jsPDF library which is necessary for PDF generation
-3. Added initialization code
+3. Added initialization code to ensure jsPDF is properly loaded before use
+4. Added robust error handling to check for library loading issues
+5. Implemented the direct jsPDF approach that manually builds the PDF
+6. Added a fallback to browser printing if all else fails
+
+This implementation:
+- Does not use any HTML conversion (which was causing blank pages)
+- Directly uses jsPDF to construct the PDF programmatically
+- Handles text formatting, multiple pages, and layout
+- Has proper error handling
+- Follows the exact pattern that's working for you in index.html
+
+The PDF will now include:
+- The title centered at the top
+- The intro text
+- All standard fields
+- All enabled sections with their checked options
+- A footer with date and responsible person
+
+Since we're now using the exact same approach as your working code in index.html, this should resolve the issues with blank PDFs.
+
+---
+
+_**User**_
+
+add a small simple button next to other that will clear any data that the user has inserted or written and completele resets everyhting at the page
+
+---
+
+_**Assistant**_
+
+Let's add a "Reset" button next to the existing action buttons:
+
+---
+
+```diff
+                          const i = Math.floor(Math.log(bytes) / Math.log(k));
+                          return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
++                     },
++ 
++                     resetForm() {
++                         if (confirm('Kas oled kindel, et soovid kõik andmed kustutada? Seda tegevust ei saa tagasi võtta.')) {
++                             // Reset to default form structure
++                             this.form = {
++                                 name: '',
++                                 intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
++                                 fields: { ...defaultFields },
++                                 sections: [
++                                     {
++                                         title: '1 Üldised tingimused',
++                                         enabled: true,
++                                         open: false,
++                                         options: [
++                                             { text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
++                                             { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
++                                             { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
++                                             { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
++                                             { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false }
++                                         ]
++                                     },
++                                     {
++                                         title: '2 Ostumenetluse tehniline kirjeldus',
++                                         enabled: true,
++                                         open: false,
++                                         options: [
++                                             { text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.', checked: false, editable: true }
++                                         ]
++                                     },
++                                     {
++                                         title: '3 Nõuded pakkumusele',
++                                         enabled: true,
++                                         open: false,
++                                         options: [
++                                             { text: 'Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.', checked: false },
++                                             { text: 'Hilinenud pakkumusi hankija vastu ei võta.', checked: false },
++                                             { text: 'Pakkumus peab sisaldama: Pakkumuse maksumust vastavalt lisale 1;', checked: false },
++                                             { text: 'Pakkumus peab sisaldama: Pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.', checked: false },
++                                             { text: 'Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.', checked: false },
++                                             { text: 'Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.', checked: false },
++                                             { text: 'Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist... Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.', checked: false }
++                                         ]
++                                     },
++                                     {
++                                         title: '4 Pakkumuste kontrollimine, hindamine ja eduka pakkumuse valik',
++                                         enabled: true,
++                                         open: false,
++                                         options: [
++                                             { text: 'Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele...', checked: false },
++                                             { text: 'Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.', checked: false },
++                                             { text: 'Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel...', checked: false },
++                                             { text: 'Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi...', checked: false },
++                                             { text: 'Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama...', checked: false }
++                                         ]
++                                     },
++                                     {
++                                         title: '5 Läbirääkimiste pidamine',
++                                         enabled: true,
++                                         open: false,
++                                         options: [
++                                             { text: 'Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu ja maksumuse ning tellimuse tingimuste üle.', checked: false },
++                                             { text: 'Hankijal on õigus loobuda ühest või mitmest pakkumuses kirjeldatud teenusest, tööst või asjast või vähendada nende mahtusid või koguseid...', checked: false },
++                                             { text: 'Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja... Läbirääkimised on konfidentsiaalsed.', checked: false },
++                                             { text: 'Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse...', checked: false }
++                                         ]
++                                     },
++                                     {
++                                         title: '6 Pakkumuste tagasi lükkamine ja ostumenetluse kehtetuks tunnistamine',
++                                         enabled: true,
++                                         open: false,
++                                         options: [
++                                             { text: 'Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata...', checked: false },
++                                             { text: 'Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta...', checked: false },
++                                             { text: 'Hankija võib ostumenetluse kehtetuks tunnistada, kui peale pakkumuste esitamise tähtpäeva selgub, et hankija on teinud vea...', checked: false }
++                                         ]
++                                     },
++                                     {
++                                         title: '7 Lisad',
++                                         enabled: true,
++                                         open: false,
++                                         options: [
++                                             { text: 'Lisa 1. Kui on lisad, siis lisatakse siia.', checked: false }
++                                         ]
++                                     }
++                                 ]
++                             };
++                             
++                             // Clear files
++                             this.files = [];
++                             
++                             // Remove from local storage
++                             localStorage.removeItem('OM_DRAFT');
++                             
++                             // Show success message
++                             this.showToast('Vorm on tühjendatud', 'info');
++                         }
+                      }
+                  }
+                      Salvesta
+                  </button>
++                 <button @click="resetForm"
++                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors">
++                     Tühjenda
++                 </button>
+              </div>
+          </div>
+```
+
+---
+
+Now I'll add the reset button in the HTML portion of the code:
+
+---
+
+Read file: om.html
+
+---
+
+Perfect! I've added:
+
+1. A new `resetForm()` function that:
+   - Asks for confirmation before proceeding
+   - Resets the entire form structure to its default state
+   - Clears all files
+   - Removes saved data from local storage
+   - Shows a confirmation toast message
+
+2. A new "Tühjenda" (Clear) button in the UI that:
+   - Appears next to the existing PDF and Save buttons
+   - Has a red color scheme to indicate a destructive action
+   - Calls the resetForm function when clicked
+
+The reset button is positioned alongside the existing action buttons at the bottom of the form. When clicked, it will show a confirmation dialog to prevent accidental data loss, and if confirmed, it will clear all user-entered data and reset the form to its initial state.
+
+The implementation is comprehensive, resetting all components of the form:
+- Form name and intro text
+- All standard fields
+- Section settings, including which options are checked
+- File attachments
+- Local storage data
 
 ---
 
