@@ -2193,6 +2193,389 @@ The implementation is comprehensive, resetting all components of the form:
 
 ---
 
+_**User**_
+
+ja nüüd viimane väike upgrade visuaalse poole pealt üleüldiselt, tee kogu üldine olek modernsemaks
+
+---
+
+_**Assistant**_
+
+Let's upgrade the visual design of the form to make it more modern. I'll enhance the UI with better styling, improved spacing, shadows, and a more contemporary look:
+
+---
+
+```diff
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+      <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
++     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+      <style>
++         :root {
++             --primary-color: #4F46E5;
++             --primary-hover: #4338CA;
++             --success-color: #10B981;
++             --error-color: #EF4444;
++             --info-color: #3B82F6;
++             --card-bg: #ffffff;
++         }
++         
++         body {
++             background-color: #f9fafb;
++             color: #1f2937;
++             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
++         }
++         
++         .btn {
++             @apply rounded-lg font-medium transition-all duration-200 transform px-4 py-2 focus:outline-none focus:ring-2 focus:ring-opacity-50;
++         }
++         
++         .btn-primary {
++             @apply bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500;
++         }
++         
++         .btn-success {
++             @apply bg-green-600 hover:bg-green-700 text-white focus:ring-green-500;
++         }
++         
++         .btn-danger {
++             @apply bg-red-500 hover:bg-red-600 text-white focus:ring-red-400;
++         }
++         
++         .card {
++             @apply bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-200 hover:shadow-lg;
++         }
++         
+          .toast-success {
+-             background-color: #10B981;
++             background-color: var(--success-color);
++             @apply shadow-lg rounded-lg;
+          }
+  
+          .toast-error {
+-             background-color: #EF4444;
++             background-color: var(--error-color);
++             @apply shadow-lg rounded-lg;
+          }
+  
+          .toast-info {
+-             background-color: #3B82F6;
++             background-color: var(--info-color);
++             @apply shadow-lg rounded-lg;
+          }
+  
+          .drag-active {
+-             border-color: #3B82F6;
++             border-color: var(--primary-color);
+              background-color: #EFF6FF;
+          }
++         
++         input[type="text"], textarea {
++             @apply rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-all duration-200;
++         }
++         
++         input[type="checkbox"] {
++             @apply rounded text-indigo-600 focus:ring-indigo-500 transition-all duration-200;
++         }
++         
++         .section-header {
++             @apply flex items-center p-3 font-medium cursor-pointer bg-gray-50 hover:bg-gray-100 rounded-lg;
++         }
++         
++         .section-content {
++             @apply ml-8 mt-2 space-y-2 p-2;
++         }
+  
+          [x-cloak] {
+```
+
+---
+
+Now let's update the form's HTML structure to use our new styling:
+
+---
+
+```diff
+  
+  <body class="bg-gray-50 text-gray-800" x-data="formApp" x-cloak>
+-     <div class="flex flex-col md:flex-row p-4 gap-4 min-h-screen">
++     <div class="container mx-auto max-w-7xl p-4">
++         <h1 class="text-2xl font-bold text-center text-indigo-700 mb-6">Ostumenetluse kutse koostamine</h1>
++         
++         <div class="flex flex-col md:flex-row gap-6 min-h-screen">
+              <!-- Left: Data Input -->
+-         <div class="w-full md:w-1/2 space-y-4">
+-             <div class="bg-white p-4 rounded-lg shadow border">
+-                 <label class="block text-sm font-semibold mb-1">Ostumenetluse nimi</label>
+-                 <input type="text" x-model="form.name" class="w-full border rounded px-3 py-2"
++             <div class="w-full md:w-1/2 space-y-5">
++                 <div class="card p-5">
++                     <label class="block text-sm font-semibold mb-2 text-gray-700">Ostumenetluse nimi</label>
++                     <input type="text" x-model="form.name" class="w-full border rounded-lg px-3 py-2"
+                          placeholder="Näiteks: Haljasala rajamine" />
+                  </div>
+  
+-             <div class="bg-white p-4 rounded-lg shadow border space-y-2">
+-                 <label class="block text-sm font-semibold">Üldsõnaline kutse tekst</label>
+-                 <textarea x-model="form.intro" class="w-full border rounded px-3 py-2 h-24"></textarea>
++                 <div class="card p-5">
++                     <label class="block text-sm font-semibold mb-2 text-gray-700">Üldsõnaline kutse tekst</label>
++                     <textarea x-model="form.intro" class="w-full border rounded-lg px-3 py-2 h-24"></textarea>
+                  </div>
+  
+-             <div class="bg-white p-4 rounded-lg shadow border grid grid-cols-1 gap-2">
++                 <div class="card p-5">
++                     <h2 class="text-lg font-semibold mb-3 text-gray-700">Põhiandmed</h2>
++                     <div class="grid grid-cols-1 gap-4">
+                          <template x-for="field in standardFields" :key="field.key">
+                              <div>
+-                         <label class="text-sm font-semibold" x-text="field.label"></label>
+-                         <input type="text" x-model="form.fields[field.key]" class="w-full border rounded px-3 py-2 mt-1"
++                                 <label class="block text-sm font-semibold mb-1 text-gray-700" x-text="field.label"></label>
++                                 <input type="text" x-model="form.fields[field.key]" class="w-full border rounded-lg px-3 py-2 mt-1"
+                                      :placeholder="field.placeholder" />
+                              </div>
+                          </template>
++                     </div>
+                  </div>
+  
+                  <!-- File Upload Section -->
+-             <div class="bg-white p-4 rounded-lg shadow border">
+-                 <label class="block text-sm font-semibold mb-2">Manused</label>
++                 <div class="card p-5">
++                     <label class="block text-sm font-semibold mb-3 text-gray-700">Manused</label>
+                      <div @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop"
+                          :class="{'drag-active': isDragging}"
+-                     class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer transition-colors">
++                         class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer transition-colors">
+                          <input type="file" id="fileInput" class="hidden" @change="handleFileInput" multiple>
+                          <label for="fileInput" class="cursor-pointer">
+-                         <p>Lohista failid siia või <span class="text-blue-600 underline">kliki valimiseks</span></p>
++                             <i class="fas fa-cloud-upload-alt text-3xl text-indigo-500 mb-2"></i>
++                             <p class="text-gray-600">Lohista failid siia või <span class="text-indigo-600 underline">kliki valimiseks</span></p>
+                              <p class="text-sm text-gray-500 mt-1">Max 5MB fail</p>
+                          </label>
+                      </div>
+  
+-                 <div class="mt-2 space-y-2" x-show="files.length > 0">
++                     <div class="mt-3 space-y-2" x-show="files.length > 0">
+                          <template x-for="(file, index) in files" :key="index">
+-                         <div class="flex items-center justify-between bg-gray-100 p-2 rounded">
+-                             <div class="truncate">
++                             <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
++                                 <div class="flex items-center truncate">
++                                     <i class="fas fa-file-alt text-indigo-500 mr-2"></i>
+                                      <span x-text="file.name" class="truncate"></span>
+                                      <span class="text-xs text-gray-500 ml-2" x-text="formatFileSize(file.size)"></span>
+                                  </div>
+-                             <button @click="removeFile(index)" class="text-red-500 hover:text-red-700 ml-2">
+-                                 ×
++                                 <button @click="removeFile(index)" class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50">
++                                     <i class="fas fa-times"></i>
+                                  </button>
+                              </div>
+  
+                  <!-- Sections 1-7 -->
+-             <div class="bg-white p-4 rounded-lg shadow border">
+-                 <div class="flex justify-between items-center mb-2">
+-                     <label class="text-sm font-semibold">Vali punktid (1–7)</label>
++                 <div class="card p-5">
++                     <div class="flex justify-between items-center mb-4">
++                         <h2 class="text-lg font-semibold text-gray-700">Vali punktid (1–7)</h2>
+                          <div class="flex gap-2">
+                              <button @click="toggleAllSections(true)"
+-                             class="text-sm bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded transition-colors">
+-                             Ava kõik
++                                 class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors">
++                                 <i class="fas fa-chevron-down mr-1"></i> Ava kõik
+                              </button>
+                              <button @click="toggleAllSections(false)"
+-                             class="text-sm bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded transition-colors">
+-                             Sulge kõik
++                                 class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors">
++                                 <i class="fas fa-chevron-up mr-1"></i> Sulge kõik
+                              </button>
+                          </div>
+                      </div>
+-                 <div id="draggableSections" x-ref="draggableSections" class="space-y-2">
++                     <div id="draggableSections" x-ref="draggableSections" class="space-y-3">
+                          <template x-for="(section, index) in form.sections" :key="index">
+-                         <div class="mb-2 border rounded p-2" x-data="{ section }">
+-                             <div class="font-medium cursor-pointer flex items-center"
+-                                 @click="section.open = !section.open">
+-                                 <input type="checkbox" x-model="section.enabled" class="mr-2">
+-                                 <span class="drag-handle cursor-move mr-2">☰</span>
++                             <div class="mb-3 border border-gray-200 rounded-lg overflow-hidden" x-data="{ section }">
++                                 <div class="section-header" @click="section.open = !section.open">
++                                     <input type="checkbox" x-model="section.enabled" class="mr-3" @click.stop>
++                                     <span class="drag-handle cursor-move mr-3 text-gray-400"><i class="fas fa-grip-lines"></i></span>
+                                      <span x-text="section.title" class="flex-grow"></span>
+-                                 <span x-text="section.open ? '−' : '+'"></span>
++                                     <i class="fas" :class="section.open ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                                  </div>
+-                             <div x-show="section.open" class="ml-8 mt-1 space-y-1" x-transition>
++                                 <div x-show="section.open" class="section-content" x-transition>
+                                      <template x-for="(opt, i) in section.options" :key="i">
+-                                     <label class="block">
+-                                         <input type="checkbox" x-model="opt.checked" class="mr-2">
+-                                         <span x-text="opt.text"></span>
++                                         <label class="block p-2 hover:bg-gray-50 rounded-md">
++                                             <div class="flex items-start">
++                                                 <input type="checkbox" x-model="opt.checked" class="mt-1 mr-3">
++                                                 <span x-text="opt.text" class="text-sm"></span>
++                                             </div>
+                                              <template x-if="opt.editable">
+-                                             <div class="mt-1">
++                                                 <div class="mt-2 ml-8">
+                                                      <textarea x-model="opt.text"
+-                                                     class="w-full border rounded px-2 py-1 text-sm"></textarea>
++                                                         class="w-full border rounded-lg px-3 py-2 text-sm"></textarea>
+                                                  </div>
+                                              </template>
+                          </template>
+                      </div>
+-                 <div class="flex justify-between mt-2">
+-                     <button @click="addNewSection" class="text-blue-600 hover:underline text-sm">+ Lisa uus
+-                         punkt</button>
+-                     <button @click="addAttachment" class="text-blue-600 hover:underline text-sm">+ Lisa lisa</button>
++                     <div class="flex justify-between mt-4">
++                         <button @click="addNewSection" class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm">
++                             <i class="fas fa-plus-circle mr-1"></i> Lisa uus punkt
++                         </button>
++                         <button @click="addAttachment" class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm">
++                             <i class="fas fa-paperclip mr-1"></i> Lisa lisa
++                         </button>
+                      </div>
+                  </div>
+  
+                  <!-- Action Buttons -->
+-             <div class="flex gap-4">
+-                 <button @click="generatePDF"
+-                     class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors">
+-                     Loo PDF
++                 <div class="flex flex-wrap gap-4 mt-6">
++                     <button @click="generatePDF" class="btn btn-success flex items-center">
++                         <i class="fas fa-file-pdf mr-2"></i> Loo PDF
+                      </button>
+-                 <button @click="saveToStorage"
+-                     class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
+-                     Salvesta
++                     <button @click="saveToStorage" class="btn btn-primary flex items-center">
++                         <i class="fas fa-save mr-2"></i> Salvesta
+                      </button>
+-                 <button @click="resetForm"
+-                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors">
+-                     Tühjenda
++                     <button @click="resetForm" class="btn btn-danger flex items-center">
++                         <i class="fas fa-trash mr-2"></i> Tühjenda
+                      </button>
+                  </div>
+              <!-- Right: PDF Preview -->
+              <div class="w-full md:w-1/2">
+-             <div id="pdfPreview" class="bg-white p-6 rounded-lg shadow border space-y-4">
+-                 <h1 class="text-center text-xl font-bold" x-text="form.name"></h1>
++                 <div class="sticky top-4">
++                     <div class="flex items-center mb-3">
++                         <h2 class="text-lg font-semibold text-gray-700">Eelvaade</h2>
++                         <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">automaatne</span>
++                     </div>
++                     <div id="pdfPreview" class="card p-6 space-y-4 min-h-[70vh] max-h-[85vh] overflow-auto">
++                         <h1 class="text-center text-xl font-bold" x-text="form.name || 'Ostumenetluse kutse'"></h1>
+                          <p x-text="form.intro"></p>
+  
+                          <template x-for="field in standardFields">
+-                     <div>
++                             <div x-show="form.fields[field.key]" class="py-1">
+                                  <strong x-text="field.label + ':'"></strong>
+                                  <span x-text="form.fields[field.key] || ''"></span>
+  
+                          <template x-for="(section, idx) in visibleSections" :key="idx">
+-                     <div>
+-                         <h2 class="font-semibold" x-text="section.title"></h2>
+-                         <ul class="list-disc ml-5">
++                             <div class="mt-4">
++                                 <h2 class="font-semibold text-lg" x-text="section.title"></h2>
++                                 <ul class="list-disc ml-6 mt-2 space-y-1">
+                                      <template x-for="(opt, i) in section.options.filter(o => o.checked)" :key="i">
+-                                 <li x-text="section.title.split(' ')[0] + '.' + (i+1) + ' ' + opt.text"></li>
++                                         <li class="text-sm" x-text="section.title.split(' ')[0] + '.' + (i+1) + ' ' + opt.text"></li>
+                                      </template>
+                                  </ul>
+                              </div>
+                          </template>
+  
+-                 <div class="text-sm pt-4">
++                         <div class="text-sm pt-4 border-t mt-4">
+                              <p><strong>Kuupäev:</strong> <span x-text="today"></span></p>
+                              <p><strong>Vastutav isik:</strong> <span x-text="form.fields.responsible || ''"></span></p>
++                         </div>
++                     </div>
+                  </div>
+              </div>
+                       'toast-error': toast.type === 'error',
+                       'toast-info': toast.type === 'info'
+-                  }" class="text-white px-4 py-2 rounded shadow-lg">
++                  }" class="text-white px-4 py-3 rounded shadow-lg flex items-center">
++                 <i class="fas mr-2" :class="{
++                     'fa-check-circle': toast.type === 'success',
++                     'fa-exclamation-circle': toast.type === 'error',
++                     'fa-info-circle': toast.type === 'info'
++                 }"></i>
+                  <span x-text="toast.message"></span>
+              </div>
+```
+
+---
+
+I've completely modernized the UI with several key improvements:
+
+1. **Overall Layout**:
+   - Added a container with max-width for better readability
+   - Added a proper page title
+   - Increased spacing between elements
+   - More balanced overall layout
+
+2. **Card Design**:
+   - Used consistent card styling with subtle shadows and hover effects
+   - Better rounded corners and border styling
+   - More padding for breathing room
+
+3. **Interactive Elements**:
+   - Added icons to all buttons and interactive elements
+   - Improved hover states and focus states
+   - Better consistent styling for buttons
+   - Added visual feedback for interactive elements
+
+4. **Sections and Form Fields**:
+   - Improved heading hierarchy and styling
+   - Better file upload area with icon
+   - Modern form controls with proper spacing
+   - Better section headers with intuitive expand/collapse icons
+   - Improved checkbox and input styling
+
+5. **Preview Pane**:
+   - Made the preview sticky so it stays visible while scrolling
+   - Added a header with "Preview" label and "automatic" badge
+   - Set proper min/max heights with scrolling
+   - Added a light border to separate sections
+
+6. **Notifications**:
+   - Enhanced toast notifications with icons
+   - Improved animation and styling
+
+7. **Responsive Design**:
+   - Maintained responsive layout for all screen sizes
+   - Better stacking on mobile devices
+
+8. **Visual Hierarchy**:
+   - Clear visual hierarchy with consistent heading sizes
+   - Better color contrast for readability
+   - Consistent text sizes and weights
+
+The design now follows modern UI principles with a cleaner, more professional look while maintaining full functionality. All these enhancements make the form more intuitive, visually appealing, and easier to use.
+
+---
+
 
 
 ---

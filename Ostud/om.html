@@ -218,7 +218,7 @@
                                 enabled: true,
                                 open: false,
                                 options: [
-                                    { text: 'Lisa 1. Kui on lisad, siis lisatakse siia.', checked: false }
+                                    { text: 'Lisa 1. ', checked: false, editable: true }
                                 ]
                             }
                         ]
@@ -227,6 +227,11 @@
                     toasts: [],
                     files: [],
                     isDragging: false,
+                    isGeneratingPDF: false,
+                    saveTimeout: null,
+                    isLoading: false,
+                    errorMessage: '',
+                    showError: false,
 
                     init() {
                         this.loadFromStorage();
@@ -246,79 +251,132 @@
                                 });
                             }
                         });
+
+                        // Automaatne salvestamine
+                        Alpine.effect(() => {
+                            Alpine.raw(this.form);
+                            Alpine.raw(this.files);
+                            this.debouncedSave();
+                        });
+
+                        // Veateadete automaatne peitmine
+                        setInterval(() => {
+                            if (this.showError) {
+                                this.showError = false;
+                            }
+                        }, 5000);
                     },
 
                     get visibleSections() {
                         return this.form.sections.filter(s => s.enabled && s.options.some(o => o.checked));
                     },
 
-                    generatePDF() {
+                    validateForm() {
+                        if (!this.form.name?.trim()) {
+                            this.showToast('Palun sisesta ostumenetluse nimi', 'error');
+                            return false;
+                        }
+                        if (!this.form.fields?.buyer?.trim()) {
+                            this.showToast('Palun täida hankija andmed', 'error');
+                            return false;
+                        }
+                        return true;
+                    },
+
+                    async generatePDF() {
+                        if (!this.validateForm()) return;
+
                         try {
+                            this.isGeneratingPDF = true;
+                            this.isLoading = true;
+
                             // Check if jsPDF is properly loaded
                             if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
                                 if (typeof window.jsPDF !== 'undefined') {
-                                    // Try to use the global jsPDF constructor
                                     window.jspdf = { jsPDF: window.jsPDF };
                                 } else {
                                     throw new Error('jsPDF not properly loaded');
                                 }
                             }
 
-                            // Create a new jsPDF instance
                             const { jsPDF } = window.jspdf;
                             const doc = new jsPDF('p', 'mm', 'a4');
 
-                            // Add title
-                            doc.setFontSize(18);
-                            doc.setTextColor(0, 0, 0);
+                            // Add header with logo and title
+                            doc.setFillColor(79, 70, 229); // Indigo color
+                            doc.rect(0, 0, 210, 30, 'F');
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFontSize(24);
+                            doc.setFont(undefined, 'bold');
                             doc.text(this.form.name || 'Ostumenetluse kutse', 105, 20, { align: 'center' });
 
-                            // Add intro text
-                            doc.setFontSize(12);
-                            let yPos = 35;
+                            // Add intro text with modern styling
+                            doc.setFontSize(11);
+                            doc.setTextColor(0, 0, 0);
+                            let yPos = 40;
                             const introLines = doc.splitTextToSize(this.form.intro, 170);
                             doc.text(introLines, 20, yPos);
-                            yPos += (introLines.length * 7) + 10;
+                            yPos += (introLines.length * 6) + 10;
 
-                            // Add standard fields
-                            doc.setFontSize(12);
+                            // Add standard fields with modern styling
+                            doc.setFontSize(11);
                             this.standardFields.forEach(field => {
                                 const fieldValue = this.form.fields[field.key] || '';
                                 if (fieldValue.trim() !== '') {
+                                    // Add field label with background
+                                    doc.setFillColor(243, 244, 246); // Light gray background
+                                    doc.rect(20, yPos - 2, 170, 6, 'F');
+
                                     doc.setFont(undefined, 'bold');
-                                    doc.text(`${field.label}: `, 20, yPos);
+                                    doc.setTextColor(79, 70, 229); // Indigo color for labels
+                                    doc.text(`${field.label}: `, 22, yPos);
                                     const textWidth = doc.getTextWidth(`${field.label}: `);
 
                                     doc.setFont(undefined, 'normal');
+                                    doc.setTextColor(0, 0, 0);
                                     const valueLines = doc.splitTextToSize(fieldValue, 150);
-                                    doc.text(valueLines, 20 + textWidth, yPos);
+                                    doc.text(valueLines, 22 + textWidth, yPos);
 
-                                    yPos += (valueLines.length * 7) + 5;
+                                    yPos += (valueLines.length * 6) + 4;
                                 }
                             });
 
-                            // Add sections
-                            this.visibleSections.forEach((section, index) => {
+                            // Add sections with modern styling
+                            let sectionNumber = 1;
+                            this.visibleSections.forEach((section) => {
                                 yPos += 5;
 
-                                // Section title
+                                // Section title with modern styling
                                 doc.setFontSize(14);
                                 doc.setFont(undefined, 'bold');
-                                doc.text(section.title, 20, yPos);
-                                yPos += 8;
+                                doc.setTextColor(79, 70, 229); // Indigo color for section titles
+                                const originalTitle = section.title;
+                                const newTitle = `${sectionNumber} ${originalTitle.split(' ').slice(1).join(' ')}`;
 
-                                // Section options
-                                doc.setFontSize(12);
+                                // Add underline for section title
+                                doc.text(newTitle, 20, yPos);
+                                doc.setLineWidth(0.5);
+                                doc.line(20, yPos + 1, 190, yPos + 1);
+
+                                yPos += 10;
+
+                                // Section options with modern styling
+                                doc.setFontSize(11);
                                 doc.setFont(undefined, 'normal');
+                                doc.setTextColor(0, 0, 0);
 
                                 section.options.filter(o => o.checked).forEach((opt, i) => {
-                                    const optionText = `${section.title.split(' ')[0]}.${i + 1} ${opt.text}`;
+                                    const optionText = `${sectionNumber}.${i + 1} ${opt.text}`;
                                     const optLines = doc.splitTextToSize(optionText, 160);
 
-                                    doc.text('• ', 20, yPos);
+                                    // Add bullet point with custom styling
+                                    doc.setFillColor(79, 70, 229);
+                                    doc.circle(22, yPos + 2, 1.5, 'F');
                                     doc.text(optLines, 25, yPos);
 
-                                    yPos += (optLines.length * 7) + 5;
+                                    // Calculate total height needed for this option
+                                    const optionHeight = optLines.length * 5; // Reduced from 6 to 5
+                                    yPos += optionHeight + 2; // Reduced spacing from 5 to 2
 
                                     // Check if we need a new page
                                     if (yPos > 270) {
@@ -326,27 +384,52 @@
                                         yPos = 20;
                                     }
                                 });
+
+                                sectionNumber++;
                             });
 
-                            // Add footer
-                            yPos = Math.min(yPos + 15, 270);
-                            doc.setFontSize(12);
+                            // Add footer with modern styling
+                            yPos = Math.min(yPos + 10, 270); // Reduced from 15 to 10
+                            doc.setLineWidth(0.5);
+                            doc.line(20, yPos, 190, yPos);
+                            yPos += 10;
+
+                            doc.setFontSize(10);
                             doc.setFont(undefined, 'bold');
+                            doc.setTextColor(79, 70, 229);
                             doc.text(`Kuupäev: ${this.today}`, 20, yPos);
-                            yPos += 7;
+                            yPos += 6;
                             doc.text(`Vastutav isik: ${this.form.fields.responsible || ''}`, 20, yPos);
+
+                            // Add attachments with modern styling
+                            if (this.files?.length > 0) {
+                                yPos += 10;
+                                doc.setFontSize(12);
+                                doc.setFont(undefined, 'bold');
+                                doc.setTextColor(79, 70, 229);
+                                doc.text('Manused:', 20, yPos);
+                                yPos += 5;
+
+                                doc.setFontSize(10);
+                                doc.setFont(undefined, 'normal');
+                                doc.setTextColor(0, 0, 0);
+                                this.files.forEach((file, i) => {
+                                    // Add file icon
+                                    doc.setFillColor(79, 70, 229);
+                                    doc.rect(22, yPos - 1, 1.5, 1.5, 'F');
+                                    doc.text(`${i + 1}. ${file.name} (${this.formatFileSize(file.size)}) ${file.comment || ''}`, 25, yPos);
+                                    yPos += 6;
+                                });
+                            }
 
                             // Save the PDF
                             doc.save(`${this.form.name || 'ostumenetlus'}.pdf`);
-                            this.showToast('PDF loodud edukalt!', 'success');
-                        } catch (err) {
-                            console.error('PDF generation failed:', err);
-                            this.showToast('PDF genereerimine ebaõnnestus', 'error');
-
-                            // As a last resort, offer direct print option
-                            if (confirm('PDF genereerimine ebaõnnestus. Kas soovid kasutada brauseri printimisfunktsiooni?')) {
-                                window.print();
-                            }
+                            this.showToast('PDF edukalt loodud', 'success');
+                        } catch (error) {
+                            this.showToast('PDF loomisel tekkis viga: ' + error.message, 'error');
+                        } finally {
+                            this.isGeneratingPDF = false;
+                            this.isLoading = false;
                         }
                     },
 
@@ -393,27 +476,42 @@
                     addAttachment() {
                         const lisaCount = this.form.sections[6].options.length + 1;
                         this.form.sections[6].options.push({
-                            text: `Lisa ${lisaCount}. Lisa kirjeldus`,
-                            checked: false
+                            text: `Lisa ${lisaCount}. `,
+                            checked: false,
+                            editable: true
                         });
                         this.showToast('Lisa lisatud', 'success');
                     },
 
                     addNewSection() {
                         const nextNum = this.form.sections.length + 1;
-                        this.form.sections.push({
-                            title: `${nextNum} Uus punkt`,
-                            enabled: false,
-                            open: true,
-                            options: [{ text: 'Lisa tingimus', checked: false }]
-                        });
-                        this.showToast('Uus sektsioon lisatud', 'success');
+                        const title = prompt(`Lisa punktile pealkiri (${nextNum}):`);
+
+                        if (title) {
+                            this.form.sections.push({
+                                title: `${nextNum} ${title}`,
+                                enabled: false,
+                                open: true,
+                                options: [{ text: 'Lisa tingimus', checked: false, editable: true, isEditing: true }]
+                            });
+                            this.showToast('Uus sektsioon lisatud', 'success');
+                        }
                     },
 
                     toggleAllSections(open) {
                         this.form.sections.forEach(section => {
                             section.open = open;
                         });
+                    },
+
+                    selectAllOptions() {
+                        this.form.sections.forEach(section => {
+                            section.enabled = true;
+                            section.options.forEach(option => {
+                                option.checked = true;
+                            });
+                        });
+                        this.showToast('Kõik valikud valitud', 'success');
                     },
 
                     showToast(message, type = 'info', duration = 3000) {
@@ -452,9 +550,17 @@
                     },
 
                     processFiles(files) {
-                        files.forEach(file => {
-                            if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                                this.showToast(`Fail ${file.name} on liiga suur (max 5MB)`, 'error');
+                        const maxFileSize = 10 * 1024 * 1024; // 10MB
+                        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'];
+
+                        Array.from(files).forEach(file => {
+                            if (file.size > maxFileSize) {
+                                this.showToast(`Fail ${file.name} on liiga suur. Maksimaalne suurus on 10MB.`, 'error');
+                                return;
+                            }
+
+                            if (!allowedTypes.includes(file.type)) {
+                                this.showToast(`Fail ${file.name} on sobimatu tüüp. Lubatud on PDF ja pildifailid.`, 'error');
                                 return;
                             }
 
@@ -464,9 +570,13 @@
                                     name: file.name,
                                     size: file.size,
                                     type: file.type,
-                                    data: e.target.result
+                                    data: e.target.result,
+                                    comment: ''
                                 });
-                                this.showToast(`Fail ${file.name} lisatud`, 'success');
+                                this.showToast('Fail lisatud', 'success');
+                            };
+                            reader.onerror = () => {
+                                this.showToast(`Faili ${file.name} lugemisel tekkis viga`, 'error');
                             };
                             reader.readAsDataURL(file);
                         });
@@ -566,7 +676,7 @@
                                         enabled: true,
                                         open: false,
                                         options: [
-                                            { text: 'Lisa 1. Kui on lisad, siis lisatakse siia.', checked: false }
+                                            { text: 'Lisa 1. ', checked: false, editable: true }
                                         ]
                                     }
                                 ]
@@ -581,6 +691,52 @@
                             // Show success message
                             this.showToast('Vorm on tühjendatud', 'info');
                         }
+                    },
+
+                    removeSection(index) {
+                        if (confirm('Kas olete kindel, et soovite selle sektsiooni kustutada?')) {
+                            this.form.sections.splice(index, 1);
+                            this.showToast('Sektsioon kustutatud', 'success');
+                        }
+                    },
+
+                    debouncedSave() {
+                        clearTimeout(this.saveTimeout);
+                        this.saveTimeout = setTimeout(() => {
+                            this.saveToStorage();
+                        }, 2000);
+                    },
+
+                    addOption(sectionIndex) {
+                        const section = this.form.sections[sectionIndex];
+                        const optionCount = section.options.length + 1;
+
+                        let newOption;
+                        if (sectionIndex === 6) { // Lisad section
+                            newOption = {
+                                text: `Lisa ${optionCount}. `,
+                                checked: false,
+                                editable: true,
+                                isEditing: true
+                            };
+                        } else if (sectionIndex === 0) { // Üldised tingimused section
+                            newOption = {
+                                text: `${optionCount}. `,
+                                checked: false,
+                                editable: true,
+                                isEditing: true
+                            };
+                        } else { // Other sections
+                            newOption = {
+                                text: `${optionCount}. `,
+                                checked: false,
+                                editable: true,
+                                isEditing: true
+                            };
+                        }
+
+                        section.options.push(newOption);
+                        this.showToast('Punkt lisatud', 'success');
                     }
                 }
             });
@@ -602,7 +758,8 @@
                 </div>
 
                 <div class="card p-5">
-                    <label class="block text-sm font-semibold mb-2 text-gray-700">Üldsõnaline kutse tekst</label>
+                    <label class="block text-sm font-semibold mb-2 text-gray-700">Ostumenetluse kutse
+                        lühikirjeldus</label>
                     <textarea x-model="form.intro" class="w-full border rounded-lg px-3 py-2 h-24"></textarea>
                 </div>
 
@@ -620,43 +777,17 @@
                     </div>
                 </div>
 
-                <!-- File Upload Section -->
-                <div class="card p-5">
-                    <label class="block text-sm font-semibold mb-3 text-gray-700">Manused</label>
-                    <div @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop"
-                        :class="{'drag-active': isDragging}"
-                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer transition-colors">
-                        <input type="file" id="fileInput" class="hidden" @change="handleFileInput" multiple>
-                        <label for="fileInput" class="cursor-pointer">
-                            <i class="fas fa-cloud-upload-alt text-3xl text-indigo-500 mb-2"></i>
-                            <p class="text-gray-600">Lohista failid siia või <span
-                                    class="text-indigo-600 underline">kliki valimiseks</span></p>
-                            <p class="text-sm text-gray-500 mt-1">Max 5MB fail</p>
-                        </label>
-                    </div>
 
-                    <div class="mt-3 space-y-2" x-show="files.length > 0">
-                        <template x-for="(file, index) in files" :key="index">
-                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                                <div class="flex items-center truncate">
-                                    <i class="fas fa-file-alt text-indigo-500 mr-2"></i>
-                                    <span x-text="file.name" class="truncate"></span>
-                                    <span class="text-xs text-gray-500 ml-2" x-text="formatFileSize(file.size)"></span>
-                                </div>
-                                <button @click="removeFile(index)"
-                                    class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
 
                 <!-- Sections 1-7 -->
                 <div class="card p-5">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-lg font-semibold text-gray-700">Vali punktid (1–7)</h2>
                         <div class="flex gap-2">
+                            <button @click="selectAllOptions"
+                                class="text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg transition-colors">
+                                <i class="fas fa-check-double mr-1"></i> Lisa kõik
+                            </button>
                             <button @click="toggleAllSections(true)"
                                 class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors">
                                 <i class="fas fa-chevron-down mr-1"></i> Ava kõik
@@ -682,14 +813,19 @@
                                         <label class="block p-2 hover:bg-gray-50 rounded-md">
                                             <div class="flex items-start">
                                                 <input type="checkbox" x-model="opt.checked" class="mt-1 mr-3">
-                                                <span x-text="opt.text" class="text-sm"></span>
+                                                <template x-if="opt.isEditing">
+                                                    <input type="text" x-model="opt.text" @blur="opt.isEditing = false"
+                                                        @keydown.enter="opt.isEditing = false"
+                                                        class="flex-grow border rounded-lg px-3 py-1 text-sm"
+                                                        x-ref="editInput">
+                                                </template>
+                                                <template x-if="!opt.isEditing">
+                                                    <span x-text="opt.text"
+                                                        class="text-sm cursor-pointer hover:text-indigo-600"
+                                                        @dblclick="opt.isEditing = true; $nextTick(() => $refs.editInput?.focus())">
+                                                    </span>
+                                                </template>
                                             </div>
-                                            <template x-if="opt.editable">
-                                                <div class="mt-2 ml-8">
-                                                    <textarea x-model="opt.text"
-                                                        class="w-full border rounded-lg px-3 py-2 text-sm"></textarea>
-                                                </div>
-                                            </template>
                                         </label>
                                     </template>
                                 </div>
@@ -701,10 +837,15 @@
                             class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm">
                             <i class="fas fa-plus-circle mr-1"></i> Lisa uus punkt
                         </button>
-                        <button @click="addAttachment"
-                            class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm">
-                            <i class="fas fa-paperclip mr-1"></i> Lisa lisa
-                        </button>
+                        <template x-for="(section, index) in form.sections" :key="index">
+                            <button @click="addOption(index)" x-show="section.open"
+                                class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm">
+                                <i class="fas fa-plus-circle mr-1"></i>
+                                <span x-text="index === 0 ? 'Lisa tingimus' : 
+                                            index === 6 ? 'Lisa lisa' : 
+                                            'Lisa punkt'"></span>
+                            </button>
+                        </template>
                     </div>
                 </div>
 
@@ -720,43 +861,127 @@
                         <i class="fas fa-trash mr-2"></i> Tühjenda
                     </button>
                 </div>
+                <!-- File Upload Section -->
+                <div class="card p-5">
+                    <label class="block text-sm font-semibold mb-3 text-gray-700">Manused</label>
+                    <div @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop"
+                        :class="{'drag-active': isDragging}"
+                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer transition-colors">
+                        <input type="file" id="fileInput" class="hidden" @change="handleFileInput" multiple>
+                        <label for="fileInput" class="cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-indigo-500 mb-2"></i>
+                            <p class="text-gray-600">Lohista failid siia või <span
+                                    class="text-indigo-600 underline">kliki
+                                    valimiseks</span></p>
+                            <p class="text-sm text-gray-500 mt-1">Max 10MB fail</p>
+                        </label>
+                    </div>
+
+                    <div class="mt-3 space-y-2" x-show="files.length > 0">
+                        <template x-for="(file, index) in files" :key="index">
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                                <div class="flex items-center truncate">
+                                    <i class="fas fa-file-alt text-indigo-500 mr-2"></i>
+                                    <span x-text="file.name" class="truncate"></span>
+                                    <span class="text-xs text-gray-500 ml-2" x-text="formatFileSize(file.size)"></span>
+                                </div>
+                                <button @click="removeFile(index)"
+                                    class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
             </div>
+
 
             <!-- Right: PDF Preview -->
             <div class="w-full md:w-1/2">
                 <div class="sticky top-4">
                     <div class="flex items-center mb-3">
                         <h2 class="text-lg font-semibold text-gray-700">Eelvaade</h2>
-                        <span
-                            class="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">automaatne</span>
+                        <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full"></span>
                     </div>
-                    <div id="pdfPreview" class="card p-6 space-y-4 min-h-[70vh] max-h-[85vh] overflow-auto">
-                        <h1 class="text-center text-xl font-bold" x-text="form.name || 'Ostumenetluse kutse'"></h1>
-                        <p x-text="form.intro"></p>
+                    <div id="pdfPreview" class="card p-6 space-y-4 min-h-[70vh] max-h-[85vh] overflow-auto bg-white">
+                        <!-- Header -->
+                        <div class="bg-indigo-600 text-white p-4 rounded-t-lg -mx-6 -mt-6 mb-6">
+                            <h1 class="text-2xl font-bold text-center" x-text="form.name || 'Ostumenetluse kutse'"></h1>
+                        </div>
 
-                        <template x-for="field in standardFields">
-                            <div x-show="form.fields[field.key]" class="py-1">
-                                <strong x-text="field.label + ':'"></strong>
-                                <span x-text="form.fields[field.key] || ''"></span>
-                            </div>
-                        </template>
+                        <!-- Intro text -->
+                        <div class="text-gray-700 text-sm leading-relaxed" x-text="form.intro"></div>
 
+                        <!-- Standard fields -->
+                        <div class="space-y-1">
+                            <template x-for="field in standardFields">
+                                <div x-show="form.fields[field.key]" class="bg-gray-50 p-2 rounded-lg">
+                                    <div class="flex items-start">
+                                        <span class="font-semibold text-indigo-600 mr-2"
+                                            x-text="field.label + ':'"></span>
+                                        <span class="text-gray-700" x-text="form.fields[field.key] || ''"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Sections -->
                         <template x-for="(section, idx) in visibleSections" :key="idx">
-                            <div class="mt-4">
-                                <h2 class="font-semibold text-lg" x-text="section.title"></h2>
-                                <ul class="list-disc ml-6 mt-2 space-y-1">
+                            <div class="mt-6">
+                                <!-- Section title -->
+                                <div class="flex items-center mb-3">
+                                    <h2 class="text-lg font-bold text-indigo-600"
+                                        x-text="(idx + 1) + ' ' + section.title.split(' ').slice(1).join(' ')"></h2>
+                                    <div class="flex-grow h-0.5 bg-indigo-600 ml-3"></div>
+                                </div>
+
+                                <!-- Section options -->
+                                <ul class="space-y-2">
                                     <template x-for="(opt, i) in section.options.filter(o => o.checked)" :key="i">
-                                        <li class="text-sm"
-                                            x-text="section.title.split(' ')[0] + '.' + (i+1) + ' ' + opt.text"></li>
+                                        <li class="flex items-start">
+                                            <div class="w-2 h-2 bg-indigo-600 rounded-full mt-2 mr-3"></div>
+                                            <span class="text-sm text-gray-700"
+                                                x-text="(idx + 1) + '.' + (i+1) + ' ' + opt.text"></span>
+                                        </li>
                                     </template>
                                 </ul>
                             </div>
                         </template>
 
-                        <div class="text-sm pt-4 border-t mt-4">
-                            <p><strong>Kuupäev:</strong> <span x-text="today"></span></p>
-                            <p><strong>Vastutav isik:</strong> <span x-text="form.fields.responsible || ''"></span></p>
+                        <!-- Footer -->
+                        <div class="mt-8 pt-4 border-t border-gray-200">
+                            <div class="flex justify-between text-sm">
+                                <div class="text-indigo-600 font-semibold">
+                                    <p>Kuupäev: <span class="text-gray-700" x-text="today"></span></p>
+                                </div>
+                                <div class="text-indigo-600 font-semibold">
+                                    <p>Vastutav isik: <span class="text-gray-700"
+                                            x-text="form.fields.responsible || ''"></span></p>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Attachments -->
+                        <template x-if="files.length > 0">
+                            <div class="mt-6">
+                                <h3 class="text-lg font-bold text-indigo-600 mb-3">Manused</h3>
+                                <div class="space-y-2">
+                                    <template x-for="(file, index) in files" :key="index">
+                                        <div class="flex items-center bg-gray-50 p-3 rounded-lg">
+                                            <div class="w-2 h-2 bg-indigo-600 rounded-full mr-3"></div>
+                                            <span class="text-sm text-gray-700">
+                                                <span x-text="index + 1 + '. '"></span>
+                                                <span x-text="file.name"></span>
+                                                <span class="text-gray-500"
+                                                    x-text="' (' + formatFileSize(file.size) + ')'"></span>
+                                                <span x-show="file.comment" class="text-gray-500"
+                                                    x-text="' - ' + file.comment"></span>
+                                            </span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -784,6 +1009,7 @@
             </div>
         </template>
     </div>
+
 </body>
 
 </html>
