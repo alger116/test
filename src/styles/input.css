@@ -1,6 +1,6 @@
+@import "tailwindcss/preflight";
 @tailwind utilities;
 @import "tailwindcss";
-@layer preflight;
 
 @layer theme;
 @layer base;
