@@ -1,24 +1,352 @@
 <!DOCTYPE html>
-<html lang="et">
+<html lang="et" class="h-full bg-gray-50">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
-    <script src="https://cdn.jsdelivr.net/npm/daisyui"></script>
-    <script src="https://unpkg.com/@heroicons/react/outline"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="./dist/output.css" rel="stylesheet">
+    <script src="https://unpkg.com/alpinejs" defer></script>
     <script src="config.js"></script>
 </head>
 
-<body class="bg-gradient-to-bl from-blue-100 to-blue-200 font-sans">
+<body class="h-full">
+    <div class="min-h-full">
+        <!-- Dark Sidebar -->
+        <div class="fixed inset-y-0 left-0 w-64 bg-gray-900 shadow-xl z-50">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-center h-16 px-4 bg-gray-800">
+                    <h1 class="text-xl font-bold text-white">Admin Panel</h1>
+                </div>
+                <nav class="flex-1 px-2 py-4 space-y-1">
+                    <a href="index.html"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-home w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Avaleht</span>
+                    </a>
+                    <button id="settingsButton"
+                        class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-cog w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Seaded</span>
+                    </button>
+                    <a href="#"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-users w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Kasutajad</span>
+                    </a>
+                    <button id="rolesButton"
+                        class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-user-shield w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Rollid</span>
+                    </button>
+                </nav>
+                <div class="p-4 border-t border-gray-800">
+                    <button id="logoutButton"
+                        class="w-full flex items-center px-4 py-3 text-red-400 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-sign-out-alt w-5"></i>
+                        <span class="ml-3">Logi välja</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="pl-64">
+            <!-- Top Navigation -->
+            <div class="sticky top-0 z-40 bg-white border-b">
+                <div class="flex items-center justify-between h-16 px-6">
+                    <div class="flex items-center">
+                        <h2 class="text-lg font-semibold text-gray-800">Kasutajate haldamine</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open"
+                                class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors duration-200">
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=0D9488&color=fff"
+                                    alt="Admin" class="w-8 h-8 rounded-full">
+                                <span class="hidden md:inline">Admin</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div x-show="open" @click.away="open = false"
+                                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                                <button id="changeEmail"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-envelope mr-2"></i> Muuda e-post
+                                </button>
+                                <button id="changePassword"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-key mr-2"></i> Muuda parool
+                                </button>
+                                <button id="logoutButtonDropdown"
+                                    class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <main class="p-6">
+                <!-- User Management Table -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
+                            <button id="addUserButton"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
+                                <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Email</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Roll</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Kinnitatud</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tegevused</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Users will be dynamically added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsBackdrop"
+            class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity z-50"></div>
+        <div id="settingsContainer" class="hidden fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-4xl bg-white rounded-lg shadow-xl">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b">
+                        <h2 class="text-2xl font-bold text-gray-900">Seaded</h2>
+                        <button id="closeSettings" class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="p-6">
+                        <!-- General Settings -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Üldised seaded</h3>
+                            <form id="settingsForm" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="documentPreparationDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            📄 Riigihanke alusdokumentide koostamine
+                                        </label>
+                                        <input type="number" id="documentPreparationDays" name="documentPreparationDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="offerEvaluationDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            🧐 Pakkumuste hindamine
+                                        </label>
+                                        <input type="number" id="offerEvaluationDays" name="offerEvaluationDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="decisionDays" class="block text-sm font-medium text-gray-700 mb-1">
+                                            ✅ Vastavaks ja edukaks tunnistamise otsus
+                                        </label>
+                                        <input type="number" id="decisionDays" name="decisionDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="bidderEvaluationDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            📊 Pakkujate hindamine
+                                        </label>
+                                        <input type="number" id="bidderEvaluationDays" name="bidderEvaluationDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="successfulBidderDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            🏆 Eduka kõrvaldamata jätmine ja kval
+                                        </label>
+                                        <input type="number" id="successfulBidderDays" name="successfulBidderDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="waitingPeriodDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            ⏳ Ooteaeg
+                                        </label>
+                                        <input type="number" id="waitingPeriodDays" name="waitingPeriodDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                        <i class="fas fa-save mr-2"></i>Salvesta
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Procedure Types -->
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">🛠️ Menetlusliigid</h3>
+                                <button id="addProcedureTypeButton"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+                                    <i class="fas fa-plus mr-2"></i>Lisa Menetlusliik
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <select id="procedureTypeSelect"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                                <div id="procedureTypeSettings" class="mt-4">
+                                    <!-- Procedure type settings will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="hidden fixed inset-0 bg-white/50 z-50 backdrop-blur-sm">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+            </div>
+        </div>
+
+        <!-- Roles Modal -->
+        <div id="rolesBackdrop" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+        <div id="rolesContainer" class="hidden fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Kasutajarollid</h2>
+                            <p class="text-sm text-gray-500 mt-1">Halda kasutajarolle ja õigusi</p>
+                        </div>
+                        <button id="closeRoles"
+                            class="text-gray-400 hover:text-gray-500 p-2 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Kasutajarollid</h3>
+                                <button id="addRoleButton"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
+                                    <i class="fas fa-plus mr-2"></i>Lisa Roll
+                                </button>
+                            </div>
+
+                            <!-- Role List -->
+                            <div class="space-y-4">
+                                <!-- Roles will be dynamically added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add User Modal -->
+        <div id="addUserBackdrop" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+        <div id="addUserContainer" class="hidden fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-gray-200">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Lisa uus kasutaja</h2>
+                            <p class="text-sm text-gray-500 mt-1">Sisesta kasutaja andmed</p>
+                        </div>
+                        <button id="closeAddUser"
+                            class="text-gray-400 hover:text-gray-500 p-2 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="p-6">
+                        <form id="addUserForm" class="space-y-4">
+                            <div>
+                                <label for="userEmail" class="block text-sm font-medium text-gray-700">E-post:</label>
+                                <input type="email" id="userEmail" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="nimi@näide.ee">
+                            </div>
+                            <div>
+                                <label for="userPassword"
+                                    class="block text-sm font-medium text-gray-700">Parool:</label>
+                                <input type="password" id="userPassword" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Minimaalselt 6 tähemärki">
+                            </div>
+                            <div>
+                                <label for="userRole" class="block text-sm font-medium text-gray-700">Roll:</label>
+                                <select id="userRole" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="userApproved" class="rounded text-blue-600">
+                                <label for="userApproved" class="text-sm text-gray-700">Kasutaja on kinnitatud</label>
+                            </div>
+                            <div class="flex justify-end space-x-2 pt-4">
+                                <button type="button" onclick="closeAddUserModal()"
+                                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                    Tühista
+                                </button>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                    <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // Import Firebase Modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc }
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, setDoc }
             from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
         if (!window.FIREBASE_CONFIG) {
@@ -27,7 +355,6 @@
             const app = initializeApp(window.FIREBASE_CONFIG);
             const auth = getAuth(app);
             const db = getFirestore(app);
-
 
             // Make Firebase functions available globally
             window.db = db;
@@ -42,8 +369,398 @@
             window.auth = auth;
         }
 
+        // Define default settings
+        const defaultSettings = {
+            documentPreparationDays: 15,
+            offerEvaluationDays: 5,
+            decisionDays: 5,
+            bidderEvaluationDays: 5,
+            successfulBidderDays: 5,
+            waitingPeriodDays: 14,
+        };
 
+        // Initialize settings with defaults
+        let settings = { ...defaultSettings };
 
+        const procedureData = {
+            "Avatud hankemenetlus": { visible: true },
+            "Piiratud hankemenetlus": { visible: true },
+            "Konkurentsipõhine läbirääkimistega menetlus": { visible: true },
+            "Võistlev dialoog": { visible: true },
+            "Innovatsioonipartnerlus": { visible: true },
+            "Kontsessioonimenetlus": { visible: true },
+            "Erimenetlused": { visible: true }
+        };
+
+        const internationalProcedureData = {
+            "Avatud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 143000, visible: true },
+            "Avatud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 143000, visible: true },
+            "Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 45, piirmäär: 5538000, visible: true },
+            "Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Piiratud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000, visible: true },
+            "Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000, visible: true },
+            "Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000, visible: true },
+            "Võistlev dialoog asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Võistlev dialoog teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Võistlev dialoog ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000, visible: true },
+            "Kontsessioonimenetlus koos eraldi taotluse esitamisega": { taotlusteAeg: 30, pakkumusteAeg: 17, piirmäär: 5538000, visible: true },
+            "Kontsessioonimenetlus ilma eraldi taotlust esitamata": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 5538000, visible: true },
+            "Sotsiaalteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000, visible: true },
+            "Eriteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000, visible: true }
+        };
+
+        // Define default roles and their permissions
+        const defaultRoles = {
+            admin: {
+                name: "Admin",
+                description: "Täielik juurdepääs kõigile funktsioonidele",
+                permissions: {
+                    fullAccess: true,
+                    userManagement: true,
+                    settingsManagement: true,
+                    roleManagement: true,
+                    search: true,
+                    viewPublicContent: true,
+                    viewHiddenContent: true,
+                    viewTimeline: true,
+                    saveSearches: true,
+                    deleteAdminMenu: true
+                },
+                isSystem: true
+            },
+            tavakasutaja: {
+                name: "Tavakasutaja",
+                description: "Põhiline juurdepääs avalikule sisule",
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    search: true,
+                    viewPublicContent: true,
+                    viewHiddenContent: false,
+                    viewTimeline: false,
+                    saveSearches: false,
+                    deleteAdminMenu: false
+                },
+                isSystem: false
+            },
+            hankija: {
+                name: "Hankija",
+                description: "Hankeprotsesside haldamine",
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    search: true,
+                    viewPublicContent: true,
+                    viewHiddenContent: false,
+                    viewTimeline: true,
+                    saveSearches: true,
+                    deleteAdminMenu: false
+                },
+                isSystem: false
+            },
+            erioigused: {
+                name: "Eriõigused",
+                description: "Admin õigused ilma rollide haldamiseta",
+                permissions: {
+                    fullAccess: true,
+                    userManagement: true,
+                    settingsManagement: true,
+                    roleManagement: false,
+                    search: true,
+                    viewPublicContent: true,
+                    viewHiddenContent: true,
+                    viewTimeline: true,
+                    saveSearches: true,
+                    deleteAdminMenu: false
+                },
+                isSystem: false
+            }
+        };
+
+        // Initialize roles with defaults
+        let roles = { ...defaultRoles };
+
+        // Function to load saved roles from localStorage
+        function loadSavedRoles() {
+            try {
+                const savedRoles = localStorage.getItem('userRoles');
+                if (savedRoles) {
+                    const parsedRoles = JSON.parse(savedRoles);
+                    // Merge saved roles with defaults to ensure all required fields exist
+                    Object.keys(parsedRoles).forEach(key => {
+                        roles[key] = {
+                            ...defaultRoles[key],
+                            ...parsedRoles[key]
+                        };
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading roles:', error);
+                showNotification('Viga rollide laadimisel!', 'error');
+            }
+        }
+
+        // Function to save roles to localStorage
+        async function saveRoles() {
+            try {
+                localStorage.setItem('userRoles', JSON.stringify(roles));
+                return true;
+            } catch (error) {
+                console.error('Error saving roles:', error);
+                throw error;
+            }
+        }
+
+        // Function to edit a role
+        window.editRole = async function (roleId) {
+            if (roles[roleId].isSystem) {
+                showNotification('Süsteemi rolle ei saa muuta!', 'error');
+                return;
+            }
+
+            const role = roles[roleId];
+            const container = document.querySelector('#rolesContainer .space-y-4');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="bg-white p-4 rounded-lg shadow-sm space-y-4">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="roleName" class="block text-sm font-medium text-gray-700">Rolli nimi:</label>
+                            <input type="text" id="roleName" value="${role.name}"
+                                class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                required>
+                        </div>
+                        <div>
+                            <label for="roleDescription" class="block text-sm font-medium text-gray-700">Kirjeldus:</label>
+                            <textarea id="roleDescription"
+                                class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                rows="2">${role.description}</textarea>
+                        </div>
+                        <div class="space-y-2">
+                            <h5 class="text-sm font-medium text-gray-700">Õigused:</h5>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="searchPermission" class="rounded text-blue-600" ${role.permissions.search ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Otsingute tegemine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="viewPublicContent" class="rounded text-blue-600" ${role.permissions.viewPublicContent ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Avaliku sisu vaatamine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="viewHiddenContent" class="rounded text-blue-600" ${role.permissions.viewHiddenContent ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Peidetud sisu vaatamine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="viewTimeline" class="rounded text-blue-600" ${role.permissions.viewTimeline ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Timeline vaatamine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="saveSearches" class="rounded text-blue-600" ${role.permissions.saveSearches ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Otsingute salvestamine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="settingsManagement" class="rounded text-blue-600" ${role.permissions.settingsManagement ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Seadete muutmine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="userManagement" class="rounded text-blue-600" ${role.permissions.userManagement ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Kasutajate haldamine</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button onclick="cancelEditRole()"
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                            Tühista
+                        </button>
+                        <button onclick="saveRole('${roleId}')"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                            Salvesta
+                        </button>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Function to save a role
+        window.saveRole = async function (roleId) {
+            try {
+                const name = document.getElementById('roleName').value;
+                const description = document.getElementById('roleDescription').value;
+                const permissions = {
+                    search: document.getElementById('searchPermission').checked,
+                    viewPublicContent: document.getElementById('viewPublicContent').checked,
+                    viewHiddenContent: document.getElementById('viewHiddenContent').checked,
+                    viewTimeline: document.getElementById('viewTimeline').checked,
+                    saveSearches: document.getElementById('saveSearches').checked,
+                    settingsManagement: document.getElementById('settingsManagement').checked,
+                    userManagement: document.getElementById('userManagement').checked,
+                    roleManagement: roles[roleId].permissions.roleManagement,
+                    fullAccess: roles[roleId].permissions.fullAccess,
+                    deleteAdminMenu: roles[roleId].permissions.deleteAdminMenu
+                };
+
+                roles[roleId] = {
+                    ...roles[roleId],
+                    name,
+                    description,
+                    permissions
+                };
+
+                await saveRoles();
+                showNotification('Roll salvestatud!', 'success');
+                loadRoles();
+            } catch (error) {
+                console.error('Error saving role:', error);
+                showNotification('Viga rolli salvestamisel!', 'error');
+            }
+        };
+
+        // Function to delete a role
+        window.deleteRole = async function (roleId) {
+            if (roles[roleId].isSystem) {
+                showNotification('Süsteemi rolle ei saa kustutada!', 'error');
+                return;
+            }
+
+            if (!confirm('Kas oled kindel, et soovid selle rolli kustutada?')) return;
+
+            try {
+                delete roles[roleId];
+                await saveRoles();
+                showNotification('Roll kustutatud!', 'success');
+                loadRoles();
+            } catch (error) {
+                console.error('Error deleting role:', error);
+                showNotification('Viga rolli kustutamisel!', 'error');
+            }
+        };
+
+        // Function to cancel role editing
+        window.cancelEditRole = function () {
+            loadRoles();
+        };
+
+        // Function to load roles into the UI
+        function loadRoles() {
+            const rolesContainer = document.querySelector('#rolesContainer .space-y-4');
+            if (!rolesContainer) return;
+
+            rolesContainer.innerHTML = '';
+
+            Object.entries(roles).forEach(([roleId, role]) => {
+                const roleElement = document.createElement('div');
+                roleElement.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200';
+                roleElement.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">${role.name}</h4>
+                            <p class="text-sm text-gray-500">${role.description}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${role.isSystem ? `
+                                <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Süsteem</span>
+                            ` : `
+                                <button onclick="editRole('${roleId}')" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteRole('${roleId}')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <h5 class="text-sm font-medium text-gray-700">Õigused:</h5>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                ${Object.entries(role.permissions).map(([key, value]) => `
+                                    <li class="flex items-center">
+                                        <i class="fas ${value ? 'fa-check text-green-500' : 'fa-times text-red-500'} mr-2"></i>
+                                        ${getPermissionLabel(key)}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                rolesContainer.appendChild(roleElement);
+            });
+        }
+
+        // Function to get permission labels
+        function getPermissionLabel(key) {
+            const labels = {
+                fullAccess: 'Täielik juurdepääs',
+                userManagement: 'Kasutajate haldamine',
+                settingsManagement: 'Seadete muutmine',
+                roleManagement: 'Rollide haldamine',
+                search: 'Otsingute tegemine',
+                viewPublicContent: 'Avaliku sisu vaatamine',
+                viewHiddenContent: 'Peidetud sisu vaatamine',
+                viewTimeline: 'Timeline vaatamine',
+                saveSearches: 'Otsingute salvestamine',
+                deleteAdminMenu: 'Admin menüü kustutamine'
+            };
+            return labels[key] || key;
+        }
+
+        // Add role button event listener
+        document.getElementById('addRoleButton').addEventListener('click', function () {
+            const newRoleId = 'role_' + Date.now();
+            roles[newRoleId] = {
+                name: 'Uus roll',
+                description: 'Kirjeldus',
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    search: false,
+                    viewPublicContent: false,
+                    viewHiddenContent: false,
+                    viewTimeline: false,
+                    saveSearches: false,
+                    deleteAdminMenu: false
+                },
+                isSystem: false
+            };
+            editRole(newRoleId);
+        });
+
+        // Function to show notifications
+        window.showNotification = function (message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white transform transition-all duration-300 translate-y-0 opacity-100`;
+            notification.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateY(-100%)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        };
+
+        // Load roles when the page loads
         document.addEventListener("DOMContentLoaded", () => {
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
@@ -59,12 +776,23 @@
                     const userSnap = await getDoc(userRef);
 
                     if (!userSnap.exists()) {
-                        console.error("User document does not exist in Firestore.");
-                        alert("User document missing.");
-                        return;
+                        console.log("Creating new user document in Firestore...");
+                        // Create new user document with default values
+                        await setDoc(userRef, {
+                            email: user.email,
+                            role: "tavakasutaja", // Default role
+                            approved: false, // Default approval status
+                            createdAt: new Date(),
+                            uid: user.uid
+                        });
+                        console.log("User document created successfully!");
                     }
 
-                    const userData = userSnap.data();
+                    const userData = userSnap.exists() ? userSnap.data() : {
+                        email: user.email,
+                        role: "tavakasutaja",
+                        approved: false
+                    };
                     console.log("User Data from Firestore:", userData);
 
                     if (userData.role !== "admin") {
@@ -76,6 +804,8 @@
 
                     console.log("Admin access granted.");
                     loadUsers();
+                    loadSavedRoles();
+                    loadRoles();
                 } catch (error) {
                     console.error("Error checking user role:", error);
                     alert("Permission error. Check Firestore rules.");
@@ -103,6 +833,447 @@
                     alert("Logout failed.");
                 });
             }
+
+            // Roles Modal functionality
+            const rolesButton = document.getElementById("rolesButton");
+            const rolesContainer = document.getElementById("rolesContainer");
+            const rolesBackdrop = document.getElementById("rolesBackdrop");
+            const closeRoles = document.getElementById("closeRoles");
+
+            if (!rolesButton || !rolesContainer) {
+                console.error("❌ rolesButton or rolesContainer not found in the DOM!");
+                return;
+            }
+
+            // Function to open roles modal
+            function openRoles() {
+                rolesContainer.classList.remove("hidden");
+                rolesBackdrop.classList.remove("hidden");
+                document.body.style.overflow = "hidden"; // Prevent scrolling of background
+                loadRoles();
+            }
+
+            // Function to close roles modal
+            function closeRolesModal() {
+                rolesContainer.classList.add("hidden");
+                rolesBackdrop.classList.add("hidden");
+                document.body.style.overflow = ""; // Restore scrolling
+            }
+
+            // Toggle roles modal
+            rolesButton.addEventListener("click", openRoles);
+
+            // Close roles modal when clicking the close button
+            closeRoles.addEventListener("click", closeRolesModal);
+
+            // Close roles modal when clicking outside the container
+            rolesBackdrop.addEventListener("click", (e) => {
+                if (e.target === rolesBackdrop) {
+                    closeRolesModal();
+                }
+            });
+
+            // Close roles modal when pressing Escape key
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && !rolesContainer.classList.contains("hidden")) {
+                    closeRolesModal();
+                }
+            });
+
+            // Settings functionality
+            const settingsButton = document.getElementById("settingsButton");
+            const settingsContainer = document.getElementById("settingsContainer");
+            const settingsBackdrop = document.getElementById("settingsBackdrop");
+            const closeSettings = document.getElementById("closeSettings");
+            const procedureTypeSelect = document.getElementById("procedureTypeSelect");
+            const addProcedureTypeButton = document.getElementById("addProcedureTypeButton");
+            const settingsForm = document.getElementById("settingsForm");
+
+            if (!settingsButton || !settingsContainer) {
+                console.error("❌ settingsButton or settingsContainer not found in the DOM!");
+                return;
+            }
+
+            // Function to open settings
+            function openSettings() {
+                settingsContainer.classList.remove("hidden");
+                settingsBackdrop.classList.remove("hidden");
+                document.body.style.overflow = "hidden"; // Prevent scrolling of background
+                loadSettings();
+                loadProcedureTypes();
+            }
+
+            // Function to close settings
+            function closeSettingsModal() {
+                settingsContainer.classList.add("hidden");
+                settingsBackdrop.classList.add("hidden");
+                document.body.style.overflow = ""; // Restore scrolling
+            }
+
+            // Load saved settings from localStorage
+            loadSavedSettings();
+
+            // Toggle settings container
+            settingsButton.addEventListener("click", openSettings);
+
+            // Close settings when clicking the close button
+            closeSettings.addEventListener("click", closeSettingsModal);
+
+            // Close settings when clicking outside the container
+            settingsBackdrop.addEventListener("click", (e) => {
+                if (e.target === settingsBackdrop) {
+                    closeSettingsModal();
+                }
+            });
+
+            // Close settings when pressing Escape key
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && !settingsContainer.classList.contains("hidden")) {
+                    closeSettingsModal();
+                }
+            });
+
+            // Handle settings form submission
+            if (settingsForm) {
+                settingsForm.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+
+                    // Show loading state
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    const originalText = submitButton.innerHTML;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Salvestamine...</span>';
+                    submitButton.disabled = true;
+
+                    try {
+                        settings.documentPreparationDays = parseInt(document.getElementById('documentPreparationDays').value);
+                        settings.offerEvaluationDays = parseInt(document.getElementById('offerEvaluationDays').value);
+                        settings.decisionDays = parseInt(document.getElementById('decisionDays').value);
+                        settings.bidderEvaluationDays = parseInt(document.getElementById('bidderEvaluationDays').value);
+                        settings.successfulBidderDays = parseInt(document.getElementById('successfulBidderDays').value);
+                        settings.waitingPeriodDays = parseInt(document.getElementById('waitingPeriodDays').value);
+
+                        await saveSettings();
+
+                        // Show success message
+                        showNotification('Seaded salvestatud edukalt!', 'success');
+                    } catch (error) {
+                        console.error('Error saving settings:', error);
+                        showNotification('Viga seadete salvestamisel!', 'error');
+                    } finally {
+                        // Restore button state
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+                    }
+                });
+            }
+
+            // Add procedure type button event listener
+            if (addProcedureTypeButton) {
+                addProcedureTypeButton.addEventListener('click', function () {
+                    addProcedureType();
+                });
+            }
+
+            // Procedure type select change event listener
+            if (procedureTypeSelect) {
+                procedureTypeSelect.addEventListener('change', function () {
+                    const selectedType = this.value;
+                    loadProcedureTypeSettings(selectedType);
+                });
+            }
+
+            // Function to load settings into form
+            function loadSettings() {
+                document.getElementById('documentPreparationDays').value = settings.documentPreparationDays;
+                document.getElementById('offerEvaluationDays').value = settings.offerEvaluationDays;
+                document.getElementById('decisionDays').value = settings.decisionDays;
+                document.getElementById('bidderEvaluationDays').value = settings.bidderEvaluationDays;
+                document.getElementById('successfulBidderDays').value = settings.successfulBidderDays;
+                document.getElementById('waitingPeriodDays').value = settings.waitingPeriodDays;
+            }
+
+            // Function to save settings to localStorage
+            async function saveSettings() {
+                try {
+                    localStorage.setItem('procurementSettings', JSON.stringify(settings));
+                    localStorage.setItem('procedureData', JSON.stringify(procedureData));
+                    localStorage.setItem('internationalProcedureData', JSON.stringify(internationalProcedureData));
+                    return true;
+                } catch (error) {
+                    console.error('Error saving settings:', error);
+                    throw error;
+                }
+            }
+
+            // Function to load saved settings from localStorage
+            function loadSavedSettings() {
+                try {
+                    const savedSettings = localStorage.getItem('procurementSettings');
+                    if (savedSettings) {
+                        settings = JSON.parse(savedSettings);
+                    }
+
+                    const savedProcedureData = localStorage.getItem('procedureData');
+                    if (savedProcedureData) {
+                        const parsedData = JSON.parse(savedProcedureData);
+                        Object.keys(parsedData).forEach(key => {
+                            procedureData[key] = {
+                                ...parsedData[key],
+                                visible: parsedData[key].visible ?? true // Default to true if not set
+                            };
+                        });
+                    }
+
+                    const savedInternationalProcedureData = localStorage.getItem('internationalProcedureData');
+                    if (savedInternationalProcedureData) {
+                        const parsedData = JSON.parse(savedInternationalProcedureData);
+                        Object.keys(parsedData).forEach(key => {
+                            internationalProcedureData[key] = {
+                                ...parsedData[key],
+                                visible: parsedData[key].visible ?? true // Default to true if not set
+                            };
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading settings:', error);
+                    showNotification('Viga seadete laadimisel!', 'error');
+                }
+            }
+
+            // Function to load procedure types from local procedureData
+            function loadProcedureTypes() {
+                const select = document.getElementById('procedureTypeSelect');
+                select.innerHTML = '';
+
+                // Add all procedures without optgroups
+                for (const type in procedureData) {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    select.appendChild(option);
+                }
+
+                if (select.options.length > 0) {
+                    loadProcedureTypeSettings(select.options[0].value);
+                }
+            }
+
+            // Load settings for a specific procedure type
+            function loadProcedureTypeSettings(type) {
+                const procedure = procedureData[type];
+                const container = document.getElementById('procedureTypeSettings');
+                container.innerHTML = `
+                    <div class="bg-white p-4 rounded-lg shadow-sm space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label for="procedureTypeName" class="block text-sm font-medium text-gray-700">Menetlusliik:</label>
+                                <input type="text" id="procedureTypeName" value="${type}"
+                                    class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                    required>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="requestDays" class="block text-sm font-medium text-gray-700">Taotluste aeg (päevad):</label>
+                                <input type="number" id="requestDays" value="${procedure?.taotlusteAeg || 0}"
+                                    class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                    required>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="offerDays" class="block text-sm font-medium text-gray-700">Pakkumuste aeg (päevad):</label>
+                                <input type="number" id="offerDays" value="${procedure?.pakkumusteAeg || 0}"
+                                    class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                    required>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="threshold" class="block text-sm font-medium text-gray-700">Piirmäär (€):</label>
+                                <input type="number" id="threshold" value="${procedure?.piirmäär || 60000}"
+                                    class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                    required>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="useInternationalThreshold" class="block text-sm font-medium text-gray-700">Kasuta rahvusvahelisi piirmääre:</label>
+                                <div class="flex items-center space-x-2">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="useInternationalThreshold" class="sr-only peer" ${procedure?.useInternational ? 'checked' : ''}>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="procedureVisibility" class="block text-sm font-medium text-gray-700">Menetlusliigi nähtavus:</label>
+                                <div class="flex items-center space-x-2">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="procedureVisibility" class="sr-only peer" ${procedure?.visible ? 'checked' : ''}>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                                        <span class="ml-2 text-sm text-gray-600">${procedure?.visible ? 'Nähtav' : 'Peidetud'}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button onclick="deleteProcedureType('${type}')"
+                                class="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-all duration-200 flex items-center space-x-2 text-sm">
+                                <i class="fas fa-trash"></i>
+                                <span>Kustuta</span>
+                            </button>
+                            <button onclick="saveProcedureType('${type}')"
+                                class="bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-all duration-200 flex items-center space-x-2 text-sm">
+                                <i class="fas fa-save"></i>
+                                <span>Salvesta</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Add event listeners
+                const visibilityToggle = document.getElementById('procedureVisibility');
+                const visibilityLabel = visibilityToggle.nextElementSibling.nextElementSibling;
+                const internationalToggle = document.getElementById('useInternationalThreshold');
+
+                // Visibility toggle event listener
+                visibilityToggle.addEventListener('change', function () {
+                    const isVisible = this.checked;
+                    visibilityLabel.textContent = isVisible ? 'Nähtav' : 'Peidetud';
+
+                    if (procedureData[type]) {
+                        procedureData[type].visible = isVisible;
+                    }
+
+                    saveSettings().then(() => {
+                        showNotification(`Menetlusliik ${isVisible ? 'nähtav' : 'peidetud'}!`, 'success');
+                        loadProcedureTypes();
+
+                        window.dispatchEvent(new CustomEvent('procedureVisibilityChanged', {
+                            detail: { type, visible: isVisible }
+                        }));
+                    }).catch(error => {
+                        console.error('Error saving visibility:', error);
+                        showNotification('Viga nähtavuse salvestamisel!', 'error');
+                    });
+                });
+
+                // International threshold toggle event listener
+                if (internationalToggle) {
+                    internationalToggle.addEventListener('change', function () {
+                        toggleInternationalThreshold(type);
+                    });
+                }
+            }
+
+            // Make functions available globally
+            window.toggleInternationalThreshold = function (type) {
+                const useInternational = document.getElementById('useInternationalThreshold').checked;
+                const requestDaysInput = document.getElementById('requestDays');
+                const offerDaysInput = document.getElementById('offerDays');
+                const thresholdInput = document.getElementById('threshold');
+
+                if (useInternational && internationalProcedureData[type]) {
+                    // Use international values
+                    requestDaysInput.value = internationalProcedureData[type].taotlusteAeg || 0;
+                    offerDaysInput.value = internationalProcedureData[type].pakkumusteAeg || 0;
+                    thresholdInput.value = internationalProcedureData[type].piirmäär || 60000;
+                } else {
+                    // Use default values
+                    requestDaysInput.value = procedureData[type]?.taotlusteAeg || 0;
+                    offerDaysInput.value = procedureData[type]?.pakkumusteAeg || 0;
+                    thresholdInput.value = procedureData[type]?.piirmäär || 60000;
+                }
+            };
+
+            window.deleteProcedureType = async function (type) {
+                if (!confirm('Kas oled kindel, et soovid selle menetlusliigi kustutada?')) return;
+                try {
+                    delete procedureData[type];
+                    await saveSettings();
+                    loadProcedureTypes();
+                    showNotification('Menetlusliik kustutatud!', 'success');
+                } catch (error) {
+                    console.error('Error deleting procedure type:', error);
+                    showNotification('Viga menetlusliigi kustutamisel!', 'error');
+                }
+            };
+
+            window.saveProcedureType = async function (oldType) {
+                try {
+                    const newType = document.getElementById('procedureTypeName').value;
+                    const requestDays = parseInt(document.getElementById('requestDays').value);
+                    const offerDays = parseInt(document.getElementById('offerDays').value);
+                    const useInternational = document.getElementById('useInternationalThreshold').checked;
+                    const visible = document.getElementById('procedureVisibility').checked;
+
+                    if (!newType || isNaN(requestDays) || isNaN(offerDays)) {
+                        showNotification('Palun täida kõik väljad!', 'error');
+                        return;
+                    }
+
+                    // If changing visibility of an international procedure, update both data structures
+                    if (internationalProcedureData[oldType]) {
+                        internationalProcedureData[newType] = {
+                            ...internationalProcedureData[oldType],
+                            visible: visible
+                        };
+                        if (oldType !== newType) {
+                            delete internationalProcedureData[oldType];
+                        }
+                    }
+
+                    // Update or create new procedure
+                    delete procedureData[oldType];
+                    procedureData[newType] = {
+                        taotlusteAeg: requestDays,
+                        pakkumusteAeg: offerDays,
+                        piirmäär: 60000,
+                        useInternational,
+                        visible
+                    };
+
+                    await saveSettings();
+                    loadProcedureTypes();
+                    showNotification(`Menetlusliik ${visible ? 'nähtav' : 'peidetud'}!`, 'success');
+                } catch (error) {
+                    console.error('Error saving procedure type:', error);
+                    showNotification('Viga menetlusliigi salvestamisel!', 'error');
+                }
+            };
+
+            window.saveNewProcedureType = async function () {
+                try {
+                    const newType = document.getElementById('procedureTypeName').value;
+                    const requestDays = parseInt(document.getElementById('requestDays').value);
+                    const offerDays = parseInt(document.getElementById('offerDays').value);
+                    const useInternational = document.getElementById('useInternationalThreshold').checked;
+                    const visible = document.getElementById('procedureVisibility').checked;
+
+                    if (!newType || isNaN(requestDays) || isNaN(offerDays)) {
+                        showNotification('Palun täida kõik väljad!', 'error');
+                        return;
+                    }
+
+                    procedureData[newType] = {
+                        taotlusteAeg: requestDays,
+                        pakkumusteAeg: offerDays,
+                        piirmäär: 60000,
+                        useInternational,
+                        visible
+                    };
+
+                    await saveSettings();
+                    loadProcedureTypes();
+                    showNotification('Menetlusliik lisatud!', 'success');
+                } catch (error) {
+                    console.error('Error saving new procedure type:', error);
+                    showNotification('Viga menetlusliigi lisamisel!', 'error');
+                }
+            };
+
+            // Function to get visible procedure types
+            window.getVisibleProcedureTypes = function () {
+                return Object.entries(procedureData)
+                    .filter(([_, data]) => data.visible)
+                    .reduce((acc, [key, value]) => {
+                        acc[key] = value;
+                        return acc;
+                    }, {});
+            };
         });
 
         async function loadUsers() {
@@ -128,12 +1299,30 @@
 
                     const userRow = document.createElement("tr");
                     userRow.innerHTML = `
-                        <td class="border px-4 py-2">${userData.email}</td>
-                        <td class="border px-4 py-2">${userData.role}</td>
-                        <td class="border px-4 py-2">${userData.approved}</td>
-                        <td class="border px-4 py-2">
-                            <button class="approve-btn bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors duration-300" onclick="approveUser('${docSnapshot.id}')" aria-label="Approve User">Approve</button>
-                            <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors duration-300" onclick="deleteUser('${docSnapshot.id}')" aria-label="Delete User">Delete</button>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${userData.email}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <select onchange="updateUserRole('${docSnapshot.id}', this.value)" 
+                                class="text-sm border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                ${userData.role === 'admin' ? 'disabled' : ''}>
+                                ${Object.entries(roles).map(([roleId, role]) => `
+                                    <option value="${roleId}" ${userData.role === roleId ? 'selected' : ''}>
+                                        ${role.name}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${userData.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                ${userData.approved ? 'Kinnitatud' : 'Ootel'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                            <button onclick="approveUser('${docSnapshot.id}')" class="text-green-600 hover:text-green-900">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button onclick="deleteUser('${docSnapshot.id}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     `;
                     userTable.appendChild(userRow);
@@ -170,390 +1359,113 @@
                 alert("Failed to delete user.");
             }
         };
-    </script>
 
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <aside class="w-45 bg-gradient-to-bl from-blue-100 to-blue-200 text-black p-6">
-            <h2 class="text-2xl font-bold">Admin</h2>
-            <ul class="mt-6 space-y-4">
-                <li><a href="index.html" class="block hover:underline">🏠 Tagasi</a></li>
-                <li><button id="settingsButton" class="block hover:underline">⚙️ Seaded</button></li>
-                <li><a href="#" class="block hover:underline">👥 Kasutajad</a></li>
-                <li><a href="#" class="block hover:underline">📊 Statistika</a></li>
-                <li><button id="logoutButton"
-                        class="mt-4 w-full bg-red-600 px-4 py-2 rounded hover:bg-red-700 transition-colors duration-300">Logi
-                        välja</button></li>
-            </ul>
-        </aside>
+        // Add the updateUserRole function
+        window.updateUserRole = async (userId, newRole) => {
+            try {
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, { role: newRole });
+                showNotification('Kasutaja roll muudetud!', 'success');
+                loadUsers(); // Refresh user list
+            } catch (error) {
+                console.error("Error updating user role:", error);
+                showNotification('Viga kasutaja rolli muutmisel!', 'error');
+            }
+        };
 
-        <!-- Main Content -->
-        <main class="flex-1 p-6">
-            <!-- Header with User Dropdown -->
-            <header class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800"></h1>
+        // Add User Modal functionality
+        const addUserButton = document.getElementById("addUserButton");
+        const addUserContainer = document.getElementById("addUserContainer");
+        const addUserBackdrop = document.getElementById("addUserBackdrop");
+        const closeAddUser = document.getElementById("closeAddUser");
+        const addUserForm = document.getElementById("addUserForm");
+        const userRoleSelect = document.getElementById("userRole");
 
-                <!-- User Dropdown -->
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open"
-                        class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors duration-300">
-                        <i class="fas fa-user-circle text-xl"></i>
-                        <span class="hidden md:inline">Admin</span>
-                        <i class="fas fa-chevron-down text-xs"></i>
-                    </button>
+        // Populate role select with available roles
+        Object.entries(roles).forEach(([roleId, role]) => {
+            const option = document.createElement('option');
+            option.value = roleId;
+            option.textContent = role.name;
+            userRoleSelect.appendChild(option);
+        });
 
-                    <div x-show="open" @click.away="open = false"
-                        class="absolute right-0 mt-2 w-48 bg-white bg-opacity-95 border rounded-lg shadow-md z-50">
-                        <button id="changeEmail"
-                            class="block w-full text-left px-4 py-2 text-sm text-blue-500 hover:bg-gray-100 transition-colors duration-300">
-                            <i class="fas fa-envelope mr-2"></i> Muuda e-post
-                        </button>
-                        <button id="changePassword"
-                            class="block w-full text-left px-4 py-2 text-sm text-green-500 hover:bg-gray-100 transition-colors duration-300">
-                            <i class="fas fa-key mr-2"></i> Muuda parool
-                        </button>
-                        <button id="logoutButtonDropdown"
-                            class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 transition-colors duration-300">
-                            <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
-                        </button>
-                    </div>
-                </div>
-            </header>
+        // Function to open add user modal
+        function openAddUserModal() {
+            addUserContainer.classList.remove("hidden");
+            addUserBackdrop.classList.remove("hidden");
+            document.body.style.overflow = "hidden";
+        }
 
-            <!-- User Management Table -->
-            <div class=" mt-6 p-6 rounded shadow">
-                <h2 class="text-lg font-semibold mb-4">Kasutajad</h2>
-                <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="">
-                            <th class=" px-4 py-2">Email</th>
-                            <th class="px-4 py-2">Roll</th>
-                            <th class="px-4 py-2">Kinnitatud</th>
-                            <th class="px-4 py-2">Tegevused</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTable">
-                        <!-- Users dynamically added here -->
-                    </tbody>
-                </table>
-            </div>
-            <div id="settingsContainer" class="hidden bg-white p-6 rounded shadow mt-6">
-                <h2 class="text-xl font-semibold">Seaded</h2>
-                <p class="text-gray-600 mt-2">Siin saad muuta administraatori seadeid.</p>
+        // Function to close add user modal
+        window.closeAddUserModal = function () {
+            addUserContainer.classList.add("hidden");
+            addUserBackdrop.classList.add("hidden");
+            document.body.style.overflow = "";
+            addUserForm.reset();
+        };
 
-                <!-- Form Section -->
-                <form id="settingsForm" class="flex-1 space-y-6 bg-gray-50 p-4 rounded-lg shadow-md mt-4">
-                    <h3 class="text-lg font-bold text-gray-800">📑 Menetlusliigi sätted</h3>
+        // Add user button click event
+        addUserButton.addEventListener("click", openAddUserModal);
 
-                    <div class="relative">
-                        <label for="documentPreparationDays" class="block text-gray-700 mb-1">📄 Riigihanke
-                            alusdokumentide koostamine (päevad):</label>
-                        <input type="number" id="documentPreparationDays" name="documentPreparationDays"
-                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Sisesta päevad" required>
-                    </div>
+        // Close add user modal when clicking the close button
+        closeAddUser.addEventListener("click", closeAddUserModal);
 
-                    <div class="relative">
-                        <label for="offerEvaluationDays" class="block text-gray-700 mb-1">🧐 Pakkumuste hindamine
-                            (päevad):</label>
-                        <input type="number" id="offerEvaluationDays" name="offerEvaluationDays"
-                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Sisesta päevad" required>
-                    </div>
+        // Close add user modal when clicking outside
+        addUserBackdrop.addEventListener("click", (e) => {
+            if (e.target === addUserBackdrop) {
+                closeAddUserModal();
+            }
+        });
 
-                    <div class="relative">
-                        <label for="decisionDays" class="block text-gray-700 mb-1">✅ Vastavaks ja edukaks tunnistamise
-                            otsus (päevad):</label>
-                        <input type="number" id="decisionDays" name="decisionDays"
-                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Sisesta päevad" required>
-                    </div>
+        // Close add user modal when pressing Escape key
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !addUserContainer.classList.contains("hidden")) {
+                closeAddUserModal();
+            }
+        });
 
-                    <div class="relative">
-                        <label for="bidderEvaluationDays" class="block text-gray-700 mb-1">📊 Pakkujate hindamine
-                            (päevad):</label>
-                        <input type="number" id="bidderEvaluationDays" name="bidderEvaluationDays"
-                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Sisesta päevad" required>
-                    </div>
+        // Handle add user form submission
+        addUserForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
 
-                    <div class="relative">
-                        <label for="successfulBidderDays" class="block text-gray-700 mb-1">🏆 Eduka kõrvaldamata jätmine
-                            ja kval (päevad):</label>
-                        <input type="number" id="successfulBidderDays" name="successfulBidderDays"
-                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Sisesta päevad" required>
-                    </div>
+            const email = document.getElementById("userEmail").value;
+            const password = document.getElementById("userPassword").value;
+            const role = document.getElementById("userRole").value;
+            const approved = document.getElementById("userApproved").checked;
 
-                    <div class="relative">
-                        <label for="waitingPeriodDays" class="block text-gray-700 mb-1">⏳ Ooteaeg (päevad):</label>
-                        <input type="number" id="waitingPeriodDays" name="waitingPeriodDays"
-                            class="w-full p-3 border rounded-lg bg-white text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Sisesta päevad" required>
-                    </div>
-                </form>
+            try {
+                // Create user in Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
 
-                <!-- Procedure Type Selection -->
-                <div class="flex-1 bg-gray-50 p-4 rounded-lg shadow-md mt-4">
-                    <h3 class="text-lg font-bold text-gray-800 mb-3">🛠️ Menetlusliigid</h3>
-                    <select id="procedureTypeSelect"
-                        class="w-full p-3 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <!-- Options will be populated dynamically -->
-                    </select>
-                    <div id="procedureTypeSettings" class="mt-4 space-y-4">
-                        <!-- Procedure type settings will be displayed here -->
-                    </div>
-                    <button id="addProcedureTypeButton"
-                        class="w-full flex items-center justify-center gap-2 mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white p-3 rounded-lg shadow-md hover:from-green-600 hover:to-green-700 hover:scale-105 transition-all duration-300">
-                        ➕ Lisa Menetlusliik
-                    </button>
-                </div>
-            </div>
-            <!-- ✅ Settings Section (Hidden by Default) -->
-            <div id="settingsContainerAlt" class="hidden">
-                <!-- Settings content goes here -->
-            </div>
-
-            <script>
-                // Define default settings
-                const defaultSettings = {
-                    documentPreparationDays: 10,
-                    offerEvaluationDays: 5,
-                    decisionDays: 3,
-                    bidderEvaluationDays: 5,
-                    successfulBidderDays: 3,
-                    waitingPeriodDays: 10
-                };
-
-                // Initialize settings with defaults
-                let settings = { ...defaultSettings };
-
-                const procedureData = {
-                    "Lihthankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 30000 },
-                    "Lihthankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 30000 },
-                    "Lihthankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Avatud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Avatud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 25, piirmäär: 150000 },
-                    "Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Piiratud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 25, piirmäär: 150000 },
-                    "Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 25, piirmäär: 150000 },
-                    "Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Võistlev dialoog asjade hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Võistlev dialoog teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 15, piirmäär: 60000 },
-                    "Võistlev dialoog ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 25, piirmäär: 150000 },
-                    "Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 15, pakkumusteAeg: 25, piirmäär: 150000 },
-                    "Kontsessioonimenetlus koos eraldi taotluse esitamisega": { taotlusteAeg: 30, pakkumusteAeg: 17, piirmäär: 300000 },
-                    "Kontsessioonimenetlus ilma eraldi taotlust esitamata": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 300000 },
-                    "Sotsiaalteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 300000 },
-                    "Eriteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 60000 },
-                };
-
-                const internationalProcedureData = {
-                    "Avatud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 143000 },
-                    "Avatud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 143000 },
-                    "Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 45, piirmäär: 5538000 },
-                    "Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
-                    "Piiratud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
-                    "Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000 },
-                    "Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
-                    "Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
-                    "Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000 },
-                    "Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
-                    "Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
-                    "Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000 },
-                    "Võistlev dialoog asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
-                    "Võistlev dialoog teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000 },
-                    "Võistlev dialoog ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000 },
-                    "Kontsessioonimenetlus koos eraldi taotluse esitamisega": { taotlusteAeg: 30, pakkumusteAeg: 17, piirmäär: 5538000 },
-                    "Kontsessioonimenetlus ilma eraldi taotlust esitamata": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 5538000 },
-                    "Sotsiaalteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000 },
-                    "Eriteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000 }
-                };
-
-
-                document.addEventListener("DOMContentLoaded", () => {
-                    const settingsButton = document.getElementById("settingsButton");
-                    const settingsContainer = document.getElementById("settingsContainer");
-                    const procedureTypeSelect = document.getElementById("procedureTypeSelect");
-                    const addProcedureTypeButton = document.getElementById("addProcedureTypeButton");
-                    const settingsForm = document.getElementById("settingsForm");
-
-                    if (!settingsButton || !settingsContainer) {
-                        console.error("❌ settingsButton or settingsContainer not found in the DOM!");
-                        return;
-                    }
-
-                    // Load saved settings from localStorage
-                    loadSavedSettings();
-
-                    settingsButton.addEventListener("click", () => {
-                        settingsContainer.classList.toggle("hidden");
-                        loadSettings();
-                        loadProcedureTypes();
-                    });
-
-                    // Handle settings form submission
-                    if (settingsForm) {
-                        settingsForm.addEventListener('submit', function (event) {
-                            event.preventDefault();
-                            settings.documentPreparationDays = parseInt(document.getElementById('documentPreparationDays').value);
-                            settings.offerEvaluationDays = parseInt(document.getElementById('offerEvaluationDays').value);
-                            settings.decisionDays = parseInt(document.getElementById('decisionDays').value);
-                            settings.bidderEvaluationDays = parseInt(document.getElementById('bidderEvaluationDays').value);
-                            settings.successfulBidderDays = parseInt(document.getElementById('successfulBidderDays').value);
-                            settings.waitingPeriodDays = parseInt(document.getElementById('waitingPeriodDays').value);
-                            saveSettings();
-                            alert('Settings saved successfully!');
-                        });
-                    }
-
-                    // Add procedure type button event listener
-                    if (addProcedureTypeButton) {
-                        addProcedureTypeButton.addEventListener('click', function () {
-                            addProcedureType();
-                        });
-                    }
-
-                    // Procedure type select change event listener
-                    if (procedureTypeSelect) {
-                        procedureTypeSelect.addEventListener('change', function () {
-                            const selectedType = this.value;
-                            loadProcedureTypeSettings(selectedType);
-                        });
-                    }
-
-                    // Function to load settings into form
-                    function loadSettings() {
-                        document.getElementById('documentPreparationDays').value = settings.documentPreparationDays;
-                        document.getElementById('offerEvaluationDays').value = settings.offerEvaluationDays;
-                        document.getElementById('decisionDays').value = settings.decisionDays;
-                        document.getElementById('bidderEvaluationDays').value = settings.bidderEvaluationDays;
-                        document.getElementById('successfulBidderDays').value = settings.successfulBidderDays;
-                        document.getElementById('waitingPeriodDays').value = settings.waitingPeriodDays;
-                    }
-
-                    // Function to save settings to localStorage
-                    function saveSettings() {
-                        localStorage.setItem('procurementSettings', JSON.stringify(settings));
-                        localStorage.setItem('procedureData', JSON.stringify(procedureData));
-                    }
-
-                    // Function to load saved settings from localStorage
-                    function loadSavedSettings() {
-                        const savedSettings = localStorage.getItem('procurementSettings');
-                        if (savedSettings) {
-                            settings = JSON.parse(savedSettings);
-                        }
-
-                        const savedProcedureData = localStorage.getItem('procedureData');
-                        if (savedProcedureData) {
-                            const parsedData = JSON.parse(savedProcedureData);
-                            // Merge with default procedure data to ensure all properties exist
-                            Object.keys(parsedData).forEach(key => {
-                                procedureData[key] = parsedData[key];
-                            });
-                        }
-                    }
-
-                    // Load procedure types from local procedureData
-                    function loadProcedureTypes() {
-                        const select = document.getElementById('procedureTypeSelect');
-                        select.innerHTML = '';
-
-                        for (const type in procedureData) {
-                            const option = document.createElement('option');
-                            option.value = type;
-                            option.textContent = type;
-                            select.appendChild(option);
-                        }
-
-                        if (select.options.length > 0) {
-                            loadProcedureTypeSettings(select.options[0].value);
-                        }
-                    }
-
-                    // Load settings for a specific procedure type
-                    async function loadProcedureTypeSettings(type) {
-                        const procedure = procedureData[type];
-                        const container = document.getElementById('procedureTypeSettings');
-                        container.innerHTML = `
-                            <div class="procedure-type">
-                                <label for="procedureTypeName" class="block text-gray-700">Menetlusliik:</label>
-                                <input type="text" id="procedureTypeName" value="${type}" required><br><br>
-                                <label for="requestDays" class="block text-gray-700">Taotluste esitamise päevad:</label>
-                                <input type="number" id="requestDays" value="${procedure.taotlusteAeg}" required><br><br>
-                                <label for="offerDays" class="block text-gray-700">Pakkumuste esitamise päevad:</label>
-                                <input type="number" id="offerDays" value="${procedure.pakkumusteAeg}" required><br><br>
-                                <label for="useInternationalThreshold" class="block text-gray-700">Kasuta rahvusvahelisi tähtaegu:</label>
-                                <input type="checkbox" id="useInternationalThreshold" ${procedure.useInternational ? 'checked' : ''} onchange="toggleInternationalThreshold('${type}')"><br><br>
-                                <button onclick="deleteProcedureType('${type}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition transform hover:scale-105">Kustuta</button>
-                                <button onclick="saveProcedureType('${type}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition transform hover:scale-105">Salvesta</button>
-                            </div>
-                        `;
-                    }
-
-                    // Function to add a new procedure type
-                    function addProcedureType() {
-                        const container = document.getElementById('procedureTypeSettings');
-                        container.innerHTML = `
-                            <div class="procedure-type">
-                                <label for="procedureTypeName" class="block text-gray-700">Menetlusliik:</label>
-                                <input type="text" id="procedureTypeName" required><br><br>
-                                <label for="requestDays" class="block text-gray-700">Taotluste esitamise päevad:</label>
-                                <input type="number" id="requestDays" required><br><br>
-                                <label for="offerDays" class="block text-gray-700">Pakkumuste esitamise päevad:</label>
-                                <input type="number" id="offerDays" required><br><br>
-                                <label for="useInternationalThreshold" class="block text-gray-700">Kasuta rahvusvahelisi tähtaegu:</label>
-                                <input type="checkbox" id="useInternationalThreshold" onchange="toggleInternationalThreshold()"><br><br>
-                                <button onclick="saveNewProcedureType()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition transform hover:scale-105">Salvesta</button>
-                            </div>
-                        `;
-                    }
-
-                    // Make functions available globally
-                    window.toggleInternationalThreshold = function (type) {
-                        const useInternational = document.getElementById('useInternationalThreshold').checked;
-                        const procedure = useInternational ? internationalProcedureData[type] : procedureData[type];
-                        document.getElementById('requestDays').value = procedure.taotlusteAeg;
-                        document.getElementById('offerDays').value = procedure.pakkumusteAeg;
-                    };
-
-                    window.deleteProcedureType = function (type) {
-                        delete procedureData[type];
-                        loadProcedureTypes();
-                        saveSettings();
-                    };
-
-                    window.saveProcedureType = function (oldType) {
-                        const newType = document.getElementById('procedureTypeName').value;
-                        const requestDays = parseInt(document.getElementById('requestDays').value);
-                        const offerDays = parseInt(document.getElementById('offerDays').value);
-                        const useInternational = document.getElementById('useInternationalThreshold').checked;
-                        delete procedureData[oldType];
-                        procedureData[newType] = { taotlusteAeg: requestDays, pakkumusteAeg: offerDays, piirmäär: 60000, useInternational }; // Default piirmäär
-                        loadProcedureTypes();
-                        saveSettings();
-                    };
-
-                    window.saveNewProcedureType = function () {
-                        const newType = document.getElementById('procedureTypeName').value;
-                        const requestDays = parseInt(document.getElementById('requestDays').value);
-                        const offerDays = parseInt(document.getElementById('offerDays').value);
-                        const useInternational = document.getElementById('useInternationalThreshold').checked;
-                        procedureData[newType] = { taotlusteAeg: requestDays, pakkumusteAeg: offerDays, piirmäär: 60000, useInternational }; // Default piirmäär
-                        loadProcedureTypes();
-                        saveSettings();
-                    };
+                // Add user data to Firestore
+                await addDoc(collection(db, "users"), {
+                    email: email,
+                    role: role,
+                    approved: approved,
+                    createdAt: new Date(),
+                    uid: user.uid
                 });
-            </script>
-        </main>
-    </div>
 
+                showNotification("Kasutaja lisatud edukalt!", "success");
+                closeAddUserModal();
+                loadUsers(); // Refresh user list
+            } catch (error) {
+                console.error("Error adding user:", error);
+                let errorMessage = "Viga kasutaja lisamisel!";
+
+                if (error.code === "auth/email-already-in-use") {
+                    errorMessage = "See e-posti aadress on juba kasutusel!";
+                } else if (error.code === "auth/invalid-email") {
+                    errorMessage = "Vigane e-posti aadress!";
+                } else if (error.code === "auth/weak-password") {
+                    errorMessage = "Parool on liiga nõrk!";
+                }
+
+                showNotification(errorMessage, "error");
+            }
+        });
+    </script>
 </body>
 
 </html>

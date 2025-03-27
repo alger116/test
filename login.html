@@ -110,18 +110,20 @@
 
         <!-- ✅ Login Button (Hidden when Logged In) -->
         <template x-if="!loggedIn">
-            <a href="#" @click.prevent="open = true"
-                class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:from-blue-600 hover:to-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-300">
+            <button @click="open = true" @touchstart="open = true"
+                class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center shadow-md hover:from-blue-600 hover:to-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-300 w-full max-w-md mx-auto">
                 <i class="fas fa-sign-in-alt mr-2"></i> Logi sisse
-            </a>
+            </button>
         </template>
 
         <!-- ✅ Login Modal Popup (Hidden when Logged In) -->
         <template x-if="!loggedIn">
-            <div x-show="open" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <div class="card w-96 bg-white shadow-xl p-8 rounded-xl border border-gray-200 relative">
+            <div x-show="open" @click.away="open = false" @touchstart.away="open = false"
+                class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div class="card w-96 bg-white shadow-xl p-8 rounded-xl border border-gray-200 relative mx-4">
                     <!-- ❌ Close Button -->
-                    <button @click="open = false" class="absolute top-2 right-2 text-gray-500 hover:text-red-500">
+                    <button @click="open = false" @touchstart="open = false"
+                        class="absolute top-2 right-2 text-gray-500 hover:text-red-500 p-2">
                         <i class="fas fa-times text-xl"></i>
                     </button>
 
@@ -142,7 +144,7 @@
                     </div>
 
                     <!-- ✅ Login Button Inside Modal -->
-                    <button id="loginButton"
+                    <button id="loginButton" @click="handleLogin" @touchstart="handleLogin"
                         class="btn btn-primary w-full mt-4 flex items-center justify-center transition-transform hover:scale-105 shadow-lg text-lg py-3 rounded-lg font-semibold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white">
                         <i class="fas fa-sign-in-alt mr-2"></i> Logi sisse
                     </button>
@@ -150,6 +152,39 @@
             </div>
         </template>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Add touch event support for the login button
+            const loginButton = document.getElementById("loginButton");
+            if (loginButton) {
+                loginButton.addEventListener("touchstart", function (e) {
+                    e.preventDefault(); // Prevent double-tap zoom
+                    handleLogin();
+                });
+            }
+
+            // Function to handle login
+            window.handleLogin = async function () {
+                console.log("🟢 Login Button Clicked");
+                const email = document.getElementById("emailLogin").value;
+                const password = document.getElementById("passwordLogin").value;
+
+                if (!email || !password) {
+                    alert("Palun sisesta e-post ja parool.");
+                    return;
+                }
+
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    window.location.href = "index.html";
+                } catch (error) {
+                    console.error("❌ Login error:", error);
+                    alert("Login error: " + error.message);
+                }
+            };
+        });
+    </script>
 </body>
 
 </html>

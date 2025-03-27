@@ -337,6 +337,15 @@
                 document.getElementById("passwordLogin").value = savedPassword;
                 document.getElementById("rememberMe").checked = true;
             }
+
+            // Settings button click handler
+            const settingsButton = document.getElementById("settingsButton");
+            if (settingsButton) {
+                settingsButton.addEventListener("click", function () {
+                    // Open admin.html in a new tab
+                    window.open("admin.html", "_blank");
+                });
+            }
         });
     </script>
 
@@ -546,7 +555,7 @@
                     </div>
                     <div>
                         <label for="contractSigningDate" class="block text-gray-700 font-semibold mb-1">
-                            Lepingu eeldatav allkirjastamine
+                            Lepingu sõlmimise kuupäev
                         </label>
                         <input type="text" id="contractSigningDate" name="contractSigningDate"
                             class="w-full p-3  border-black rounded-lg text-center text-black cursor-pointer focus:ring-2 hover:bg-white/30 focus:ring-white/30 outline-none scale:100 hover:scale-101 hover:shadow-lg transition-all duration-300"
@@ -572,6 +581,39 @@
                                     document.getElementById('contractSigningDate').setAttribute('data-display', formattedDisplayDate);
                                 }
                             });
+
+                            // Function to update procedure type visibility
+                            function updateProcedureVisibility(type, visible) {
+                                const procedureTypeSelect = document.getElementById('procedureType');
+                                const optgroups = procedureTypeSelect.getElementsByTagName('optgroup');
+
+                                for (let optgroup of optgroups) {
+                                    if (optgroup.label === type) {
+                                        optgroup.style.display = visible ? '' : 'none';
+                                        // If hiding, also hide all options in this group
+                                        const options = optgroup.getElementsByTagName('option');
+                                        for (let option of options) {
+                                            option.style.display = visible ? '' : 'none';
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Listen for procedure visibility changes
+                            window.addEventListener('procedureVisibilityChanged', function (event) {
+                                const { type, visible } = event.detail;
+                                updateProcedureVisibility(type, visible);
+                            });
+
+                            // Initial visibility setup
+                            const savedProcedureData = localStorage.getItem('procedureData');
+                            if (savedProcedureData) {
+                                const procedureData = JSON.parse(savedProcedureData);
+                                Object.entries(procedureData).forEach(([type, data]) => {
+                                    updateProcedureVisibility(type, data.visible !== false);
+                                });
+                            }
                         });
                     </script>
                     <div class="flex justify-center space-x-4 mt-4">
@@ -917,12 +959,12 @@
             };
 
             const defaultSettings = {
-                documentPreparationDays: 10,
+                documentPreparationDays: 15,
                 offerEvaluationDays: 5,
-                decisionDays: 3,
-                bidderEvaluationDays: 3,
-                successfulBidderDays: 3,
-                waitingPeriodDays: 14
+                decisionDays: 5,
+                bidderEvaluationDays: 5,
+                successfulBidderDays: 5,
+                waitingPeriodDays: 14,
             };
 
             let settings = { ...defaultSettings };
@@ -1041,16 +1083,29 @@
 
             function loadProcedureTypes() {
                 const select = document.getElementById('procedureTypeSelect');
+                if (!select) return;
+
                 select.innerHTML = '';
-                Object.keys(procedureData).forEach(type => {
+
+                // Add default option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Vali menetlusliik';
+                select.appendChild(defaultOption);
+
+                // Get visible procedures
+                const visibleProcedures = Object.entries(procedureData)
+                    .filter(([_, data]) => data.visible)
+                    .map(([type]) => type)
+                    .sort();
+
+                // Add visible procedures
+                visibleProcedures.forEach(type => {
                     const option = document.createElement('option');
                     option.value = type;
                     option.textContent = type;
                     select.appendChild(option);
                 });
-                if (select.options.length > 0) {
-                    loadProcedureTypeSettings(select.options[0].value);
-                }
             }
 
             function loadProcedureTypeSettings(type) {

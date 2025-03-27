@@ -455,7 +455,8 @@
                             const payload = {
                                 form: this.form,
                                 timestamp: Date.now(),
-                                version: '1.4'
+                                version: '1.4',
+                                lastModified: new Date().toISOString()
                             };
                             localStorage.setItem('OM_DRAFT', JSON.stringify(payload));
                             this.showToast('Salvestatud!', 'success');
@@ -630,7 +631,8 @@
                                             { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
                                             { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
                                             { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
-                                            { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false }
+                                            { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false },
+                                            { text: 'Arve maksetähtaeg peab olema vähemalt 21 päeva.', checked: true }
                                         ]
                                     },
                                     {
