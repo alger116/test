@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - OM Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --primary-hover: #4338CA;
+            --success-color: #10B981;
+            --error-color: #EF4444;
+            --info-color: #3B82F6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --background-color: #f9fafb;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dark body {
+            background-color: #1f2937;
+            color: #f9fafb;
+        }
+
+        .card {
+            @apply bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-200 hover:shadow-lg;
+        }
+
+        .dark .card {
+            @apply bg-gray-800 border-gray-700;
+        }
+
+        .btn {
+            @apply rounded-lg font-medium transition-all duration-200 transform px-4 py-2 focus:outline-none focus:ring-2 focus:ring-opacity-50;
+        }
+
+        .btn-primary {
+            @apply bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500;
+        }
+
+        .btn-success {
+            @apply bg-green-600 hover:bg-green-700 text-white focus:ring-green-500;
+        }
+
+        .btn-danger {
+            @apply bg-red-500 hover:bg-red-600 text-white focus:ring-red-400;
+        }
+
+        .nav-link {
+            @apply text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400 transition-colors duration-200;
+        }
+
+        .nav-link.active {
+            @apply text-indigo-600 dark:text-indigo-400 font-semibold;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .stat-card {
+            @apply p-6 rounded-lg transition-all duration-200;
+        }
+
+        .stat-card:hover {
+            @apply transform -translate-y-1;
+        }
+
+        .stat-icon {
+            @apply p-3 rounded-full text-white;
+        }
+
+        .stat-value {
+            @apply text-3xl font-bold mt-2;
+        }
+
+        .stat-label {
+            @apply text-sm text-gray-500 dark:text-gray-400 mt-1;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800" x-data="dashboardApp" x-cloak :class="{'dark': isDarkMode}">
+    <!-- Navbar -->
+    <nav class="bg-white dark:bg-gray-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="om.html" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                            OM Dashboard
+                        </a>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="om.html" class="nav-link inline-flex items-center px-1 pt-1">
+                            <i class="fas fa-file-alt mr-2"></i> Ostumenetlus
+                        </a>
+                        <a href="dashboard.html" class="nav-link active inline-flex items-center px-1 pt-1">
+                            <i class="fas fa-chart-line mr-2"></i> Dashboard
+                        </a>
+                        <a href="users.html" class="nav-link inline-flex items-center px-1 pt-1" x-show="isAdmin">
+                            <i class="fas fa-users mr-2"></i> Kasutajad
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button @click="isDarkMode = !isDarkMode"
+                        class="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+                    </button>
+                    <div class="ml-4 relative">
+                        <button @click="toggleUserMenu"
+                            class="flex items-center text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+                            <span class="mr-2" x-text="currentUser?.username || 'Kasutaja'"></span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div x-show="showUserMenu" @click.away="showUserMenu = false"
+                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+                            <div class="py-1">
+                                <a href="#" @click="logout"
+                                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total PDFs -->
+            <div class="stat-card bg-white dark:bg-gray-800 shadow-sm">
+                <div class="flex items-center">
+                    <div class="stat-icon bg-indigo-500">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="stat-value" x-text="stats.totalPdfs"></div>
+                        <div class="stat-label">Loodud PDF-id</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Users -->
+            <div class="stat-card bg-white dark:bg-gray-800 shadow-sm">
+                <div class="flex items-center">
+                    <div class="stat-icon bg-green-500">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="stat-value" x-text="stats.totalUsers"></div>
+                        <div class="stat-label">Kasutajad</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admins -->
+            <div class="stat-card bg-white dark:bg-gray-800 shadow-sm">
+                <div class="flex items-center">
+                    <div class="stat-icon bg-blue-500">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="stat-value" x-text="stats.totalAdmins"></div>
+                        <div class="stat-label">Administraatorid</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moderators -->
+            <div class="stat-card bg-white dark:bg-gray-800 shadow-sm">
+                <div class="flex items-center">
+                    <div class="stat-icon bg-purple-500">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="stat-value" x-text="stats.totalMods"></div>
+                        <div class="stat-label">Moderaatorid</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent PDFs Table -->
+        <div class="card p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Hiljutised ostumenetlused</h1>
+                <button @click="downloadStats" class="btn btn-primary">
+                    <i class="fas fa-download mr-2"></i> Laadi statistika alla
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Nimi
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Vastutav isik
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Esitamise tähtaeg
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Loodud
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Looja
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Tegevused
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <template x-for="pdf in recentPdfs" :key="pdf.id">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"
+                                    x-text="pdf.name"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"
+                                    x-text="pdf.responsible"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"
+                                    x-text="pdf.submissionDate"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"
+                                    x-text="pdf.createdAt"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" :class="{
+                                            'bg-green-100 text-green-800': pdf.role === 'admin',
+                                            'bg-blue-100 text-blue-800': pdf.role === 'mod',
+                                            'bg-gray-100 text-gray-800': pdf.role === 'user'
+                                        }" x-text="pdf.createdBy">
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                    <button @click="downloadPDF(pdf)"
+                                        class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('dashboardApp', () => ({
+                isDarkMode: false,
+                showUserMenu: false,
+                currentUser: null,
+                isAdmin: false,
+                stats: {
+                    totalPdfs: 0,
+                    totalUsers: 0,
+                    totalAdmins: 0,
+                    totalMods: 0
+                },
+                recentPdfs: [],
+
+                init() {
+                    // Check authentication
+                    const user = JSON.parse(localStorage.getItem('currentUser'));
+                    if (!user) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    this.currentUser = user;
+                    this.isAdmin = user.role === 'admin';
+                    this.loadStats();
+                    this.loadRecentPdfs();
+                },
+
+                loadStats() {
+                    // Load PDF stats
+                    const recentPdfs = JSON.parse(localStorage.getItem('recentPdfs')) || [];
+                    this.stats.totalPdfs = recentPdfs.length;
+
+                    // Load user stats
+                    const users = JSON.parse(localStorage.getItem('users')) || [];
+                    this.stats.totalUsers = users.length;
+                    this.stats.totalAdmins = users.filter(u => u.role === 'admin').length;
+                    this.stats.totalMods = users.filter(u => u.role === 'mod').length;
+                },
+
+                loadRecentPdfs() {
+                    const recentPdfs = JSON.parse(localStorage.getItem('recentPdfs')) || [];
+                    this.recentPdfs = recentPdfs;
+                },
+
+                toggleUserMenu() {
+                    this.showUserMenu = !this.showUserMenu;
+                },
+
+                logout() {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                },
+
+                downloadStats() {
+                    const stats = {
+                        totalPdfs: this.stats.totalPdfs,
+                        totalUsers: this.stats.totalUsers,
+                        totalAdmins: this.stats.totalAdmins,
+                        totalMods: this.stats.totalMods,
+                        recentPdfs: this.recentPdfs,
+                        generatedAt: new Date().toLocaleString('et-EE')
+                    };
+
+                    const blob = new Blob([JSON.stringify(stats, null, 2)], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `om-stats-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                },
+
+                downloadPDF(pdf) {
+                    // Since we don't store the actual PDF files, we'll create a simple text file with the PDF details
+                    const content = `
+Ostumenetluse kutse: ${pdf.name}
+Vastutav isik: ${pdf.responsible}
+Esitamise tähtaeg: ${pdf.submissionDate}
+Loodud: ${pdf.createdAt}
+Looja: ${pdf.createdBy}
+                    `.trim();
+
+                    const blob = new Blob([content], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${pdf.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${new Date().toISOString().split('T')[0]}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }
+            }));
+        });
+    </script>
+</body>
+
+</html>
