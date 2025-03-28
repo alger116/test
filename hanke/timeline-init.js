@@ -11,8 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Try to load jsPDF
         const script = document.createElement("script");
-        script.src =
-          "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+        script.src = "../assets/js/jspdf.umd.min.js";
         script.async = true;
         document.head.appendChild(script);
         return;

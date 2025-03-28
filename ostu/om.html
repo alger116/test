@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ostumenetluse kutse</title>
+    <title>Ostumenetluse kutse - Hankest.ee</title>
 
     <!-- Only include jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="../assets/js/jspdf.umd.min.js"></script>
     <script>
         // Ensure jsPDF is initialized
         window.addEventListener('DOMContentLoaded', function () {
@@ -138,6 +138,160 @@
         }
     </style>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyT8XLIwrmsYgMYalK9I_lp6OfQucBLR0",
+            authDomain: "kalkulaator-9f3d1.firebaseapp.com",
+            projectId: "kalkulaator-9f3d1",
+            storageBucket: "kalkulaator-9f3d1.appspot.com",
+            messagingSenderId: "127234313724",
+            appId: "1:127234313724:web:1f333fb8f3ff2995bcb679",
+            measurementId: "G-91VSY43W50"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Set persistence to LOCAL
+        setPersistence(auth, browserLocalPersistence)
+            .catch((error) => {
+                console.error("Auth persistence error:", error);
+            });
+
+        // Make auth and db available globally
+        window.auth = auth;
+        window.db = db;
+
+        // Check authentication state
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                // Check if there's a remembered user in localStorage
+                const rememberedUser = localStorage.getItem('rememberedUser');
+                if (rememberedUser) {
+                    try {
+                        const { username, password } = JSON.parse(rememberedUser);
+                        await signInWithEmailAndPassword(auth, username, password);
+                        return; // The onAuthStateChanged will be triggered again
+                    } catch (error) {
+                        console.error('Auto-login failed:', error);
+                        localStorage.removeItem('rememberedUser');
+                    }
+                }
+
+                // Show login modal only if there's no remembered user
+                const formApp = document.querySelector('[x-data="formApp"]')?.__x;
+                if (formApp) {
+                    formApp.$data.showLoginModal = true;
+                    formApp.$data.currentUser = null;
+                    formApp.$data.isAdmin = false;
+                }
+            } else {
+                // Get user data from Firestore
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userData = userDoc.data();
+
+                // Update Alpine.js state
+                const formApp = document.querySelector('[x-data="formApp"]')?.__x;
+                if (formApp) {
+                    formApp.$data.currentUser = {
+                        id: user.uid,
+                        email: user.email,
+                        ...userData
+                    };
+                    formApp.$data.isAdmin = userData?.isAdmin || false;
+                    formApp.$data.showLoginModal = false;
+                }
+
+                // Store current user in localStorage
+                localStorage.setItem('currentUser', JSON.stringify({
+                    id: user.uid,
+                    email: user.email,
+                    isAdmin: userData?.isAdmin || false
+                }));
+            }
+        });
+
+        // Make login function available globally
+        window.handleLogin = async (email, password) => {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Get or create user document in Firestore
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (!userDoc.exists()) {
+                    // Create new user document
+                    await setDoc(doc(db, 'users', user.uid), {
+                        email: user.email,
+                        isAdmin: user.email.endsWith('@hankest.ee'),
+                        createdAt: new Date().toISOString(),
+                        lastLogin: new Date().toISOString()
+                    });
+                } else {
+                    // Update last login
+                    await setDoc(doc(db, 'users', user.uid), {
+                        lastLogin: new Date().toISOString()
+                    }, { merge: true });
+                }
+
+                // Store user in localStorage
+                localStorage.setItem('currentUser', JSON.stringify({
+                    id: user.uid,
+                    email: user.email,
+                    isAdmin: user.email.endsWith('@hankest.ee')
+                }));
+
+                return user;
+            } catch (error) {
+                console.error('Login error:', error);
+                throw error;
+            }
+        };
+
+        // Make logout function available globally
+        window.handleLogout = async () => {
+            try {
+                // Sign out from Firebase
+                await signOut(auth);
+
+                // Clear all authentication related data from localStorage
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('rememberedUser');
+                localStorage.removeItem('previousPage');
+
+                // Update Alpine.js state
+                const formApp = document.querySelector('[x-data="formApp"]')?.__x;
+                if (formApp) {
+                    formApp.$data.showLoginModal = true;
+                    formApp.$data.currentUser = null;
+                    formApp.$data.isAdmin = false;
+                    formApp.$data.showUserMenu = false;
+                }
+            } catch (error) {
+                console.error('Error signing out:', error);
+                // Even if there's an error, try to clear local state
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('rememberedUser');
+                localStorage.removeItem('previousPage');
+
+                // Update Alpine.js state even if Firebase signOut failed
+                const formApp = document.querySelector('[x-data="formApp"]')?.__x;
+                if (formApp) {
+                    formApp.$data.showLoginModal = true;
+                    formApp.$data.currentUser = null;
+                    formApp.$data.isAdmin = false;
+                    formApp.$data.showUserMenu = false;
+                }
+            }
+        };
+    </script>
+
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('formApp', () => {
@@ -252,18 +406,71 @@
                     currentUser: null,
                     isAdmin: false,
                     showUserMenu: false,
+                    showLoginModal: false,
+
+                    async login() {
+                        const email = document.getElementById('emailLogin').value;
+                        const password = document.getElementById('passwordLogin').value;
+                        const rememberMe = document.getElementById('rememberMe').checked;
+
+                        try {
+                            await window.handleLogin(email, password);
+
+                            // Handle remember me
+                            if (rememberMe) {
+                                localStorage.setItem('rememberedUser', JSON.stringify({
+                                    username: email,
+                                    password: password
+                                }));
+                            } else {
+                                localStorage.removeItem('rememberedUser');
+                            }
+
+                            this.showToast('Sisselogimine õnnestus', 'success');
+                            this.showLoginModal = false;
+                            // Force Alpine.js to update the state
+                            this.$nextTick(() => {
+                                this.currentUser = window.auth.currentUser ? {
+                                    id: window.auth.currentUser.uid,
+                                    email: window.auth.currentUser.email,
+                                    isAdmin: window.auth.currentUser.email.endsWith('@hankest.ee')
+                                } : null;
+                                this.isAdmin = this.currentUser?.isAdmin || false;
+                            });
+                        } catch (error) {
+                            this.showToast(this.getErrorMessage(error.code), 'error');
+                        }
+                    },
+
+                    getErrorMessage(errorCode) {
+                        const errorMessages = {
+                            'auth/invalid-email': 'Vigane e-posti aadress',
+                            'auth/user-disabled': 'Kasutaja on deaktiveeritud',
+                            'auth/user-not-found': 'Kasutajat ei leitud',
+                            'auth/wrong-password': 'Vale parool',
+                            'auth/too-many-requests': 'Liiga palju katsetusi. Palun proovige hiljem uuesti',
+                            'auth/network-request-failed': 'Võrgu viga. Palun kontrollige oma internetiühendust'
+                        };
+                        return errorMessages[errorCode] || 'Sisselogimisel tekkis viga';
+                    },
 
                     init() {
-                        // Check authentication
-                        const user = JSON.parse(localStorage.getItem('currentUser'));
-                        if (!user) {
-                            window.location.href = 'login.html';
-                            return;
+                        // Check for remembered user
+                        const rememberedUser = localStorage.getItem('rememberedUser');
+                        if (rememberedUser) {
+                            const { username } = JSON.parse(rememberedUser);
+                            document.getElementById('emailLogin').value = username;
+                            document.getElementById('rememberMe').checked = true;
                         }
-                        this.currentUser = user;
-                        this.isAdmin = user.role === 'admin';
 
-                        this.loadFromStorage();
+                        // Check for current user
+                        const currentUser = localStorage.getItem('currentUser');
+                        if (currentUser) {
+                            const userData = JSON.parse(currentUser);
+                            this.currentUser = userData;
+                            this.isAdmin = userData.isAdmin;
+                            this.showLoginModal = false;
+                        }
 
                         // Initialize Sortable for the sections
                         this.$nextTick(() => {
@@ -792,12 +999,13 @@
                     },
 
                     toggleUserMenu() {
-                        this.showUserMenu = !this.showUserMenu;
+                        if (this.currentUser) {
+                            this.showUserMenu = !this.showUserMenu;
+                        }
                     },
 
                     logout() {
-                        localStorage.removeItem('currentUser');
-                        window.location.href = 'login.html';
+                        window.handleLogout();
                     }
                 }
             });
@@ -806,6 +1014,42 @@
 </head>
 
 <body class="bg-gray-50 text-gray-800" x-data="formApp" x-cloak :class="{'dark': isDarkMode}">
+    <!-- Login Modal -->
+    <div x-show="showLoginModal" x-cloak class="fixed top-4 right-4 backdrop-blur-md bg-black/30 z-50">
+        <div class="card w-96 bg-white shadow-xl p-8 rounded-xl border border-gray-200 relative">
+            <!-- Close Button -->
+            <button @click="showLoginModal = false" class="absolute top-2 right-2 text-gray-500 hover:text-red-500">
+                ✖
+            </button>
+
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">Logi sisse</h2>
+
+            <!-- Email Input -->
+            <div class="form-control w-full mb-3">
+                <label class="label text-gray-700 font-medium">E-post</label>
+                <input type="email" id="emailLogin" placeholder="Sisesta oma e-post"
+                    class="input input-bordered w-full text-gray-900 shadow-md rounded-lg p-3 focus:ring-2 focus:ring-blue-400 transition-all duration-300" />
+            </div>
+
+            <!-- Password Input -->
+            <div class="form-control w-full mb-3">
+                <label class="label text-gray-700 font-medium">Parool</label>
+                <input type="password" id="passwordLogin" placeholder="Sisesta oma parool"
+                    class="input input-bordered w-full text-gray-900 shadow-md rounded-lg p-3 focus:ring-2 focus:ring-blue-400 transition-all duration-300" />
+            </div>
+            <div class="form-control w-full mb-3 flex items-center">
+                <input type="checkbox" id="rememberMe" class="mr-2">
+                <label for="rememberMe" class="text-gray-700 font-medium">Pea meeles mind</label>
+            </div>
+
+            <!-- Login Button -->
+            <button @click="login(); showLoginModal = false"
+                class="btn btn-primary w-full mt-4 flex items-center justify-center transition-transform hover:scale-105 shadow-lg text-lg py-3 rounded-lg font-semibold bg-blue-500 hover:bg-blue-600 text-white">
+                <i class="fas fa-sign-in-alt mr-2"></i> Logi sisse
+            </button>
+        </div>
+    </div>
+
     <!-- Navbar -->
     <nav class="bg-white dark:bg-gray-800 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -823,7 +1067,10 @@
                         <a href="dashboard.html" class="nav-link inline-flex items-center px-1 pt-1">
                             <i class="fas fa-chart-line mr-2"></i> Dashboard
                         </a>
-                        <a href="users.html" class="nav-link inline-flex items-center px-1 pt-1" x-show="isAdmin">
+                        <a href="landingpage.html" class="nav-link active inline-flex items-center px-1 pt-1">
+                            <i class="fas fa-chart-line mr-2"></i> Algusesse
+                        </a>
+                        <a href="users.html" class="hidden nav-link items-center px-1 pt-1" x-show="isAdmin">
                             <i class="fas fa-users mr-2"></i> Kasutajad
                         </a>
                     </div>
@@ -834,15 +1081,15 @@
                         <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
                     </button>
                     <div class="ml-4 relative">
-                        <button @click="toggleUserMenu"
+                        <button @click="currentUser ? toggleUserMenu() : showLoginModal = true"
                             class="flex items-center text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
-                            <span class="mr-2" x-text="currentUser?.username || 'Kasutaja'"></span>
+                            <span class="mr-2" x-text="currentUser?.email || 'Kasutaja'"></span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
-                        <div x-show="showUserMenu" @click.away="showUserMenu = false"
-                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+                        <div x-show="showUserMenu && currentUser" @click.away="showUserMenu = false"
+                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
                             <div class="py-1">
-                                <a href="#" @click="logout"
+                                <a href="#" @click.prevent="logout()"
                                     class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                                     <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
                                 </a>

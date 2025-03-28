@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logi sisse - Ostumenetluse Dashboard</title>
+    <title>Logi sisse - Hankest.ee</title>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,23 +12,6 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .dark .glass-effect {
-            background: rgba(17, 24, 39, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         [x-cloak] {
@@ -37,36 +20,36 @@
     </style>
 </head>
 
-<body class="text-gray-800 dark:text-gray-200" x-data="loginApp" x-cloak>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center" x-data="loginApp" x-cloak>
     <div class="w-full max-w-md mx-4">
-        <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+        <div class="bg-white rounded-lg shadow-md p-8">
             <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-white mb-2">OM Dashboard</h1>
-                <p class="text-gray-200">Logi sisse, et jätkata</p>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Hankest.ee</h1>
+                <p class="text-gray-600">Logi sisse, et jätkata</p>
             </div>
 
             <form @submit.prevent="handleLogin" class="space-y-6">
                 <div>
-                    <label for="username" class="block text-sm font-medium text-gray-200 mb-2">Kasutajanimi</label>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">E-post</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-user text-gray-400"></i>
                         </div>
-                        <input type="text" id="username" x-model="form.username"
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/10 text-white placeholder-gray-400"
-                            placeholder="Sisesta kasutajanimi">
+                        <input type="email" id="username" x-model="form.username"
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Sisesta oma e-post">
                     </div>
                 </div>
 
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-200 mb-2">Parool</label>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Parool</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-lock text-gray-400"></i>
                         </div>
                         <input :type="showPassword ? 'text' : 'password'" id="password" x-model="form.password"
-                            class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/10 text-white placeholder-gray-400"
-                            placeholder="Sisesta parool">
+                            class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            placeholder="Sisesta oma parool">
                         <button type="button" @click="showPassword = !showPassword"
                             class="absolute inset-y-0 right-0 pr-3 flex items-center">
                             <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'" class="text-gray-400"></i>
@@ -78,7 +61,7 @@
                     <div class="flex items-center">
                         <input type="checkbox" id="remember" x-model="form.remember"
                             class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <label for="remember" class="ml-2 block text-sm text-gray-200">
+                        <label for="remember" class="ml-2 block text-sm text-gray-600">
                             Jäta mind meelde
                         </label>
                     </div>
@@ -119,9 +102,18 @@
                         this.form.password = password;
                         this.form.remember = true;
                     }
+
+                    // Check if user is already logged in
+                    if (window.auth) {
+                        window.auth.onAuthStateChanged((user) => {
+                            if (user) {
+                                this.redirectAfterLogin(user);
+                            }
+                        });
+                    }
                 },
 
-                handleLogin() {
+                async handleLogin() {
                     this.error = '';
 
                     if (!this.form.username || !this.form.password) {
@@ -129,16 +121,11 @@
                         return;
                     }
 
-                    const users = JSON.parse(localStorage.getItem('users')) || [];
-                    const user = users.find(u => u.username === this.form.username && u.password === this.form.password);
-
-                    if (user) {
-                        // Store current user
-                        localStorage.setItem('currentUser', JSON.stringify({
-                            id: user.id,
-                            username: user.username,
-                            role: user.role
-                        }));
+                    try {
+                        const userCredential = await window.auth.signInWithEmailAndPassword(
+                            this.form.username,
+                            this.form.password
+                        );
 
                         // Handle remember me
                         if (this.form.remember) {
@@ -150,11 +137,43 @@
                             localStorage.removeItem('rememberedUser');
                         }
 
-                        // Redirect to dashboard
-                        window.location.href = 'dashboard.html';
-                    } else {
-                        this.error = 'Vale kasutajanimi või parool';
+                        // Store current user
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            id: userCredential.user.uid,
+                            email: userCredential.user.email
+                        }));
+
+                        // Redirect based on user role and previous location
+                        this.redirectAfterLogin(userCredential.user);
+                    } catch (error) {
+                        console.error('Login error:', error);
+                        this.error = this.getErrorMessage(error.code);
                     }
+                },
+
+                redirectAfterLogin(user) {
+                    // Get the previous page URL from localStorage or default to index.html
+                    const previousPage = localStorage.getItem('previousPage') || 'index.html';
+                    localStorage.removeItem('previousPage'); // Clear the stored page
+
+                    // Check user role and redirect accordingly
+                    if (user.email.includes('admin')) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = '../hanke/index.html';
+                    }
+                },
+
+                getErrorMessage(errorCode) {
+                    const errorMessages = {
+                        'auth/invalid-email': 'Vigane e-posti aadress',
+                        'auth/user-disabled': 'Kasutaja on deaktiveeritud',
+                        'auth/user-not-found': 'Kasutajat ei leitud',
+                        'auth/wrong-password': 'Vale parool',
+                        'auth/too-many-requests': 'Liiga palju katsetusi. Palun proovige hiljem uuesti',
+                        'auth/network-request-failed': 'Võrgu viga. Palun kontrollige oma internetiühendust'
+                    };
+                    return errorMessages[errorCode] || 'Sisselogimisel tekkis viga';
                 }
             }));
         });

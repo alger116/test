@@ -1117,6 +1117,143 @@ Would you like any further adjustments or features?
 
 ---
 
+_**User**_
+
+lisame lihtsa footeri landigpage alla
+
+---
+
+_**Assistant**_
+
+Let's add a simple footer to the bottom of the landing page. I'll include a footer element with some basic information, such as copyright text. Here's how it can be done:
+
+```html:omkutse/landingpage.html
+  <body>
+    <div class="portal-container">
+      <div class="portal-card" id="hankemaailm" onclick="window.location.href='/index.html'">
+        <h2>Hankemaailm</h2>
+        <ul class="highlight-points">
+          <li>Riigihanke mugav planeerimine</li>
+          <li>Hankemenetluse visualiseerimine</li>
+          <li>Ajatelje loomine</li>
+        </ul>
+      </div>
+
+      <div class="portal-card" id="ostumaailm" onclick="window.location.href='file:///Users/viljarpartel/Desktop/test/omkutse/om.html'">
+        <h2>Ostumaailm</h2>
+        <ul class="highlight-points">
+          <li>Ostumenetluse kutse loomine</li>
+          <li>Mugavalt kohandatavad tingimused</li>
+          <li>Kutse PDF fail kohe kätte</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p class="text-center text-gray-600 text-sm">© 2023 Hankest.ee. Kõik õigused kaitstud.</p>
+    </footer>
+  </body>
+```
+
+### CSS for Footer:
+You can add the following CSS to style the footer:
+
+```css
+<style>
+  .footer {
+    background-color: #f8f9fa; /* Light background color */
+    padding: 20px 0; /* Padding for spacing */
+    text-align: center; /* Center the text */
+    position: relative; /* Positioning */
+    bottom: 0; /* Stick to the bottom */
+    width: 100%; /* Full width */
+  }
+</style>
+```
+
+### Summary of Changes:
+- Added a `<footer>` element at the bottom of the body.
+- Included a copyright message inside the footer.
+- Styled the footer with a light background and centered text.
+
+This will create a simple footer that is visually appealing and provides basic information. Would you like to add any specific links or additional content to the footer?
+
+---
+
+_**User**_
+
+see ei ole küll all ääres kuidagi, keset lehte
+
+---
+
+_**Assistant**_
+
+To ensure the footer is positioned at the bottom of the page, we need to adjust the CSS and possibly the HTML structure. Here’s how to do it:
+
+### Updated HTML Structure
+Make sure the footer is placed outside of the main content area and ensure the body takes the full height of the viewport.
+
+```html:omkutse/landingpage.html
+  <body class="min-h-screen flex flex-col">
+    <div class="portal-container flex-grow">
+      <div class="portal-card" id="hankemaailm" onclick="window.location.href='/index.html'">
+        <h2>Hankemaailm</h2>
+        <ul class="highlight-points">
+          <li>Riigihanke mugav planeerimine</li>
+          <li>Hankemenetluse visualiseerimine</li>
+          <li>Ajatelje loomine</li>
+        </ul>
+      </div>
+
+      <div class="portal-card" id="ostumaailm" onclick="window.location.href='file:///Users/viljarpartel/Desktop/test/omkutse/om.html'">
+        <h2>Ostumaailm</h2>
+        <ul class="highlight-points">
+          <li>Ostumenetluse kutse loomine</li>
+          <li>Mugavalt kohandatavad tingimused</li>
+          <li>Kutse PDF fail kohe kätte</li>
+        </ul>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p class="text-center text-gray-600 text-sm">© 2023 Hankest.ee. Kõik õigused kaitstud.</p>
+    </footer>
+  </body>
+```
+
+### Updated CSS for Footer
+Make sure to add the following CSS to ensure the footer stays at the bottom:
+
+```css
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure the body takes full height */
+  }
+
+  .portal-container {
+    flex-grow: 1; /* Allow the container to grow and take available space */
+  }
+
+  .footer {
+    background-color: #f8f9fa; /* Light background color */
+    padding: 20px 0; /* Padding for spacing */
+    text-align: center; /* Center the text */
+    width: 100%; /* Full width */
+  }
+</style>
+```
+
+### Summary of Changes:
+- Set the body to use `flex` layout with `flex-direction: column` and `min-height: 100vh` to ensure it takes the full height of the viewport.
+- Added `flex-grow: 1` to the `.portal-container` to allow it to expand and push the footer to the bottom.
+- The footer is now styled to be at the bottom of the page.
+
+This should ensure that the footer is always at the bottom of the page, regardless of the content height. Would you like any further adjustments?
+
+---
+
 
 
 ---

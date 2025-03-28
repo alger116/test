@@ -8,7 +8,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/alpinejs" defer></script>
-    <script src="config.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../config/config.js"></script>
 </head>
 
 <body class="h-full">
@@ -20,7 +24,7 @@
                     <h1 class="text-xl font-bold text-white">Admin Panel</h1>
                 </div>
                 <nav class="flex-1 px-2 py-4 space-y-1">
-                    <a href="index.html"
+                    <a href="../index.html"
                         class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
                         <i class="fas fa-home w-5 text-gray-400 group-hover:text-blue-400"></i>
                         <span class="ml-3">Avaleht</span>
@@ -40,6 +44,17 @@
                         <i class="fas fa-user-shield w-5 text-gray-400 group-hover:text-blue-400"></i>
                         <span class="ml-3">Rollid</span>
                     </button>
+                    <a href="../ostu/om.html"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-shopping-cart w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Ostumaailm</span>
+                    </a>
+                    <a href="../hanke/index.html"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-truck w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Hankemaailm</span>
+                    </a>
+
                 </nav>
                 <div class="p-4 border-t border-gray-800">
                     <button id="logoutButton"
@@ -123,6 +138,43 @@
                                 <!-- Users will be dynamically added here -->
                             </tbody>
                         </table>
+                        <!-- Pagination Controls -->
+                        <div
+                            class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <button id="prevPage"
+                                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Eelmine
+                                </button>
+                                <button id="nextPage"
+                                    class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Järgmine
+                                </button>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Leht <span id="currentPage" class="font-medium">1</span> / <span id="totalPages"
+                                            class="font-medium">1</span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                                        aria-label="Pagination">
+                                        <button id="prevPage"
+                                            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Eelmine</span>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button id="nextPage"
+                                            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Järgmine</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -345,8 +397,8 @@
     <script type="module">
         // Import Firebase Modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, setDoc }
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, setDoc, query, where, limit }
             from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
         if (!window.FIREBASE_CONFIG) {
@@ -367,6 +419,9 @@
             window.addDoc = addDoc;
             window.signOut = signOut;
             window.auth = auth;
+            window.query = query;
+            window.where = where;
+            window.limit = limit;
         }
 
         // Define default settings
@@ -414,80 +469,235 @@
             "Eriteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000, visible: true }
         };
 
-        // Define default roles and their permissions
-        const defaultRoles = {
-            admin: {
-                name: "Admin",
-                description: "Täielik juurdepääs kõigile funktsioonidele",
+        // Define roles and their permissions
+        const roles = {
+            mainAdmin: {
+                name: "Peaadministraator",
                 permissions: {
                     fullAccess: true,
                     userManagement: true,
                     settingsManagement: true,
                     roleManagement: true,
-                    search: true,
-                    viewPublicContent: true,
-                    viewHiddenContent: true,
-                    viewTimeline: true,
-                    saveSearches: true,
-                    deleteAdminMenu: true
-                },
-                isSystem: true
+                    omAccess: true,
+                    hmAccess: true,
+                    auditLogAccess: true,
+                    systemSettings: true
+                }
             },
-            tavakasutaja: {
-                name: "Tavakasutaja",
-                description: "Põhiline juurdepääs avalikule sisule",
+            admin: {
+                name: "Administraator",
                 permissions: {
                     fullAccess: false,
-                    userManagement: false,
-                    settingsManagement: false,
-                    roleManagement: false,
-                    search: true,
-                    viewPublicContent: true,
-                    viewHiddenContent: false,
-                    viewTimeline: false,
-                    saveSearches: false,
-                    deleteAdminMenu: false
-                },
-                isSystem: false
-            },
-            hankija: {
-                name: "Hankija",
-                description: "Hankeprotsesside haldamine",
-                permissions: {
-                    fullAccess: false,
-                    userManagement: false,
-                    settingsManagement: false,
-                    roleManagement: false,
-                    search: true,
-                    viewPublicContent: true,
-                    viewHiddenContent: false,
-                    viewTimeline: true,
-                    saveSearches: true,
-                    deleteAdminMenu: false
-                },
-                isSystem: false
-            },
-            erioigused: {
-                name: "Eriõigused",
-                description: "Admin õigused ilma rollide haldamiseta",
-                permissions: {
-                    fullAccess: true,
                     userManagement: true,
                     settingsManagement: true,
                     roleManagement: false,
-                    search: true,
-                    viewPublicContent: true,
-                    viewHiddenContent: true,
-                    viewTimeline: true,
-                    saveSearches: true,
-                    deleteAdminMenu: false
-                },
-                isSystem: false
+                    omAccess: true,
+                    hmAccess: true,
+                    auditLogAccess: true,
+                    systemSettings: false
+                }
+            },
+            omUser: {
+                name: "Ostumaailm Kasutaja",
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    omAccess: true,
+                    hmAccess: false,
+                    auditLogAccess: false,
+                    systemSettings: false,
+                    omFeatures: {
+                        createOM: true,
+                        editOM: true,
+                        deleteOM: false,
+                        viewOM: true,
+                        exportOM: true
+                    }
+                }
+            },
+            hmUser: {
+                name: "Hankemaailm Kasutaja",
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    omAccess: false,
+                    hmAccess: true,
+                    auditLogAccess: false,
+                    systemSettings: false,
+                    hmFeatures: {
+                        createHM: true,
+                        editHM: true,
+                        deleteHM: false,
+                        viewHM: true,
+                        exportHM: true
+                    }
+                }
+            },
+            user: {
+                name: "Tavakasutaja",
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    omAccess: false,
+                    hmAccess: false,
+                    auditLogAccess: false,
+                    systemSettings: false
+                }
             }
         };
 
-        // Initialize roles with defaults
-        let roles = { ...defaultRoles };
+        // Function to check if user has access to specific features
+        function hasAccess(userRole, feature) {
+            const role = roles[userRole];
+            if (!role) return false;
+
+            // Check for full access first
+            if (role.permissions.fullAccess) return true;
+
+            // Check specific feature access
+            return role.permissions[feature] || false;
+        }
+
+        // Function to check if user has access to specific world (OM or HM)
+        function hasWorldAccess(userRole, world) {
+            const role = roles[userRole];
+            if (!role) return false;
+
+            // Main admin and admin have access to both worlds
+            if (userRole === 'mainAdmin' || userRole === 'admin') return true;
+
+            // Check specific world access
+            return role.permissions[world === 'om' ? 'omAccess' : 'hmAccess'] || false;
+        }
+
+        // Update the role selection in the user table
+        function generateUserTableRow(userData) {
+            const roleSelect = `
+                <select class="form-select text-sm" 
+                    onchange="updateUserRole('${userData.uid}', this.value)"
+                    ${userData.role === 'mainAdmin' ? 'disabled' : ''}>
+                    ${Object.entries(roles).map(([roleKey, roleData]) => `
+                        <option value="${roleKey}" ${userData.role === roleKey ? 'selected' : ''}>
+                            ${roleData.name}
+                        </option>
+                    `).join('')}
+                </select>
+            `;
+            // ... rest of the row generation code ...
+        }
+
+        // Update the updateUserRole function to handle new roles
+        async function updateUserRole(userId, newRole) {
+            try {
+                const currentUser = auth.currentUser;
+                if (!currentUser) {
+                    showNotification("Pead olema sisse logitud!", "error");
+                    return;
+                }
+
+                const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
+                const currentUserData = currentUserDoc.data();
+
+                if (currentUserData.role !== 'mainAdmin') {
+                    showNotification("Sul ei ole õigusi rollide muutmiseks!", "error");
+                    return;
+                }
+
+                const userRef = doc(db, "users", userId);
+                const userDoc = await getDoc(userRef);
+                const userData = userDoc.data();
+
+                if (userData.role === 'mainAdmin') {
+                    showNotification("Peaadministraatori rolli ei saa muuta!", "error");
+                    return;
+                }
+
+                const oldRole = userData.role;
+                await updateDoc(userRef, {
+                    role: newRole,
+                    lastUpdated: new Date(),
+                    updatedBy: currentUser.uid,
+                    updatedByEmail: currentUser.email
+                });
+
+                // Log the role change
+                await addDoc(collection(db, "auditLog"), {
+                    action: "role_change",
+                    userId: userId,
+                    userEmail: userData.email,
+                    oldRole: oldRole,
+                    newRole: newRole,
+                    changedBy: currentUser.uid,
+                    changedByEmail: currentUser.email,
+                    timestamp: new Date()
+                });
+
+                showNotification("Kasutaja roll edukalt uuendatud!", "success");
+                loadUsers(); // Reload the user table
+            } catch (error) {
+                console.error("Error updating user role:", error);
+                showNotification("Rolli uuendamisel tekkis viga!", "error");
+            }
+        }
+
+        // Update the access control check
+        async function checkAccess() {
+            const currentUser = auth.currentUser;
+            if (!currentUser) {
+                window.location.href = "/omkutse/landingpage.html";
+                return;
+            }
+
+            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+            const userData = userDoc.data();
+
+            if (!userData) {
+                window.location.href = "/omkutse/landingpage.html";
+                return;
+            }
+
+            // Check if user has access to the current page
+            const currentPage = window.location.pathname;
+            const isOMPage = currentPage.includes('om.html');
+            const isHMPage = currentPage.includes('hm.html');
+
+            if (isOMPage && !hasWorldAccess(userData.role, 'om')) {
+                showNotification("Sul ei ole õigusi Ostumaailma lehele!", "error");
+                window.location.href = "/omkutse/landingpage.html";
+                return;
+            }
+
+            if (isHMPage && !hasWorldAccess(userData.role, 'hm')) {
+                showNotification("Sul ei ole õigusi Hankemaailma lehele!", "error");
+                window.location.href = "/omkutse/landingpage.html";
+                return;
+            }
+
+            // Update UI based on permissions
+            updateUIForRole(userData.role);
+        }
+
+        // Function to update UI based on role
+        function updateUIForRole(role) {
+            const roleData = roles[role];
+            if (!roleData) return;
+
+            // Update navigation menu
+            const omLink = document.querySelector('a[href*="om.html"]');
+            const hmLink = document.querySelector('a[href*="hm.html"]');
+
+            if (omLink) omLink.style.display = roleData.permissions.omAccess ? 'block' : 'none';
+            if (hmLink) hmLink.style.display = roleData.permissions.hmAccess ? 'block' : 'none';
+
+            // Update other UI elements based on permissions
+            // ... add more UI updates as needed ...
+        }
 
         // Function to load saved roles from localStorage
         function loadSavedRoles() {
@@ -765,7 +975,7 @@
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
                     alert("You must be logged in.");
-                    window.location.href = "/index.html"; // Redirect if not logged in
+                    window.location.href = "/omkutse/landingpage.html";
                     return;
                 }
 
@@ -775,27 +985,60 @@
                     const userRef = doc(db, "users", user.uid);
                     const userSnap = await getDoc(userRef);
 
-                    if (!userSnap.exists()) {
-                        console.log("Creating new user document in Firestore...");
-                        // Create new user document with default values
+                    // Check if this is the main admin
+                    if (user.email === "viljarpartel@gmail.com") {
+                        console.log("Main admin detected, checking stored credentials...");
+
+                        // Only ask for password if not already stored
+                        const storedPassword = localStorage.getItem('mainAdminPassword');
+                        if (!storedPassword) {
+                            const mainAdminPassword = prompt("Please enter your password to enable user management:");
+                            if (mainAdminPassword) {
+                                localStorage.setItem('mainAdminPassword', mainAdminPassword);
+                            }
+                        }
+
                         await setDoc(userRef, {
                             email: user.email,
-                            role: "tavakasutaja", // Default role
-                            approved: false, // Default approval status
+                            role: "mainAdmin",
+                            approved: true,
                             createdAt: new Date(),
-                            uid: user.uid
+                            uid: user.uid,
+                            isMainAdmin: true,
+                            lastLogin: new Date(),
+                            status: 'active',
+                            emailVerified: true,
+                            lastUpdated: new Date()
+                        }, { merge: true });
+                    }
+
+                    if (!userSnap.exists()) {
+                        console.log("Creating new user document in Firestore...");
+                        await setDoc(userRef, {
+                            email: user.email,
+                            role: user.email === "viljarpartel@gmail.com" ? "mainAdmin" : "tavakasutaja",
+                            approved: user.email === "viljarpartel@gmail.com",
+                            createdAt: new Date(),
+                            uid: user.uid,
+                            isMainAdmin: user.email === "viljarpartel@gmail.com",
+                            lastLogin: new Date(),
+                            status: user.email === "viljarpartel@gmail.com" ? 'active' : 'pending',
+                            emailVerified: user.email === "viljarpartel@gmail.com",
+                            lastUpdated: new Date()
                         });
                         console.log("User document created successfully!");
                     }
 
                     const userData = userSnap.exists() ? userSnap.data() : {
                         email: user.email,
-                        role: "tavakasutaja",
-                        approved: false
+                        role: user.email === "viljarpartel@gmail.com" ? "mainAdmin" : "tavakasutaja",
+                        approved: user.email === "viljarpartel@gmail.com",
+                        isMainAdmin: user.email === "viljarpartel@gmail.com"
                     };
                     console.log("User Data from Firestore:", userData);
 
-                    if (userData.role !== "admin") {
+                    // Allow access if user is main admin or regular admin
+                    if (userData.role !== "mainAdmin" && userData.role !== "admin") {
                         console.error("User is not an admin.");
                         alert("You are not authorized to view this page.");
                         window.location.href = "/index.html";
@@ -1276,14 +1519,31 @@
             };
         });
 
-        async function loadUsers() {
+        async function loadUsers(page = 1, searchTerm = '', roleFilter = '', statusFilter = '') {
             try {
                 console.log("Fetching users from Firestore...");
+                const usersPerPage = 10;
+                const usersRef = collection(db, "users");
+                let queryRef = usersRef;
 
-                const usersCollection = collection(db, "users");
-                const userDocs = await getDocs(usersCollection);
+                // Apply filters
+                if (searchTerm) {
+                    queryRef = query(queryRef,
+                        where("email", ">=", searchTerm),
+                        where("email", "<=", searchTerm + '\uf8ff')
+                    );
+                }
+                if (roleFilter) {
+                    queryRef = query(queryRef, where("role", "==", roleFilter));
+                }
+                if (statusFilter) {
+                    queryRef = query(queryRef, where("status", "==", statusFilter));
+                }
 
-                console.log("Firestore Response:", userDocs.docs);
+                // Apply pagination
+                queryRef = query(queryRef, limit(usersPerPage));
+
+                const userDocs = await getDocs(queryRef);
 
                 const userTable = document.getElementById("userTable");
                 if (!userTable) {
@@ -1299,11 +1559,18 @@
 
                     const userRow = document.createElement("tr");
                     userRow.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${userData.email}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${userData.email}</div>
+                                    <div class="text-sm text-gray-500">${userData.emailVerified ? 'Verifitseeritud' : 'Verifitseerimata'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
                             <select onchange="updateUserRole('${docSnapshot.id}', this.value)" 
                                 class="text-sm border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                ${userData.role === 'admin' ? 'disabled' : ''}>
+                                ${userData.role === 'mainAdmin' ? 'disabled' : ''}>
                                 ${Object.entries(roles).map(([roleId, role]) => `
                                     <option value="${roleId}" ${userData.role === roleId ? 'selected' : ''}>
                                         ${role.name}
@@ -1311,16 +1578,35 @@
                                 `).join('')}
                             </select>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${userData.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                                ${userData.approved ? 'Kinnitatud' : 'Ootel'}
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold 
+                                ${userData.status === 'active' ? 'bg-green-100 text-green-800' :
+                            userData.status === 'inactive' ? 'bg-red-100 text-red-800' :
+                                'bg-yellow-100 text-yellow-800'}">
+                                ${userData.status === 'active' ? 'Aktiivne' :
+                            userData.status === 'inactive' ? 'Mitteaktiivne' : 'Ootel'}
                             </span>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div class="text-sm text-gray-500">${userData.emailVerified ? 'Verifitseeritud' : 'Verifitseerimata'}</div>
+                            ${!userData.emailVerified ? `
+                                <button onclick="resendVerificationEmail('${userData.uid}')" 
+                                        class="mt-1 text-xs text-blue-600 hover:text-blue-800">
+                                    Saada verifitseerimise e-kiri uuesti
+                                </button>
+                            ` : ''}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                            <button onclick="approveUser('${docSnapshot.id}')" class="text-green-600 hover:text-green-900">
+                            <button onclick="toggleUserStatus('${docSnapshot.id}')" 
+                                class="text-blue-600 hover:text-blue-900">
+                                <i class="fas ${userData.status === 'active' ? 'fa-ban' : 'fa-check'}"></i>
+                            </button>
+                            <button onclick="approveUser('${docSnapshot.id}')" 
+                                class="text-green-600 hover:text-green-900">
                                 <i class="fas fa-check"></i>
                             </button>
-                            <button onclick="deleteUser('${docSnapshot.id}')" class="text-red-600 hover:text-red-900">
+                            <button onclick="deleteUser('${docSnapshot.id}')" 
+                                class="text-red-600 hover:text-red-900">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -1328,43 +1614,198 @@
                     userTable.appendChild(userRow);
                 });
 
+                // Get total count for pagination
+                let totalQueryRef = usersRef;
+                if (searchTerm) {
+                    totalQueryRef = query(totalQueryRef,
+                        where("email", ">=", searchTerm),
+                        where("email", "<=", searchTerm + '\uf8ff')
+                    );
+                }
+                if (roleFilter) {
+                    totalQueryRef = query(totalQueryRef, where("role", "==", roleFilter));
+                }
+                if (statusFilter) {
+                    totalQueryRef = query(totalQueryRef, where("status", "==", statusFilter));
+                }
+
+                const totalSnapshot = await getDocs(totalQueryRef);
+                const totalUsers = totalSnapshot.size;
+                const totalPages = Math.ceil(totalUsers / usersPerPage);
+
+                // Update pagination controls if they exist
+                const currentPageElement = document.getElementById('currentPage');
+                const totalPagesElement = document.getElementById('totalPages');
+                const prevPageButtons = document.querySelectorAll('#prevPage');
+                const nextPageButtons = document.querySelectorAll('#nextPage');
+
+                if (currentPageElement) currentPageElement.textContent = page;
+                if (totalPagesElement) totalPagesElement.textContent = totalPages;
+
+                // Update button states
+                prevPageButtons.forEach(button => {
+                    button.disabled = page === 1;
+                    button.classList.toggle('opacity-50', page === 1);
+                    button.classList.toggle('cursor-not-allowed', page === 1);
+                });
+
+                nextPageButtons.forEach(button => {
+                    button.disabled = page === totalPages;
+                    button.classList.toggle('opacity-50', page === totalPages);
+                    button.classList.toggle('cursor-not-allowed', page === totalPages);
+                });
+
             } catch (error) {
                 console.error("Error loading users from Firestore:", error);
-                alert("Error loading user data. Check Firestore rules.");
+                showNotification("Viga kasutajate laadimisel!", "error");
             }
         }
+
+        // Add pagination event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add event listeners for pagination buttons
+            document.querySelectorAll('#prevPage').forEach(button => {
+                button.addEventListener('click', () => {
+                    const currentPage = parseInt(document.getElementById('currentPage').textContent);
+                    if (currentPage > 1) {
+                        loadUsers(currentPage - 1);
+                    }
+                });
+            });
+
+            document.querySelectorAll('#nextPage').forEach(button => {
+                button.addEventListener('click', () => {
+                    const currentPage = parseInt(document.getElementById('currentPage').textContent);
+                    const totalPages = parseInt(document.getElementById('totalPages').textContent);
+                    if (currentPage < totalPages) {
+                        loadUsers(currentPage + 1);
+                    }
+                });
+            });
+        });
+
+        window.toggleUserStatus = async (userId) => {
+            try {
+                const userRef = doc(db, "users", userId);
+                const userDoc = await getDoc(userRef);
+                const userData = userDoc.data();
+
+                // Get current status or default to 'pending' if not set
+                const currentStatus = userData.status || 'pending';
+                const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+                // Update user status
+                await updateDoc(userRef, {
+                    status: newStatus,
+                    lastUpdated: new Date()
+                });
+
+                // Log the status change with valid data
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_status_changed",
+                    userId: userId,
+                    oldStatus: currentStatus,
+                    newStatus: newStatus,
+                    performedBy: auth.currentUser.uid,
+                    timestamp: new Date()
+                });
+
+                showNotification(`Kasutaja olek muudetud: ${newStatus}`, 'success');
+                loadUsers(); // Refresh user list
+            } catch (error) {
+                console.error("Error toggling user status:", error);
+                showNotification("Viga kasutaja oleku muutmisel!", "error");
+            }
+        };
 
         window.approveUser = async (userId) => {
             try {
                 const userRef = doc(db, "users", userId);
-                await updateDoc(userRef, { approved: true });
+                await updateDoc(userRef, {
+                    approved: true,
+                    status: 'active',
+                    lastUpdated: new Date()
+                });
 
-                alert("User approved!");
+                // Log the approval
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_approved",
+                    userId: userId,
+                    performedBy: auth.currentUser.uid,
+                    timestamp: new Date()
+                });
+
+                showNotification("Kasutaja kinnitatud!", "success");
                 loadUsers(); // Refresh user list
             } catch (error) {
                 console.error("Error approving user:", error);
-                alert("Failed to approve user.");
+                showNotification("Viga kasutaja kinnitamisel!", "error");
             }
         };
 
         window.deleteUser = async (userId) => {
-            if (!confirm("Are you sure you want to delete this user?")) return;
+            if (!confirm("Kas oled kindel, et soovid selle kasutaja kustutada?")) return;
             try {
                 const userRef = doc(db, "users", userId);
                 await deleteDoc(userRef);
-                alert("User deleted!");
+
+                // Log the deletion
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_deleted",
+                    userId: userId,
+                    performedBy: auth.currentUser.uid,
+                    timestamp: new Date()
+                });
+
+                showNotification("Kasutaja kustutatud!", "success");
                 loadUsers(); // Refresh user list
             } catch (error) {
                 console.error("Error deleting user:", error);
-                alert("Failed to delete user.");
+                showNotification("Viga kasutaja kustutamisel!", "error");
             }
         };
 
         // Add the updateUserRole function
         window.updateUserRole = async (userId, newRole) => {
             try {
+                // Get current user's role
+                const currentUserRef = doc(db, "users", auth.currentUser.uid);
+                const currentUserDoc = await getDoc(currentUserRef);
+                const currentUserData = currentUserDoc.data();
+
+                // Only main admin can change roles
+                if (currentUserData.role !== 'mainAdmin') {
+                    showNotification('Sul ei ole õigusi rollide muutmiseks!', 'error');
+                    return;
+                }
+
+                // Get target user's data
                 const userRef = doc(db, "users", userId);
-                await updateDoc(userRef, { role: newRole });
+                const userDoc = await getDoc(userRef);
+                const userData = userDoc.data();
+
+                // Prevent changing main admin's role
+                if (userData.role === 'mainAdmin') {
+                    showNotification('Peaadmini rolli ei saa muuta!', 'error');
+                    return;
+                }
+
+                // Update the role
+                await updateDoc(userRef, {
+                    role: newRole,
+                    lastUpdated: new Date()
+                });
+
+                // Log the role change
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_role_changed",
+                    userId: userId,
+                    oldRole: userData.role,
+                    newRole: newRole,
+                    performedBy: auth.currentUser.uid,
+                    timestamp: new Date()
+                });
+
                 showNotification('Kasutaja roll muudetud!', 'success');
                 loadUsers(); // Refresh user list
             } catch (error) {
@@ -1434,17 +1875,67 @@
             const approved = document.getElementById("userApproved").checked;
 
             try {
+                // Check if current user is main admin
+                const currentUserRef = doc(db, "users", auth.currentUser.uid);
+                const currentUserDoc = await getDoc(currentUserRef);
+                const currentUserData = currentUserDoc.data();
+
+                if (currentUserData.role !== 'mainAdmin') {
+                    showNotification("Sul ei ole õigusi kasutajate lisamiseks!", "error");
+                    return;
+                }
+
+                // Validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showNotification("Vigane e-posti aadress!", "error");
+                    return;
+                }
+
+                // Validate password strength
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                if (!passwordRegex.test(password)) {
+                    showNotification("Parool peab sisaldama vähemalt 8 tähemärki, üht suurt tähte, üht väikest tähte, üht numbrit ja üht erimärki!", "error");
+                    return;
+                }
+
                 // Create user in Firebase Auth
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Add user data to Firestore
-                await addDoc(collection(db, "users"), {
+                // Immediately sign out the new user
+                await signOut(auth);
+
+                // Sign back in as the main admin
+                const mainAdminEmail = "viljarpartel@gmail.com";
+                const mainAdminPassword = localStorage.getItem('mainAdminPassword'); // You'll need to store this securely
+                await signInWithEmailAndPassword(auth, mainAdminEmail, mainAdminPassword);
+
+                // Add user data to Firestore with additional fields
+                await setDoc(doc(db, "users", user.uid), {
                     email: email,
                     role: role,
                     approved: approved,
                     createdAt: new Date(),
-                    uid: user.uid
+                    lastLogin: null,
+                    status: approved ? 'active' : 'pending',
+                    uid: user.uid,
+                    emailVerified: false,
+                    lastUpdated: new Date(),
+                    createdBy: auth.currentUser.uid,
+                    createdByEmail: auth.currentUser.email
+                });
+
+                // Log the user creation in audit log
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_created",
+                    userId: user.uid,
+                    email: email,
+                    role: role,
+                    approved: approved,
+                    performedBy: auth.currentUser.uid,
+                    performedByEmail: auth.currentUser.email,
+                    timestamp: new Date()
                 });
 
                 showNotification("Kasutaja lisatud edukalt!", "success");
@@ -1465,6 +1956,17 @@
                 showNotification(errorMessage, "error");
             }
         });
+
+        async function resendVerificationEmail(userId) {
+            try {
+                const user = await auth.getUser(userId);
+                await user.sendEmailVerification();
+                alert('Verifitseerimise e-kiri on saadetud! Palun kontrolli oma e-posti kasti.');
+            } catch (error) {
+                console.error('Error sending verification email:', error);
+                alert('Viga verifitseerimise e-kirja saatmisel. Palun proovi hiljem uuesti.');
+            }
+        }
     </script>
 </body>
 

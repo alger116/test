@@ -57,7 +57,7 @@ document
       });
 
       alert("Registreerimine õnnestus! Suuname pealehele...");
-      window.location.href = "index.html";
+      window.location.href = "../hanke/index.html";
     } catch (error) {
       console.error("Registreerimisviga:", error);
       alert(error.message);
