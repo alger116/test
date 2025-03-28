@@ -1,119 +1,201 @@
 <!DOCTYPE html>
 <html lang="et">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hankest.ee – Vali suund</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hankest.ee - Riigihangete portaal</title>
   <style>
+    :root {
+      --hanke-blue: #0ea5e9;
+      /* sky-500 */
+      --ostu-red: #6366f1;
+      /* indigo-500 */
+      --accent-gold: #8b5cf6;
+      /* violet-500 */
+    }
+
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f5;
-      height: 100vh;
+      background: #dee2e6;
+      min-height: 100vh;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      perspective: 1000px;
+      overflow-x: hidden;
     }
-    .container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      max-width: 900px;
+
+    .portal-container {
+      display: flex;
+      gap: 40px;
+      max-width: 1000px;
       width: 100%;
-      padding: 2rem;
+      padding: 20px;
+      transform-style: preserve-3d;
     }
-    .card {
-      background-color: white;
-      border-radius: 1rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-      padding: 3rem 2rem;
+
+    .portal-card {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px;
       text-align: center;
       cursor: pointer;
-      transition: transform 0.3s ease, background 0.4s ease;
+      transition: all 0.3s ease;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
       position: relative;
       overflow: hidden;
+      border: none;
+      justify-content: center;
     }
-    .card:hover {
-      transform: scale(1.04);
-    }
-    .hanke {
-      border: 2px solid #3b82f6;
-    }
-    .hanke:hover {
-      background-color: #eff6ff;
-    }
-    .ostu {
-      border: 2px solid #10b981;
-    }
-    .ostu:hover {
-      background-color: #ecfdf5;
-    }
-    .card h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-      z-index: 1;
-      position: relative;
-    }
-    .card p {
-      color: #6b7280;
-      font-size: 1rem;
-      z-index: 1;
-      position: relative;
-    }
-    .details {
+
+    .portal-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg,
+          rgba(14, 165, 233, 0.1) 0%,
+          rgba(99, 102, 241, 0.1) 50%,
+          rgba(139, 92, 246, 0.1) 100%);
       opacity: 0;
-      max-height: 0;
-      overflow: hidden;
-      transition: opacity 0.4s ease, max-height 0.4s ease;
-      margin-top: 1.5rem;
-      color: #374151;
-      text-align: left;
-      font-size: 0.95rem;
+      transition: opacity 0.3s ease;
+      z-index: 0;
     }
-    .card:hover .details {
+
+    .portal-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .portal-card:hover::before {
       opacity: 1;
-      max-height: 200px;
     }
-    .details ul {
-      list-style: disc;
-      padding-left: 1.25rem;
+
+    #hankemaailm {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
     }
-    @media (max-width: 640px) {
-      .container {
-        grid-template-columns: 1fr;
+
+    #ostumaailm {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+    }
+
+    .portal-card h2 {
+      font-size: 2.2em;
+      font-weight: 600;
+      margin: 0;
+      color: #1e293b;
+      text-shadow: none;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s ease;
+      transform: translateY(0);
+    }
+
+    .portal-card:hover h2 {
+      transform: translateY(-10px);
+    }
+
+    .highlight-points {
+      list-style: none;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .portal-card:hover .highlight-points {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .highlight-points li {
+      font-size: 1.1em;
+      color: #475569;
+      margin: 16px 0;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .highlight-points li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--hanke-blue), var(--accent-gold));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .portal-card:hover .highlight-points li::before {
+      opacity: 1;
+    }
+
+    .highlight-points li:nth-child(1) {
+      transition-delay: 0.1s;
+    }
+
+    .highlight-points li:nth-child(2) {
+      transition-delay: 0.2s;
+    }
+
+    .highlight-points li:nth-child(3) {
+      transition-delay: 0.3s;
+    }
+
+    @media (max-width: 768px) {
+      .portal-container {
+        flex-direction: column;
+        padding: 15px;
+      }
+
+      .portal-card {
+        min-height: 240px;
+        padding: 30px;
       }
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <div class="card hanke" onclick="location.href='index.html'">
-      <h1>Hankemaailm</h1>
-      <p>Riigihangete keskkond</p>
-      <div class="details">
-        <ul>
-          <li>Jälgi ja halda riigihankeid</li>
-          <li>Automaatsed teavitused ja tähtaegade jälgimine</li>
-          <li>Osalemise ja dokumentatsiooni haldus</li>
-        </ul>
-      </div>
+  <div class="portal-container">
+    <div class="portal-card" id="hankemaailm" onclick="window.location.href='/index.html'">
+      <h2>Hankemaailm</h2>
+      <ul class="highlight-points">
+        <li>Riigihanke mugav planeerimine</li>
+        <li>Hankemenetluse visualiseerimine</li>
+        <li>Ajatelje loomine</li>
+      </ul>
     </div>
 
-    <div class="card ostu" onclick="location.href='om.html'">
-      <h1>Ostumaailm</h1>
-      <p>Ostumenetluste keskkond</p>
-      <div class="details">
-        <ul>
-          <li>Lihtsustatud ostuprotsessid</li>
-          <li>Sise- ja välishangete läbiviimine</li>
-          <li>Koostöö ja läbipaistvus partneritega</li>
-        </ul>
-      </div>
+    <div class="portal-card" id="ostumaailm" onclick="window.location.href='om.html'">
+      <h2>Ostumaailm</h2>
+      <ul class="highlight-points">
+        <li>Ostumenetluse kutse loomine</li>
+        <li>Mugavalt kohandatavad tingimused</li>
+        <li>Kutse PDF fail kohe kätte</li>
+      </ul>
     </div>
   </div>
 </body>
+
 </html>
