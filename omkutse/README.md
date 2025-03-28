@@ -73,17 +73,8 @@ Modernne ja funktsionaalne ostumenetluse kutse süsteem koos dashboardiga.
 - Font Awesome - Ikoonid
 - Inter font - Tüpograafia
 
-## Arendamine
 
-Süsteemi arendamiseks:
-
-1. Klooni repositoorium
-2. Installi vajalikud sõltuvused
-3. Käivita arendusserver
-4. Tee muudatused
-5. Testi funktsionaalsust
-6. Tee pull request
 
 ## Litsents
 
-MIT
+MIT VP
