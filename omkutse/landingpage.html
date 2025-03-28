@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hankest.ee – Vali suund</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f5;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 900px;
+      width: 100%;
+      padding: 2rem;
+    }
+    .card {
+      background-color: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, background 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      transform: scale(1.04);
+    }
+    .hanke {
+      border: 2px solid #3b82f6;
+    }
+    .hanke:hover {
+      background-color: #eff6ff;
+    }
+    .ostu {
+      border: 2px solid #10b981;
+    }
+    .ostu:hover {
+      background-color: #ecfdf5;
+    }
+    .card h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      z-index: 1;
+      position: relative;
+    }
+    .card p {
+      color: #6b7280;
+      font-size: 1rem;
+      z-index: 1;
+      position: relative;
+    }
+    .details {
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.4s ease, max-height 0.4s ease;
+      margin-top: 1.5rem;
+      color: #374151;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    .card:hover .details {
+      opacity: 1;
+      max-height: 200px;
+    }
+    .details ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    @media (max-width: 640px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card hanke" onclick="location.href='index.html'">
+      <h1>Hankemaailm</h1>
+      <p>Riigihangete keskkond</p>
+      <div class="details">
+        <ul>
+          <li>Jälgi ja halda riigihankeid</li>
+          <li>Automaatsed teavitused ja tähtaegade jälgimine</li>
+          <li>Osalemise ja dokumentatsiooni haldus</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card ostu" onclick="location.href='om.html'">
+      <h1>Ostumaailm</h1>
+      <p>Ostumenetluste keskkond</p>
+      <div class="details">
+        <ul>
+          <li>Lihtsustatud ostuprotsessid</li>
+          <li>Sise- ja välishangete läbiviimine</li>
+          <li>Koostöö ja läbipaistvus partneritega</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
