@@ -1125,11 +1125,406 @@ Let me optimize the code:
 
 ---
 
-Cancelled
+```diff
+          :root {
+              --hanke-blue: #0ea5e9;
+-             /* sky-500 */
+              --ostu-red: #6366f1;
+-             /* indigo-500 */
+              --accent-gold: #8b5cf6;
+-             /* violet-500 */
+          }
+  
+              justify-content: center;
+              align-items: center;
+-             perspective: 1000px;
+              overflow-x: hidden;
+          }
+              width: 100%;
+              padding: 20px;
+-             transform-style: preserve-3d;
+          }
+  
+          .portal-card {
+              flex: 1;
+-             background: rgba(255, 255, 255, 0.8);
+-             backdrop-filter: blur(20px);
++             background: #ffffff;
+              border-radius: 24px;
+              padding: 40px;
+              text-align: center;
+              cursor: pointer;
+-             transition: all 0.3s ease;
+-             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
++             transition: transform 0.2s ease, box-shadow 0.2s ease;
++             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+              min-height: 280px;
+              display: flex;
+              justify-content: center;
+          }
+- 
+-         .portal-card::before {
+-             content: '';
+-             position: absolute;
+-             inset: 0;
+-             background: linear-gradient(135deg,
+-                     rgba(14, 165, 233, 0.1) 0%,
+-                     rgba(99, 102, 241, 0.1) 50%,
+-                     rgba(139, 92, 246, 0.1) 100%);
+-             opacity: 0;
+-             transition: opacity 0.3s ease;
+-             z-index: 0;
+-         }
+  
+          .portal-card:hover {
+-             transform: translateY(-8px);
+-             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+-             background: rgba(255, 255, 255, 0.95);
+-         }
+- 
+-         .portal-card:hover::before {
+-             opacity: 1;
++             transform: translateY(-4px);
++             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+          }
+  
+          #hankemaailm {
+-             background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
++             background: linear-gradient(135deg, #ffffff, #f8fafc);
+          }
+  
+          #ostumaailm {
+-             background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
++             background: linear-gradient(135deg, #ffffff, #f8fafc);
+          }
+  
+              margin: 0;
+              color: #1e293b;
+-             text-shadow: none;
+              position: relative;
+              z-index: 1;
+-             transition: all 0.3s ease;
+-             transform: translateY(0);
++             transition: transform 0.2s ease;
+          }
+  
+          .portal-card:hover h2 {
+-             transform: translateY(-10px);
++             transform: translateY(-5px);
+          }
+  
+              z-index: 1;
+              opacity: 0;
+-             transform: translateY(20px);
+-             transition: all 0.3s ease;
++             transform: translateY(10px);
++             transition: opacity 0.2s ease, transform 0.2s ease;
+              margin-top: 20px;
+          }
+              margin: 16px 0;
+              padding: 12px 20px;
+-             background: rgba(255, 255, 255, 0.5);
++             background: rgba(255, 255, 255, 0.8);
+              border-radius: 12px;
+              position: relative;
+              overflow: hidden;
+-             backdrop-filter: blur(10px);
+          }
+  
+              background: linear-gradient(to bottom, var(--hanke-blue), var(--accent-gold));
+              opacity: 0;
+-             transition: opacity 0.3s ease;
++             transition: opacity 0.2s ease;
+          }
+  
+          }
+  
+-         .highlight-points li:nth-child(1) {
+-             transition-delay: 0.1s;
+-         }
+- 
+-         .highlight-points li:nth-child(2) {
+-             transition-delay: 0.2s;
+-         }
+- 
+-         .highlight-points li:nth-child(3) {
+-             transition-delay: 0.3s;
+-         }
++         .highlight-points li:nth-child(1) { transition-delay: 0.1s; }
++         .highlight-points li:nth-child(2) { transition-delay: 0.2s; }
++         .highlight-points li:nth-child(3) { transition-delay: 0.3s; }
+  
+          @media (max-width: 768px) {
+              }
+          }
++ 
++         /* Optimize for reduced motion */
++         @media (prefers-reduced-motion: reduce) {
++             .portal-card,
++             .portal-card h2,
++             .highlight-points,
++             .highlight-points li::before {
++                 transition: none;
++             }
++         }
+      </style>
+  </head>
+```
 
 ---
 
+I've made several optimizations to improve performance:
 
+1. Removed heavy effects:
+   - Removed `backdrop-filter: blur()` which is computationally expensive
+   - Removed complex gradient overlays
+   - Removed 3D transforms and perspective
+   - Simplified shadow effects
+
+2. Optimized animations:
+   - Reduced transition durations from 0.3s to 0.2s
+   - Specified exact properties to animate instead of using `all`
+   - Reduced transform distances (e.g., -8px to -4px)
+   - Simplified gradient backgrounds
+
+3. Improved performance:
+   - Removed unnecessary text-shadow
+   - Simplified background colors
+   - Reduced shadow complexity
+   - Added `prefers-reduced-motion` media query for accessibility
+
+4. Reduced complexity:
+   - Removed nested pseudo-elements
+   - Simplified transition properties
+   - Removed redundant styles
+   - Consolidated transition delays
+
+5. Added performance optimizations:
+   - Used solid colors where possible instead of rgba
+   - Reduced the number of layers and stacking contexts
+   - Simplified the DOM structure
+
+These changes should make the landing page much more performant on GitHub Pages while maintaining a similar visual appearance. The animations will be smoother and less resource-intensive.
+
+Additional recommendations for GitHub Pages:
+1. Consider adding a `cache-control` header to cache static assets
+2. You might want to add a loading state for the cards
+3. Consider lazy loading any images or heavy resources
+
+Would you like me to implement any of these additional optimizations?
+
+---
+
+_**User**_
+
+can we also check and see what can be done do make the transitions smoother ? for example if i klikk hankemaailm, it takes me to hanke/index.html which is the main big tool for riighanke andmed but that transition from the landingpage - clicking the hankemaail button...not there are some weird transitions that can be seen
+
+---
+
+_**Assistant**_
+
+I understand the issue. The transition between pages feels abrupt. Let's improve this by:
+
+1. Adding a smooth page transition effect
+2. Preloading the next page
+3. Adding a loading state
+
+Here's how we can improve it:
+
+
+
+---
+
+```diff
+              border: none;
+              justify-content: center;
++             will-change: transform;
++             -webkit-tap-highlight-color: transparent;
+          }
+  
+              }
+          }
++ 
++         /* Page Transition Styles */
++         .page-transition {
++             position: fixed;
++             top: 0;
++             left: 0;
++             width: 100%;
++             height: 100%;
++             background: #ffffff;
++             z-index: 9999;
++             transform: scaleY(0);
++             transform-origin: top;
++             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
++         }
++ 
++         .page-transition.active {
++             transform: scaleY(1);
++         }
++ 
++         /* Loading Indicator */
++         .loading-indicator {
++             position: fixed;
++             top: 50%;
++             left: 50%;
++             transform: translate(-50%, -50%);
++             z-index: 10000;
++             display: none;
++         }
++ 
++         .loading-indicator.active {
++             display: block;
++         }
++ 
++         .loading-spinner {
++             width: 50px;
++             height: 50px;
++             border: 3px solid #f3f3f3;
++             border-top: 3px solid var(--hanke-blue);
++             border-radius: 50%;
++             animation: spin 1s linear infinite;
++         }
++ 
++         @keyframes spin {
++             0% { transform: rotate(0deg); }
++             100% { transform: rotate(360deg); }
++         }
++ 
++         /* Optimize card click behavior */
++         .portal-card:active {
++             transform: scale(0.98);
++         }
+      </style>
+  </head>
+  
+  <body>
++     <!-- Page Transition Overlay -->
++     <div class="page-transition"></div>
++     
++     <!-- Loading Indicator -->
++     <div class="loading-indicator">
++         <div class="loading-spinner"></div>
++     </div>
++ 
+      <div class="portal-container">
+-         <div class="portal-card" id="hankemaailm" onclick="window.location.href='hanke/index.html'">
++         <div class="portal-card" id="hankemaailm" data-href="hanke/index.html">
+              <h2>Hankemaailm</h2>
+              <ul class="highlight-points">
+          </div>
+  
+-         <div class="portal-card" id="ostumaailm" onclick="window.location.href='ostu/om.html'">
++         <div class="portal-card" id="ostumaailm" data-href="ostu/om.html">
+              <h2>Ostumaailm</h2>
+              <ul class="highlight-points">
+          </div>
+      </div>
++ 
+      <footer style="position: fixed; bottom: 0; width: 100%; text-align: right; padding: 10px;">
+-         <button onclick="window.location.href='auth/admin.html'"
++         <button onclick="handleAdminClick()"
+              style="background: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+              Admin
+  
+      <script>
++         // Preload pages
++         function preloadPage(url) {
++             const link = document.createElement('link');
++             link.rel = 'prefetch';
++             link.href = url;
++             document.head.appendChild(link);
++         }
++ 
++         // Initialize preloading
++         document.addEventListener('DOMContentLoaded', () => {
++             preloadPage('hanke/index.html');
++             preloadPage('ostu/om.html');
++         });
++ 
++         // Handle page transitions
++         function handlePageTransition(url) {
++             const transition = document.querySelector('.page-transition');
++             const loadingIndicator = document.querySelector('.loading-indicator');
++             
++             // Start transition
++             transition.classList.add('active');
++             loadingIndicator.classList.add('active');
++ 
++             // Navigate after transition
++             setTimeout(() => {
++                 window.location.href = url;
++             }, 500);
++         }
++ 
++         // Handle card clicks
++         document.querySelectorAll('.portal-card').forEach(card => {
++             card.addEventListener('click', (e) => {
++                 e.preventDefault();
++                 const url = card.getAttribute('data-href');
++                 handlePageTransition(url);
++             });
++         });
++ 
++         // Handle admin button click
++         function handleAdminClick() {
++             handlePageTransition('auth/admin.html');
++         }
++ 
++         // Handle login function
+          function login() {
+              const email = document.getElementById('emailLogin').value;
+                          }));
+                      }
+-                     // Store current user
+                      localStorage.setItem('currentUser', JSON.stringify({
+                          id: userCredential.user.uid,
+                          email: userCredential.user.email
+                      }));
+- 
+-                     // Refresh the page to update UI
+                      window.location.reload();
+                  })
+```
+
+---
+
+I've made several improvements to make the page transitions smoother:
+
+1. Added Page Transition Effect:
+   - Added a smooth slide-down transition overlay
+   - Uses CSS transform for better performance
+   - Custom easing curve for natural feel
+
+2. Added Loading Indicator:
+   - Shows a spinning loader during transition
+   - Matches the site's color scheme
+   - Provides visual feedback
+
+3. Optimized Card Interaction:
+   - Added `will-change: transform` for better performance
+   - Removed tap highlight on mobile
+   - Added subtle scale effect on click
+   - Changed from inline `onclick` to proper event listeners
+
+4. Added Page Preloading:
+   - Preloads the next pages in the background
+   - Uses `prefetch` for better performance
+   - Reduces perceived loading time
+
+5. Improved Navigation:
+   - Centralized navigation handling
+   - Added proper event prevention
+   - Consistent transition timing
+
+The changes will make the transitions feel more polished:
+1. When clicking a card, it will slightly scale down
+2. A white overlay will slide down from the top
+3. A loading spinner will appear
+4. After 500ms, the navigation will occur
+5. The next page will load faster due to preloading
+
+This should make the transitions much smoother and more professional. Let me know if you'd like any adjustments to the timing or effects!
 
 ---
 

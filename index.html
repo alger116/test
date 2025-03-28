@@ -80,6 +80,8 @@
             overflow: hidden;
             border: none;
             justify-content: center;
+            will-change: transform;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .portal-card:hover {
@@ -185,12 +187,76 @@
                 transition: none;
             }
         }
+
+        /* Page Transition Styles */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 9999;
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-transition.active {
+            transform: scaleY(1);
+        }
+
+        /* Loading Indicator */
+        .loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            display: none;
+        }
+
+        .loading-indicator.active {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--hanke-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Optimize card click behavior */
+        .portal-card:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 
 <body>
+    <!-- Page Transition Overlay -->
+    <div class="page-transition"></div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-indicator">
+        <div class="loading-spinner"></div>
+    </div>
+
     <div class="portal-container">
-        <div class="portal-card" id="hankemaailm" onclick="window.location.href='hanke/index.html'">
+        <div class="portal-card" id="hankemaailm" data-href="hanke/index.html">
             <h2>Hankemaailm</h2>
             <ul class="highlight-points">
                 <li>Riigihanke mugav planeerimine</li>
@@ -199,7 +265,7 @@
             </ul>
         </div>
 
-        <div class="portal-card" id="ostumaailm" onclick="window.location.href='ostu/om.html'">
+        <div class="portal-card" id="ostumaailm" data-href="ostu/om.html">
             <h2>Ostumaailm</h2>
             <ul class="highlight-points">
                 <li>Ostumenetluse kutse loomine</li>
@@ -208,14 +274,59 @@
             </ul>
         </div>
     </div>
+
     <footer style="position: fixed; bottom: 0; width: 100%; text-align: right; padding: 10px;">
-        <button onclick="window.location.href='auth/admin.html'"
+        <button onclick="handleAdminClick()"
             style="background: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
             Admin
         </button>
     </footer>
 
     <script>
+        // Preload pages
+        function preloadPage(url) {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = url;
+            document.head.appendChild(link);
+        }
+
+        // Initialize preloading
+        document.addEventListener('DOMContentLoaded', () => {
+            preloadPage('hanke/index.html');
+            preloadPage('ostu/om.html');
+        });
+
+        // Handle page transitions
+        function handlePageTransition(url) {
+            const transition = document.querySelector('.page-transition');
+            const loadingIndicator = document.querySelector('.loading-indicator');
+
+            // Start transition
+            transition.classList.add('active');
+            loadingIndicator.classList.add('active');
+
+            // Navigate after transition
+            setTimeout(() => {
+                window.location.href = url;
+            }, 500);
+        }
+
+        // Handle card clicks
+        document.querySelectorAll('.portal-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                const url = card.getAttribute('data-href');
+                handlePageTransition(url);
+            });
+        });
+
+        // Handle admin button click
+        function handleAdminClick() {
+            handlePageTransition('auth/admin.html');
+        }
+
+        // Handle login function
         function login() {
             const email = document.getElementById('emailLogin').value;
             const password = document.getElementById('passwordLogin').value;
@@ -229,13 +340,10 @@
                             password: password
                         }));
                     }
-                    // Store current user
                     localStorage.setItem('currentUser', JSON.stringify({
                         id: userCredential.user.uid,
                         email: userCredential.user.email
                     }));
-
-                    // Refresh the page to update UI
                     window.location.reload();
                 })
                 .catch((error) => {
