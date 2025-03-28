@@ -1076,6 +1076,47 @@ Would you like any further adjustments or additional features?
 
 ---
 
+_**User**_
+
+ostumaail needs to take here /Users/viljarpartel/Desktop/test/omkutse/om.html 
+
+the file is om.html
+
+---
+
+_**Assistant**_
+
+To ensure that the "Ostumaailm" card correctly links to the specified file path, I'll update the `onclick` attribute for the "Ostumaailm" card to point to the absolute path. Here's the updated code:
+
+```html:omkutse/landingpage.html
+    <div class="portal-card" id="hankemaailm" onclick="window.location.href='/index.html'">
+      <h2>Hankemaailm</h2>
+      <ul class="highlight-points">
+        <li>Riigihanke mugav planeerimine</li>
+        <li>Hankemenetluse visualiseerimine</li>
+        <li>Ajatelje loomine</li>
+      </ul>
+    </div>
+
+    <div class="portal-card" id="ostumaailm" onclick="window.location.href='file:///Users/viljarpartel/Desktop/test/omkutse/om.html'">
+      <h2>Ostumaailm</h2>
+      <ul class="highlight-points">
+        <li>Ostumenetluse kutse loomine</li>
+        <li>Mugavalt kohandatavad tingimused</li>
+        <li>Kutse PDF fail kohe kätte</li>
+      </ul>
+    </div>
+```
+
+### Changes Made:
+- Updated the `onclick` attribute for the "Ostumaailm" card to point to the absolute file path: `file:///Users/viljarpartel/Desktop/test/omkutse/om.html`.
+
+Now, when you click on "Ostumaailm," it will navigate directly to the specified HTML file on your local machine.
+
+Would you like any further adjustments or features?
+
+---
+
 
 
 ---
