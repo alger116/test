@@ -9,15 +9,20 @@
     <!-- Only include jsPDF -->
     <script src="../assets/js/jspdf.umd.min.js"></script>
     <script>
-        // Ensure jsPDF is initialized
+        // Wait for jsPDF to be fully loaded
         window.addEventListener('DOMContentLoaded', function () {
-            if (typeof window.jspdf === 'undefined') {
-                console.warn('jsPDF not loaded correctly. Attempting to initialize it.');
-                try {
-                    window.jspdf = { jsPDF: window.jspdf.jsPDF || window.jsPDF };
-                } catch (e) {
-                    console.error('Failed to initialize jsPDF:', e);
-                }
+            // Check if jsPDF is already available
+            if (typeof window.jspdf !== 'undefined') {
+                console.log('jsPDF loaded successfully');
+                return;
+            }
+
+            // Try to initialize jsPDF from the UMD bundle
+            if (typeof window.jspdf === 'undefined' && typeof window.jsPDF !== 'undefined') {
+                window.jspdf = { jsPDF: window.jsPDF };
+                console.log('jsPDF initialized from window.jsPDF');
+            } else {
+                console.error('jsPDF not found. Please check if the script is properly loaded.');
             }
         });
     </script>
@@ -1067,8 +1072,8 @@
                         <a href="dashboard.html" class="nav-link inline-flex items-center px-1 pt-1">
                             <i class="fas fa-chart-line mr-2"></i> Dashboard
                         </a>
-                        <a href="landingpage.html" class="nav-link active inline-flex items-center px-1 pt-1">
-                            <i class="fas fa-chart-line mr-2"></i> Algusesse
+                        <a href="../index.html" class="nav-link active inline-flex items-center px-1 pt-1">
+                            <i class="fas fa-home mr-2"></i> Algusesse
                         </a>
                         <a href="users.html" class="hidden nav-link items-center px-1 pt-1" x-show="isAdmin">
                             <i class="fas fa-users mr-2"></i> Kasutajad

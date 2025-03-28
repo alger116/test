@@ -36,11 +36,8 @@
     <style>
         :root {
             --hanke-blue: #0ea5e9;
-            /* sky-500 */
             --ostu-red: #6366f1;
-            /* indigo-500 */
             --accent-gold: #8b5cf6;
-            /* violet-500 */
         }
 
         * {
@@ -56,7 +53,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1000px;
             overflow-x: hidden;
         }
 
@@ -66,19 +62,17 @@
             max-width: 1000px;
             width: 100%;
             padding: 20px;
-            transform-style: preserve-3d;
         }
 
         .portal-card {
             flex: 1;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
+            background: #ffffff;
             border-radius: 24px;
             padding: 40px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
             min-height: 280px;
             display: flex;
             flex-direction: column;
@@ -88,35 +82,17 @@
             justify-content: center;
         }
 
-        .portal-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg,
-                    rgba(14, 165, 233, 0.1) 0%,
-                    rgba(99, 102, 241, 0.1) 50%,
-                    rgba(139, 92, 246, 0.1) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 0;
-        }
-
         .portal-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .portal-card:hover::before {
-            opacity: 1;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
 
         #hankemaailm {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
         }
 
         #ostumaailm {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
         }
 
         .portal-card h2 {
@@ -124,15 +100,13 @@
             font-weight: 600;
             margin: 0;
             color: #1e293b;
-            text-shadow: none;
             position: relative;
             z-index: 1;
-            transition: all 0.3s ease;
-            transform: translateY(0);
+            transition: transform 0.2s ease;
         }
 
         .portal-card:hover h2 {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
         }
 
         .highlight-points {
@@ -140,8 +114,8 @@
             position: relative;
             z-index: 1;
             opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s ease;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
             margin-top: 20px;
         }
 
@@ -155,11 +129,10 @@
             color: #475569;
             margin: 16px 0;
             padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 12px;
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(10px);
         }
 
         .highlight-points li::before {
@@ -171,7 +144,7 @@
             width: 4px;
             background: linear-gradient(to bottom, var(--hanke-blue), var(--accent-gold));
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.2s ease;
         }
 
         .portal-card:hover .highlight-points li::before {
@@ -199,6 +172,17 @@
             .portal-card {
                 min-height: 240px;
                 padding: 30px;
+            }
+        }
+
+        /* Optimize for reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+
+            .portal-card,
+            .portal-card h2,
+            .highlight-points,
+            .highlight-points li::before {
+                transition: none;
             }
         }
     </style>
