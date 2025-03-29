@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hankest.ee - Riigihangete portaal</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyT8XLIwrmsYgMYalK9I_lp6OfQucBLR0",
+            authDomain: "kalkulaator-9f3d1.firebaseapp.com",
+            projectId: "kalkulaator-9f3d1",
+            storageBucket: "kalkulaator-9f3d1.appspot.com",
+            messagingSenderId: "127234313724",
+            appId: "1:127234313724:web:1f333fb8f3ff2995bcb679",
+            measurementId: "G-91VSY43W50"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Make auth available globally
+        window.auth = auth;
+
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            // User can stay on landing page regardless of auth state
+            // No redirect needed
+        });
+    </script>
+    <style>
+        :root {
+            --hanke-blue: #0ea5e9;
+            --ostu-red: #6366f1;
+            --accent-gold: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #dee2e6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .portal-container {
+            display: flex;
+            gap: 40px;
+            max-width: 1000px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .portal-card {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            justify-content: center;
+            will-change: transform;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        #hankemaailm {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+        }
+
+        #ostumaailm {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+        }
+
+        .portal-card h2 {
+            font-size: 2.2em;
+            font-weight: 600;
+            margin: 0;
+            color: #1e293b;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .portal-card:hover h2 {
+            transform: translateY(-5px);
+        }
+
+        .highlight-points {
+            list-style: none;
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .portal-card:hover .highlight-points {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .highlight-points li {
+            font-size: 1.1em;
+            color: #475569;
+            margin: 16px 0;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight-points li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--hanke-blue), var(--accent-gold));
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .portal-card:hover .highlight-points li::before {
+            opacity: 1;
+        }
+
+        .highlight-points li:nth-child(1) {
+            transition-delay: 0.1s;
+        }
+
+        .highlight-points li:nth-child(2) {
+            transition-delay: 0.2s;
+        }
+
+        .highlight-points li:nth-child(3) {
+            transition-delay: 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .portal-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .portal-card {
+                min-height: 240px;
+                padding: 30px;
+            }
+        }
+
+        /* Optimize for reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+
+            .portal-card,
+            .portal-card h2,
+            .highlight-points,
+            .highlight-points li::before {
+                transition: none;
+            }
+        }
+
+        /* Page Transition Styles */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 9999;
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-transition.active {
+            transform: scaleY(1);
+        }
+
+        /* Loading Indicator */
+        .loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            display: none;
+        }
+
+        .loading-indicator.active {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--hanke-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Optimize card click behavior */
+        .portal-card:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Page Transition Overlay -->
+    <div class="page-transition"></div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-indicator">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="portal-container">
+        <div class="portal-card" id="hankemaailm" data-href="hanke/index.html">
+            <h2>Hankemaailm</h2>
+            <ul class="highlight-points">
+                <li>Riigihanke mugav planeerimine</li>
+                <li>Hankemenetluse visualiseerimine</li>
+                <li>Ajatelje loomine</li>
+            </ul>
+        </div>
+
+        <div class="portal-card" id="ostumaailm" data-href="ostu/om.html">
+            <h2>Ostumaailm</h2>
+            <ul class="highlight-points">
+                <li>Ostumenetluse kutse loomine</li>
+                <li>Mugavalt kohandatavad tingimused</li>
+                <li>Kutse PDF fail kohe kätte</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer style="position: fixed; bottom: 0; width: 100%; text-align: right; padding: 10px;">
+        <button onclick="handleAdminClick()"
+            style="background: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+            Admin
+        </button>
+    </footer>
+
+    <script>
+        // Preload pages
+        function preloadPage(url) {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = url;
+            document.head.appendChild(link);
+        }
+
+        // Initialize preloading
+        document.addEventListener('DOMContentLoaded', () => {
+            preloadPage('hanke/index.html');
+            preloadPage('ostu/om.html');
+        });
+
+        // Handle page transitions
+        function handlePageTransition(url) {
+            const transition = document.querySelector('.page-transition');
+            const loadingIndicator = document.querySelector('.loading-indicator');
+
+            // Start transition
+            transition.classList.add('active');
+            loadingIndicator.classList.add('active');
+
+            // Navigate after transition
+            setTimeout(() => {
+                window.location.href = url;
+            }, 500);
+        }
+
+        // Handle card clicks
+        document.querySelectorAll('.portal-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                const url = card.getAttribute('data-href');
+                handlePageTransition(url);
+            });
+        });
+
+        // Handle admin button click
+        function handleAdminClick() {
+            handlePageTransition('auth/admin.html');
+        }
+
+        // Handle login function
+        function login() {
+            const email = document.getElementById('emailLogin').value;
+            const password = document.getElementById('passwordLogin').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            window.auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    if (rememberMe) {
+                        localStorage.setItem('rememberedUser', JSON.stringify({
+                            username: email,
+                            password: password
+                        }));
+                    }
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        id: userCredential.user.uid,
+                        email: userCredential.user.email
+                    }));
+                    window.location.reload();
+                })
+                .catch((error) => {
+                    alert(getErrorMessage(error.code));
+                });
+        }
+
+        function getErrorMessage(errorCode) {
+            const errorMessages = {
+                'auth/invalid-email': 'Vigane e-posti aadress',
+                'auth/user-disabled': 'Kasutaja on deaktiveeritud',
+                'auth/user-not-found': 'Kasutajat ei leitud',
+                'auth/wrong-password': 'Vale parool',
+                'auth/too-many-requests': 'Liiga palju katsetusi. Palun proovige hiljem uuesti',
+                'auth/network-request-failed': 'Võrgu viga. Palun kontrollige oma internetiühendust'
+            };
+            return errorMessages[errorCode] || 'Sisselogimisel tekkis viga';
+        }
+    </script>
+</body>
+
+</html>

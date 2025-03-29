@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="et" class="h-full bg-gray-50">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../config/config.js"></script>
+</head>
+
+<body class="h-full">
+    <div class="min-h-full">
+        <!-- Dark Sidebar -->
+        <div class="fixed inset-y-0 left-0 w-64 bg-gray-900 shadow-xl z-50">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-center h-16 px-4 bg-gray-800">
+                    <h1 class="text-xl font-bold text-white">Admin Panel</h1>
+                </div>
+                <nav class="flex-1 px-2 py-4 space-y-1">
+                    <a href="../index.html"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-home w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Avaleht</span>
+                    </a>
+                    <button id="settingsButton"
+                        class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-cog w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Seaded</span>
+                    </button>
+                    <a href="#"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-users w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Kasutajad</span>
+                    </a>
+                    <button id="rolesButton"
+                        class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-user-shield w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Rollid</span>
+                    </button>
+                    <a href="../ostu/om.html"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-shopping-cart w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Ostumaailm</span>
+                    </a>
+                    <a href="../hanke/index.html"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-truck w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Hankemaailm</span>
+                    </a>
+
+                </nav>
+                <div class="p-4 border-t border-gray-800">
+                    <button id="logoutButton"
+                        class="w-full flex items-center px-4 py-3 text-red-400 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-sign-out-alt w-5"></i>
+                        <span class="ml-3">Logi välja</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="pl-64">
+            <!-- Top Navigation -->
+            <div class="sticky top-0 z-40 bg-white border-b">
+                <div class="flex items-center justify-between h-16 px-6">
+                    <div class="flex items-center">
+                        <h2 class="text-lg font-semibold text-gray-800">Kasutajate haldamine</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open"
+                                class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors duration-200">
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=0D9488&color=fff"
+                                    alt="Admin" class="w-8 h-8 rounded-full">
+                                <span class="hidden md:inline">Admin</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div x-show="open" @click.away="open = false"
+                                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                                <button id="changeEmail"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-envelope mr-2"></i> Muuda e-post
+                                </button>
+                                <button id="changePassword"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-key mr-2"></i> Muuda parool
+                                </button>
+                                <button id="logoutButtonDropdown"
+                                    class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <main class="p-6">
+                <!-- User Management Table -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
+                            <div class="flex space-x-2">
+                                <input type="text" id="userSearch" placeholder="Otsi kasutajat..."
+                                    class="border rounded-lg px-3 py-1">
+                                <select id="roleFilter" class="border rounded-lg px-3 py-1">
+                                    <option value="">Vali roll</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="user">Kasutaja</option>
+                                    <!-- Add more roles as needed -->
+                                </select>
+                                <button id="searchButton"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Otsi</button>
+                            </div>
+                            <button id="addUserButton"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
+                                <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Email</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Roll</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Kinnitatud</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tegevused</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Users will be dynamically added here -->
+                            </tbody>
+                        </table>
+                        <!-- Pagination Controls -->
+                        <div
+                            class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <button id="prevPage"
+                                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Eelmine
+                                </button>
+                                <button id="nextPage"
+                                    class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    Järgmine
+                                </button>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Leht <span id="currentPage" class="font-medium">1</span> / <span id="totalPages"
+                                            class="font-medium">1</span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                                        aria-label="Pagination">
+                                        <button id="prevPage"
+                                            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Eelmine</span>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button id="nextPage"
+                                            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Järgmine</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Log Section -->
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Audit Log</h2>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Kuupäev</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Tegevus</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Kasutaja</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditLogTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Audit logs will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsBackdrop"
+            class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity z-50"></div>
+        <div id="settingsContainer" class="hidden fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-4xl bg-white rounded-lg shadow-xl">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b">
+                        <h2 class="text-2xl font-bold text-gray-900">Seaded</h2>
+                        <button id="closeSettings" class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="p-6">
+                        <!-- General Settings -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Üldised seaded</h3>
+                            <form id="settingsForm" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="documentPreparationDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            📄 Riigihanke alusdokumentide koostamine
+                                        </label>
+                                        <input type="number" id="documentPreparationDays" name="documentPreparationDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="offerEvaluationDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            🧐 Pakkumuste hindamine
+                                        </label>
+                                        <input type="number" id="offerEvaluationDays" name="offerEvaluationDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="decisionDays" class="block text-sm font-medium text-gray-700 mb-1">
+                                            ✅ Vastavaks ja edukaks tunnistamise otsus
+                                        </label>
+                                        <input type="number" id="decisionDays" name="decisionDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="bidderEvaluationDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            📊 Pakkujate hindamine
+                                        </label>
+                                        <input type="number" id="bidderEvaluationDays" name="bidderEvaluationDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="successfulBidderDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            🏆 Eduka kõrvaldamata jätmine ja kval
+                                        </label>
+                                        <input type="number" id="successfulBidderDays" name="successfulBidderDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="waitingPeriodDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            ⏳ Ooteaeg
+                                        </label>
+                                        <input type="number" id="waitingPeriodDays" name="waitingPeriodDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                        <i class="fas fa-save mr-2"></i>Salvesta
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Procedure Types -->
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">🛠️ Menetlusliigid</h3>
+                                <button id="addProcedureTypeButton"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+                                    <i class="fas fa-plus mr-2"></i>Lisa Menetlusliik
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <select id="procedureTypeSelect"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                                <div id="procedureTypeSettings" class="mt-4">
+                                    <!-- Procedure type settings will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Settings Section -->
+                        <div class="p-6">
+                            <h2 class="text-2xl font-bold text-gray-900">Seaded</h2>
+                            <form id="settingsForm" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="ostumaailmVisibility"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Ostumaailm
+                                            nähtavus</label>
+                                        <input type="checkbox" id="ostumaailmVisibility" class="rounded text-blue-600">
+                                    </div>
+                                    <div>
+                                        <label for="hankemaailmVisibility"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Hankemaailm
+                                            nähtavus</label>
+                                        <input type="checkbox" id="hankemaailmVisibility" class="rounded text-blue-600">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                        <i class="fas fa-save mr-2"></i>Salvesta
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="hidden fixed inset-0 bg-white/50 z-50 backdrop-blur-sm">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+            </div>
+        </div>
+
+        <!-- Roles Modal -->
+        <div id="rolesBackdrop" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+        <div id="rolesContainer" class="hidden fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Kasutajarollid</h2>
+                            <p class="text-sm text-gray-500 mt-1">Halda kasutajarolle ja õigusi</p>
+                        </div>
+                        <button id="closeRoles"
+                            class="text-gray-400 hover:text-gray-500 p-2 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Kasutajarollid</h3>
+                                <button id="addRoleButton"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
+                                    <i class="fas fa-plus mr-2"></i>Lisa Roll
+                                </button>
+                            </div>
+
+                            <!-- Role List -->
+                            <div class="space-y-4">
+                                <!-- Roles will be dynamically added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add User Modal -->
+        <div id="addUserBackdrop" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+        <div id="addUserContainer" class="hidden fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-md bg-white rounded-xl shadow-2xl border border-gray-200">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Lisa uus kasutaja</h2>
+                            <p class="text-sm text-gray-500 mt-1">Sisesta kasutaja andmed</p>
+                        </div>
+                        <button id="closeAddUser"
+                            class="text-gray-400 hover:text-gray-500 p-2 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="p-6">
+                        <form id="addUserForm" class="space-y-4">
+                            <div>
+                                <label for="userEmail" class="block text-sm font-medium text-gray-700">E-post:</label>
+                                <input type="email" id="userEmail" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="nimi@näide.ee">
+                            </div>
+                            <div>
+                                <label for="userPassword"
+                                    class="block text-sm font-medium text-gray-700">Parool:</label>
+                                <input type="password" id="userPassword" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Minimaalselt 6 tähemärki">
+                            </div>
+                            <div>
+                                <label for="userRole" class="block text-sm font-medium text-gray-700">Roll:</label>
+                                <select id="userRole" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="userApproved" class="rounded text-blue-600">
+                                <label for="userApproved" class="text-sm text-gray-700">Kasutaja on kinnitatud</label>
+                            </div>
+                            <div class="flex justify-end space-x-2 pt-4">
+                                <button type="button" onclick="closeAddUserModal()"
+                                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                                    Tühista
+                                </button>
+                                <button type="submit"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                    <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Details Modal -->
+        <div id="userDetailsModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold">Kasutaja Üksikasjad</h2>
+                    <p><strong>Email:</strong> <span id="userDetailsEmail"></span></p>
+                    <p><strong>Roll:</strong> <span id="userDetailsRole"></span></p>
+                    <p><strong>Status:</strong> <span id="userDetailsStatus"></span></p>
+                    <button onclick="closeUserDetailsModal()"
+                        class="mt-4 px-4 py-2 bg-gray-600 text-white rounded">Sulge</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase Modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, setDoc, query, where, limit }
+            from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+        if (!window.FIREBASE_CONFIG) {
+            console.error("⚠ Firebase konfiguratsiooni ei leitud! Kontrolli, kas `config.js` on õigesti laaditud.");
+        } else {
+            const app = initializeApp(window.FIREBASE_CONFIG);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+
+            // Make Firebase functions available globally
+            window.db = db;
+            window.collection = collection;
+            window.getDocs = getDocs;
+            window.doc = doc;
+            window.getDoc = getDoc;
+            window.updateDoc = updateDoc;
+            window.deleteDoc = deleteDoc;
+            window.addDoc = addDoc;
+            window.signOut = signOut;
+            window.auth = auth;
+            window.query = query;
+            window.where = where;
+            window.limit = limit;
+        }
+
+        // Define default settings
+        const defaultSettings = {
+            documentPreparationDays: 15,
+            offerEvaluationDays: 5,
+            decisionDays: 5,
+            bidderEvaluationDays: 5,
+            successfulBidderDays: 5,
+            waitingPeriodDays: 14,
+        };
+
+        // Initialize settings with defaults
+        let settings = { ...defaultSettings };
+
+        const procedureData = {
+            "Avatud hankemenetlus": { visible: true },
+            "Piiratud hankemenetlus": { visible: true },
+            "Konkurentsipõhine läbirääkimistega menetlus": { visible: true },
+            "Võistlev dialoog": { visible: true },
+            "Innovatsioonipartnerlus": { visible: true },
+            "Kontsessioonimenetlus": { visible: true },
+            "Erimenetlused": { visible: true }
+        };
+
+        const internationalProcedureData = {
+            "Avatud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 143000, visible: true },
+            "Avatud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 143000, visible: true },
+            "Avatud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 0, pakkumusteAeg: 45, piirmäär: 5538000, visible: true },
+            "Piiratud hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Piiratud hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Piiratud hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000, visible: true },
+            "Konkurentsipõhine läbirääkimistega hankemenetlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Konkurentsipõhine läbirääkimistega hankemenetlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Konkurentsipõhine läbirääkimistega hankemenetlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000, visible: true },
+            "Innovatsioonipartnerlus asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Innovatsioonipartnerlus teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Innovatsioonipartnerlus ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000, visible: true },
+            "Võistlev dialoog asjade hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Võistlev dialoog teenuste hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 143000, visible: true },
+            "Võistlev dialoog ehitustööde hankelepingu sõlmimiseks": { taotlusteAeg: 30, pakkumusteAeg: 25, piirmäär: 5538000, visible: true },
+            "Kontsessioonimenetlus koos eraldi taotluse esitamisega": { taotlusteAeg: 30, pakkumusteAeg: 17, piirmäär: 5538000, visible: true },
+            "Kontsessioonimenetlus ilma eraldi taotlust esitamata": { taotlusteAeg: 0, pakkumusteAeg: 30, piirmäär: 5538000, visible: true },
+            "Sotsiaalteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000, visible: true },
+            "Eriteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000, visible: true }
+        };
+
+        // TypeScript interfaces for better type safety and documentation
+        /**
+         * @typedef {Object} Permissions
+         * @property {boolean} fullAccess - Full system access
+         * @property {boolean} userManagement - Can manage users
+         * @property {boolean} settingsManagement - Can manage settings
+         * @property {boolean} roleManagement - Can manage roles
+         * @property {boolean} omAccess - Can access Ostumaailm
+         * @property {boolean} hmAccess - Can access Hankemaailm
+         * @property {boolean} auditLogAccess - Can access audit logs
+         * @property {boolean} systemSettings - Can access system settings
+         */
+
+        /**
+         * @typedef {Object} Role
+         * @property {string} name - Display name of the role
+         * @property {Permissions} permissions - Role permissions
+         * @property {boolean} [isSystem] - Whether this is a system role
+         */
+
+        /**
+         * @typedef {Object} RoleChange
+         * @property {string} userId - ID of the user whose role changed
+         * @property {string} action - Type of action (always "role_change")
+         * @property {Date} timestamp - When the change occurred
+         * @property {string} oldRole - Previous role
+         * @property {string} newRole - New role
+         * @property {string} changedBy - ID of user who made the change
+         */
+
+        // Define roles and their permissions
+        const roles = {
+            mainAdmin: {
+                name: "Peaadministraator",
+                permissions: {
+                    fullAccess: true,
+                    userManagement: true,
+                    settingsManagement: true,
+                    roleManagement: true,
+                    omAccess: true,
+                    hmAccess: true,
+                    auditLogAccess: true,
+                    systemSettings: true
+                }
+            },
+            admin: {
+                name: "Administraator",
+                permissions: {
+                    fullAccess: false,
+                    userManagement: true,
+                    settingsManagement: true,
+                    roleManagement: false,
+                    omAccess: true,
+                    hmAccess: true,
+                    auditLogAccess: true,
+                    systemSettings: false
+                }
+            },
+            omUser: {
+                name: "Ostumaailm Kasutaja",
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    omAccess: true,
+                    hmAccess: false,
+                    auditLogAccess: false,
+                    systemSettings: false,
+                    omFeatures: {
+                        createOM: true,
+                        editOM: true,
+                        deleteOM: false,
+                        viewOM: true,
+                        exportOM: true
+                    }
+                }
+            },
+            hmUser: {
+                name: "Hankemaailm Kasutaja",
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    omAccess: false,
+                    hmAccess: true,
+                    auditLogAccess: false,
+                    systemSettings: false,
+                    hmFeatures: {
+                        createHM: true,
+                        editHM: true,
+                        deleteHM: false,
+                        viewHM: true,
+                        exportHM: true
+                    }
+                }
+            },
+            user: {
+                name: "Tavakasutaja",
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    omAccess: false,
+                    hmAccess: false,
+                    auditLogAccess: false,
+                    systemSettings: false
+                }
+            }
+        };
+
+        // Function to check if user has access to specific features
+        function hasAccess(userRole, feature) {
+            const role = roles[userRole];
+            if (!role) return false;
+
+            // Check for full access first
+            if (role.permissions.fullAccess) return true;
+
+            // Check specific feature access
+            return role.permissions[feature] || false;
+        }
+
+        // Function to check if user has access to specific world (OM or HM)
+        function hasWorldAccess(userRole, world) {
+            const role = roles[userRole];
+            if (!role) return false;
+
+            // Main admin and admin have access to both worlds
+            if (userRole === 'mainAdmin' || userRole === 'admin') return true;
+
+            // Check specific world access
+            return role.permissions[world === 'om' ? 'omAccess' : 'hmAccess'] || false;
+        }
+
+        // Update the role selection in the user table
+        function generateUserTableRow(userData) {
+            const roleSelect = `
+                <select class="form-select text-sm" 
+                    onchange="updateUserRole('${userData.uid}', this.value)"
+                    ${userData.role === 'mainAdmin' ? 'disabled' : ''}>
+                    ${Object.entries(roles).map(([roleKey, roleData]) => `
+                        <option value="${roleKey}" ${userData.role === roleKey ? 'selected' : ''}>
+                            ${roleData.name}
+                        </option>
+                    `).join('')}
+                </select>
+            `;
+            // ... rest of the row generation code ...
+        }
+
+        // Validate role changes
+        /**
+         * Validates if a role change is allowed
+         * @param {string} oldRole - Current role of the user
+         * @param {string} newRole - New role to be assigned
+         * @param {string} currentUserRole - Role of the user making the change
+         * @returns {boolean} Whether the role change is valid
+         */
+        function validateRoleChange(oldRole, newRole, currentUserRole) {
+            // Prevent downgrading mainAdmin
+            if (oldRole === 'mainAdmin') {
+                showNotification("Peaadministraatori rolli ei saa muuta!", "error");
+                return false;
+            }
+
+            // Only mainAdmin can create new admins
+            if (newRole === 'admin' || newRole === 'mainAdmin') {
+                if (currentUserRole !== 'mainAdmin') {
+                    showNotification("Ainult peaadministraator võib luua uusi administraatoreid!", "error");
+                    return false;
+                }
+            }
+
+            // Validate that the role exists
+            if (!roles[newRole]) {
+                showNotification("Vigane roll!", "error");
+                return false;
+            }
+
+            return true;
+        }
+
+        // Update the updateUserRole function to handle new roles
+        async function updateUserRole(userId, newRole) {
+            try {
+                const currentUser = auth.currentUser;
+                if (!currentUser) {
+                    showNotification("Pead olema sisse logitud!", "error");
+                    return;
+                }
+
+                const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
+                const currentUserData = currentUserDoc.data();
+
+                if (currentUserData.role !== 'mainAdmin') {
+                    showNotification("Sul ei ole õigusi rollide muutmiseks!", "error");
+                    return;
+                }
+
+                const userRef = doc(db, "users", userId);
+                const userDoc = await getDoc(userRef);
+                const userData = userDoc.data();
+
+                // Validate the role change
+                if (!validateRoleChange(userData.role, newRole, currentUserData.role)) {
+                    return;
+                }
+
+                const oldRole = userData.role;
+                await updateDoc(userRef, {
+                    role: newRole,
+                    lastUpdated: new Date(),
+                    updatedBy: currentUser.uid,
+                    updatedByEmail: currentUser.email
+                });
+
+                // Log the role change
+                await addDoc(collection(db, "auditLog"), {
+                    action: "role_change",
+                    userId: userId,
+                    userEmail: userData.email,
+                    oldRole: oldRole,
+                    newRole: newRole,
+                    changedBy: currentUser.uid,
+                    changedByEmail: currentUser.email,
+                    timestamp: new Date()
+                });
+
+                showNotification("Kasutaja roll edukalt uuendatud!", "success");
+                loadUsers(); // Reload the user table
+            } catch (error) {
+                console.error("Error updating user role:", error);
+                showNotification("Rolli uuendamisel tekkis viga!", "error");
+            }
+        }
+
+        // Update the access control check
+        async function checkAccess() {
+            const currentUser = auth.currentUser;
+            if (!currentUser) {
+                window.location.href = "/index.html";
+                return;
+            }
+
+            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+            const userData = userDoc.data();
+
+            if (!userData) {
+                window.location.href = "/index.html";
+                return;
+            }
+
+            // Check if user has access to the current page
+            const currentPage = window.location.pathname;
+            const isOMPage = currentPage.includes('om.html');
+            const isHMPage = currentPage.includes('hm.html');
+
+            if (isOMPage && !hasWorldAccess(userData.role, 'om')) {
+                showNotification("Sul ei ole õigusi Ostumaailma lehele!", "error");
+                window.location.href = "/index.html";
+                return;
+            }
+
+            if (isHMPage && !hasWorldAccess(userData.role, 'hm')) {
+                showNotification("Sul ei ole õigusi Hankemaailma lehele!", "error");
+                window.location.href = "/index.html";
+                return;
+            }
+
+            // Update UI based on permissions
+            updateUIForRole(userData.role);
+        }
+
+        // Function to update UI based on role
+        function updateUIForRole(role) {
+            const roleData = roles[role];
+            if (!roleData) return;
+
+            // Update navigation menu
+            const omLink = document.querySelector('a[href*="om.html"]');
+            const hmLink = document.querySelector('a[href*="hm.html"]');
+
+            if (omLink) omLink.style.display = roleData.permissions.omAccess ? 'block' : 'none';
+            if (hmLink) hmLink.style.display = roleData.permissions.hmAccess ? 'block' : 'none';
+
+            // Update other UI elements based on permissions
+            // ... add more UI updates as needed ...
+        }
+
+        // Function to load saved roles from localStorage
+        function loadSavedRoles() {
+            try {
+                const savedRoles = localStorage.getItem('userRoles');
+                if (savedRoles) {
+                    const parsedRoles = JSON.parse(savedRoles);
+                    // Merge saved roles with defaults to ensure all required fields exist
+                    Object.keys(parsedRoles).forEach(key => {
+                        roles[key] = {
+                            ...defaultRoles[key],
+                            ...parsedRoles[key]
+                        };
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading roles:', error);
+                showNotification('Viga rollide laadimisel!', 'error');
+            }
+        }
+
+        // Function to save roles to localStorage
+        async function saveRoles() {
+            try {
+                localStorage.setItem('userRoles', JSON.stringify(roles));
+                return true;
+            } catch (error) {
+                console.error('Error saving roles:', error);
+                throw error;
+            }
+        }
+
+        // Function to edit a role
+        window.editRole = async function (roleId) {
+            if (roles[roleId].isSystem) {
+                showNotification('Süsteemi rolle ei saa muuta!', 'error');
+                return;
+            }
+
+            const role = roles[roleId];
+            const container = document.querySelector('#rolesContainer .space-y-4');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="bg-white p-4 rounded-lg shadow-sm space-y-4">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="roleName" class="block text-sm font-medium text-gray-700">Rolli nimi:</label>
+                            <input type="text" id="roleName" value="${role.name}"
+                                class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                required>
+                        </div>
+                        <div>
+                            <label for="roleDescription" class="block text-sm font-medium text-gray-700">Kirjeldus:</label>
+                            <textarea id="roleDescription"
+                                class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                rows="2">${role.description}</textarea>
+                        </div>
+                        <div class="space-y-2">
+                            <h5 class="text-sm font-medium text-gray-700">Õigused:</h5>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="searchPermission" class="rounded text-blue-600" ${role.permissions.search ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Otsingute tegemine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="viewPublicContent" class="rounded text-blue-600" ${role.permissions.viewPublicContent ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Avaliku sisu vaatamine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="viewHiddenContent" class="rounded text-blue-600" ${role.permissions.viewHiddenContent ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Peidetud sisu vaatamine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="viewTimeline" class="rounded text-blue-600" ${role.permissions.viewTimeline ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Timeline vaatamine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="saveSearches" class="rounded text-blue-600" ${role.permissions.saveSearches ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Otsingute salvestamine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="settingsManagement" class="rounded text-blue-600" ${role.permissions.settingsManagement ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Seadete muutmine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="userManagement" class="rounded text-blue-600" ${role.permissions.userManagement ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Kasutajate haldamine</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button onclick="cancelEditRole()"
+                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                            Tühista
+                        </button>
+                        <button onclick="saveRole('${roleId}')"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                            Salvesta
+                        </button>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Function to save a role
+        window.saveRole = async function (roleId) {
+            try {
+                const name = document.getElementById('roleName').value;
+                const description = document.getElementById('roleDescription').value;
+                const permissions = {
+                    search: document.getElementById('searchPermission').checked,
+                    viewPublicContent: document.getElementById('viewPublicContent').checked,
+                    viewHiddenContent: document.getElementById('viewHiddenContent').checked,
+                    viewTimeline: document.getElementById('viewTimeline').checked,
+                    saveSearches: document.getElementById('saveSearches').checked,
+                    settingsManagement: document.getElementById('settingsManagement').checked,
+                    userManagement: document.getElementById('userManagement').checked,
+                    roleManagement: roles[roleId].permissions.roleManagement,
+                    fullAccess: roles[roleId].permissions.fullAccess,
+                    deleteAdminMenu: roles[roleId].permissions.deleteAdminMenu
+                };
+
+                roles[roleId] = {
+                    ...roles[roleId],
+                    name,
+                    description,
+                    permissions
+                };
+
+                await saveRoles();
+                showNotification('Roll salvestatud!', 'success');
+                loadRoles();
+            } catch (error) {
+                console.error('Error saving role:', error);
+                showNotification('Viga rolli salvestamisel!', 'error');
+            }
+        };
+
+        // Function to delete a role
+        window.deleteRole = async function (roleId) {
+            if (roles[roleId].isSystem) {
+                showNotification('Süsteemi rolle ei saa kustutada!', 'error');
+                return;
+            }
+
+            if (!confirm('Kas oled kindel, et soovid selle rolli kustutada?')) return;
+
+            try {
+                delete roles[roleId];
+                await saveRoles();
+                showNotification('Roll kustutatud!', 'success');
+                loadRoles();
+            } catch (error) {
+                console.error('Error deleting role:', error);
+                showNotification('Viga rolli kustutamisel!', 'error');
+            }
+        };
+
+        // Function to cancel role editing
+        window.cancelEditRole = function () {
+            loadRoles();
+        };
+
+        // Function to load roles into the UI
+        function loadRoles() {
+            const rolesContainer = document.querySelector('#rolesContainer .space-y-4');
+            if (!rolesContainer) return;
+
+            rolesContainer.innerHTML = '';
+
+            Object.entries(roles).forEach(([roleId, role]) => {
+                const roleElement = document.createElement('div');
+                roleElement.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200';
+                roleElement.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">${role.name}</h4>
+                            <p class="text-sm text-gray-500">${role.description}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${role.isSystem ? `
+                                <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Süsteem</span>
+                            ` : `
+                                <button onclick="editRole('${roleId}')" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteRole('${roleId}')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <h5 class="text-sm font-medium text-gray-700">Õigused:</h5>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                ${Object.entries(role.permissions).map(([key, value]) => `
+                                    <li class="flex items-center">
+                                        <i class="fas ${value ? 'fa-check text-green-500' : 'fa-times text-red-500'} mr-2"></i>
+                                        ${getPermissionLabel(key)}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                rolesContainer.appendChild(roleElement);
+            });
+        }
+
+        // Function to get permission labels
+        function getPermissionLabel(key) {
+            const labels = {
+                fullAccess: 'Täielik juurdepääs',
+                userManagement: 'Kasutajate haldamine',
+                settingsManagement: 'Seadete muutmine',
+                roleManagement: 'Rollide haldamine',
+                search: 'Otsingute tegemine',
+                viewPublicContent: 'Avaliku sisu vaatamine',
+                viewHiddenContent: 'Peidetud sisu vaatamine',
+                viewTimeline: 'Timeline vaatamine',
+                saveSearches: 'Otsingute salvestamine',
+                deleteAdminMenu: 'Admin menüü kustutamine'
+            };
+            return labels[key] || key;
+        }
+
+        // Add role button event listener
+        document.getElementById('addRoleButton').addEventListener('click', function () {
+            const newRoleId = 'role_' + Date.now();
+            roles[newRoleId] = {
+                name: 'Uus roll',
+                description: 'Kirjeldus',
+                permissions: {
+                    fullAccess: false,
+                    userManagement: false,
+                    settingsManagement: false,
+                    roleManagement: false,
+                    search: false,
+                    viewPublicContent: false,
+                    viewHiddenContent: false,
+                    viewTimeline: false,
+                    saveSearches: false,
+                    deleteAdminMenu: false
+                },
+                isSystem: false
+            };
+            editRole(newRoleId);
+        });
+
+        // Function to show notifications
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div')
+            notification.className = `fixed top-20 right-4 p-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`
+            notification.innerHTML = `<div class="flex items-center space-x-2"><i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i><span>${message}</span></div>`
+            document.body.appendChild(notification)
+
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.remove()
+            }, 3000)
+        }
+
+        // Load roles when the page loads
+        document.addEventListener("DOMContentLoaded", () => {
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    alert("You must be logged in.");
+                    window.location.href = "/index.html";
+                    return;
+                }
+
+                console.log("User logged in:", user.uid);
+
+                try {
+                    const userRef = doc(db, "users", user.uid);
+                    const userSnap = await getDoc(userRef);
+
+                    // Check if this is the main admin
+                    if (user.email === "viljarpartel@gmail.com") {
+                        console.log("Main admin detected, checking stored credentials...");
+
+                        // Only ask for password if not already stored
+                        const storedPassword = localStorage.getItem('mainAdminPassword');
+                        if (!storedPassword) {
+                            const mainAdminPassword = prompt("Please enter your password to enable user management:");
+                            if (mainAdminPassword) {
+                                localStorage.setItem('mainAdminPassword', mainAdminPassword);
+                            }
+                        }
+
+                        await setDoc(userRef, {
+                            email: user.email,
+                            role: "mainAdmin",
+                            approved: true,
+                            createdAt: new Date(),
+                            uid: user.uid,
+                            isMainAdmin: true,
+                            lastLogin: new Date(),
+                            status: 'active',
+                            emailVerified: true,
+                            lastUpdated: new Date()
+                        }, { merge: true });
+                    }
+
+                    if (!userSnap.exists()) {
+                        console.log("Creating new user document in Firestore...");
+                        await setDoc(userRef, {
+                            email: user.email,
+                            role: user.email === "viljarpartel@gmail.com" ? "mainAdmin" : "tavakasutaja",
+                            approved: user.email === "viljarpartel@gmail.com",
+                            createdAt: new Date(),
+                            uid: user.uid,
+                            isMainAdmin: user.email === "viljarpartel@gmail.com",
+                            lastLogin: new Date(),
+                            status: user.email === "viljarpartel@gmail.com" ? 'active' : 'pending',
+                            emailVerified: user.email === "viljarpartel@gmail.com",
+                            lastUpdated: new Date()
+                        });
+                        console.log("User document created successfully!");
+                    }
+
+                    const userData = userSnap.exists() ? userSnap.data() : {
+                        email: user.email,
+                        role: user.email === "viljarpartel@gmail.com" ? "mainAdmin" : "tavakasutaja",
+                        approved: user.email === "viljarpartel@gmail.com",
+                        isMainAdmin: user.email === "viljarpartel@gmail.com"
+                    };
+                    console.log("User Data from Firestore:", userData);
+
+                    // Allow access if user is main admin or regular admin
+                    if (userData.role !== "mainAdmin" && userData.role !== "admin") {
+                        console.error("User is not an admin.");
+                        alert("You are not authorized to view this page.");
+                        window.location.href = "/index.html";
+                        return;
+                    }
+
+                    console.log("Admin access granted.");
+                    loadUsers();
+                    loadSavedRoles();
+                    loadRoles();
+                } catch (error) {
+                    console.error("Error checking user role:", error);
+                    alert("Permission error. Check Firestore rules.");
+                }
+            });
+
+            // Setup logout functionality
+            const logoutButton = document.getElementById("logoutButton");
+            const logoutButtonDropdown = document.getElementById("logoutButtonDropdown");
+
+            if (logoutButton) {
+                logoutButton.addEventListener("click", handleLogout);
+            }
+
+            if (logoutButtonDropdown) {
+                logoutButtonDropdown.addEventListener("click", handleLogout);
+            }
+
+            function handleLogout() {
+                signOut(auth).then(() => {
+                    alert("Logged out successfully.");
+                    window.location.href = "/index.html";
+                }).catch((error) => {
+                    console.error("Error logging out:", error);
+                    alert("Logout failed.");
+                });
+            }
+
+            // Roles Modal functionality
+            const rolesButton = document.getElementById("rolesButton");
+            const rolesContainer = document.getElementById("rolesContainer");
+            const rolesBackdrop = document.getElementById("rolesBackdrop");
+            const closeRoles = document.getElementById("closeRoles");
+
+            if (!rolesButton || !rolesContainer) {
+                console.error("❌ rolesButton or rolesContainer not found in the DOM!");
+                return;
+            }
+
+            // Function to open roles modal
+            function openRoles() {
+                rolesContainer.classList.remove("hidden");
+                rolesBackdrop.classList.remove("hidden");
+                document.body.style.overflow = "hidden"; // Prevent scrolling of background
+                loadRoles();
+            }
+
+            // Function to close roles modal
+            function closeRolesModal() {
+                rolesContainer.classList.add("hidden");
+                rolesBackdrop.classList.add("hidden");
+                document.body.style.overflow = ""; // Restore scrolling
+            }
+
+            // Toggle roles modal
+            rolesButton.addEventListener("click", openRoles);
+
+            // Close roles modal when clicking the close button
+            closeRoles.addEventListener("click", closeRolesModal);
+
+            // Close roles modal when clicking outside the container
+            rolesBackdrop.addEventListener("click", (e) => {
+                if (e.target === rolesBackdrop) {
+                    closeRolesModal();
+                }
+            });
+
+            // Close roles modal when pressing Escape key
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && !rolesContainer.classList.contains("hidden")) {
+                    closeRolesModal();
+                }
+            });
+
+            // Settings functionality
+            const settingsButton = document.getElementById("settingsButton");
+            const settingsContainer = document.getElementById("settingsContainer");
+            const settingsBackdrop = document.getElementById("settingsBackdrop");
+            const closeSettings = document.getElementById("closeSettings");
+            const procedureTypeSelect = document.getElementById("procedureTypeSelect");
+            const addProcedureTypeButton = document.getElementById("addProcedureTypeButton");
+            const settingsForm = document.getElementById("settingsForm");
+
+            if (!settingsButton || !settingsContainer) {
+                console.error("❌ settingsButton or settingsContainer not found in the DOM!");
+                return;
+            }
+
+            // Function to open settings
+            function openSettings() {
+                settingsContainer.classList.remove("hidden");
+                settingsBackdrop.classList.remove("hidden");
+                document.body.style.overflow = "hidden"; // Prevent scrolling of background
+                loadSettings();
+                loadProcedureTypes();
+            }
+
+            // Function to close settings
+            function closeSettingsModal() {
+                settingsContainer.classList.add("hidden");
+                settingsBackdrop.classList.add("hidden");
+                document.body.style.overflow = ""; // Restore scrolling
+            }
+
+            // Load saved settings from localStorage
+            loadSavedSettings();
+
+            // Toggle settings container
+            settingsButton.addEventListener("click", openSettings);
+
+            // Close settings when clicking the close button
+            closeSettings.addEventListener("click", closeSettingsModal);
+
+            // Close settings when clicking outside the container
+            settingsBackdrop.addEventListener("click", (e) => {
+                if (e.target === settingsBackdrop) {
+                    closeSettingsModal();
+                }
+            });
+
+            // Close settings when pressing Escape key
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && !settingsContainer.classList.contains("hidden")) {
+                    closeSettingsModal();
+                }
+            });
+
+            // Handle settings form submission
+            document.getElementById('settingsForm').addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const ostumaailmVisible = document.getElementById('ostumaailmVisibility').checked;
+                const hankemaailmVisible = document.getElementById('hankemaailmVisibility').checked;
+
+                // Save settings to Firestore or localStorage
+                try {
+                    await saveSettings({ ostumaailmVisible, hankemaailmVisible });
+                    showNotification('Seaded salvestatud edukalt!', 'success');
+                } catch (error) {
+                    console.error('Error saving settings:', error);
+                    showNotification('Viga seadete salvestamisel!', 'error');
+                }
+            });
+
+            // Function to save settings
+            async function saveSettings(settings) {
+                // Implement saving logic (e.g., to Firestore or localStorage)
+                localStorage.setItem('settings', JSON.stringify(settings));
+            }
+
+            // Add procedure type button event listener
+            if (addProcedureTypeButton) {
+                addProcedureTypeButton.addEventListener('click', function () {
+                    addProcedureType();
+                });
+            }
+
+            // Procedure type select change event listener
+            if (procedureTypeSelect) {
+                procedureTypeSelect.addEventListener('change', function () {
+                    const selectedType = this.value;
+                    loadProcedureTypeSettings(selectedType);
+                });
+            }
+
+            // Function to load settings into form
+            function loadSettings() {
+                document.getElementById('documentPreparationDays').value = settings.documentPreparationDays;
+                document.getElementById('offerEvaluationDays').value = settings.offerEvaluationDays;
+                document.getElementById('decisionDays').value = settings.decisionDays;
+                document.getElementById('bidderEvaluationDays').value = settings.bidderEvaluationDays;
+                document.getElementById('successfulBidderDays').value = settings.successfulBidderDays;
+                document.getElementById('waitingPeriodDays').value = settings.waitingPeriodDays;
+            }
+
+            // Function to save settings to localStorage
+            async function saveSettings() {
+                try {
+                    localStorage.setItem('procurementSettings', JSON.stringify(settings));
+                    localStorage.setItem('procedureData', JSON.stringify(procedureData));
+                    localStorage.setItem('internationalProcedureData', JSON.stringify(internationalProcedureData));
+                    return true;
+                } catch (error) {
+                    console.error('Error saving settings:', error);
+                    throw error;
+                }
+            }
+
+            // Function to load saved settings from localStorage
+            function loadSavedSettings() {
+                try {
+                    const savedSettings = localStorage.getItem('procurementSettings');
+                    if (savedSettings) {
+                        settings = JSON.parse(savedSettings);
+                    }
+
+                    const savedProcedureData = localStorage.getItem('procedureData');
+                    if (savedProcedureData) {
+                        const parsedData = JSON.parse(savedProcedureData);
+                        Object.keys(parsedData).forEach(key => {
+                            procedureData[key] = {
+                                ...parsedData[key],
+                                visible: parsedData[key].visible ?? true // Default to true if not set
+                            };
+                        });
+                    }
+
+                    const savedInternationalProcedureData = localStorage.getItem('internationalProcedureData');
+                    if (savedInternationalProcedureData) {
+                        const parsedData = JSON.parse(savedInternationalProcedureData);
+                        Object.keys(parsedData).forEach(key => {
+                            internationalProcedureData[key] = {
+                                ...parsedData[key],
+                                visible: parsedData[key].visible ?? true // Default to true if not set
+                            };
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error loading settings:', error);
+                    showNotification('Viga seadete laadimisel!', 'error');
+                }
+            }
+
+            // Function to load procedure types from local procedureData
+            function loadProcedureTypes() {
+                const select = document.getElementById('procedureTypeSelect');
+                select.innerHTML = '';
+
+                // Add all procedures without optgroups
+                for (const type in procedureData) {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    select.appendChild(option);
+                }
+
+                if (select.options.length > 0) {
+                    loadProcedureTypeSettings(select.options[0].value);
+                }
+            }
+
+            // Load settings for a specific procedure type
+            function loadProcedureTypeSettings(type) {
+                const procedure = procedureData[type];
+                const container = document.getElementById('procedureTypeSettings');
+                container.innerHTML = `
+                    <div class="bg-white p-4 rounded-lg shadow-sm space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label for="procedureTypeName" class="block text-sm font-medium text-gray-700">Menetlusliik:</label>
+                                <input type="text" id="procedureTypeName" value="${type}"
+                                    class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                    required>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="requestDays" class="block text-sm font-medium text-gray-700">Taotluste aeg (päevad):</label>
+                                <input type="number" id="requestDays" value="${procedure?.taotlusteAeg || 0}"
+                                    class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                    required>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="offerDays" class="block text-sm font-medium text-gray-700">Pakkumuste aeg (päevad):</label>
+                                <input type="number" id="offerDays" value="${procedure?.pakkumusteAeg || 0}"
+                                    class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                    required>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="threshold" class="block text-sm font-medium text-gray-700">Piirmäär (€):</label>
+                                <input type="number" id="threshold" value="${procedure?.piirmäär || 60000}"
+                                    class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                    required>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="useInternationalThreshold" class="block text-sm font-medium text-gray-700">Kasuta rahvusvahelisi piirmääre:</label>
+                                <div class="flex items-center space-x-2">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="useInternationalThreshold" class="sr-only peer" ${procedure?.useInternational ? 'checked' : ''}>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label for="procedureVisibility" class="block text-sm font-medium text-gray-700">Menetlusliigi nähtavus:</label>
+                                <div class="flex items-center space-x-2">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="procedureVisibility" class="sr-only peer" ${procedure?.visible ? 'checked' : ''}>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                                        <span class="ml-2 text-sm text-gray-600">${procedure?.visible ? 'Nähtav' : 'Peidetud'}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button onclick="deleteProcedureType('${type}')"
+                                class="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-all duration-200 flex items-center space-x-2 text-sm">
+                                <i class="fas fa-trash"></i>
+                                <span>Kustuta</span>
+                            </button>
+                            <button onclick="saveProcedureType('${type}')"
+                                class="bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-all duration-200 flex items-center space-x-2 text-sm">
+                                <i class="fas fa-save"></i>
+                                <span>Salvesta</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Add event listeners
+                const visibilityToggle = document.getElementById('procedureVisibility');
+                const visibilityLabel = visibilityToggle.nextElementSibling.nextElementSibling;
+                const internationalToggle = document.getElementById('useInternationalThreshold');
+
+                // Visibility toggle event listener
+                visibilityToggle.addEventListener('change', function () {
+                    const isVisible = this.checked;
+                    visibilityLabel.textContent = isVisible ? 'Nähtav' : 'Peidetud';
+
+                    if (procedureData[type]) {
+                        procedureData[type].visible = isVisible;
+                    }
+
+                    saveSettings().then(() => {
+                        showNotification(`Menetlusliik ${isVisible ? 'nähtav' : 'peidetud'}!`, 'success');
+                        loadProcedureTypes();
+
+                        window.dispatchEvent(new CustomEvent('procedureVisibilityChanged', {
+                            detail: { type, visible: isVisible }
+                        }));
+                    }).catch(error => {
+                        console.error('Error saving visibility:', error);
+                        showNotification('Viga nähtavuse salvestamisel!', 'error');
+                    });
+                });
+
+                // International threshold toggle event listener
+                if (internationalToggle) {
+                    internationalToggle.addEventListener('change', function () {
+                        toggleInternationalThreshold(type);
+                    });
+                }
+            }
+
+            // Make functions available globally
+            window.toggleInternationalThreshold = function (type) {
+                const useInternational = document.getElementById('useInternationalThreshold').checked;
+                const requestDaysInput = document.getElementById('requestDays');
+                const offerDaysInput = document.getElementById('offerDays');
+                const thresholdInput = document.getElementById('threshold');
+
+                if (useInternational && internationalProcedureData[type]) {
+                    // Use international values
+                    requestDaysInput.value = internationalProcedureData[type].taotlusteAeg || 0;
+                    offerDaysInput.value = internationalProcedureData[type].pakkumusteAeg || 0;
+                    thresholdInput.value = internationalProcedureData[type].piirmäär || 60000;
+                } else {
+                    // Use default values
+                    requestDaysInput.value = procedureData[type]?.taotlusteAeg || 0;
+                    offerDaysInput.value = procedureData[type]?.pakkumusteAeg || 0;
+                    thresholdInput.value = procedureData[type]?.piirmäär || 60000;
+                }
+            };
+
+            window.deleteProcedureType = async function (type) {
+                if (!confirm('Kas oled kindel, et soovid selle menetlusliigi kustutada?')) return;
+                try {
+                    delete procedureData[type];
+                    await saveSettings();
+                    loadProcedureTypes();
+                    showNotification('Menetlusliik kustutatud!', 'success');
+                } catch (error) {
+                    console.error('Error deleting procedure type:', error);
+                    showNotification('Viga menetlusliigi kustutamisel!', 'error');
+                }
+            };
+
+            window.saveProcedureType = async function (oldType) {
+                try {
+                    const newType = document.getElementById('procedureTypeName').value;
+                    const requestDays = parseInt(document.getElementById('requestDays').value);
+                    const offerDays = parseInt(document.getElementById('offerDays').value);
+                    const useInternational = document.getElementById('useInternationalThreshold').checked;
+                    const visible = document.getElementById('procedureVisibility').checked;
+
+                    if (!newType || isNaN(requestDays) || isNaN(offerDays)) {
+                        showNotification('Palun täida kõik väljad!', 'error');
+                        return;
+                    }
+
+                    // If changing visibility of an international procedure, update both data structures
+                    if (internationalProcedureData[oldType]) {
+                        internationalProcedureData[newType] = {
+                            ...internationalProcedureData[oldType],
+                            visible: visible
+                        };
+                        if (oldType !== newType) {
+                            delete internationalProcedureData[oldType];
+                        }
+                    }
+
+                    // Update or create new procedure
+                    delete procedureData[oldType];
+                    procedureData[newType] = {
+                        taotlusteAeg: requestDays,
+                        pakkumusteAeg: offerDays,
+                        piirmäär: 60000,
+                        useInternational,
+                        visible
+                    };
+
+                    await saveSettings();
+                    loadProcedureTypes();
+                    showNotification(`Menetlusliik ${visible ? 'nähtav' : 'peidetud'}!`, 'success');
+                } catch (error) {
+                    console.error('Error saving procedure type:', error);
+                    showNotification('Viga menetlusliigi salvestamisel!', 'error');
+                }
+            };
+
+            window.saveNewProcedureType = async function () {
+                try {
+                    const newType = document.getElementById('procedureTypeName').value;
+                    const requestDays = parseInt(document.getElementById('requestDays').value);
+                    const offerDays = parseInt(document.getElementById('offerDays').value);
+                    const useInternational = document.getElementById('useInternationalThreshold').checked;
+                    const visible = document.getElementById('procedureVisibility').checked;
+
+                    if (!newType || isNaN(requestDays) || isNaN(offerDays)) {
+                        showNotification('Palun täida kõik väljad!', 'error');
+                        return;
+                    }
+
+                    procedureData[newType] = {
+                        taotlusteAeg: requestDays,
+                        pakkumusteAeg: offerDays,
+                        piirmäär: 60000,
+                        useInternational,
+                        visible
+                    };
+
+                    await saveSettings();
+                    loadProcedureTypes();
+                    showNotification('Menetlusliik lisatud!', 'success');
+                } catch (error) {
+                    console.error('Error saving new procedure type:', error);
+                    showNotification('Viga menetlusliigi lisamisel!', 'error');
+                }
+            };
+
+            // Function to get visible procedure types
+            window.getVisibleProcedureTypes = function () {
+                return Object.entries(procedureData)
+                    .filter(([_, data]) => data.visible)
+                    .reduce((acc, [key, value]) => {
+                        acc[key] = value;
+                        return acc;
+                    }, {});
+            };
+        });
+
+        async function loadUsers(page = 1, searchTerm = '', roleFilter = '', statusFilter = '') {
+            try {
+                console.log("Fetching users from Firestore...");
+                const usersPerPage = 10;
+                const usersRef = collection(db, "users");
+                let queryRef = usersRef;
+
+                // Apply filters
+                if (searchTerm) {
+                    queryRef = query(queryRef,
+                        where("email", ">=", searchTerm),
+                        where("email", "<=", searchTerm + '\uf8ff')
+                    );
+                }
+                if (roleFilter) {
+                    queryRef = query(queryRef, where("role", "==", roleFilter));
+                }
+                if (statusFilter) {
+                    queryRef = query(queryRef, where("status", "==", statusFilter));
+                }
+
+                // Apply pagination
+                queryRef = query(queryRef, limit(usersPerPage));
+
+                const userDocs = await getDocs(queryRef);
+
+                const userTable = document.getElementById("userTable");
+                if (!userTable) {
+                    console.error("User table not found in DOM");
+                    return;
+                }
+
+                userTable.innerHTML = ""; // Clear table before loading
+
+                userDocs.forEach(docSnapshot => {
+                    const userData = docSnapshot.data();
+                    console.log("User Loaded:", userData);
+
+                    const userRow = document.createElement("tr");
+                    userRow.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${userData.email}</div>
+                                    <div class="text-sm text-gray-500">${userData.emailVerified ? 'Verifitseeritud' : 'Verifitseerimata'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <select onchange="updateUserRole('${docSnapshot.id}', this.value)" 
+                                class="text-sm border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                ${userData.role === 'mainAdmin' ? 'disabled' : ''}>
+                                ${Object.entries(roles).map(([roleId, role]) => `
+                                    <option value="${roleId}" ${userData.role === roleId ? 'selected' : ''}>
+                                        ${role.name}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold 
+                                ${userData.status === 'active' ? 'bg-green-100 text-green-800' :
+                            userData.status === 'inactive' ? 'bg-red-100 text-red-800' :
+                                'bg-yellow-100 text-yellow-800'}">
+                                ${userData.status === 'active' ? 'Aktiivne' :
+                            userData.status === 'inactive' ? 'Mitteaktiivne' : 'Ootel'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div class="text-sm text-gray-500">${userData.emailVerified ? 'Verifitseeritud' : 'Verifitseerimata'}</div>
+                            ${!userData.emailVerified ? `
+                                <button onclick="resendVerificationEmail('${userData.uid}')" 
+                                        class="mt-1 text-xs text-blue-600 hover:text-blue-800">
+                                    Saada verifitseerimise e-kiri uuesti
+                                </button>
+                            ` : ''}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                            <button onclick="toggleUserStatus('${docSnapshot.id}')" 
+                                class="text-blue-600 hover:text-blue-900">
+                                <i class="fas ${userData.status === 'active' ? 'fa-ban' : 'fa-check'}"></i>
+                            </button>
+                            <button onclick="approveUser('${docSnapshot.id}')" 
+                                class="text-green-600 hover:text-green-900">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button onclick="deleteUser('${docSnapshot.id}')" 
+                                class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    userTable.appendChild(userRow);
+                });
+
+                // Get total count for pagination
+                let totalQueryRef = usersRef;
+                if (searchTerm) {
+                    totalQueryRef = query(totalQueryRef,
+                        where("email", ">=", searchTerm),
+                        where("email", "<=", searchTerm + '\uf8ff')
+                    );
+                }
+                if (roleFilter) {
+                    totalQueryRef = query(totalQueryRef, where("role", "==", roleFilter));
+                }
+                if (statusFilter) {
+                    totalQueryRef = query(totalQueryRef, where("status", "==", statusFilter));
+                }
+
+                const totalSnapshot = await getDocs(totalQueryRef);
+                const totalUsers = totalSnapshot.size;
+                const totalPages = Math.ceil(totalUsers / usersPerPage);
+
+                // Update pagination controls if they exist
+                const currentPageElement = document.getElementById('currentPage');
+                const totalPagesElement = document.getElementById('totalPages');
+                const prevPageButtons = document.querySelectorAll('#prevPage');
+                const nextPageButtons = document.querySelectorAll('#nextPage');
+
+                if (currentPageElement) currentPageElement.textContent = page;
+                if (totalPagesElement) totalPagesElement.textContent = totalPages;
+
+                // Update button states
+                prevPageButtons.forEach(button => {
+                    button.disabled = page === 1;
+                    button.classList.toggle('opacity-50', page === 1);
+                    button.classList.toggle('cursor-not-allowed', page === 1);
+                });
+
+                nextPageButtons.forEach(button => {
+                    button.disabled = page === totalPages;
+                    button.classList.toggle('opacity-50', page === totalPages);
+                    button.classList.toggle('cursor-not-allowed', page === totalPages);
+                });
+
+            } catch (error) {
+                console.error("Error loading users from Firestore:", error);
+                showNotification("Viga kasutajate laadimisel!", "error");
+            }
+        }
+
+        // Add pagination event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add event listeners for pagination buttons
+            document.querySelectorAll('#prevPage').forEach(button => {
+                button.addEventListener('click', () => {
+                    const currentPage = parseInt(document.getElementById('currentPage').textContent);
+                    if (currentPage > 1) {
+                        loadUsers(currentPage - 1);
+                    }
+                });
+            });
+
+            document.querySelectorAll('#nextPage').forEach(button => {
+                button.addEventListener('click', () => {
+                    const currentPage = parseInt(document.getElementById('currentPage').textContent);
+                    const totalPages = parseInt(document.getElementById('totalPages').textContent);
+                    if (currentPage < totalPages) {
+                        loadUsers(currentPage + 1);
+                    }
+                });
+            });
+        });
+
+        window.toggleUserStatus = async (userId) => {
+            try {
+                const userRef = doc(db, "users", userId);
+                const userDoc = await getDoc(userRef);
+                const userData = userDoc.data();
+
+                // Get current status or default to 'pending' if not set
+                const currentStatus = userData.status || 'pending';
+                const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+                // Update user status
+                await updateDoc(userRef, {
+                    status: newStatus,
+                    lastUpdated: new Date()
+                });
+
+                // Log the status change with valid data
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_status_changed",
+                    userId: userId,
+                    oldStatus: currentStatus,
+                    newStatus: newStatus,
+                    performedBy: auth.currentUser.uid,
+                    timestamp: new Date()
+                });
+
+                showNotification(`Kasutaja olek muudetud: ${newStatus}`, 'success');
+                loadUsers(); // Refresh user list
+            } catch (error) {
+                console.error("Error toggling user status:", error);
+                showNotification("Viga kasutaja oleku muutmisel!", "error");
+            }
+        };
+
+        window.approveUser = async (userId) => {
+            try {
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, {
+                    approved: true,
+                    status: 'active',
+                    lastUpdated: new Date()
+                });
+
+                // Log the approval
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_approved",
+                    userId: userId,
+                    performedBy: auth.currentUser.uid,
+                    timestamp: new Date()
+                });
+
+                showNotification("Kasutaja kinnitatud!", "success");
+                loadUsers(); // Refresh user list
+            } catch (error) {
+                console.error("Error approving user:", error);
+                showNotification("Viga kasutaja kinnitamisel!", "error");
+            }
+        };
+
+        window.deleteUser = async (userId) => {
+            if (!confirm("Kas oled kindel, et soovid selle kasutaja kustutada?")) return;
+            try {
+                const userRef = doc(db, "users", userId);
+                await deleteDoc(userRef);
+
+                // Log the deletion
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_deleted",
+                    userId: userId,
+                    performedBy: auth.currentUser.uid,
+                    timestamp: new Date()
+                });
+
+                showNotification("Kasutaja kustutatud!", "success");
+                loadUsers(); // Refresh user list
+            } catch (error) {
+                console.error("Error deleting user:", error);
+                showNotification("Viga kasutaja kustutamisel!", "error");
+            }
+        };
+
+        // Add the updateUserRole function
+        window.updateUserRole = async (userId, newRole) => {
+            try {
+                // Get current user's role
+                const currentUserRef = doc(db, "users", auth.currentUser.uid);
+                const currentUserDoc = await getDoc(currentUserRef);
+
+                if (!currentUserDoc.exists()) {
+                    showNotification('Kasutaja andmed ei leitud!', 'error');
+                    return;
+                }
+
+                const currentUserData = currentUserDoc.data();
+
+                // Only main admin can change roles
+                if (currentUserData.role !== 'mainAdmin') {
+                    showNotification('Sul ei ole õigusi rollide muutmiseks!', 'error');
+                    return;
+                }
+
+                // Get target user's data
+                const userRef = doc(db, "users", userId);
+                const userDoc = await getDoc(userRef);
+
+                if (!userDoc.exists()) {
+                    showNotification('Sihtkasutaja andmed ei leitud!', 'error');
+                    return;
+                }
+
+                const userData = userDoc.data();
+
+                // Prevent changing main admin's role
+                if (userData.role === 'mainAdmin') {
+                    showNotification('Peaadmini rolli ei saa muuta!', 'error');
+                    return;
+                }
+
+                // Validate the new role exists
+                if (!roles[newRole]) {
+                    showNotification('Vigane roll!', 'error');
+                    return;
+                }
+
+                // Update the role
+                await updateDoc(userRef, {
+                    role: newRole,
+                    lastUpdated: new Date(),
+                    updatedBy: auth.currentUser.uid,
+                    updatedByEmail: auth.currentUser.email
+                });
+
+                // Log the role change
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_role_changed",
+                    userId: userId,
+                    userEmail: userData.email,
+                    oldRole: userData.role,
+                    newRole: newRole,
+                    changedBy: auth.currentUser.uid,
+                    changedByEmail: auth.currentUser.email,
+                    timestamp: new Date()
+                });
+
+                showNotification('Kasutaja roll muudetud!', 'success');
+                loadUsers(); // Refresh user list
+            } catch (error) {
+                console.error("Error updating user role:", error);
+                let errorMessage = 'Viga kasutaja rolli muutmisel!';
+
+                if (error.code === 'permission-denied') {
+                    errorMessage = 'Sul ei ole õigusi rolli muutmiseks!';
+                } else if (error.code === 'not-found') {
+                    errorMessage = 'Kasutaja ei leitud!';
+                }
+
+                showNotification(errorMessage, 'error');
+            }
+        };
+
+        // Add User Modal functionality
+        const addUserButton = document.getElementById("addUserButton");
+        const addUserContainer = document.getElementById("addUserContainer");
+        const addUserBackdrop = document.getElementById("addUserBackdrop");
+        const closeAddUser = document.getElementById("closeAddUser");
+        const addUserForm = document.getElementById("addUserForm");
+        const userRoleSelect = document.getElementById("userRole");
+
+        // Populate role select with available roles
+        Object.entries(roles).forEach(([roleId, role]) => {
+            const option = document.createElement('option');
+            option.value = roleId;
+            option.textContent = role.name;
+            userRoleSelect.appendChild(option);
+        });
+
+        // Function to open add user modal
+        function openAddUserModal() {
+            addUserContainer.classList.remove("hidden");
+            addUserBackdrop.classList.remove("hidden");
+            document.body.style.overflow = "hidden";
+        }
+
+        // Function to close add user modal
+        window.closeAddUserModal = function () {
+            addUserContainer.classList.add("hidden");
+            addUserBackdrop.classList.add("hidden");
+            document.body.style.overflow = "";
+            addUserForm.reset();
+        };
+
+        // Add user button click event
+        addUserButton.addEventListener("click", openAddUserModal);
+
+        // Close add user modal when clicking the close button
+        closeAddUser.addEventListener("click", closeAddUserModal);
+
+        // Close add user modal when clicking outside
+        addUserBackdrop.addEventListener("click", (e) => {
+            if (e.target === addUserBackdrop) {
+                closeAddUserModal();
+            }
+        });
+
+        // Close add user modal when pressing Escape key
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !addUserContainer.classList.contains("hidden")) {
+                closeAddUserModal();
+            }
+        });
+
+        // Handle add user form submission
+        addUserForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById("userEmail").value;
+            const password = document.getElementById("userPassword").value;
+            const role = document.getElementById("userRole").value;
+            const approved = document.getElementById("userApproved").checked;
+
+            try {
+                // Check if current user is main admin
+                const currentUserRef = doc(db, "users", auth.currentUser.uid);
+                const currentUserDoc = await getDoc(currentUserRef);
+                const currentUserData = currentUserDoc.data();
+
+                if (currentUserData.role !== 'mainAdmin') {
+                    showNotification("Sul ei ole õigusi kasutajate lisamiseks!", "error");
+                    return;
+                }
+
+                // Validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showNotification("Vigane e-posti aadress!", "error");
+                    return;
+                }
+
+                // Validate password strength
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                if (!passwordRegex.test(password)) {
+                    showNotification("Parool peab sisaldama vähemalt 8 tähemärki, üht suurt tähte, üht väikest tähte, üht numbrit ja üht erimärki!", "error");
+                    return;
+                }
+
+                // Create user in Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Immediately sign out the new user
+                await signOut(auth);
+
+                // Sign back in as the main admin
+                const mainAdminEmail = "viljarpartel@gmail.com";
+                const mainAdminPassword = localStorage.getItem('mainAdminPassword'); // You'll need to store this securely
+                await signInWithEmailAndPassword(auth, mainAdminEmail, mainAdminPassword);
+
+                // Add user data to Firestore with additional fields
+                await setDoc(doc(db, "users", user.uid), {
+                    email: email,
+                    role: role,
+                    approved: approved,
+                    createdAt: new Date(),
+                    lastLogin: null,
+                    status: approved ? 'active' : 'pending',
+                    uid: user.uid,
+                    emailVerified: false,
+                    lastUpdated: new Date(),
+                    createdBy: auth.currentUser.uid,
+                    createdByEmail: auth.currentUser.email
+                });
+
+                // Log the user creation in audit log
+                await addDoc(collection(db, "auditLog"), {
+                    action: "user_created",
+                    userId: user.uid,
+                    email: email,
+                    role: role,
+                    approved: approved,
+                    performedBy: auth.currentUser.uid,
+                    performedByEmail: auth.currentUser.email,
+                    timestamp: new Date()
+                });
+
+                showNotification("Kasutaja lisatud edukalt!", "success");
+                closeAddUserModal();
+                loadUsers(); // Refresh user list
+            } catch (error) {
+                console.error("Error adding user:", error);
+                let errorMessage = "Viga kasutaja lisamisel!";
+
+                if (error.code === "auth/email-already-in-use") {
+                    errorMessage = "See e-posti aadress on juba kasutusel!";
+                } else if (error.code === "auth/invalid-email") {
+                    errorMessage = "Vigane e-posti aadress!";
+                } else if (error.code === "auth/weak-password") {
+                    errorMessage = "Parool on liiga nõrk!";
+                }
+
+                showNotification(errorMessage, "error");
+            }
+        });
+
+        async function resendVerificationEmail(userId) {
+            try {
+                const user = await auth.getUser(userId);
+                await user.sendEmailVerification();
+                alert('Verifitseerimise e-kiri on saadetud! Palun kontrolli oma e-posti kasti.');
+            } catch (error) {
+                console.error('Error sending verification email:', error);
+                alert('Viga verifitseerimise e-kirja saatmisel. Palun proovi hiljem uuesti.');
+            }
+        }
+
+        // Function to view user details
+        function viewUserDetails(userId) {
+            // Fetch user data from Firestore
+            const userRef = doc(db, "users", userId);
+            getDoc(userRef).then((doc) => {
+                if (doc.exists()) {
+                    const userData = doc.data();
+                    // Populate modal with user details
+                    document.getElementById('userDetailsEmail').textContent = userData.email;
+                    document.getElementById('userDetailsRole').textContent = userData.role;
+                    document.getElementById('userDetailsStatus').textContent = userData.status;
+                    // Show modal
+                    document.getElementById('userDetailsModal').classList.remove('hidden');
+                } else {
+                    console.error("User not found");
+                }
+            }).catch((error) => {
+                console.error("Error fetching user details:", error);
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="et">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+
+<nav class="fixed top-0 z-50  backdrop-blur-md">
+    <div class="container mx-auto max-w-7xl px-6">
+        <div class="flex items-center justify-between h-16">
+            <!-- Left Section - Logo/Home -->
+            <a href="index.html" class="flex items-center gap-2 text-blue-600 hover:text-blue-800">
+                <i class="fas fa-home text-xl"></i>
+                <span class="font-semibold">Avalehele</span>
+            </a>
+        </div>
+    </div>
+</nav>
+<script>
+    const firebaseConfig = {
+
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const chatFunction = firebase.functions().httpsCallable('chat');
+
+    let userId = Date.now().toString(); // Simple unauthenticated user ID
+
+    async function sendMessage() {
+        const userInput = document.getElementById('userInput');
+        const prompt = userInput.value.trim();
+
+        if (!prompt) return;
+
+        // Append user message
+        appendMessage(prompt, 'user');
+
+        try {
+            // Call Firebase Cloud Function
+            const response = await firebase.functions().httpsCallable('chat')({
+                userId: userId,
+                prompt: prompt
+            });
+
+            appendMessage(response.data.response, 'bot');
+        } catch (error) {
+            appendMessage('Viga vastuse saamisel', 'error');
+        }
+
+        userInput.value = '';
+    }
+
+    function appendMessage(text, sender) {
+        const chatContainer = document.getElementById('chatContainer');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `p-3 rounded-lg max-w-[80%] ${sender === 'user' ? 'bg-violet-100 ml-auto' :
+            sender === 'error' ? 'bg-red-100' : 'bg-gray-100'
+            }`;
+        messageDiv.textContent = text;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log(document.getElementById('sendBtn')); // Check if this is null
+        console.log(document.getElementById('userInput')); // Check if this is null
+
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    });
+</script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summeerimise Bingo</title>
+    <link href="../dist/output.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --primary-light: #ede9fe;
+        }
+
+        .animate-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .loader {
+            border-top-color: #8b5cf6;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .checkbox-modern {
+            position: relative;
+        }
+
+        .checkbox-modern input {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-modern input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkbox-modern input:focus {
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.25);
+        }
+
+        .checkbox-modern input:focus:not(:checked) {
+            border-color: var(--primary);
+        }
+
+        .checkbox-modern input:hover:not(:checked) {
+            border-color: #9ca3af;
+        }
+
+        .checkbox-modern svg {
+            position: absolute;
+            top: 0.15rem;
+            left: 0.1rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .checkbox-modern input:checked+svg {
+            opacity: 1;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br bg-white min-h-screen">
+    <div class="container mx-auto px-4 py-12 max-w-xl">
+        <div class="bg-indigo-300 rounded-2xl shadow-xl overflow-hidden border border-black">
+            <div class="p-6 bg-gradient-to-r from-violet-600 to-indigo-600">
+                <h1 class="text-3xl font-bold text-white tracking-tight">Summeerimise Bingo</h1>
+                <p class="text-violet-100 mt-2 opacity-90">Täida vormis iga rida, lisa "check" mark iga vastuse lõppu!
+                </p>
+            </div>
+
+            <div class="p-8">
+                <form id="bingoForm" class="space-y-6">
+                    <!-- Question 1 -->
+                    <div
+                        class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                            <div class="flex-1">
+                                <label for="q1" class="block text-sm font-medium text-gray-700 mb-2">Mis on
+                                    ostumenetluse nimi?</label>
+                                <input type="text" id="q1" name="q1"
+                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out">
+                            </div>
+                            <div class="checkbox-modern">
+                                <input type="checkbox" id="c1" class="check-item"
+                                    data-question="Mis on ostumenetluse nimi?">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div
+                        class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                            <div class="flex-1">
+                                <label for="q2" class="block text-sm font-medium text-gray-700 mb-2">Kas ostetakse asju
+                                    või teenuseid?</label>
+                                <input type="text" id="q2" name="q2"
+                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out">
+                            </div>
+                            <div class="checkbox-modern">
+                                <input type="checkbox" id="c2" class="check-item"
+                                    data-question="Kas ostetakse asju või teenuseid?">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div
+                        class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                            <div class="flex-1">
+                                <label for="q3" class="block text-sm font-medium text-gray-700 mb-2">Mis on
+                                    ostumenetluse CPV kood?</label>
+                                <input type="text" id="q3" name="q3"
+                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out">
+                            </div>
+                            <div class="checkbox-modern">
+                                <input type="checkbox" id="c3" class="check-item"
+                                    data-question="Mis on ostumenetluse CPV kood?">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div
+                        class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                            <div class="flex-1">
+                                <label for="q4" class="block text-sm font-medium text-gray-700 mb-2">Mis on
+                                    ostumenetluse kategooria?</label>
+                                <input type="text" id="q4" name="q4"
+                                    class="form-input w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out">
+                            </div>
+                            <div class="checkbox-modern">
+                                <input type="checkbox" id="c4" class="check-item"
+                                    data-question="Mis on ostumenetluse kategooria?">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div
+                        class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                            <div class="flex-1">
+                                <label for="q5" class="block text-sm font-medium text-gray-700 mb-2">Kas oled viimase 12
+                                    kuu jooksul sarnaseid oste teinud? Kui jah, millal ja mis summas!</label>
+                                <textarea id="q5" name="q5" rows="3"
+                                    class="form-textarea w-full px-4 py-2.5 bg-gray-50 border border-black rounded-lg text-sm transition-colors duration-200 ease-in-out"></textarea>
+                            </div>
+                            <div class="checkbox-modern">
+                                <input type="checkbox" id="c5" class="check-item"
+                                    data-question="Kas oled viimase 12 kuu jooksul sarnaseid oste teinud?">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Extra row for new questions -->
+                    <div id="additionalQuestions" class="space-y-6"></div>
+
+                    <!-- Add New Question Button -->
+                    <div class="flex justify-center mt-8">
+                        <button type="button" id="addQuestion"
+                            class="px-5 py-2.5 text-sm font-medium text-violet-600 bg-violet-50 rounded-lg hover:bg-violet-100 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 transition-colors duration-300 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Lisa uus küsimus
+                        </button>
+                    </div>
+
+                    <hr class="my-8 border-gray-200">
+
+                    <!-- Results Area -->
+                    <div class="bg-white p-6 rounded-xl border border-black shadow-sm mt-4">
+                        <div id="chatContainer" class="h-96 overflow-y-auto space-y-4 mb-4">
+                            <!-- Chat messages will be rendered here -->
+                        </div>
+
+                        <div class="flex gap-2">
+                            <input id="userInput" type="text" placeholder="Sisesta küsimus..."
+                                class="flex-1 px-4 py-2 border rounded-lg">
+                            <button id="sendBtn"
+                                class="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700">
+                                Saada
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center mt-8">
+                        <button type="button" id="playBingo"
+                            class="px-8 py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-medium rounded-lg shadow-lg hover:from-violet-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105">
+                            Mängi bingot
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Floating Button -->
+        <div class="fixed bottom-6 right-6">
+            <div class="glass-effect p-4 rounded-full shadow-lg cursor-pointer">
+                <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                    </path>
+                </svg>
+            </div>
+        </div>
+    </div>
+    <div id="result" class="bg-gray-50 p-5 rounded-lg border border-gray-200 min-h-24 text-gray-600">
+        Tulemust pole veel genereeritud. Vastake küsimustele ja vajutage "Mängi bingot".
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let questionCounter = 6; // Starting from 6 since we already have 5 questions
+
+            // Add new question
+            document.getElementById('addQuestion').addEventListener('click', function () {
+                const newQuestionContainer = document.createElement('div');
+                newQuestionContainer.className = 'bg-white p-5 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 animate-in';
+
+                const questionLabel = document.createElement('div');
+                questionLabel.className = 'flex items-center mb-2';
+
+                const questionInput = document.createElement('input');
+                questionInput.type = 'text';
+                questionInput.placeholder = 'Sisesta küsimus...';
+                questionInput.className = 'question-text w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out';
+
+                questionLabel.appendChild(questionInput);
+                newQuestionContainer.appendChild(questionLabel);
+
+                const answerInput = document.createElement('input');
+                answerInput.type = 'text';
+                answerInput.id = `q${questionCounter}`;
+                answerInput.name = `q${questionCounter}`;
+                answerInput.className = 'form-input w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm transition-colors duration-200 ease-in-out';
+
+                newQuestionContainer.appendChild(answerInput);
+
+                const checkbox = document.createElement('div');
+                checkbox.className = 'checkbox-modern';
+
+                const checkItem = document.createElement('input');
+                checkItem.type = 'checkbox';
+                checkItem.id = `c${questionCounter}`;
+                checkItem.className = 'check-item';
+                checkItem.setAttribute('data-question', '');
+
+                checkbox.appendChild(checkItem);
+
+                const checkIcon = document.createElement('svg');
+                checkIcon.className = 'w-4 h-4 text-white';
+                checkIcon.setAttribute('fill', 'none');
+                checkIcon.setAttribute('stroke', 'currentColor');
+                checkIcon.setAttribute('viewBox', '0 0 24 24');
+                checkIcon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                checkIcon.setAttribute('stroke-linecap', 'round');
+                checkIcon.setAttribute('stroke-linejoin', 'round');
+                checkIcon.setAttribute('stroke-width', '3');
+                checkIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>';
+
+                checkbox.appendChild(checkIcon);
+
+                newQuestionContainer.appendChild(checkbox);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.type = 'button';
+                deleteButton.className = 'delete-question text-gray-400 hover:text-red-500 transition-colors duration-200';
+                deleteButton.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>';
+
+                deleteButton.addEventListener('click', function () {
+                    newQuestionContainer.classList.add('opacity-0', 'transform', 'translate-y-4');
+                    setTimeout(() => {
+                        newQuestionContainer.remove();
+                    }, 300);
+                });
+
+                newQuestionContainer.appendChild(deleteButton);
+
+                document.getElementById('additionalQuestions').appendChild(newQuestionContainer);
+
+                // Update the data-question attribute when question text changes
+                const questionTextInput = newQuestionContainer.querySelector('.question-text');
+                const checkboxInput = newQuestionContainer.querySelector('.check-item');
+
+                questionTextInput.addEventListener('input', function () {
+                    checkboxInput.setAttribute('data-question', this.value);
+                });
+
+                // Add the checkbox change event listener
+                checkItem.addEventListener('change', () => {
+                    const answerInput = document.getElementById(`q${questionCounter}`);
+                    if (checkItem.checked && !answerInput.value.trim()) {
+                        alert('Palun sisesta vastus enne märkimist!');
+                        checkItem.checked = false;
+                    }
+                });
+
+                questionCounter++;
+            });
+
+            // Play bingo
+            document.getElementById('playBingo').addEventListener('click', async function () {
+                const resultElement = document.getElementById('result');
+                console.log(resultElement); // Debugging line
+                if (!resultElement) {
+                    console.error('Result element not found!');
+                    return; // Exit if the element is not found
+                }
+
+                resultElement.innerHTML = `<div class="flex justify-center items-center py-4">
+                    <div class="loader h-5 w-5"></div>
+                    <span>Genereerin...</span>
+                </div>`;
+
+                setTimeout(async () => {
+                    let prompt = "Analüüsi järgnevaid andmeid ostumenetluse kohta:\n\n";
+                    let hasCheckedItems = false;
+
+                    // Gather all checked items
+                    document.querySelectorAll('.check-item:checked').forEach(function (checkbox) {
+                        const questionText = checkbox.getAttribute('data-question');
+                        const questionId = checkbox.id.substring(1); // Remove the 'c' prefix to get the question number
+                        const answerInput = document.getElementById('q' + questionId);
+
+                        if (answerInput && answerInput.value.trim() !== '') {
+                            prompt += questionText + " " + answerInput.value + "\n\n";
+                            hasCheckedItems = true;
+                        }
+                    });
+
+                    if (!hasCheckedItems) {
+                        resultElement.innerHTML = `
+                            <div class="flex items-center text-amber-600">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                Palun märkige vähemalt üks vastus ja sisestage vastus.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    prompt += "Palun anna soovitus edasisteks sammudeks ostumenetluses.";
+
+                    // Get the response from the ChatGPT API
+                    const userId = "user123"; // Replace with actual user ID
+                    const botResponse = await getChatGPTResponse(prompt, userId);
+                    resultElement.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="pb-3 border-b border-gray-200">
+                                <p class="font-medium text-gray-700">Genereeritud prompt chat-botile:</p>
+                            </div>
+                            <pre class="bg-gray-50 p-4 rounded-lg text-sm overflow-auto whitespace-pre-wrap text-gray-700 border border-gray-200">${botResponse}</pre>
+                            <div class="mt-4 p-4 bg-violet-50 rounded-lg border border-violet-100">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-5 h-5 mr-2 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                                    </svg>
+                                    <span class="font-medium text-gray-700">Chatboti vastus:</span>
+                                </div>
+                                <p class="text-gray-600">${botResponse}</p>
+                            </div>
+                        </div>
+                    `;
+                }, 1500);
+            });
+        });
+
+        async function getChatGPTResponse(prompt, userId) {
+            try {
+                const response = await chatFunction({ prompt: prompt, userId: userId });
+                return response.data.response;
+            } catch (error) {
+                console.error('Error calling chat function:', error);
+                showError('Viga vastuse genereerimisel');
+                return 'Viga vastuse genereerimisel';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-toast';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
+    </script>
+</body>
+
+</html>
