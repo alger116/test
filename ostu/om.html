@@ -402,6 +402,16 @@
                     isAdmin: false,
                     showUserMenu: false,
                     showLoginModal: false,
+                    showSettingsModal: false,
+                    userSettings: {
+                        buyer: '',
+                        submission: '',
+                        validity: '',
+                        requirements: '',
+                        criteria: '',
+                        responsible: '',
+                        autofillEnabled: false
+                    },
 
                     async login() {
                         const email = document.getElementById('emailLogin').value;
@@ -496,6 +506,8 @@
                                 this.showError = false;
                             }
                         }, 5000);
+
+                        this.loadUserSettings();
                     },
 
                     get visibleSections() {
@@ -1008,10 +1020,94 @@
 
                     logout() {
                         window.handleLogout();
+                    },
+
+                    async saveUserSettings() {
+                        try {
+                            if (!window.auth?.currentUser) {
+                                this.showToast('Palun logi sisse', 'error');
+                                return;
+                            }
+
+                            const userRef = doc(window.db, "users", window.auth.currentUser.uid);
+                            await setDoc(userRef, {
+                                settings: this.userSettings
+                            }, { merge: true });
+
+                            // If autofill is enabled, update the form fields
+                            if (this.userSettings.autofillEnabled) {
+                                this.form.fields = {
+                                    ...this.form.fields,
+                                    buyer: this.userSettings.buyer,
+                                    submission: this.userSettings.submission,
+                                    validity: this.userSettings.validity,
+                                    requirements: this.userSettings.requirements,
+                                    criteria: this.userSettings.criteria,
+                                    responsible: this.userSettings.responsible
+                                };
+                            }
+
+                            this.showSettingsModal = false;
+                            this.showToast('Seaded salvestatud!', 'success');
+                        } catch (error) {
+                            console.error('Settings save error:', error);
+                            this.showToast('Viga seadete salvestamisel: ' + error.message, 'error');
+                        }
+                    },
+
+                    async loadUserSettings() {
+                        if (!window.auth?.currentUser) return;
+
+                        try {
+                            const userRef = doc(window.db, "users", window.auth.currentUser.uid);
+                            const userDoc = await getDoc(userRef);
+
+                            if (userDoc.exists()) {
+                                const data = userDoc.data();
+                                if (data.settings) {
+                                    // Only update fields that exist in the saved settings
+                                    Object.keys(data.settings).forEach(key => {
+                                        if (this.userSettings.hasOwnProperty(key)) {
+                                            this.userSettings[key] = data.settings[key];
+                                        }
+                                    });
+
+                                    // If autofill is enabled, populate only the fields that have values
+                                    if (this.userSettings.autofillEnabled) {
+                                        const updatedFields = { ...this.form.fields };
+
+                                        // Only update fields that have values in settings
+                                        if (this.userSettings.buyer) updatedFields.buyer = this.userSettings.buyer;
+                                        if (this.userSettings.submission) updatedFields.submission = this.userSettings.submission;
+                                        if (this.userSettings.validity) updatedFields.validity = this.userSettings.validity;
+                                        if (this.userSettings.requirements) updatedFields.requirements = this.userSettings.requirements;
+                                        if (this.userSettings.criteria) updatedFields.criteria = this.userSettings.criteria;
+                                        if (this.userSettings.responsible) updatedFields.responsible = this.userSettings.responsible;
+
+                                        this.form.fields = updatedFields;
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Settings load error:', error);
+                            this.showToast('Viga seadete laadimisel: ' + error.message, 'error');
+                        }
                     }
                 }
             });
         });
+
+        // Remove these lines (around line 1098)
+        // Show settings modal
+        let showSettingsModal = false;
+
+        // Function to load user basic data
+        async function loadUserBasicData() {
+            // ... remove this entire block
+        }
+
+        // Call this function when the page loads
+        loadUserBasicData();
     </script>
 </head>
 
@@ -1094,6 +1190,10 @@
                                 <a href="#" @click.prevent="logout()"
                                     class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                                     <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
+                                </a>
+                                <a href="#" @click.prevent="showSettingsModal = true"
+                                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <i class="fas fa-cog mr-2"></i> Seaded
                                 </a>
                             </div>
                         </div>
@@ -1368,6 +1468,139 @@
                 <span x-text="toast.message"></span>
             </div>
         </template>
+    </div>
+
+    <!-- Settings Modal -->
+    <div x-show="showSettingsModal" x-cloak
+        class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm"
+        @click.self="showSettingsModal = false">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-xl transform transition-all">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+                        <i class="fas fa-cog mr-3 text-indigo-600"></i>Põhiandmete seaded
+                    </h2>
+                    <button @click="showSettingsModal = false"
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="p-6">
+                    <form @submit.prevent="saveUserSettings" class="space-y-5">
+                        <!-- Form fields with improved styling -->
+                        <div class="space-y-4">
+                            <div class="group">
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hankija</label>
+                                <div class="relative">
+                                    <i
+                                        class="fas fa-building absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" x-model="userSettings.buyer" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
+                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                        placeholder="Nimi, aadress, registrikood">
+                                </div>
+                            </div>
+
+                            <div class="group">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pakkumise
+                                    esitamise aeg ja koht</label>
+                                <div class="relative">
+                                    <i
+                                        class="fas fa-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" x-model="userSettings.submission" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
+                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                        placeholder="nt 10. aprill, e-post">
+                                </div>
+                            </div>
+
+                            <div class="group">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pakkumuse
+                                    jõusoleku aeg</label>
+                                <div class="relative">
+                                    <i
+                                        class="fas fa-clock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" x-model="userSettings.validity" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
+                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                        placeholder="nt 30 päeva">
+                                </div>
+                            </div>
+
+                            <div class="group">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nõuded
+                                    pakkujale</label>
+                                <div class="relative">
+                                    <i
+                                        class="fas fa-list-check absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" x-model="userSettings.requirements" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
+                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                        placeholder="nt kogemus 3 aastat">
+                                </div>
+                            </div>
+
+                            <div class="group">
+                                <label
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Väljavaliku
+                                    alused</label>
+                                <div class="relative">
+                                    <i
+                                        class="fas fa-scale-balanced absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" x-model="userSettings.criteria" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
+                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                        placeholder="Majanduslikult soodsaim">
+                                </div>
+                            </div>
+
+                            <div class="group">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vastutav
+                                    isik</label>
+                                <div class="relative">
+                                    <i
+                                        class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" x-model="userSettings.responsible" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
+                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                        placeholder="Nimi">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Autofill Toggle -->
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg mt-6">
+                            <div class="flex items-center">
+                                <input type="checkbox" x-model="userSettings.autofillEnabled"
+                                    class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <label class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                    Aktiveeri automaatne täitmine
+                                </label>
+                            </div>
+                            <i class="fas fa-magic text-indigo-600"></i>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+                            <button type="button" @click="showSettingsModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg 
+                                hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
+                                transition-colors">
+                                Tühista
+                            </button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent 
+                                rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 
+                                focus:ring-indigo-500 transition-colors">
+                                Salvesta seaded
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
 </body>

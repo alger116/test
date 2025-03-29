@@ -1116,7 +1116,17 @@ I found several references to `landingpage.html` in admin.html that need to be u
 
 ---
 
+I've updated all references from `/omkutse/landingpage.html` to `/index.html` in the admin.html file. The changes include:
 
+1. Updated the redirect when user is not logged in
+2. Updated the redirect when user data is not found
+3. Updated the redirect when user doesn't have access to OM page
+4. Updated the redirect when user doesn't have access to HM page
+5. Updated the redirect in the initial authentication check
+
+All redirects now point to the root `index.html` instead of the old `landingpage.html` location. The paths are now consistent with your new file structure where `index.html` is in the root folder.
+
+Would you like me to check for any other references to the old landing page that might need updating?
 
 ---
 

@@ -110,6 +110,18 @@
                     <div class="px-6 py-4 border-b">
                         <div class="flex items-center justify-between">
                             <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
+                            <div class="flex space-x-2">
+                                <input type="text" id="userSearch" placeholder="Otsi kasutajat..."
+                                    class="border rounded-lg px-3 py-1">
+                                <select id="roleFilter" class="border rounded-lg px-3 py-1">
+                                    <option value="">Vali roll</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="user">Kasutaja</option>
+                                    <!-- Add more roles as needed -->
+                                </select>
+                                <button id="searchButton"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Otsi</button>
+                            </div>
                             <button id="addUserButton"
                                 class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
                                 <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
@@ -176,6 +188,29 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Audit Log Section -->
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Audit Log</h2>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Kuupäev</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Tegevus</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Kasutaja</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditLogTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Audit logs will be dynamically added here -->
+                        </tbody>
+                    </table>
                 </div>
             </main>
         </div>
@@ -283,6 +318,33 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Settings Section -->
+                        <div class="p-6">
+                            <h2 class="text-2xl font-bold text-gray-900">Seaded</h2>
+                            <form id="settingsForm" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="ostumaailmVisibility"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Ostumaailm
+                                            nähtavus</label>
+                                        <input type="checkbox" id="ostumaailmVisibility" class="rounded text-blue-600">
+                                    </div>
+                                    <div>
+                                        <label for="hankemaailmVisibility"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Hankemaailm
+                                            nähtavus</label>
+                                        <input type="checkbox" id="hankemaailmVisibility" class="rounded text-blue-600">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                        <i class="fas fa-save mr-2"></i>Salvesta
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -389,6 +451,20 @@
                             </div>
                         </form>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Details Modal -->
+        <div id="userDetailsModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold">Kasutaja Üksikasjad</h2>
+                    <p><strong>Email:</strong> <span id="userDetailsEmail"></span></p>
+                    <p><strong>Roll:</strong> <span id="userDetailsRole"></span></p>
+                    <p><strong>Status:</strong> <span id="userDetailsStatus"></span></p>
+                    <button onclick="closeUserDetailsModal()"
+                        class="mt-4 px-4 py-2 bg-gray-600 text-white rounded">Sulge</button>
                 </div>
             </div>
         </div>
@@ -1013,24 +1089,17 @@
         });
 
         // Function to show notifications
-        window.showNotification = function (message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-20 right-4 p-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white transform transition-all duration-300 translate-y-0 opacity-100`;
-            notification.innerHTML = `
-                <div class="flex items-center space-x-2">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-            document.body.appendChild(notification);
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div')
+            notification.className = `fixed top-20 right-4 p-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`
+            notification.innerHTML = `<div class="flex items-center space-x-2"><i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i><span>${message}</span></div>`
+            document.body.appendChild(notification)
 
             // Remove notification after 3 seconds
             setTimeout(() => {
-                notification.style.transform = 'translateY(-100%)';
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        };
+                notification.remove()
+            }, 3000)
+        }
 
         // Load roles when the page loads
         document.addEventListener("DOMContentLoaded", () => {
@@ -1239,37 +1308,26 @@
             });
 
             // Handle settings form submission
-            if (settingsForm) {
-                settingsForm.addEventListener('submit', async function (event) {
-                    event.preventDefault();
+            document.getElementById('settingsForm').addEventListener('submit', async function (event) {
+                event.preventDefault();
 
-                    // Show loading state
-                    const submitButton = this.querySelector('button[type="submit"]');
-                    const originalText = submitButton.innerHTML;
-                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Salvestamine...</span>';
-                    submitButton.disabled = true;
+                const ostumaailmVisible = document.getElementById('ostumaailmVisibility').checked;
+                const hankemaailmVisible = document.getElementById('hankemaailmVisibility').checked;
 
-                    try {
-                        settings.documentPreparationDays = parseInt(document.getElementById('documentPreparationDays').value);
-                        settings.offerEvaluationDays = parseInt(document.getElementById('offerEvaluationDays').value);
-                        settings.decisionDays = parseInt(document.getElementById('decisionDays').value);
-                        settings.bidderEvaluationDays = parseInt(document.getElementById('bidderEvaluationDays').value);
-                        settings.successfulBidderDays = parseInt(document.getElementById('successfulBidderDays').value);
-                        settings.waitingPeriodDays = parseInt(document.getElementById('waitingPeriodDays').value);
+                // Save settings to Firestore or localStorage
+                try {
+                    await saveSettings({ ostumaailmVisible, hankemaailmVisible });
+                    showNotification('Seaded salvestatud edukalt!', 'success');
+                } catch (error) {
+                    console.error('Error saving settings:', error);
+                    showNotification('Viga seadete salvestamisel!', 'error');
+                }
+            });
 
-                        await saveSettings();
-
-                        // Show success message
-                        showNotification('Seaded salvestatud edukalt!', 'success');
-                    } catch (error) {
-                        console.error('Error saving settings:', error);
-                        showNotification('Viga seadete salvestamisel!', 'error');
-                    } finally {
-                        // Restore button state
-                        submitButton.innerHTML = originalText;
-                        submitButton.disabled = false;
-                    }
-                });
+            // Function to save settings
+            async function saveSettings(settings) {
+                // Implement saving logic (e.g., to Firestore or localStorage)
+                localStorage.setItem('settings', JSON.stringify(settings));
             }
 
             // Add procedure type button event listener
@@ -2058,6 +2116,27 @@
                 console.error('Error sending verification email:', error);
                 alert('Viga verifitseerimise e-kirja saatmisel. Palun proovi hiljem uuesti.');
             }
+        }
+
+        // Function to view user details
+        function viewUserDetails(userId) {
+            // Fetch user data from Firestore
+            const userRef = doc(db, "users", userId);
+            getDoc(userRef).then((doc) => {
+                if (doc.exists()) {
+                    const userData = doc.data();
+                    // Populate modal with user details
+                    document.getElementById('userDetailsEmail').textContent = userData.email;
+                    document.getElementById('userDetailsRole').textContent = userData.role;
+                    document.getElementById('userDetailsStatus').textContent = userData.status;
+                    // Show modal
+                    document.getElementById('userDetailsModal').classList.remove('hidden');
+                } else {
+                    console.error("User not found");
+                }
+            }).catch((error) => {
+                console.error("Error fetching user details:", error);
+            });
         }
     </script>
 </body>
