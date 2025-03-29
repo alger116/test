@@ -243,9 +243,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .top-0\.5 {
   top: calc(var(--spacing) * 0.5);
 }
-.top-1 {
-  top: calc(var(--spacing) * 1);
-}
 .top-1\/2 {
   top: calc(1/2 * 100%);
 }
@@ -263,6 +260,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .top-16 {
   top: calc(var(--spacing) * 16);
+}
+.top-20 {
+  top: calc(var(--spacing) * 20);
 }
 .top-full {
   top: 100%;
@@ -309,9 +309,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .left-0\.5 {
   left: calc(var(--spacing) * 0.5);
 }
-.left-1 {
-  left: calc(var(--spacing) * 1);
-}
 .left-1\/2 {
   left: calc(1/2 * 100%);
 }
@@ -338,9 +335,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .z-0 {
   z-index: 0;
-}
-.z-1 {
-  z-index: 1;
 }
 .z-10 {
   z-index: 10;
@@ -486,9 +480,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .m-2 {
   margin: calc(var(--spacing) * 2);
 }
-.m-5 {
-  margin: calc(var(--spacing) * 5);
-}
 .-mx-6 {
   margin-inline: calc(var(--spacing) * -6);
 }
@@ -522,17 +513,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .\!ms-auto {
   margin-inline-start: auto !important;
 }
-.ms-0 {
-  margin-inline-start: calc(var(--spacing) * 0);
-}
 .ms-0\.5 {
   margin-inline-start: calc(var(--spacing) * 0.5);
 }
 .ms-2 {
   margin-inline-start: calc(var(--spacing) * 2);
-}
-.\!me-1 {
-  margin-inline-end: calc(var(--spacing) * 1) !important;
 }
 .\!me-1\.5 {
   margin-inline-end: calc(var(--spacing) * 1.5) !important;
@@ -563,9 +548,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .mt-8 {
   margin-top: calc(var(--spacing) * 8);
-}
-.\!mr-0 {
-  margin-right: calc(var(--spacing) * 0) !important;
 }
 .mr-1 {
   margin-right: calc(var(--spacing) * 1);
@@ -774,17 +756,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   width: calc(var(--spacing) * 8);
   height: calc(var(--spacing) * 8);
 }
-.\!h-2 {
-  height: calc(var(--spacing) * 2) !important;
-}
 .\!h-2\.5 {
   height: calc(var(--spacing) * 2.5) !important;
 }
 .\!h-64 {
   height: calc(var(--spacing) * 64) !important;
-}
-.h-0 {
-  height: calc(var(--spacing) * 0);
 }
 .h-0\.5 {
   height: calc(var(--spacing) * 0.5);
@@ -890,9 +866,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .min-h-screen {
   min-height: 100vh;
-}
-.\!w-2 {
-  width: calc(var(--spacing) * 2) !important;
 }
 .\!w-2\.5 {
   width: calc(var(--spacing) * 2.5) !important;
@@ -1165,10 +1138,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   --tw-translate-y: 100%;
   translate: var(--tw-translate-x) var(--tw-translate-y);
 }
-.-translate-x-1 {
-  --tw-translate-x: calc(var(--spacing) * -1);
-  translate: var(--tw-translate-x) var(--tw-translate-y);
-}
 .-translate-x-1\/2 {
   --tw-translate-x: calc(calc(1/2 * 100%) * -1);
   translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -1187,6 +1156,10 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .-translate-y-1\/2 {
   --tw-translate-y: calc(calc(1/2 * 100%) * -1);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+}
+.-translate-y-2 {
+  --tw-translate-y: calc(var(--spacing) * -2);
   translate: var(--tw-translate-x) var(--tw-translate-y);
 }
 .translate-y-0 {
@@ -1725,11 +1698,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --tw-divide-y-reverse: 1;
   }
 }
-.divide-gray-100 {
-  :where(& > :not(:last-child)) {
-    border-color: var(--color-gray-100);
-  }
-}
 .divide-gray-100\/70 {
   :where(& > :not(:last-child)) {
     border-color: color-mix(in oklab, var(--color-gray-100) 70%, transparent);
@@ -1998,9 +1966,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .\!border-gray-200 {
   border-color: var(--color-gray-200) !important;
 }
-.\!border-neutral-700 {
-  border-color: var(--color-neutral-700) !important;
-}
 .border-black {
   border-color: var(--color-black);
 }
@@ -2034,9 +1999,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .border-gray-800 {
   border-color: var(--color-gray-800);
 }
-.border-gray-900 {
-  border-color: var(--color-gray-900);
-}
 .border-gray-900\/25 {
   border-color: color-mix(in oklab, var(--color-gray-900) 25%, transparent);
 }
@@ -2063,9 +2025,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .border-t-transparent {
   border-top-color: transparent;
-}
-.\!bg-neutral-800 {
-  background-color: var(--color-neutral-800) !important;
 }
 .\!bg-white {
   background-color: var(--color-white) !important;
@@ -2186,9 +2145,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-green-600 {
   background-color: var(--color-green-600);
-}
-.bg-indigo-50 {
-  background-color: var(--color-indigo-50);
 }
 .bg-indigo-50\/50 {
   background-color: color-mix(in oklab, var(--color-indigo-50) 50%, transparent);
@@ -2328,10 +2284,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .from-blue-100 {
   --tw-gradient-from: var(--color-blue-100);
-  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-}
-.from-blue-300 {
-  --tw-gradient-from: var(--color-blue-300);
   --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
 }
 .from-blue-300\/40 {
@@ -2695,14 +2647,8 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .p-8 {
   padding: calc(var(--spacing) * 8);
 }
-.\!px-2 {
-  padding-inline: calc(var(--spacing) * 2) !important;
-}
 .\!px-2\.5 {
   padding-inline: calc(var(--spacing) * 2.5) !important;
-}
-.px-0 {
-  padding-inline: calc(var(--spacing) * 0);
 }
 .px-0\.5 {
   padding-inline: calc(var(--spacing) * 0.5);
@@ -2727,9 +2673,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .px-8 {
   padding-inline: calc(var(--spacing) * 8);
-}
-.\!py-0 {
-  padding-block: calc(var(--spacing) * 0) !important;
 }
 .\!py-0\.5 {
   padding-block: calc(var(--spacing) * 0.5) !important;
@@ -2817,9 +2760,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .pb-20 {
   padding-bottom: calc(var(--spacing) * 20);
-}
-.pl-0 {
-  padding-left: calc(var(--spacing) * 0);
 }
 .pl-0\.5 {
   padding-left: calc(var(--spacing) * 0.5);
@@ -3162,9 +3102,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .text-white {
   color: var(--color-white);
 }
-.text-yellow-600 {
-  color: var(--color-yellow-600);
-}
 .text-yellow-800 {
   color: var(--color-yellow-800);
 }
@@ -3403,26 +3340,17 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .ring-gray-300 {
   --tw-ring-color: var(--color-gray-300);
 }
-.ring-green-600 {
-  --tw-ring-color: var(--color-green-600);
-}
 .ring-green-600\/20 {
   --tw-ring-color: color-mix(in oklab, var(--color-green-600) 20%, transparent);
 }
 .ring-indigo-500 {
   --tw-ring-color: var(--color-indigo-500);
 }
-.ring-purple-600 {
-  --tw-ring-color: var(--color-purple-600);
-}
 .ring-purple-600\/20 {
   --tw-ring-color: color-mix(in oklab, var(--color-purple-600) 20%, transparent);
 }
 .ring-white {
   --tw-ring-color: var(--color-white);
-}
-.ring-yellow-600 {
-  --tw-ring-color: var(--color-yellow-600);
 }
 .ring-yellow-600\/20 {
   --tw-ring-color: color-mix(in oklab, var(--color-yellow-600) 20%, transparent);
@@ -3694,9 +3622,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .outline-solid {
   --tw-outline-style: solid;
   outline-style: solid;
-}
-.\[e\:���������F\/�\1f �Y�\4 �ٻ��f\\K�\] {
-  e: ���������F/��Y��ٻ��f\K�;
 }
 .\[host\:\]port\] {
   host: ]port;
@@ -5104,11 +5029,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
-.md\:grid-cols-4 {
-  @media (width >= 48rem) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
 .md\:flex-row {
   @media (width >= 48rem) {
     flex-direction: row;
@@ -5227,11 +5147,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     background-color: var(--color-blue-500);
   }
 }
-.dark\:bg-blue-900 {
-  @media (prefers-color-scheme: dark) {
-    background-color: var(--color-blue-900);
-  }
-}
 .dark\:bg-gray-700 {
   @media (prefers-color-scheme: dark) {
     background-color: var(--color-gray-700);
@@ -5255,11 +5170,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .dark\:bg-gray-800\/80 {
   @media (prefers-color-scheme: dark) {
     background-color: color-mix(in oklab, var(--color-gray-800) 80%, transparent);
-  }
-}
-.dark\:bg-green-900 {
-  @media (prefers-color-scheme: dark) {
-    background-color: var(--color-green-900);
   }
 }
 .dark\:bg-indigo-800\/50 {
@@ -5297,11 +5207,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     background-color: color-mix(in oklab, var(--color-purple-800) 50%, transparent);
   }
 }
-.dark\:bg-yellow-900 {
-  @media (prefers-color-scheme: dark) {
-    background-color: var(--color-yellow-900);
-  }
-}
 .dark\:from-gray-800 {
   @media (prefers-color-scheme: dark) {
     --tw-gradient-from: var(--color-gray-800);
@@ -5331,11 +5236,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     fill: var(--color-neutral-200);
   }
 }
-.dark\:text-blue-400 {
-  @media (prefers-color-scheme: dark) {
-    color: var(--color-blue-400);
-  }
-}
 .dark\:text-blue-500 {
   @media (prefers-color-scheme: dark) {
     color: var(--color-blue-500);
@@ -5354,11 +5254,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .dark\:text-gray-400 {
   @media (prefers-color-scheme: dark) {
     color: var(--color-gray-400);
-  }
-}
-.dark\:text-green-400 {
-  @media (prefers-color-scheme: dark) {
-    color: var(--color-green-400);
   }
 }
 .dark\:text-indigo-300 {
@@ -5409,11 +5304,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .dark\:text-white {
   @media (prefers-color-scheme: dark) {
     color: var(--color-white);
-  }
-}
-.dark\:text-yellow-400 {
-  @media (prefers-color-scheme: dark) {
-    color: var(--color-yellow-400);
   }
 }
 .dark\:opacity-40 {
@@ -5595,15 +5485,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --color-yellow-50: oklch(0.987 0.026 102.212);
     --color-yellow-100: oklch(0.973 0.071 103.193);
     --color-yellow-300: oklch(0.905 0.182 98.111);
-    --color-yellow-400: oklch(0.852 0.199 91.936);
     --color-yellow-500: oklch(0.795 0.184 86.047);
     --color-yellow-600: oklch(0.681 0.162 75.834);
     --color-yellow-700: oklch(0.554 0.135 66.442);
     --color-yellow-800: oklch(0.476 0.114 61.907);
-    --color-yellow-900: oklch(0.421 0.095 57.708);
     --color-green-50: oklch(0.982 0.018 155.826);
     --color-green-100: oklch(0.962 0.044 156.743);
-    --color-green-400: oklch(0.792 0.209 151.711);
     --color-green-500: oklch(0.723 0.219 149.579);
     --color-green-600: oklch(0.627 0.194 149.214);
     --color-green-700: oklch(0.527 0.154 150.069);

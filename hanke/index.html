@@ -1837,16 +1837,29 @@
                     console.log("🚨 Kustutame:", searchToDelete);
 
                     // 🔥 Kustutame Firestore'ist ainult selle konkreetse objekti
+                    const updatedSearches = searches.filter((_, i) => i !== deleteIndex);
                     await updateDoc(userDocRef, {
-                        searches: searches.filter((_, i) => i !== deleteIndex)
+                        searches: updatedSearches
                     });
 
                     console.log("✅ Otsing kustutatud Firestore'ist:", searchToDelete);
 
-                    // 🔄 Laadime uuesti andmed, et värskendada tabelit
-                    await loadUserSearches();
+                    // Update local data by clearing and pushing new items
+                    savedSearches.length = 0;
+                    updatedSearches.forEach(search => savedSearches.push(search));
+
+                    // Update the table immediately
+                    updateSavedSearchesTable();
+
+                    // Close the modal
+                    document.getElementById("deleteConfirmModal").classList.add("hidden");
+                    deleteIndex = null;
+
+                    // Show success notification
+                    showNotification("Hange edukalt kustutatud!", "success");
                 } catch (error) {
                     console.error("❌ Firestore'i kustutamise viga:", error);
+                    showNotification("Viga hange kustutamisel!", "error");
                 }
             });
 

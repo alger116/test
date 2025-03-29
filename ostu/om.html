@@ -173,6 +173,29 @@
         window.auth = auth;
         window.db = db;
 
+        // Make logout function available globally
+        window.handleLogout = async () => {
+            try {
+                // Sign out from Firebase
+                await signOut(auth);
+
+                // Clear all authentication related data from localStorage
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('rememberedUser');
+                localStorage.removeItem('previousPage');
+
+                // Force page reload to reset all state
+                window.location.reload();
+            } catch (error) {
+                console.error('Error signing out:', error);
+                // Even if there's an error, try to clear local state and reload
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('rememberedUser');
+                localStorage.removeItem('previousPage');
+                window.location.reload();
+            }
+        };
+
         // Check authentication state
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -189,12 +212,14 @@
                     }
                 }
 
-                // Show login modal only if there's no remembered user
+                // Show login modal and update state
                 const formApp = document.querySelector('[x-data="formApp"]')?.__x;
                 if (formApp) {
                     formApp.$data.showLoginModal = true;
                     formApp.$data.currentUser = null;
                     formApp.$data.isAdmin = false;
+                    formApp.$data.showUserMenu = false;
+                    formApp.$data.showToast('Palun logi sisse', 'info');
                 }
             } else {
                 // Get user data from Firestore
@@ -211,6 +236,7 @@
                     };
                     formApp.$data.isAdmin = userData?.isAdmin || false;
                     formApp.$data.showLoginModal = false;
+                    formApp.$data.showToast('Edukalt sisse logitud', 'success');
                 }
 
                 // Store current user in localStorage
@@ -258,43 +284,6 @@
                 throw error;
             }
         };
-
-        // Make logout function available globally
-        window.handleLogout = async () => {
-            try {
-                // Sign out from Firebase
-                await signOut(auth);
-
-                // Clear all authentication related data from localStorage
-                localStorage.removeItem('currentUser');
-                localStorage.removeItem('rememberedUser');
-                localStorage.removeItem('previousPage');
-
-                // Update Alpine.js state
-                const formApp = document.querySelector('[x-data="formApp"]')?.__x;
-                if (formApp) {
-                    formApp.$data.showLoginModal = true;
-                    formApp.$data.currentUser = null;
-                    formApp.$data.isAdmin = false;
-                    formApp.$data.showUserMenu = false;
-                }
-            } catch (error) {
-                console.error('Error signing out:', error);
-                // Even if there's an error, try to clear local state
-                localStorage.removeItem('currentUser');
-                localStorage.removeItem('rememberedUser');
-                localStorage.removeItem('previousPage');
-
-                // Update Alpine.js state even if Firebase signOut failed
-                const formApp = document.querySelector('[x-data="formApp"]')?.__x;
-                if (formApp) {
-                    formApp.$data.showLoginModal = true;
-                    formApp.$data.currentUser = null;
-                    formApp.$data.isAdmin = false;
-                    formApp.$data.showUserMenu = false;
-                }
-            }
-        };
     </script>
 
     <script>
@@ -330,7 +319,8 @@
                                     { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
                                     { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
                                     { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
-                                    { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false }
+                                    { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false },
+                                    { text: 'Arve maksetähtaeg peab olemad vähemalt 21 päeva.', checked: true }
                                 ]
                             },
                             {
@@ -761,20 +751,26 @@
                         }
                     },
 
-                    toggleAllSections(open) {
+                    toggleAllSections() {
+                        const hasClosedSections = this.form.sections.some(section => !section.open);
                         this.form.sections.forEach(section => {
-                            section.open = open;
+                            section.open = hasClosedSections;
                         });
+                        this.showToast(hasClosedSections ? 'Kõik sektsioonid avatud' : 'Kõik sektsioonid suletud', 'success');
                     },
 
                     selectAllOptions() {
+                        const hasUncheckedOptions = this.form.sections.some(section =>
+                            section.options.some(option => !option.checked)
+                        );
+
                         this.form.sections.forEach(section => {
                             section.enabled = true;
                             section.options.forEach(option => {
-                                option.checked = true;
+                                option.checked = hasUncheckedOptions;
                             });
                         });
-                        this.showToast('Kõik valikud valitud', 'success');
+                        this.showToast(hasUncheckedOptions ? 'Kõik valikud valitud' : 'Kõik valikud eemaldatud', 'success');
                     },
 
                     showToast(message, type = 'info', duration = 3000) {
@@ -872,12 +868,12 @@
                                         enabled: true,
                                         open: false,
                                         options: [
-                                            { text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
+                                            { text: '111Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
                                             { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
                                             { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
                                             { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
                                             { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false },
-                                            { text: 'Arve maksetähtaeg peab olema vähemalt 21 päeva.', checked: true }
+
                                         ]
                                     },
                                     {
@@ -987,6 +983,7 @@
                             newOption = {
                                 text: `${optionCount}. `,
                                 checked: false,
+                                checked: true,
                                 editable: true,
                                 isEditing: true
                             };
@@ -1148,15 +1145,17 @@
                         <div class="flex gap-2">
                             <button @click="selectAllOptions"
                                 class="text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg transition-colors">
-                                <i class="fas fa-check-double mr-1"></i> Lisa kõik
+                                <i class="fas"
+                                    :class="form.sections.some(section => section.options.some(option => !option.checked)) ? 'fa-check-double' : 'fa-times'"></i>
+                                <span class="ml-1"
+                                    x-text="form.sections.some(section => section.options.some(option => !option.checked)) ? 'Lisa kõik' : 'Eemalda kõik'"></span>
                             </button>
-                            <button @click="toggleAllSections(true)"
+                            <button @click="toggleAllSections"
                                 class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors">
-                                <i class="fas fa-chevron-down mr-1"></i> Ava kõik
-                            </button>
-                            <button @click="toggleAllSections(false)"
-                                class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors">
-                                <i class="fas fa-chevron-up mr-1"></i> Sulge kõik
+                                <i class="fas"
+                                    :class="form.sections.some(section => !section.open) ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+                                <span class="ml-1"
+                                    x-text="form.sections.some(section => !section.open) ? 'Ava kõik' : 'Sulge kõik'"></span>
                             </button>
                         </div>
                     </div>

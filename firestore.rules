@@ -12,7 +12,15 @@ service cloud.firestore {
 
     // Allow admin users to update any document in the users collection
     match /users/{userId} {
-      allow update: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow update: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'lastUpdated', 'updatedBy', 'updatedByEmail']);
+    }
+
+    // Allow admin users to create audit log entries
+    match /auditLog/{documentId} {
+      allow create: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
   }
 }

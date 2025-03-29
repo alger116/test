@@ -469,6 +469,36 @@
             "Eriteenuste erimenetlus": { taotlusteAeg: 0, pakkumusteAeg: 10, piirmäär: 750000, visible: true }
         };
 
+        // TypeScript interfaces for better type safety and documentation
+        /**
+         * @typedef {Object} Permissions
+         * @property {boolean} fullAccess - Full system access
+         * @property {boolean} userManagement - Can manage users
+         * @property {boolean} settingsManagement - Can manage settings
+         * @property {boolean} roleManagement - Can manage roles
+         * @property {boolean} omAccess - Can access Ostumaailm
+         * @property {boolean} hmAccess - Can access Hankemaailm
+         * @property {boolean} auditLogAccess - Can access audit logs
+         * @property {boolean} systemSettings - Can access system settings
+         */
+
+        /**
+         * @typedef {Object} Role
+         * @property {string} name - Display name of the role
+         * @property {Permissions} permissions - Role permissions
+         * @property {boolean} [isSystem] - Whether this is a system role
+         */
+
+        /**
+         * @typedef {Object} RoleChange
+         * @property {string} userId - ID of the user whose role changed
+         * @property {string} action - Type of action (always "role_change")
+         * @property {Date} timestamp - When the change occurred
+         * @property {string} oldRole - Previous role
+         * @property {string} newRole - New role
+         * @property {string} changedBy - ID of user who made the change
+         */
+
         // Define roles and their permissions
         const roles = {
             mainAdmin: {
@@ -592,6 +622,38 @@
             // ... rest of the row generation code ...
         }
 
+        // Validate role changes
+        /**
+         * Validates if a role change is allowed
+         * @param {string} oldRole - Current role of the user
+         * @param {string} newRole - New role to be assigned
+         * @param {string} currentUserRole - Role of the user making the change
+         * @returns {boolean} Whether the role change is valid
+         */
+        function validateRoleChange(oldRole, newRole, currentUserRole) {
+            // Prevent downgrading mainAdmin
+            if (oldRole === 'mainAdmin') {
+                showNotification("Peaadministraatori rolli ei saa muuta!", "error");
+                return false;
+            }
+
+            // Only mainAdmin can create new admins
+            if (newRole === 'admin' || newRole === 'mainAdmin') {
+                if (currentUserRole !== 'mainAdmin') {
+                    showNotification("Ainult peaadministraator võib luua uusi administraatoreid!", "error");
+                    return false;
+                }
+            }
+
+            // Validate that the role exists
+            if (!roles[newRole]) {
+                showNotification("Vigane roll!", "error");
+                return false;
+            }
+
+            return true;
+        }
+
         // Update the updateUserRole function to handle new roles
         async function updateUserRole(userId, newRole) {
             try {
@@ -613,8 +675,8 @@
                 const userDoc = await getDoc(userRef);
                 const userData = userDoc.data();
 
-                if (userData.role === 'mainAdmin') {
-                    showNotification("Peaadministraatori rolli ei saa muuta!", "error");
+                // Validate the role change
+                if (!validateRoleChange(userData.role, newRole, currentUserData.role)) {
                     return;
                 }
 
@@ -650,7 +712,7 @@
         async function checkAccess() {
             const currentUser = auth.currentUser;
             if (!currentUser) {
-                window.location.href = "/omkutse/landingpage.html";
+                window.location.href = "/index.html";
                 return;
             }
 
@@ -658,7 +720,7 @@
             const userData = userDoc.data();
 
             if (!userData) {
-                window.location.href = "/omkutse/landingpage.html";
+                window.location.href = "/index.html";
                 return;
             }
 
@@ -669,13 +731,13 @@
 
             if (isOMPage && !hasWorldAccess(userData.role, 'om')) {
                 showNotification("Sul ei ole õigusi Ostumaailma lehele!", "error");
-                window.location.href = "/omkutse/landingpage.html";
+                window.location.href = "/index.html";
                 return;
             }
 
             if (isHMPage && !hasWorldAccess(userData.role, 'hm')) {
                 showNotification("Sul ei ole õigusi Hankemaailma lehele!", "error");
-                window.location.href = "/omkutse/landingpage.html";
+                window.location.href = "/index.html";
                 return;
             }
 
@@ -953,7 +1015,7 @@
         // Function to show notifications
         window.showNotification = function (message, type = 'success') {
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white transform transition-all duration-300 translate-y-0 opacity-100`;
+            notification.className = `fixed top-20 right-4 p-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white transform transition-all duration-300 translate-y-0 opacity-100`;
             notification.innerHTML = `
                 <div class="flex items-center space-x-2">
                     <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
@@ -975,7 +1037,7 @@
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
                     alert("You must be logged in.");
-                    window.location.href = "/omkutse/landingpage.html";
+                    window.location.href = "/index.html";
                     return;
                 }
 
@@ -1771,6 +1833,12 @@
                 // Get current user's role
                 const currentUserRef = doc(db, "users", auth.currentUser.uid);
                 const currentUserDoc = await getDoc(currentUserRef);
+
+                if (!currentUserDoc.exists()) {
+                    showNotification('Kasutaja andmed ei leitud!', 'error');
+                    return;
+                }
+
                 const currentUserData = currentUserDoc.data();
 
                 // Only main admin can change roles
@@ -1782,6 +1850,12 @@
                 // Get target user's data
                 const userRef = doc(db, "users", userId);
                 const userDoc = await getDoc(userRef);
+
+                if (!userDoc.exists()) {
+                    showNotification('Sihtkasutaja andmed ei leitud!', 'error');
+                    return;
+                }
+
                 const userData = userDoc.data();
 
                 // Prevent changing main admin's role
@@ -1790,19 +1864,29 @@
                     return;
                 }
 
+                // Validate the new role exists
+                if (!roles[newRole]) {
+                    showNotification('Vigane roll!', 'error');
+                    return;
+                }
+
                 // Update the role
                 await updateDoc(userRef, {
                     role: newRole,
-                    lastUpdated: new Date()
+                    lastUpdated: new Date(),
+                    updatedBy: auth.currentUser.uid,
+                    updatedByEmail: auth.currentUser.email
                 });
 
                 // Log the role change
                 await addDoc(collection(db, "auditLog"), {
                     action: "user_role_changed",
                     userId: userId,
+                    userEmail: userData.email,
                     oldRole: userData.role,
                     newRole: newRole,
-                    performedBy: auth.currentUser.uid,
+                    changedBy: auth.currentUser.uid,
+                    changedByEmail: auth.currentUser.email,
                     timestamp: new Date()
                 });
 
@@ -1810,7 +1894,15 @@
                 loadUsers(); // Refresh user list
             } catch (error) {
                 console.error("Error updating user role:", error);
-                showNotification('Viga kasutaja rolli muutmisel!', 'error');
+                let errorMessage = 'Viga kasutaja rolli muutmisel!';
+
+                if (error.code === 'permission-denied') {
+                    errorMessage = 'Sul ei ole õigusi rolli muutmiseks!';
+                } else if (error.code === 'not-found') {
+                    errorMessage = 'Kasutaja ei leitud!';
+                }
+
+                showNotification(errorMessage, 'error');
             }
         };
 
