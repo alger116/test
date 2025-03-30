@@ -786,39 +786,49 @@
 
         // Update the access control check
         async function checkAccess() {
-            const currentUser = auth.currentUser;
+            const currentUser = auth.currentUser
             if (!currentUser) {
-                window.location.href = "/index.html";
-                return;
+                window.location.href = "/index.html"
+                return
             }
 
-            const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-            const userData = userDoc.data();
+            const userDoc = await getDoc(doc(db, "users", currentUser.uid))
+            const userData = userDoc.data()
 
             if (!userData) {
-                window.location.href = "/index.html";
-                return;
+                window.location.href = "/index.html"
+                return
             }
 
+            // Update localStorage based on Firestore data
+            localStorage.setItem('user', JSON.stringify({
+                email: userData.email,
+                id: userData.uid,
+                role: userData.role,
+                isAdmin: userData.role.trim() === 'mainAdmin' // Set isAdmin based on role
+            }));
+
+            console.log("Updated localStorage:", JSON.parse(localStorage.getItem('user'))); // Log updated user data
+
             // Check if user has access to the current page
-            const currentPage = window.location.pathname;
-            const isOMPage = currentPage.includes('om.html');
-            const isHMPage = currentPage.includes('hm.html');
+            const currentPage = window.location.pathname
+            const isOMPage = currentPage.includes('om.html')
+            const isHMPage = currentPage.includes('hm.html')
 
             if (isOMPage && !hasWorldAccess(userData.role, 'om')) {
-                showNotification("Sul ei ole õigusi Ostumaailma lehele!", "error");
-                window.location.href = "/index.html";
-                return;
+                showNotification("Sul ei ole õigusi Ostumaailma lehele!", "error")
+                window.location.href = "/index.html"
+                return
             }
 
             if (isHMPage && !hasWorldAccess(userData.role, 'hm')) {
-                showNotification("Sul ei ole õigusi Hankemaailma lehele!", "error");
-                window.location.href = "/index.html";
-                return;
+                showNotification("Sul ei ole õigusi Hankemaailma lehele!", "error")
+                window.location.href = "/index.html"
+                return
             }
 
             // Update UI based on permissions
-            updateUIForRole(userData.role);
+            updateUIForRole(userData.role)
         }
 
         // Function to update UI based on role
@@ -2138,6 +2148,8 @@
                 console.error("Error fetching user details:", error);
             });
         }
+
+        localStorage.clear(); // Clear localStorage at the start
     </script>
 </body>
 

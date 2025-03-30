@@ -337,7 +337,7 @@
 
         // Handle admin button click
         function handleAdminClick() {
-            if (window.userRole === 'admin') {
+            if (window.userRole === 'admin' || window.userRole === 'mainAdmin') {
                 handlePageTransition('auth/admin.html');
             } else {
                 alert('Teil puudub administraatori õigused');
