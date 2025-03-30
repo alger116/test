@@ -1794,6 +1794,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .rounded-2xl {
   border-radius: var(--radius-2xl);
 }
+.rounded-4xl {
+  border-radius: var(--radius-4xl);
+}
 .rounded-full {
   border-radius: calc(infinity * 1px);
 }
@@ -4084,6 +4087,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.hover\:bg-amber-50 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-amber-50);
+    }
+  }
+}
 .hover\:bg-amber-100 {
   &:hover {
     @media (hover: hover) {
@@ -4329,10 +4339,24 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.hover\:bg-indigo-300 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-indigo-300);
+    }
+  }
+}
 .hover\:bg-indigo-500 {
   &:hover {
     @media (hover: hover) {
       background-color: var(--color-indigo-500);
+    }
+  }
+}
+.hover\:bg-indigo-600 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-indigo-600);
     }
   }
 }
@@ -4618,6 +4642,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     @media (hover: hover) {
       --tw-gradient-to: var(--color-yellow-700);
       --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+    }
+  }
+}
+.hover\:whitespace-nowrap {
+  &:hover {
+    @media (hover: hover) {
+      white-space: nowrap;
     }
   }
 }
@@ -5792,6 +5823,7 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --radius-lg: 0.5rem;
     --radius-xl: 0.75rem;
     --radius-2xl: 1rem;
+    --radius-4xl: 2rem;
     --drop-shadow-lg: 0 4px 4px rgb(0 0 0 / 0.15);
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);

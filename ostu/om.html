@@ -79,11 +79,16 @@
         }
 
         .card {
-            @apply bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 transition-all duration-200 !important;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: all 0.3s ease;
         }
 
         .card:hover {
-            @apply bg-white/40 shadow-xl !important;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
         }
 
         .dark .card {
@@ -263,6 +268,15 @@
             .section-content {
                 @apply ml-4;
             }
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 
@@ -1433,7 +1447,7 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap gap-4 mt-6">
-                    <button @click="generatePDF" class="btn btn-success flex items-center">
+                    <button @click="generatePDF" class="btn btn-success flex items-center text-bg-white">
                         <i class="fas fa-file-pdf mr-2"></i> Loo PDF
                     </button>
                     <button @click="saveToStorage" class="btn btn-primary flex items-center">
