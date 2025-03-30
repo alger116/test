@@ -29,6 +29,11 @@
                         <i class="fas fa-home w-5 text-gray-400 group-hover:text-blue-400"></i>
                         <span class="ml-3">Avaleht</span>
                     </a>
+                    <a href="#" id="dashboardButton"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
+                        <i class="fas fa-chart-line w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <span class="ml-3">Dashboard</span>
+                    </a>
                     <button id="settingsButton"
                         class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
                         <i class="fas fa-cog w-5 text-gray-400 group-hover:text-blue-400"></i>
@@ -105,6 +110,101 @@
 
             <!-- Main Content Area -->
             <main class="p-6">
+                <!-- Dashboard Section -->
+                <div id="dashboardSection" class="mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <!-- Total Users Card -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                    <i class="fas fa-users text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-sm font-medium text-gray-500">Kokku kasutajaid</h3>
+                                    <p class="text-2xl font-semibold text-gray-900" id="totalUsers">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Users Card -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                    <i class="fas fa-user-check text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-sm font-medium text-gray-500">Aktiivsed kasutajad</h3>
+                                    <p class="text-2xl font-semibold text-gray-900" id="activeUsers">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Documents Card -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                    <i class="fas fa-file-alt text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-sm font-medium text-gray-500">Kokku dokumente</h3>
+                                    <p class="text-2xl font-semibold text-gray-900" id="totalDocuments">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity Card -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                                    <i class="fas fa-clock text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-sm font-medium text-gray-500">Viimane tegevus</h3>
+                                    <p class="text-2xl font-semibold text-gray-900" id="lastActivity">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Chart -->
+                    <div class="bg-white rounded-lg shadow p-6 mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Tegevuste statistika</h2>
+                        <div class="h-64" id="activityChart">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Recent Documents Table -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="px-6 py-4 border-b">
+                            <h2 class="text-lg font-semibold text-gray-900">Viimased dokumendid</h2>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Dokument</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Kasutaja</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Kuupäev</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tüüp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentDocumentsTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Recent documents will be dynamically added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- User Management Table -->
                 <div class="bg-white rounded-lg shadow">
                     <div class="px-6 py-4 border-b">

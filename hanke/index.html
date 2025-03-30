@@ -35,30 +35,35 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    const userDocRef = doc(db, "users", user.uid);
+                    const userDoc = await getDoc(userDocRef);
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
-                        console.log("📜 Firestore roll:", userData.role);
                         window.userRole = userData.role;
 
-                        // Show/hide admin button based on role
-                        const adminTab = document.getElementById('adminTab');
-                        if (adminTab) {
-                            adminTab.classList.toggle('hidden', userData.role !== 'admin');
+                        // Update localStorage with current role
+                        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                        currentUser.role = userData.role;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                        // Show or hide the settings button based on the role
+                        const settingsButton = document.getElementById('settingsButton');
+                        if (settingsButton) {
+                            if (userData.role === 'admin' || userData.role === 'mainAdmin') {
+                                settingsButton.classList.remove('hidden') // Show button
+                            } else {
+                                settingsButton.classList.add('hidden') // Hide button
+                            }
                         }
                     } else {
-                        console.log("No user document found");
+                        console.error("No user document found in Firestore for UID:", user.uid);
                     }
                 } catch (error) {
                     console.error("Error fetching user role:", error);
                 }
             } else {
-                // Reset role when user logs out
                 window.userRole = null;
-                const adminTab = document.getElementById('adminTab');
-                if (adminTab) {
-                    adminTab.classList.add('hidden');
-                }
+                localStorage.removeItem('currentUser');
             }
         });
 
@@ -193,13 +198,13 @@
 
                 <!-- Hanked Button -->
                 <button id="showSavedSearches"
-                    class="px-3 py-1.5 text-lg font-bold text-black rounded-lg hover:text-black transition transform hover:scale-110 protected-section hidden items-center">
+                    class="px-3 py-1.5 text-lg font-bold text-black rounded-lg hover:bg-blue-200 hover:text-black transition transform hover:scale-105 protected-section hidden items-center">
                     <i class="fas fa-folder-open mr-2"></i> Hanked
                 </button>
 
                 <!-- Timeline Toggle Button -->
                 <button id="toggleTimelineButton"
-                    class=" text-black text-lg font-bold px-3 py-1.5 rounded-lg flex items-center justify-center  transition-all duration-300 transform hover:scale-105">
+                    class=" text-black text-lg font-bold px-3 py-1.5 rounded-lg hover:bg-blue-200 hover:text-black transition transform hover:scale-105 sflex items-center justify-center">
                     <i class="fas fa-calendar-alt mr-1.5"></i> Ajakava
                 </button>
 
@@ -286,7 +291,7 @@
                             <i class="fas fa-user-plus mr-2"></i> Registreeri
                         </a>
                         <button id="logoutButton"
-                            class="block w-full text-left px-4 py-2 text-sm rounded-lg text-red-500 hover:bg-red-400 transition-colors duration-300 transform hover:scale-105 protected-section">
+                            class="w-full text-left px-4 py-2 text-sm rounded-lg text-red-500 hover:bg-red-400 transition-colors duration-300 transform hover:scale-105 protected-section hidden">
                             <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
                         </button>
                         <button id="settingsButton"
@@ -365,14 +370,7 @@
                 document.getElementById("rememberMe").checked = true;
             }
 
-            // Settings button click handler
-            const settingsButton = document.getElementById("settingsButton");
-            if (settingsButton) {
-                settingsButton.addEventListener("click", function () {
-                    // Open admin.html in a new tab
-                    window.open("admin.html", "_blank");
-                });
-            }
+
         });
     </script>
 
@@ -750,7 +748,7 @@
 
 
         <!-- Settings Container -->
-        <div class="flex-wrap md:flex-nowrap gap-6 bg-white p-6 rounded-lg shadow-lg max-w-4xl hidden adminOnly"
+        <div class="flex-wrap md:flex-nowrap gap-6 bg-white p-6 rounded-lg shadow-lg max-w-2xl hidden adminOnly"
             id="settingsContainer" aria-hidden="true">
 
             <!-- Form Section -->
@@ -1066,7 +1064,7 @@
             });
 
             document.getElementById("adminTab").addEventListener("click", () => {
-                window.location.href = "/admin.html"; // Redirect to the admin page
+                window.location.href = "./auth/admin.html"; // Redirect to the admin page
             });
 
             document.getElementById('settingsForm').addEventListener('submit', function (event) {
