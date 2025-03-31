@@ -35,13 +35,13 @@
 
     <style>
         :root {
-            --primary-color: #4F46E5;
-            --primary-hover: #4338CA;
+            --primary-color: #6366F1;
+            --primary-hover: #4F46E5;
             --success-color: #10B981;
             --error-color: #EF4444;
             --info-color: #3B82F6;
-            --card-bg: rgba(255, 255, 255, 0.3);
-            --text-color: #000000;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-color: #1F2937;
             --background-color: transparent;
         }
 
@@ -57,13 +57,8 @@
             line-height: 1.6 !important;
         }
 
-        .dark body {
-            background-color: #1f2937;
-            color: #f9fafb;
-        }
-
         .btn {
-            @apply rounded-lg font-semibold transition-all duration-200 transform px-5 py-2.5 focus:outline-none focus:ring-2 focus:ring-opacity-50 backdrop-blur-sm shadow-lg hover:scale-105;
+            @apply rounded-xl font-semibold transition-all duration-300 transform px-5 py-2.5 focus:outline-none focus:ring-2 focus:ring-opacity-50 backdrop-blur-sm shadow-lg hover:scale-105;
         }
 
         .btn-primary {
@@ -71,7 +66,7 @@
         }
 
         .btn-success {
-            @apply bg-green-600/90 hover:bg-green-700/90 text-white focus:ring-green-500;
+            @apply bg-emerald-600/90 hover:bg-emerald-700/90 text-white focus:ring-emerald-500;
         }
 
         .btn-danger {
@@ -79,35 +74,34 @@
         }
 
         .card {
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            padding: 18px;
             transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(12px);
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .dark .card {
-            @apply bg-gray-800/80 border-gray-700/80;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         .toast-success {
             background-color: var(--success-color);
-            @apply shadow-lg rounded-lg;
+            @apply shadow-lg rounded-xl shadow-green-500/20;
         }
 
         .toast-error {
             background-color: var(--error-color);
-            @apply shadow-lg rounded-lg;
+            @apply shadow-lg rounded-xl shadow-red-500/20;
         }
 
         .toast-info {
             background-color: var(--info-color);
-            @apply shadow-lg rounded-lg;
+            @apply shadow-lg rounded-xl shadow-blue-500/20;
         }
 
         .drag-active {
@@ -117,27 +111,19 @@
 
         input[type="text"],
         textarea {
-            @apply bg-white/80 backdrop-blur-sm rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-all duration-200 text-black !important;
+            @apply bg-white/80 backdrop-blur-sm rounded-xl border-gray-200 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-all duration-200 text-black shadow-md !important;
         }
 
         input[type="checkbox"] {
-            @apply w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 transition-all duration-200 cursor-pointer;
+            @apply w-5 h-5 rounded-md text-indigo-600 focus:ring-indigo-500 transition-all duration-200 cursor-pointer;
         }
 
         .section-header {
-            @apply flex items-center p-3 font-semibold cursor-pointer bg-white/40 hover:bg-white/50 backdrop-blur-sm rounded-lg transition-all duration-200 !important;
-        }
-
-        .section-header * {
-            @apply text-black !important;
+            @apply flex items-center p-4 font-semibold cursor-pointer bg-white/60 hover:bg-white/70 backdrop-blur-sm rounded-xl transition-all duration-200 !important;
         }
 
         .section-content {
-            @apply ml-8 mt-3 space-y-3 p-3 !important;
-        }
-
-        .section-content * {
-            @apply text-black !important;
+            @apply ml-8 mt-4 space-y-4 p-4 bg-white/30 backdrop-blur-sm rounded-xl !important;
         }
 
         [x-cloak] {
@@ -163,7 +149,7 @@
         }
 
         #pdfPreview {
-            @apply bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 !important;
+            @apply bg-white/50 backdrop-blur-lg rounded-2xl shadow-xl !important;
         }
 
         #pdfPreview * {
@@ -171,7 +157,7 @@
         }
 
         #pdfPreview .bg-indigo-600 {
-            @apply bg-indigo-700/90 backdrop-blur-lg text-white p-5 rounded-t-xl shadow-md !important;
+            @apply bg-gradient-to-r from-indigo-600 to-indigo-800 backdrop-blur-lg text-white p-6 rounded-t-2xl shadow-md !important;
         }
 
         #pdfPreview h1,
@@ -180,87 +166,39 @@
             @apply text-white !important;
         }
 
-        #pdfPreview .section-content {
-            @apply text-black font-medium !important;
-        }
-
         .highlight-points li {
-            @apply text-black font-semibold mb-2 leading-relaxed !important;
+            @apply text-black font-semibold mb-3 leading-relaxed !important;
         }
 
         label {
-            @apply text-black font-semibold mb-1 block !important;
-        }
-
-        .text-gray-700,
-        .text-gray-600,
-        .text-gray-500,
-        .text-gray-400,
-        .text-gray-800,
-        .text-gray-900,
-        span[class*="text-gray-"],
-        div[class*="text-gray-"],
-        p[class*="text-gray-"] {
-            @apply text-black font-medium !important;
-        }
-
-        .text-gray-600 {
-            @apply text-black font-medium;
-        }
-
-        .text-gray-500 {
-            @apply text-black font-medium;
-        }
-
-        .text-gray-400 {
-            @apply text-black font-medium;
-        }
-
-        .text-gray-800 {
-            @apply text-black font-medium;
-        }
-
-        .text-gray-900 {
-            @apply text-black font-medium;
-        }
-
-        .border-gray-200 {
-            @apply border-white/20;
-        }
-
-        .bg-gray-50 {
-            @apply bg-white/30 backdrop-blur-sm;
-        }
-
-        .hover\:bg-gray-50:hover {
-            @apply hover:bg-white/40;
-        }
-
-        h2.text-lg {
-            @apply text-xl font-bold text-indigo-800 mb-4 !important;
+            @apply text-black font-semibold mb-2 block !important;
         }
 
         nav {
-            @apply bg-white/40 backdrop-blur-lg shadow-lg sticky top-0 z-50 !important;
+            @apply bg-white/40 backdrop-blur-xl shadow-lg sticky top-0 z-50 border-b border-white/20 !important;
         }
 
         .nav-link {
             @apply text-black font-medium hover:text-indigo-600 transition-colors duration-200 text-base !important;
         }
 
+        .file-item {
+            @apply flex items-center justify-between bg-white/50 p-2 rounded-lg transition-all duration-200 hover:bg-white/70 backdrop-blur-sm border border-white/20;
+        }
+
+        .glassmorphism {
+            @apply bg-white/70 backdrop-blur-xl border border-white/20 rounded-xl shadow-lg;
+        }
+
+        .hover-scale {
+            @apply transition-transform duration-300 hover:scale-105;
+        }
+
+        .active-section {
+            @apply ring-2 ring-indigo-500 ring-opacity-50;
+        }
+
         @media (max-width: 768px) {
-            .container {
-                @apply px-4;
-            }
-
-            .flex-col md:flex-row {
-                @apply gap-8;
-            }
-
-            #pdfPreview {
-                @apply mt-8 min-h-[50vh];
-            }
-
             .card {
                 @apply p-4;
             }
@@ -269,21 +207,15 @@
                 @apply ml-4;
             }
         }
-
-        .btn {
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
     </style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+        // Make Firestore functions available globally
+        window.firestoreFunctions = { doc, getDoc, setDoc };
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -457,7 +389,7 @@
                                     { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
                                     { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
                                     { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false },
-                                    { text: 'Arve maksetähtaeg peab olemad vähemalt 21 päeva.', checked: true }
+                                    { text: 'Arve maksetähtaeg peab olema vähemalt 21 päeva.', checked: true }
                                 ]
                             },
                             {
@@ -547,7 +479,13 @@
                         requirements: '',
                         criteria: '',
                         responsible: '',
-                        autofillEnabled: false
+                        autofillEnabled: false,
+                        // Design settings
+                        theme: 'indigo', // Default theme color
+                        font: 'Inter', // Default font
+                        buttonStyle: 'rounded', // Default button style
+                        // History settings
+                        generatedPdfs: []
                     },
 
                     async login() {
@@ -596,7 +534,50 @@
                         return errorMessages[errorCode] || 'Sisselogimisel tekkis viga';
                     },
 
+                    checkLocalStorage() {
+                        try {
+                            // Test if localStorage is available
+                            if (typeof localStorage === 'undefined') {
+                                this.showToast('localStorage ei ole saadaval', 'error');
+                                return false;
+                            }
+
+                            // Test writing and reading
+                            localStorage.setItem('test', 'test');
+                            if (localStorage.getItem('test') !== 'test') {
+                                this.showToast('localStorage ei tööta korralikult', 'error');
+                                return false;
+                            }
+                            localStorage.removeItem('test');
+
+                            // Check available space (estimate)
+                            let totalSize = 0;
+                            for (let key in localStorage) {
+                                if (localStorage.hasOwnProperty(key)) {
+                                    totalSize += (localStorage[key].length || 0) * 2; // UTF-16 characters = 2 bytes
+                                }
+                            }
+
+                            const availableSpace = 5 * 1024 * 1024 - totalSize; // 5MB is a common limit
+                            if (availableSpace < 500000) { // If less than 500KB available
+                                this.showToast('Hoiatus: localStorage on peaaegu täis', 'info');
+                            }
+
+                            return true;
+                        } catch (error) {
+                            console.error('localStorage check failed:', error);
+                            this.showToast('Viga localStorage kontrollimisel: ' + error.message, 'error');
+                            return false;
+                        }
+                    },
+
                     init() {
+                        // Remove this line that clears localStorage
+                        // localStorage.removeItem('OM_DRAFT');
+
+                        // Check localStorage availability
+                        this.checkLocalStorage();
+
                         // Check for remembered user
                         const rememberedUser = localStorage.getItem('rememberedUser');
                         if (rememberedUser) {
@@ -625,17 +606,18 @@
                                             return child.__x.$data.section;
                                         });
                                         this.form.sections = newOrder;
+                                        // Save changes after reordering
+                                        this.saveToStorage();
                                     }
                                 });
                             }
                         });
 
-                        // Automaatne salvestamine
-                        Alpine.effect(() => {
-                            Alpine.raw(this.form);
-                            Alpine.raw(this.files);
-                            this.debouncedSave();
-                        });
+                        // Load data from storage initially
+                        this.loadFromStorage();
+
+                        // Set up manual watcher for form changes instead of using Alpine.effect
+                        this.setupFormWatcher();
 
                         // Veateadete automaatne peitmine
                         setInterval(() => {
@@ -645,6 +627,24 @@
                         }, 5000);
 
                         this.loadUserSettings();
+                    },
+
+                    setupFormWatcher() {
+                        // Watch for changes to form inputs
+                        document.addEventListener('input', (e) => {
+                            if (e.target.hasAttribute('x-model') ||
+                                e.target.closest('[x-model]') ||
+                                e.target.closest('[x-data]')) {
+                                this.debouncedSave();
+                            }
+                        });
+
+                        // Also watch for checkbox changes
+                        document.addEventListener('change', (e) => {
+                            if (e.target.type === 'checkbox') {
+                                this.debouncedSave();
+                            }
+                        });
                     },
 
                     get visibleSections() {
@@ -836,42 +836,85 @@
 
                     saveToStorage() {
                         try {
+                            // Create a deep clone of the form data to avoid reference issues
+                            const formToSave = JSON.parse(JSON.stringify(this.form));
+
                             const payload = {
-                                form: this.form,
+                                form: formToSave,
                                 timestamp: Date.now(),
                                 version: '1.4',
-                                lastModified: new Date().toISOString()
+                                lastModified: new Date().toISOString(),
+                                files: this.files.length > 0 ? this.files : []
                             };
+
+                            // Save to localStorage
                             localStorage.setItem('OM_DRAFT', JSON.stringify(payload));
+                            console.log('Form data saved successfully:', formToSave);
                             this.showToast('Salvestatud!', 'success');
+                            return true;
                         } catch (error) {
                             console.error('Failed to save to storage:', error);
-                            this.showToast('Salvestamine ebaõnnestus', 'error');
+                            this.showToast('Salvestamine ebaõnnestus: ' + error.message, 'error');
+                            return false;
                         }
                     },
 
                     loadFromStorage() {
                         try {
                             const raw = localStorage.getItem('OM_DRAFT');
-                            if (raw) {
-                                const data = JSON.parse(raw);
-                                if (data.version === '1.4') {
-                                    this.form = {
-                                        ...data.form,
-                                        fields: {
-                                            ...defaultFields,
-                                            ...data.form.fields
-                                        }
-                                    };
-                                    this.showToast('Laaditud salvestatud andmed', 'success');
-                                } else {
-                                    localStorage.removeItem('OM_DRAFT');
-                                    this.showToast('Vana versiooni andmed, algandmed laetud', 'info');
+                            if (!raw) {
+                                console.log('No saved data found in localStorage');
+                                return false;
+                            }
+
+                            const data = JSON.parse(raw);
+                            if (data.version === '1.4' && data.form) {
+                                console.log('Loading saved form data:', data.form);
+
+                                // Create a fresh default form
+                                const freshDefaultFields = {};
+                                this.standardFields.forEach(field => {
+                                    freshDefaultFields[field.key] = '';
+                                });
+
+                                // Apply saved data to the form
+                                this.form = {
+                                    name: data.form.name || '',
+                                    intro: data.form.intro || 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+                                    fields: {
+                                        ...freshDefaultFields,
+                                        ...(data.form.fields || {})
+                                    },
+                                    sections: data.form.sections || this.form.sections
+                                };
+
+                                // Load files if present
+                                if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+                                    this.files = data.files;
                                 }
+
+                                this.showToast('Laaditud salvestatud andmed', 'success');
+                                return true;
+                            } else {
+                                console.warn('Incompatible data version or missing form data');
+                                localStorage.removeItem('OM_DRAFT');
+                                this.showToast('Vana versiooni andmed, algandmed laetud', 'info');
+                                return false;
                             }
                         } catch (error) {
-                            console.error('Failed to load from storage:', error);
+                            console.error('Failed to load from storage:', error, error.stack);
                             localStorage.removeItem('OM_DRAFT');
+                            this.showToast('Viga andmete laadimisel: ' + error.message, 'error');
+                            return false;
+                        }
+                    },
+
+                    manualSave() {
+                        // This is called directly from the save button click
+                        clearTimeout(this.saveTimeout); // Clear any pending save
+                        const success = this.saveToStorage();
+                        if (success) {
+                            this.showToast('Andmed edukalt salvestatud!', 'success');
                         }
                     },
 
@@ -1161,15 +1204,21 @@
 
                     async saveUserSettings() {
                         try {
-                            if (!window.auth?.currentUser) {
-                                this.showToast('Palun logi sisse', 'error');
-                                return;
-                            }
+                            // Apply theme changes immediately
+                            this.applyTheme();
 
-                            const userRef = doc(window.db, "users", window.auth.currentUser.uid);
-                            await setDoc(userRef, {
-                                settings: this.userSettings
-                            }, { merge: true });
+                            // Try to save to Firestore if logged in
+                            if (window.auth?.currentUser) {
+                                const { doc, setDoc } = window.firestoreFunctions;
+                                const userRef = doc(window.db, "users", window.auth.currentUser.uid);
+                                await setDoc(userRef, {
+                                    settings: this.userSettings
+                                }, { merge: true });
+                            } else {
+                                // Fallback: Save to localStorage if not logged in
+                                localStorage.setItem('userSettings', JSON.stringify(this.userSettings));
+                                console.log('Settings saved to localStorage since user is not logged in');
+                            }
 
                             // If autofill is enabled, update the form fields
                             if (this.userSettings.autofillEnabled) {
@@ -1192,39 +1241,102 @@
                         }
                     },
 
+                    applyTheme() {
+                        // Apply current theme settings to the UI
+                        const html = document.documentElement;
+
+                        // Apply font setting
+                        if (this.userSettings.font) {
+                            html.style.fontFamily = this.userSettings.font;
+                        }
+
+                        // Apply button style
+                        // This would normally be implemented with CSS classes or custom properties
+
+                        // You could also change gradient colors based on theme
+                        const gradientElements = document.querySelectorAll('.bg-gradient-to-r');
+                        const theme = this.userSettings.theme;
+
+                        gradientElements.forEach(el => {
+                            el.classList.remove(
+                                'from-indigo-600', 'to-indigo-700',
+                                'from-blue-600', 'to-blue-700',
+                                'from-emerald-600', 'to-emerald-700',
+                                'from-purple-600', 'to-purple-700'
+                            );
+
+                            switch (theme) {
+                                case 'indigo':
+                                    el.classList.add('from-indigo-600', 'to-indigo-700');
+                                    break;
+                                case 'blue':
+                                    el.classList.add('from-blue-600', 'to-blue-700');
+                                    break;
+                                case 'emerald':
+                                    el.classList.add('from-emerald-600', 'to-emerald-700');
+                                    break;
+                                case 'purple':
+                                    el.classList.add('from-purple-600', 'to-purple-700');
+                                    break;
+                                default:
+                                    el.classList.add('from-indigo-600', 'to-indigo-700');
+                            }
+                        });
+                    },
+
                     async loadUserSettings() {
-                        if (!window.auth?.currentUser) return;
-
                         try {
-                            const userRef = doc(window.db, "users", window.auth.currentUser.uid);
-                            const userDoc = await getDoc(userRef);
+                            // Try to load from Firestore if logged in
+                            if (window.auth?.currentUser) {
+                                const { doc, getDoc } = window.firestoreFunctions;
+                                const userRef = doc(window.db, "users", window.auth.currentUser.uid);
+                                const userDoc = await getDoc(userRef);
 
-                            if (userDoc.exists()) {
-                                const data = userDoc.data();
-                                if (data.settings) {
-                                    // Only update fields that exist in the saved settings
-                                    Object.keys(data.settings).forEach(key => {
-                                        if (this.userSettings.hasOwnProperty(key)) {
-                                            this.userSettings[key] = data.settings[key];
-                                        }
-                                    });
-
-                                    // If autofill is enabled, populate only the fields that have values
-                                    if (this.userSettings.autofillEnabled) {
-                                        const updatedFields = { ...this.form.fields };
-
-                                        // Only update fields that have values in settings
-                                        if (this.userSettings.buyer) updatedFields.buyer = this.userSettings.buyer;
-                                        if (this.userSettings.submission) updatedFields.submission = this.userSettings.submission;
-                                        if (this.userSettings.validity) updatedFields.validity = this.userSettings.validity;
-                                        if (this.userSettings.requirements) updatedFields.requirements = this.userSettings.requirements;
-                                        if (this.userSettings.criteria) updatedFields.criteria = this.userSettings.criteria;
-                                        if (this.userSettings.responsible) updatedFields.responsible = this.userSettings.responsible;
-
-                                        this.form.fields = updatedFields;
+                                if (userDoc.exists()) {
+                                    const data = userDoc.data();
+                                    if (data.settings) {
+                                        // Only update fields that exist in the saved settings
+                                        Object.keys(data.settings).forEach(key => {
+                                            if (this.userSettings.hasOwnProperty(key)) {
+                                                this.userSettings[key] = data.settings[key];
+                                            }
+                                        });
                                     }
                                 }
+                            } else {
+                                // Fallback: Try to load from localStorage if not logged in
+                                const savedSettings = localStorage.getItem('userSettings');
+                                if (savedSettings) {
+                                    const settings = JSON.parse(savedSettings);
+                                    // Only update fields that exist in the saved settings
+                                    Object.keys(settings).forEach(key => {
+                                        if (this.userSettings.hasOwnProperty(key)) {
+                                            this.userSettings[key] = settings[key];
+                                        }
+                                    });
+                                    console.log('Settings loaded from localStorage since user is not logged in');
+                                }
                             }
+
+                            // If autofill is enabled, populate only the fields that have values
+                            if (this.userSettings.autofillEnabled) {
+                                const updatedFields = { ...this.form.fields };
+
+                                // Only update fields that have values in settings
+                                if (this.userSettings.buyer) updatedFields.buyer = this.userSettings.buyer;
+                                if (this.userSettings.submission) updatedFields.submission = this.userSettings.submission;
+                                if (this.userSettings.validity) updatedFields.validity = this.userSettings.validity;
+                                if (this.userSettings.requirements) updatedFields.requirements = this.userSettings.requirements;
+                                if (this.userSettings.criteria) updatedFields.criteria = this.userSettings.criteria;
+                                if (this.userSettings.responsible) updatedFields.responsible = this.userSettings.responsible;
+
+                                this.form.fields = updatedFields;
+                            }
+
+                            // Apply theme settings after loading
+                            this.$nextTick(() => {
+                                this.applyTheme();
+                            });
                         } catch (error) {
                             console.error('Settings load error:', error);
                             this.showToast('Viga seadete laadimisel: ' + error.message, 'error');
@@ -1250,84 +1362,125 @@
 
 <body class="backdrop-blur-2xl min-h-screen flex flex-col" x-data="formApp" x-cloak :class="{'dark': isDarkMode}">
     <!-- Login Modal -->
-    <div x-show="showLoginModal" x-cloak class="fixed top-4 right-4 backdrop-blur-md bg-black/30 z-50">
-        <div class="card w-96 bg-white shadow-xl p-8 rounded-xl border border-gray-200 relative">
+    <div x-show="showLoginModal" x-cloak x-transition:enter="transition duration-300 ease-out"
+        x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100"
+        x-transition:leave="transition duration-200 ease-in" x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95"
+        class="fixed inset-0 z-50 overflow-y-auto bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
+        <div
+            class="glassmorphism w-full max-w-md transform transition-all rounded-2xl shadow-2xl p-6 border border-white/30">
             <!-- Close Button -->
-            <button @click="showLoginModal = false" class="absolute top-2 right-2 text-gray-500 hover:text-red-500">
-                ✖
-            </button>
-
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">Logi sisse</h2>
+            <div class="flex justify-between items-center mb-6">
+                <h2
+                    class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-700">
+                    Logi sisse</h2>
+                <button @click="showLoginModal = false"
+                    class="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
 
             <!-- Email Input -->
-            <div class="form-control w-full mb-3">
-                <label class="label text-gray-700 font-medium">E-post</label>
-                <input type="email" id="emailLogin" placeholder="Sisesta oma e-post"
-                    class="input input-bordered w-full text-gray-900 shadow-md rounded-lg p-3 focus:ring-2 focus:ring-blue-400 transition-all duration-300" />
-            </div>
+            <div class="space-y-5">
+                <div class="relative">
+                    <label class="text-gray-700 font-medium text-sm mb-1 block">E-post</label>
+                    <div class="relative flex items-center">
+                        <div class="absolute left-3 text-gray-400">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <input type="email" id="emailLogin" placeholder="Sisesta oma e-post"
+                            class="input w-full pl-10 pr-4 py-3 border border-gray-200 text-gray-900 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all duration-300" />
+                    </div>
+                </div>
 
-            <!-- Password Input -->
-            <div class="form-control w-full mb-3">
-                <label class="label text-gray-700 font-medium">Parool</label>
-                <input type="password" id="passwordLogin" placeholder="Sisesta oma parool"
-                    class="input input-bordered w-full text-gray-900 shadow-md rounded-lg p-3 focus:ring-2 focus:ring-blue-400 transition-all duration-300" />
-            </div>
-            <div class="form-control w-full mb-3 flex items-center">
-                <input type="checkbox" id="rememberMe" class="mr-2">
-                <label for="rememberMe" class="text-gray-700 font-medium">Pea meeles mind</label>
+                <!-- Password Input -->
+                <div class="relative">
+                    <label class="text-gray-700 font-medium text-sm mb-1 block">Parool</label>
+                    <div class="relative flex items-center">
+                        <div class="absolute left-3 text-gray-400">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <input type="password" id="passwordLogin" placeholder="Sisesta oma parool"
+                            class="input w-full pl-10 pr-4 py-3 border border-gray-200 text-gray-900 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all duration-300" />
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mt-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="rememberMe" class="mr-2 rounded-md">
+                        <label for="rememberMe" class="text-gray-700 text-sm">Pea meeles mind</label>
+                    </div>
+                    <a href="#" class="text-sm text-indigo-600 hover:text-indigo-800">Unustasid parooli?</a>
+                </div>
             </div>
 
             <!-- Login Button -->
             <button @click="login(); showLoginModal = false"
-                class="btn btn-primary w-full mt-4 flex items-center justify-center transition-transform hover:scale-105 shadow-lg text-lg py-3 rounded-lg font-semibold bg-blue-500 hover:bg-blue-600 text-white">
+                class="w-full mt-6 py-3 px-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1">
                 <i class="fas fa-sign-in-alt mr-2"></i> Logi sisse
             </button>
+
+            <div class="mt-5 text-center text-sm text-gray-600">
+                Puudub konto? <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">Registreeru</a>
+            </div>
         </div>
     </div>
 
     <!-- Navbar -->
-    <nav class="bg-white/20 backdrop-blur-md shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
-                        <a href="om.html" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+    <nav class="glassmorphism sticky top-0 z-50 py-3">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-6">
+                    <a href="om.html" class="text-xl font-bold bg-clip-text text-transparent bg-black">
 
-                        </a>
-                    </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="om.html" class="nav-link active inline-flex items-center px-1 pt-1">
+                    </a>
+                    <div class="hidden md:flex md:space-x-6">
+                        <a href="om.html"
+                            class="nav-link flex items-center px-3 py-2 rounded-lg bg-indigo-100/50 text-black">
                             <i class="fas fa-file-alt mr-2"></i> Kutse koostamine
                         </a>
-                        <a href="../index.html" class="nav-link active inline-flex items-center px-1 pt-1">
+                        <a href="../index.html"
+                            class="nav-link flex items-center px-3 py-2 rounded-lg hover:bg-white/30">
                             <i class="fas fa-home mr-2"></i> Avalehele
                         </a>
-                        <a href="users.html" class="hidden nav-link items-center px-1 pt-1" x-show="isAdmin">
+                        <a href="users.html"
+                            class="hidden nav-link flex items-center px-3 py-2 rounded-lg hover:bg-white/30"
+                            x-show="isAdmin">
                             <i class="fas fa-users mr-2"></i> Kasutajad
                         </a>
                     </div>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center space-x-4">
                     <button @click="isDarkMode = !isDarkMode"
-                        class="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        class="p-2 rounded-full text-gray-700 bg-white/30 hover:bg-white/50 transition-all">
                         <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
                     </button>
-                    <div class="ml-4 relative">
+
+                    <!-- Settings Button -->
+                    <button @click="showSettingsModal = true"
+                        class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+                        <i class="fas fa-cog"></i>
+                        <span class="hidden md:inline">Seaded</span>
+                    </button>
+
+                    <div class="relative">
                         <button @click="currentUser ? toggleUserMenu() : showLoginModal = true"
-                            class="flex items-center text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
-                            <span class="mr-2" x-text="currentUser ? currentUser.email : 'Logi sisse'"></span>
-                            <i class="fas fa-chevron-down"></i>
+                            class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+                            <i class="fas fa-user-circle"></i>
+                            <span x-text="currentUser ? currentUser.email?.split('@')[0] : 'Logi sisse'"
+                                class="hidden md:inline"></span>
+                            <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                         <div x-show="showUserMenu && currentUser" @click.away="showUserMenu = false"
-                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                            class="absolute right-0 mt-2 w-48 rounded-xl shadow-xl glassmorphism ring-1 ring-black ring-opacity-5 z-50 border border-white/20">
                             <div class="py-1">
                                 <a href="#" @click.prevent="logout()"
-                                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    <i class="fas fa-sign-out-alt mr-2"></i> Logi välja
-                                </a>
-                                <a href="#" @click.prevent="showSettingsModal = true"
-                                    class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    <i class="fas fa-cog mr-2"></i> Seaded
+                                    class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700">
+                                    <i class="fas fa-sign-out-alt mr-3 text-red-500"></i> Logi välja
                                 </a>
                             </div>
                         </div>
@@ -1337,186 +1490,323 @@
         </div>
     </nav>
 
+    <!-- Mobile Menu (can be expanded as needed) -->
+    <!-- End Navbar -->
+
     <!-- Main Content -->
-    <div class="container mx-auto max-w-7xl p-4">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-center text-indigo-700">Ostumenetluse kutse koostamine</h1>
+    <div class="container mx-auto max-w-7xl p-6">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-black">
+                Ostumenetluse kutse koostamine</h1>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-6 min-h-screen">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             <!-- Left: Data Input -->
-            <div class="w-full md:w-1/2 space-y-5">
-                <div class="card p-5">
-                    <label class="block text-sm font-semibold mb-2 text-black">Ostumenetluse nimi</label>
-                    <input type="text" x-model="form.name" class="w-full border rounded-lg px-3 py-2"
-                        placeholder="Näiteks: Haljasala rajamine" />
-                </div>
-
-                <div class="card p-5">
-                    <label class="block text-sm font-semibold mb-2 text-black">Ostumenetluse kutse
-                        lühikirjeldus</label>
-                    <textarea x-model="form.intro" class="w-full border rounded-lg px-3 py-2 h-24"></textarea>
-                </div>
-
-                <div class="card p-5">
-                    <h2 class="text-lg font-semibold mb-3 text-black">Põhiandmed</h2>
-                    <div class="grid grid-cols-1 gap-4">
-                        <template x-for="field in standardFields" :key="field.key">
-                            <div>
-                                <label class="block text-sm font-semibold mb-1 text-black" x-text="field.label"></label>
-                                <input type="text" x-model="form.fields[field.key]"
-                                    class="w-full border bg-white/30 backdrop-blur-sm rounded-lg px-3 py-2 mt-1 text-black"
-                                    :placeholder="field.placeholder" />
+            <div class="space-y-6">
+                <!-- Form Header Card -->
+                <div class="card transition-all" x-data="{ isOpen: true }">
+                    <div class="flex items-center justify-between mb-4 cursor-pointer" @click="isOpen = !isOpen">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-file-contract text-indigo-600"></i>
                             </div>
-                        </template>
+                            <h2 class="text-xl font-bold text-gray-800">Põhiandmed</h2>
+                        </div>
+                        <button class="p-2 rounded-full hover:bg-indigo-100 transition-all">
+                            <i class="fas transition-transform duration-300"
+                                :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </button>
+                    </div>
+
+                    <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 transform translate-y-0"
+                        x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <!-- Ostumenetluse nimi -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-2 text-gray-700">Ostumenetluse nimi</label>
+                            <input type="text" x-model="form.name" class="w-full border rounded-xl px-4 py-3 shadow-sm"
+                                placeholder="Näiteks: Haljasala rajamine" />
+                        </div>
+
+                        <!-- Ostumenetluse kirjeldus -->
+                        <div>
+                            <label class="block text-sm font-semibold mb-2 text-gray-700">Ostumenetluse kutse
+                                lühikirjeldus</label>
+                            <textarea x-model="form.intro"
+                                class="w-full border rounded-xl px-4 py-3 h-28 shadow-sm"></textarea>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Sections 1-7 -->
-                <div class="card p-5">
-                    <div class="flex items-center mb-4">
-                        <h2 class="text-lg font-semibold text-black">Vali punktid (1–7)</h2>
-                        <div class="flex gap-2">
+                <!-- Põhiandmed Card -->
+                <div class="card transition-all" x-data="{ isOpen: true }">
+                    <div class="flex items-center justify-between mb-6 cursor-pointer" @click="isOpen = !isOpen">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-sliders-h text-indigo-600"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Põhiandmed</h2>
+                        </div>
+                        <button class="p-2 rounded-full hover:bg-indigo-100 transition-all">
+                            <i class="fas transition-transform duration-300"
+                                :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </button>
+                    </div>
+
+                    <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 transform translate-y-0"
+                        x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <template x-for="field in standardFields" :key="field.key">
+                                <div class="group">
+                                    <label class="block text-sm font-semibold mb-2 text-gray-700"
+                                        x-text="field.label"></label>
+                                    <div class="relative">
+                                        <input type="text" x-model="form.fields[field.key]"
+                                            class="w-full border rounded-xl px-4 py-3 shadow-sm transition-all focus:shadow-md"
+                                            :placeholder="field.placeholder" />
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sections 1-7 Card -->
+                <div class="card transition-all" x-data="{ isOpen: true }">
+                    <div class="flex items-center justify-between mb-6 cursor-pointer" @click="isOpen = !isOpen">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-list-check text-indigo-600"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Vali punktid (1–7)</h2>
+                        </div>
+                        <button class="p-2 rounded-full hover:bg-indigo-100 transition-all">
+                            <i class="fas transition-transform duration-300"
+                                :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </button>
+                    </div>
+
+                    <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 transform translate-y-0"
+                        x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <div class="flex gap-2 mb-6">
                             <button @click="selectAllOptions"
-                                class="text-sm bg-indigo-100 hover:bg-indigo-200 text-black px-3 py-1.5 rounded-lg transition-colors">
-                                <i class="fas"
+                                class="flex items-center text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg transition-colors">
+                                <i class="fas mr-1"
                                     :class="form.sections.some(section => section.options.some(option => !option.checked)) ? 'fa-check-double' : 'fa-times'"></i>
-                                <span class="ml-1"
+                                <span
                                     x-text="form.sections.some(section => section.options.some(option => !option.checked)) ? 'Lisa kõik' : 'Eemalda kõik'"></span>
                             </button>
                             <button @click="toggleAllSections"
-                                class="text-sm bg-gray-100 hover:bg-gray-200 text-black px-3 py-1.5 rounded-lg transition-colors">
-                                <i class="fas"
+                                class="flex items-center text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
+                                <i class="fas mr-1"
                                     :class="form.sections.some(section => !section.open) ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
-                                <span class="ml-1"
+                                <span
                                     x-text="form.sections.some(section => !section.open) ? 'Ava kõik' : 'Sulge kõik'"></span>
                             </button>
                         </div>
-                    </div>
-                    <div id="draggableSections" x-ref="draggableSections" class="space-y-3">
-                        <template x-for="(section, index) in form.sections" :key="index">
-                            <div class="mb-3 border bg-white/30 backdrop-blur-sm border-gray-200 rounded-lg overflow-hidden"
-                                x-data="{ section }">
-                                <div class="section-header" @click="section.open = !section.open">
-                                    <input type="checkbox" x-model="section.enabled" class="mr-3" @click.stop>
-                                    <span class="drag-handle cursor-move mr-3 text-gray-400"><i
-                                            class="fas fa-grip-lines"></i></span>
-                                    <span x-text="section.title" class="flex-grow"></span>
-                                    <i class="fas" :class="section.open ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+
+                        <div id="draggableSections" x-ref="draggableSections" class="space-y-4">
+                            <template x-for="(section, index) in form.sections" :key="index">
+                                <div class="mb-4 border bg-white/50 backdrop-blur-sm border-gray-200 rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-md"
+                                    x-data="{ section }" :class="{ 'active-section': section.enabled }">
+                                    <div class="section-header" @click="section.open = !section.open">
+                                        <input type="checkbox" x-model="section.enabled" class="mr-3" @click.stop>
+                                        <span
+                                            class="drag-handle cursor-move mr-3 text-gray-400 hover:text-indigo-500 transition-colors">
+                                            <i class="fas fa-grip-lines"></i>
+                                        </span>
+                                        <span x-text="section.title" class="flex-grow"></span>
+                                        <i class="fas transition-transform duration-300"
+                                            :class="section.open ? 'fa-chevron-down transform rotate-180' : 'fa-chevron-right'"></i>
+                                    </div>
+                                    <div x-show="section.open" x-transition:enter="transition ease-out duration-200"
+                                        x-transition:enter-start="opacity-0 transform -translate-y-4"
+                                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                                        x-transition:leave="transition ease-in duration-150"
+                                        x-transition:leave-start="opacity-100 transform translate-y-0"
+                                        x-transition:leave-end="opacity-0 transform -translate-y-4"
+                                        class="section-content">
+                                        <template x-for="(opt, i) in section.options" :key="i">
+                                            <label
+                                                class="block p-3 hover:bg-white/50 rounded-lg transition-colors mb-2">
+                                                <div class="flex items-start">
+                                                    <input type="checkbox" x-model="opt.checked"
+                                                        class="mt-1 mr-3 rounded">
+                                                    <template x-if="opt.isEditing">
+                                                        <input type="text" x-model="opt.text"
+                                                            @blur="opt.isEditing = false"
+                                                            @keydown.enter="opt.isEditing = false"
+                                                            class="flex-grow border rounded-lg px-3 py-2 text-sm shadow-sm"
+                                                            x-ref="editInput">
+                                                    </template>
+                                                    <template x-if="!opt.isEditing">
+                                                        <span x-text="opt.text"
+                                                            class="text-sm cursor-pointer hover:text-indigo-600"
+                                                            @dblclick="opt.isEditing = true; $nextTick(() => $refs.editInput?.focus())">
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </label>
+                                        </template>
+                                    </div>
                                 </div>
-                                <div x-show="section.open" class="section-content" x-transition>
-                                    <template x-for="(opt, i) in section.options" :key="i">
-                                        <label class="block p-2 hover:bg-gray-50 rounded-md">
-                                            <div class="flex items-start">
-                                                <input type="checkbox" x-model="opt.checked" class="mt-1 mr-3">
-                                                <template x-if="opt.isEditing">
-                                                    <input type="text" x-model="opt.text" @blur="opt.isEditing = false"
-                                                        @keydown.enter="opt.isEditing = false"
-                                                        class="flex-grow border rounded-lg px-3 py-1 text-sm"
-                                                        x-ref="editInput">
-                                                </template>
-                                                <template x-if="!opt.isEditing">
-                                                    <span x-text="opt.text"
-                                                        class="text-sm cursor-pointer hover:text-indigo-600"
-                                                        @dblclick="opt.isEditing = true; $nextTick(() => $refs.editInput?.focus())">
-                                                    </span>
-                                                </template>
-                                            </div>
-                                        </label>
-                                    </template>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="flex justify-between mt-4">
-                        <button @click="addNewSection"
-                            class="text-black hover:text-indigo-800 flex items-center text-sm">
-                            <i class="fas fa-plus-circle mr-1"></i> Lisa uus punkt
-                        </button>
-                        <template x-for="(section, index) in form.sections" :key="index">
-                            <button @click="addOption(index)" x-show="section.open"
-                                class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm">
-                                <i class="fas fa-plus-circle mr-1"></i>
-                                <span x-text="index === 0 ? 'Lisa tingimus' : 
-                                            index === 6 ? 'Lisa lisa' : 
-                                            'Lisa punkt'"></span>
+                            </template>
+                        </div>
+
+                        <div class="flex justify-between mt-6">
+                            <button @click="addNewSection"
+                                class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm px-3 py-2 rounded-lg hover:bg-indigo-50 transition-colors">
+                                <i class="fas fa-plus-circle mr-1"></i> Lisa uus punkt
                             </button>
-                        </template>
+                            <template x-for="(section, index) in form.sections" :key="index">
+                                <button @click="addOption(index)" x-show="section.open"
+                                    class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm px-3 py-2 rounded-lg hover:bg-indigo-50 transition-colors">
+                                    <i class="fas fa-plus-circle mr-1"></i>
+                                    <span x-text="index === 0 ? 'Lisa tingimus' : 
+                                                index === 6 ? 'Lisa lisa' : 
+                                                'Lisa punkt'"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Upload Section -->
+                <div class="card transition-all" x-data="{ isOpen: true }">
+                    <div class="flex items-center justify-between mb-2 cursor-pointer" @click="isOpen = !isOpen">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-paperclip text-indigo-600 text-sm"></i>
+                            </div>
+                            <h2 class="text-lg font-bold text-gray-800">Manused</h2>
+                        </div>
+                        <button class="p-1 rounded-full hover:bg-indigo-100 transition-all">
+                            <i class="fas transition-transform duration-300 text-sm"
+                                :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </button>
+                    </div>
+
+                    <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 transform translate-y-0"
+                        x-transition:leave-end="opacity-0 transform -translate-y-2">
+                        <div @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop"
+                            :class="{'border-indigo-500 bg-indigo-50/50': isDragging}"
+                            class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer transition-colors hover:border-indigo-400">
+                            <input type="file" id="fileInput" class="hidden" @change="handleFileInput" multiple>
+                            <label for="fileInput" class="cursor-pointer block">
+                                <i class="fas fa-cloud-upload-alt text-xl text-indigo-500 mb-2"></i>
+                                <p class="text-gray-700 font-medium text-sm mb-1">Lohista failid siia või <span
+                                        class="text-indigo-600 underline">kliki
+                                        valimiseks</span></p>
+                                <p class="text-xs text-gray-500">Max 10MB fail</p>
+                            </label>
+                        </div>
+
+                        <div class="mt-3 space-y-2" x-show="files.length > 0">
+                            <template x-for="(file, index) in files" :key="index">
+                                <div class="file-item hover-scale py-2 px-3">
+                                    <div class="flex items-center truncate max-w-[80%]">
+                                        <div
+                                            class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
+                                            <i class="fas fa-file-alt text-indigo-500 text-xs"></i>
+                                        </div>
+                                        <div class="truncate">
+                                            <div x-text="file.name" class="truncate text-gray-800 font-medium text-sm">
+                                            </div>
+                                            <div class="text-xs text-gray-500" x-text="formatFileSize(file.size)"></div>
+                                        </div>
+                                    </div>
+                                    <button @click="removeFile(index)"
+                                        class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-wrap gap-4 mt-6">
-                    <button @click="generatePDF" class="btn btn-success flex items-center text-bg-white">
-                        <i class="fas fa-file-pdf mr-2"></i> Loo PDF
+                <div class="flex flex-wrap gap-5 mt-8">
+                    <button @click="generatePDF"
+                        class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1">
+                        <div
+                            class="absolute inset-0 w-full h-full bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        </div>
+                        <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
+                            <i class="fas fa-file-pdf text-white text-sm"></i>
+                        </div>
+                        <span class="relative">Loo PDF</span>
                     </button>
-                    <button @click="saveToStorage" class="btn btn-primary flex items-center">
-                        <i class="fas fa-save mr-2"></i> Salvesta
-                    </button>
-                    <button @click="resetForm" class="btn btn-danger flex items-center">
-                        <i class="fas fa-trash mr-2"></i> Tühjenda
-                    </button>
-                </div>
-                <!-- File Upload Section -->
-                <div class="card p-5">
-                    <label class="block text-sm font-semibold mb-3 text-gray-700">Manused</label>
-                    <div @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop"
-                        :class="{'drag-active': isDragging}"
-                        class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer transition-colors">
-                        <input type="file" id="fileInput" class="hidden" @change="handleFileInput" multiple>
-                        <label for="fileInput" class="cursor-pointer">
-                            <i class="fas fa-cloud-upload-alt text-3xl text-indigo-500 mb-2"></i>
-                            <p class="text-gray-600">Lohista failid siia või <span
-                                    class="text-indigo-600 underline">kliki
-                                    valimiseks</span></p>
-                            <p class="text-sm text-gray-500 mt-1">Max 10MB fail</p>
-                        </label>
-                    </div>
 
-                    <div class="mt-3 space-y-2" x-show="files.length > 0">
-                        <template x-for="(file, index) in files" :key="index">
-                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                                <div class="flex items-center truncate">
-                                    <i class="fas fa-file-alt text-indigo-500 mr-2"></i>
-                                    <span x-text="file.name" class="truncate text-black"></span>
-                                    <span class="text-xs text-black ml-2" x-text="formatFileSize(file.size)"></span>
-                                </div>
-                                <button @click="removeFile(index)"
-                                    class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </template>
-                    </div>
+                    <button @click="manualSave"
+                        class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-1">
+                        <div
+                            class="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        </div>
+                        <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
+                            <i class="fas fa-save text-white text-sm"></i>
+                        </div>
+                        <span class="relative">Salvesta</span>
+                    </button>
+
+                    <button @click="resetForm"
+                        class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-red-500/30 hover:-translate-y-1">
+                        <div
+                            class="absolute inset-0 w-full h-full bg-gradient-to-r from-red-600 to-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        </div>
+                        <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
+                            <i class="fas fa-trash-alt text-white text-sm"></i>
+                        </div>
+                        <span class="relative">Tühjenda</span>
+                    </button>
                 </div>
             </div>
 
             <!-- Right: PDF Preview -->
-            <div class="w-full md:w-1/2">
-                <div class="sticky top-4">
-                    <div class="flex items-center mb-3">
-                        <h2 class="text-lg font-semibold text-black">Eelvaade</h2>
-                        <span class="ml-2 px-2 py-1 bg-gray-100 text-black text-xs font-medium rounded-full"></span>
+            <div>
+                <div class="sticky top-24">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                            <i class="fas fa-eye text-indigo-600"></i>
+                        </div>
+                        <h2 class="text-lg font-bold text-gray-800">Reaalajas eelvaade</h2>
                     </div>
+
                     <div id="pdfPreview"
-                        class="card p-6 space-y-4 min-h-[70vh] max-h-[85vh] overflow-auto backdrop-blur-md">
+                        class="border-0 card space-y-6 min-h-[70vh] max-h-[80vh] overflow-auto backdrop-blur-md transition-all scroll-smooth">
                         <!-- Header -->
-                        <div class="bg-indigo-600/80 backdrop-blur-sm text-white p-4 rounded-t-lg -mx-6 -mt-6 mb-6">
+                        <div
+                            class="bg-gradient-to-r from-indigo-600 to-indigo-800 backdrop-blur-sm text-white p-5 rounded-t-2xl -mx-6 -mt-6 mb-6">
                             <h1 class="text-2xl font-bold text-center" x-text="form.name || 'Ostumenetluse kutse'"></h1>
                         </div>
 
                         <!-- Intro text -->
-                        <div class="text-black font-medium text-sm leading-relaxed" x-text="form.intro"></div>
+                        <div class="text-gray-800 font-medium text-sm leading-relaxed p-2" x-text="form.intro"></div>
 
                         <!-- Standard fields -->
-                        <div class="space-y-1">
+                        <div class="space-y-3">
                             <template x-for="field in standardFields">
                                 <div x-show="form.fields[field.key]"
-                                    class="bg-white/30 backdrop-blur-sm p-2 rounded-lg">
+                                    class="bg-white/40 backdrop-blur-sm p-3 rounded-xl shadow-sm transition-all hover:shadow-md">
                                     <div class="flex items-start">
-                                        <span class="font-semibold text-indigo-600 mr-2"
+                                        <span class="font-semibold text-indigo-700 mr-2"
                                             x-text="field.label + ':'"></span>
-                                        <span class="text-black font-medium"
+                                        <span class="text-gray-800 font-medium"
                                             x-text="form.fields[field.key] || ''"></span>
                                     </div>
                                 </div>
@@ -1525,21 +1815,26 @@
 
                         <!-- Sections -->
                         <template x-for="(section, idx) in visibleSections" :key="idx">
-                            <div class="mt-6">
+                            <div class="mt-8">
                                 <!-- Section title -->
-                                <div class="flex items-center mb-3">
-                                    <h2 class="text-lg font-bold text-indigo-600"
+                                <div class="flex items-center mb-4">
+                                    <h2 class="text-lg font-bold text-indigo-700"
                                         x-text="(idx + 1) + ' ' + section.title.split(' ').slice(1).join(' ')"></h2>
-                                    <div class="flex-grow h-0.5 bg-indigo-600 ml-3"></div>
+                                    <div
+                                        class="flex-grow h-0.5 bg-gradient-to-r from-indigo-500 to-indigo-300 ml-3 rounded-full">
+                                    </div>
                                 </div>
 
                                 <!-- Section options -->
-                                <ul class="space-y-2">
+                                <ul class="space-y-3 pl-2">
                                     <template x-for="(opt, i) in section.options.filter(o => o.checked)" :key="i">
-                                        <li class="flex items-start">
-                                            <div class="w-2 h-2 bg-indigo-600 rounded-full mt-2 mr-3"></div>
-                                            <span class="text-sm text-gray-700"
-                                                x-text="(idx + 1) + '.' + (i+1) + ' ' + opt.text"></span>
+                                        <li
+                                            class="flex items-start p-2 bg-white/30 rounded-lg shadow-sm hover:shadow-md transition-all">
+                                            <div
+                                                class="min-w-8 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-bold text-indigo-700 mr-3">
+                                                <span x-text="(idx + 1) + '.' + (i+1)"></span>
+                                            </div>
+                                            <span class="text-sm text-gray-800" x-text="opt.text"></span>
                                         </li>
                                     </template>
                                 </ul>
@@ -1547,13 +1842,13 @@
                         </template>
 
                         <!-- Footer -->
-                        <div class="mt-8 pt-4 border-t border-gray-200">
+                        <div class="mt-10 pt-5 border-t border-gray-200">
                             <div class="flex justify-between text-sm">
-                                <div class="text-indigo-600 font-semibold">
-                                    <p>Kuupäev: <span class="text-black" x-text="today"></span></p>
+                                <div class="text-indigo-700 font-semibold">
+                                    <p>Kuupäev: <span class="text-gray-800" x-text="today"></span></p>
                                 </div>
-                                <div class="text-indigo-600 font-semibold">
-                                    <p>Vastutav isik: <span class="text-black"
+                                <div class="text-indigo-700 font-semibold">
+                                    <p>Vastutav isik: <span class="text-gray-800"
                                             x-text="form.fields.responsible || ''"></span></p>
                                 </div>
                             </div>
@@ -1561,18 +1856,28 @@
 
                         <!-- Attachments -->
                         <template x-if="files.length > 0">
-                            <div class="mt-6">
-                                <h3 class="text-lg font-bold text-indigo-600 mb-3">Manused</h3>
+                            <div class="mt-8">
+                                <div class="flex items-center mb-4">
+                                    <h3 class="text-lg font-bold text-indigo-700">Manused</h3>
+                                    <div
+                                        class="flex-grow h-0.5 bg-gradient-to-r from-indigo-500 to-indigo-300 ml-3 rounded-full">
+                                    </div>
+                                </div>
+
                                 <div class="space-y-2">
                                     <template x-for="(file, index) in files" :key="index">
-                                        <div class="flex items-center bg-gray-50 p-3 rounded-lg">
-                                            <div class="w-2 h-2 bg-indigo-600 rounded-full mr-3"></div>
-                                            <span class="text-sm text-black">
+                                        <div
+                                            class="flex items-center p-3 bg-white/40 rounded-xl transition-all hover:bg-white/60">
+                                            <div
+                                                class="w-8 h-8 flex items-center justify-center bg-indigo-100 rounded-full mr-3">
+                                                <i class="fas fa-file-alt text-indigo-600"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-800">
                                                 <span x-text="index + 1 + '. '"></span>
-                                                <span x-text="file.name"></span>
-                                                <span class="text-black"
+                                                <span x-text="file.name" class="font-medium"></span>
+                                                <span class="text-gray-500"
                                                     x-text="' (' + formatFileSize(file.size) + ')'"></span>
-                                                <span x-show="file.comment" class="text-black"
+                                                <span x-show="file.comment" class="text-gray-500"
                                                     x-text="' - ' + file.comment"></span>
                                             </span>
                                         </div>
@@ -1587,123 +1892,153 @@
     </div>
 
     <!-- Toast Notifications -->
-    <div class="fixed bottom-4 right-4 space-y-2 z-50">
+    <div class="fixed bottom-4 right-4 space-y-3 z-50" x-show="toasts.length > 0">
         <template x-for="toast in toasts" :key="toast.id">
             <div x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
                 x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2"
                 :class="{
-                     'toast-success': toast.type === 'success',
-                     'toast-error': toast.type === 'error',
-                     'toast-info': toast.type === 'info'
-                 }" class="text-white px-4 py-3 rounded shadow-lg flex items-center">
-                <i class="fas mr-2" :class="{
-                    'fa-check-circle': toast.type === 'success',
-                    'fa-exclamation-circle': toast.type === 'error',
-                    'fa-info-circle': toast.type === 'info'
-                }"></i>
-                <span x-text="toast.message"></span>
+                    'toast-success': toast.type === 'success',
+                    'toast-error': toast.type === 'error',
+                    'toast-info': toast.type === 'info'
+                }" class="text-white px-6 py-4 rounded-xl shadow-lg flex items-center backdrop-blur-sm max-w-md">
+                <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 mr-3">
+                    <i class="fas" :class="{
+                        'fa-check': toast.type === 'success',
+                        'fa-exclamation': toast.type === 'error',
+                        'fa-info': toast.type === 'info'
+                    }"></i>
+                </div>
+                <div>
+                    <p class="font-medium" x-text="toast.message"></p>
+                </div>
+                <button @click="toasts = toasts.filter(t => t.id !== toast.id)"
+                    class="ml-auto text-white/80 hover:text-white p-1">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         </template>
     </div>
 
     <!-- Settings Modal -->
-    <div x-show="showSettingsModal" x-cloak
-        class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm"
-        @click.self="showSettingsModal = false">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-xl transform transition-all">
-                <!-- Header -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
-                        <i class="fas fa-cog mr-3 text-indigo-600"></i>Põhiandmete seaded
+    <div x-show="showSettingsModal" x-cloak x-transition:enter="transition duration-300 ease-out"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition duration-200 ease-in" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md"
+        @click.self="showSettingsModal = false" x-data="{ activeTab: 'basicInfo' }">
+        <div class="fixed left-1/2 transform -translate-x-1/2 top-8 md:top-24 w-full max-w-3xl rounded-2xl shadow-2xl border border-white/40 max-h-[85vh] overflow-y-auto mx-auto bg-white/90 backdrop-blur-xl"
+            @click.stop>
+            <!-- Header -->
+            <div
+                class="sticky top-0 p-6 border-b border-gray-100/30 bg-gradient-to-r from-indigo-600 to-indigo-800 z-10">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-white flex items-center">
+                        <i class="fas fa-cog mr-3"></i>Seaded
                     </h2>
                     <button @click="showSettingsModal = false"
-                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                        class="text-white/80 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
 
-                <!-- Content -->
-                <div class="p-6">
-                    <form @submit.prevent="saveUserSettings" class="space-y-5">
-                        <!-- Form fields with improved styling -->
-                        <div class="space-y-4">
+                <!-- Tabs -->
+                <div class="flex space-x-1 mt-5">
+                    <button @click="activeTab = 'basicInfo'"
+                        :class="activeTab === 'basicInfo' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
+                        class="px-4 py-2 rounded-t-lg font-medium transition-colors">
+                        Põhiandmed
+                    </button>
+                    <button @click="activeTab = 'design'"
+                        :class="activeTab === 'design' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
+                        class="px-4 py-2 rounded-t-lg font-medium transition-colors">
+                        Kujundus
+                    </button>
+                    <button @click="activeTab = 'history'"
+                        :class="activeTab === 'history' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
+                        class="px-4 py-2 rounded-t-lg font-medium transition-colors">
+                        Ajalugu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 bg-white/90">
+                <!-- Põhiandmed Tab Content -->
+                <div x-show="activeTab === 'basicInfo'" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <form @submit.prevent="saveUserSettings" class="space-y-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Põhiandmete seaded</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="group">
-                                <label
-                                    class="block text-sm font-medium text-black dark:text-gray-300 mb-1">Hankija</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Hankija</label>
                                 <div class="relative">
                                     <i
                                         class="fas fa-building absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" x-model="userSettings.buyer" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
-                                        bg-white dark:bg-gray-700 text-black dark:text-gray-100
+                                    <input type="text" x-model="userSettings.buyer" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl 
+                                        bg-white text-gray-900 shadow-sm
                                         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                                         placeholder="Nimi, aadress, registrikood">
                                 </div>
                             </div>
 
                             <div class="group">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pakkumise
-                                    esitamise aeg ja koht</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Pakkumise esitamise aeg ja
+                                    koht</label>
                                 <div class="relative">
                                     <i
                                         class="fas fa-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" x-model="userSettings.submission" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
-                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                    <input type="text" x-model="userSettings.submission" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl 
+                                        bg-white text-gray-900 shadow-sm
                                         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                                         placeholder="nt 10. aprill, e-post">
                                 </div>
                             </div>
 
                             <div class="group">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pakkumuse
-                                    jõusoleku aeg</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Pakkumuse jõusoleku
+                                    aeg</label>
                                 <div class="relative">
                                     <i
                                         class="fas fa-clock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" x-model="userSettings.validity" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
-                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                    <input type="text" x-model="userSettings.validity" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl 
+                                        bg-white text-gray-900 shadow-sm
                                         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                                         placeholder="nt 30 päeva">
                                 </div>
                             </div>
 
                             <div class="group">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nõuded
-                                    pakkujale</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nõuded pakkujale</label>
                                 <div class="relative">
                                     <i
                                         class="fas fa-list-check absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" x-model="userSettings.requirements" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
-                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                    <input type="text" x-model="userSettings.requirements" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl 
+                                        bg-white text-gray-900 shadow-sm
                                         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                                         placeholder="nt kogemus 3 aastat">
                                 </div>
                             </div>
 
                             <div class="group">
-                                <label
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Väljavaliku
-                                    alused</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Väljavaliku alused</label>
                                 <div class="relative">
                                     <i
                                         class="fas fa-scale-balanced absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" x-model="userSettings.criteria" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
-                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                    <input type="text" x-model="userSettings.criteria" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl 
+                                        bg-white text-gray-900 shadow-sm
                                         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                                         placeholder="Majanduslikult soodsaim">
                                 </div>
                             </div>
 
                             <div class="group">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vastutav
-                                    isik</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Vastutav isik</label>
                                 <div class="relative">
                                     <i
                                         class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    <input type="text" x-model="userSettings.responsible" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
-                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                                    <input type="text" x-model="userSettings.responsible" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl 
+                                        bg-white text-gray-900 shadow-sm
                                         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                                         placeholder="Nimi">
                                 </div>
@@ -1711,36 +2046,192 @@
                         </div>
 
                         <!-- Autofill Toggle -->
-                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg mt-6">
+                        <div
+                            class="flex items-center justify-between p-5 bg-indigo-50 rounded-xl mt-6 border border-indigo-100 shadow-sm">
                             <div class="flex items-center">
-                                <input type="checkbox" x-model="userSettings.autofillEnabled"
-                                    class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                                <label class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                                    Aktiveeri automaatne täitmine
-                                </label>
+                                <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-magic text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <label class="text-lg font-medium text-gray-800">
+                                        Automaatne täitmine
+                                    </label>
+                                    <p class="text-sm text-gray-500">Põhiandmete automaatne täitmine vormi avamisel</p>
+                                </div>
                             </div>
-                            <i class="fas fa-magic text-indigo-600"></i>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="userSettings.autofillEnabled" class="sr-only peer">
+                                <div
+                                    class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600">
+                                </div>
+                            </label>
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
-                            <button type="button" @click="showSettingsModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg 
+                        <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
+                            <button type="button" @click="showSettingsModal = false" class="px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl 
                                 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
-                                transition-colors">
+                                transition-all shadow-sm hover:shadow">
                                 Tühista
                             </button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent 
-                                rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 
-                                focus:ring-indigo-500 transition-colors">
-                                Salvesta seaded
+                            <button type="button" @click="saveUserSettings()" class="px-5 py-3 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-indigo-700 border border-transparent 
+                                rounded-xl hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 
+                                focus:ring-indigo-500 transition-all shadow-sm hover:shadow-md">
+                                <i class="fas fa-save mr-2"></i> Salvesta seaded
                             </button>
                         </div>
                     </form>
                 </div>
+
+                <!-- Design Tab Content -->
+                <div x-show="activeTab === 'design'" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Kujunduse seaded</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Theme Options -->
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-3">Värvipalett</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div @click="userSettings.theme = 'indigo'"
+                                        :class="userSettings.theme === 'indigo' ? 'ring-2 ring-indigo-500 shadow-md' : ''"
+                                        class="flex flex-col items-center space-y-2 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-all cursor-pointer">
+                                        <div class="w-full h-6 bg-indigo-600 rounded-t-lg"></div>
+                                        <div class="w-full h-6 bg-indigo-400 rounded-b-lg"></div>
+                                        <span class="text-sm font-medium text-gray-700">Indigo</span>
+                                    </div>
+                                    <div @click="userSettings.theme = 'blue'"
+                                        :class="userSettings.theme === 'blue' ? 'ring-2 ring-blue-500 shadow-md' : ''"
+                                        class="flex flex-col items-center space-y-2 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-all cursor-pointer">
+                                        <div class="w-full h-6 bg-blue-600 rounded-t-lg"></div>
+                                        <div class="w-full h-6 bg-blue-400 rounded-b-lg"></div>
+                                        <span class="text-sm font-medium text-gray-700">Sinine</span>
+                                    </div>
+                                    <div @click="userSettings.theme = 'emerald'"
+                                        :class="userSettings.theme === 'emerald' ? 'ring-2 ring-emerald-500 shadow-md' : ''"
+                                        class="flex flex-col items-center space-y-2 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-all cursor-pointer">
+                                        <div class="w-full h-6 bg-emerald-600 rounded-t-lg"></div>
+                                        <div class="w-full h-6 bg-emerald-400 rounded-b-lg"></div>
+                                        <span class="text-sm font-medium text-gray-700">Emerald</span>
+                                    </div>
+                                    <div @click="userSettings.theme = 'purple'"
+                                        :class="userSettings.theme === 'purple' ? 'ring-2 ring-purple-500 shadow-md' : ''"
+                                        class="flex flex-col items-center space-y-2 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-all cursor-pointer">
+                                        <div class="w-full h-6 bg-purple-600 rounded-t-lg"></div>
+                                        <div class="w-full h-6 bg-purple-400 rounded-b-lg"></div>
+                                        <span class="text-sm font-medium text-gray-700">Lilla</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Font Selection -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fondid</label>
+                                <select x-model="userSettings.font"
+                                    class="w-full border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                                    <option value="Inter">Inter (Vaikimisi)</option>
+                                    <option value="Roboto">Roboto</option>
+                                    <option value="Open Sans">Open Sans</option>
+                                    <option value="Poppins">Poppins</option>
+                                </select>
+                            </div>
+
+                            <!-- Button Style -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nuppude stiil</label>
+                                <select x-model="userSettings.buttonStyle"
+                                    class="w-full border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                                    <option value="rounded">Ümarad (Vaikimisi)</option>
+                                    <option value="square">Kandilised</option>
+                                    <option value="soft">Pehmed nurgad</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
+                            <button type="button" @click="showSettingsModal = false" class="px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl 
+                                hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
+                                transition-all shadow-sm hover:shadow">
+                                Tühista
+                            </button>
+                            <button type="button" @click="saveUserSettings()" class="px-5 py-3 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-indigo-700 border border-transparent 
+                                rounded-xl hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 
+                                focus:ring-indigo-500 transition-all shadow-sm hover:shadow-md">
+                                <i class="fas fa-save mr-2"></i> Salvesta seaded
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Tab Content -->
+                <div x-show="activeTab === 'history'" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Ajalugu ja tehtud PDF-id</h3>
+
+                        <div class="border border-gray-200 rounded-xl overflow-hidden">
+                            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-medium text-gray-700">Viimased genereeritud PDF-id</h4>
+                                    <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                        <i class="fas fa-trash-alt mr-1"></i> Tühjenda
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="divide-y divide-gray-200">
+                                <div class="p-4 hover:bg-gray-50 transition-colors">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="font-medium text-gray-800">Haljasala rajamine</p>
+                                            <p class="text-sm text-gray-500">Genereeritud: 15.04.2023</p>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button
+                                                class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button
+                                                class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 hover:bg-gray-50 transition-colors">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="font-medium text-gray-800">Lumekoristus 2023</p>
+                                            <p class="text-sm text-gray-500">Genereeritud: 12.04.2023</p>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button
+                                                class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button
+                                                class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 flex justify-center border-t border-gray-200">
+                                <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                    Näita rohkem <i class="fas fa-chevron-down ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
 </body>
 
 </html>
