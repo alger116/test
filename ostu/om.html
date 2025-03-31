@@ -179,7 +179,7 @@
         }
 
         .nav-link {
-            @apply text-black font-medium hover:text-indigo-600 transition-colors duration-200 text-base !important;
+            @apply text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all text-base !important;
         }
 
         .file-item {
@@ -380,7 +380,7 @@
                         fields: { ...defaultFields },
                         sections: [
                             {
-                                title: '1 Üldised tingimused',
+                                title: '1 Üldtingimused',
                                 enabled: true,
                                 open: false,
                                 options: [
@@ -393,7 +393,7 @@
                                 ]
                             },
                             {
-                                title: '2 Ostumenetluse tehniline kirjeldus',
+                                title: '2 Tehniline kirjeldus',
                                 enabled: true,
                                 open: false,
                                 options: [
@@ -415,7 +415,7 @@
                                 ]
                             },
                             {
-                                title: '4 Pakkumuste kontrollimine, hindamine ja eduka pakkumuse valik',
+                                title: '4 Pakkumuste kontroll, hindamine ja eduka pakkumuse valik',
                                 enabled: true,
                                 open: false,
                                 options: [
@@ -438,7 +438,7 @@
                                 ]
                             },
                             {
-                                title: '6 Pakkumuste tagasi lükkamine ja ostumenetluse kehtetuks tunnistamine',
+                                title: '6 Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine',
                                 enabled: true,
                                 open: false,
                                 options: [
@@ -457,7 +457,11 @@
                             }
                         ]
                     },
-                    today: new Date().toLocaleDateString('et-EE'),
+                    today: new Date().toLocaleDateString('et-EE', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    }).replace(/\//g, '.').replace(/(\d+)\.(\d+)\.(\d+)/, '$1.$2.$3'),
                     toasts: [],
                     files: [],
                     isDragging: false,
@@ -1111,7 +1115,7 @@
                                         ]
                                     },
                                     {
-                                        title: '6 Pakkumuste tagasi lükkamine ja ostumenetluse kehtetuks tunnistamine',
+                                        title: '6 Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine',
                                         enabled: true,
                                         open: false,
                                         options: [
@@ -1422,32 +1426,34 @@
     </div>
 
     <!-- Navbar -->
-    <nav class="glassmorphism sticky top-0 z-50 py-3">
+    <nav class="fixed top-0 left-0 right-0 z-50 glassmorphism py-3">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-6">
                     <a href="om.html" class="text-xl font-bold bg-clip-text text-transparent bg-black">
-
                     </a>
-                    <div class="hidden md:flex md:space-x-6">
+                    <div class="hidden md:flex md:space-x-4">
                         <a href="om.html"
-                            class="nav-link flex items-center px-3 py-2 rounded-lg bg-indigo-100/50 text-black">
-                            <i class="fas fa-file-alt mr-2"></i> Kutse koostamine
+                            class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Kutse koostamine</span>
                         </a>
                         <a href="../index.html"
-                            class="nav-link flex items-center px-3 py-2 rounded-lg hover:bg-white/30">
-                            <i class="fas fa-home mr-2"></i> Avalehele
+                            class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+                            <i class="fas fa-home"></i>
+                            <span>Avalehele</span>
                         </a>
                         <a href="users.html"
-                            class="hidden nav-link flex items-center px-3 py-2 rounded-lg hover:bg-white/30"
+                            class="hidden flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all"
                             x-show="isAdmin">
-                            <i class="fas fa-users mr-2"></i> Kasutajad
+                            <i class="fas fa-users"></i>
+                            <span>Kasutajad</span>
                         </a>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
                     <button @click="isDarkMode = !isDarkMode"
-                        class="p-2 rounded-full text-gray-700 bg-white/30 hover:bg-white/50 transition-all">
+                        class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
                         <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
                     </button>
 
@@ -1464,7 +1470,7 @@
                             <i class="fas fa-user-circle"></i>
                             <span x-text="currentUser ? currentUser.email?.split('@')[0] : 'Logi sisse'"
                                 class="hidden md:inline"></span>
-                            <i class="fas fa-chevron-down text-xs"></i>
+                            <i class="fas fa-chevron-down text-xs ml-1"></i>
                         </button>
                         <div x-show="showUserMenu && currentUser" @click.away="showUserMenu = false"
                             x-transition:enter="transition ease-out duration-200"
@@ -1485,401 +1491,406 @@
         </div>
     </nav>
 
-    <!-- Mobile Menu (can be expanded as needed) -->
-    <!-- End Navbar -->
+    <!-- Add padding to main content to account for fixed navbar -->
+    <div class="pt-20">
+        <!-- Main Content -->
+        <div class="container mx-auto max-w-7xl p-6">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-black">
+                    Ostumenetluse kutse koostamine</h1>
+            </div>
 
-    <!-- Main Content -->
-    <div class="container mx-auto max-w-7xl p-6">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-black">
-                Ostumenetluse kutse koostamine</h1>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <!-- Left: Data Input -->
-            <div class="space-y-6">
-                <!-- Form Header Card -->
-                <div class="card transition-all" x-data="{ isOpen: true }">
-                    <div class="flex items-center justify-between mb-4 cursor-pointer" @click="isOpen = !isOpen">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <i class="fas fa-file-contract text-indigo-600"></i>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <!-- Left: Data Input -->
+                <div class="space-y-6">
+                    <!-- Form Header Card -->
+                    <div class="card transition-all" x-data="{ isOpen: true }">
+                        <div class="flex items-center justify-between mb-4 cursor-pointer" @click="isOpen = !isOpen">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-file-contract text-indigo-600"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-gray-800">Põhiandmed</h2>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800">Põhiandmed</h2>
+                            <button class="p-2 rounded-full hover:bg-indigo-100 transition-all">
+                                <i class="fas transition-transform duration-300"
+                                    :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </button>
                         </div>
-                        <button class="p-2 rounded-full hover:bg-indigo-100 transition-all">
-                            <i class="fas transition-transform duration-300"
-                                :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-                        </button>
+
+                        <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 transform -translate-y-2"
+                            x-transition:enter-end="opacity-100 transform translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 transform translate-y-0"
+                            x-transition:leave-end="opacity-0 transform -translate-y-2">
+                            <!-- Ostumenetluse nimi -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold mb-2 text-gray-700">Ostumenetluse nimi</label>
+                                <input type="text" x-model="form.name"
+                                    class="w-full border rounded-xl px-4 py-3 shadow-sm"
+                                    placeholder="Näiteks: Haljasala rajamine" />
+                            </div>
+
+                            <!-- Ostumenetluse kirjeldus -->
+                            <div>
+                                <label class="block text-sm font-semibold mb-2 text-gray-700">Ostumenetluse kutse
+                                    lühikirjeldus</label>
+                                <textarea x-model="form.intro"
+                                    class="w-full border rounded-xl px-4 py-3 h-28 shadow-sm"></textarea>
+                            </div>
+                        </div>
                     </div>
 
-                    <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 transform translate-y-0"
-                        x-transition:leave-end="opacity-0 transform -translate-y-2">
-                        <!-- Ostumenetluse nimi -->
-                        <div class="mb-4">
-                            <label class="block text-sm font-semibold mb-2 text-gray-700">Ostumenetluse nimi</label>
-                            <input type="text" x-model="form.name" class="w-full border rounded-xl px-4 py-3 shadow-sm"
-                                placeholder="Näiteks: Haljasala rajamine" />
+                    <!-- Põhiandmed Card -->
+                    <div class="card transition-all" x-data="{ isOpen: true }">
+                        <div class="flex items-center justify-between mb-6 cursor-pointer" @click="isOpen = !isOpen">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-sliders-h text-indigo-600"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-gray-800">Põhiandmed</h2>
+                            </div>
+                            <button class="p-2 rounded-full hover:bg-indigo-100 transition-all">
+                                <i class="fas transition-transform duration-300"
+                                    :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </button>
                         </div>
 
-                        <!-- Ostumenetluse kirjeldus -->
-                        <div>
-                            <label class="block text-sm font-semibold mb-2 text-gray-700">Ostumenetluse kutse
-                                lühikirjeldus</label>
-                            <textarea x-model="form.intro"
-                                class="w-full border rounded-xl px-4 py-3 h-28 shadow-sm"></textarea>
+                        <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 transform -translate-y-2"
+                            x-transition:enter-end="opacity-100 transform translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 transform translate-y-0"
+                            x-transition:leave-end="opacity-0 transform -translate-y-2">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <template x-for="field in standardFields" :key="field.key">
+                                    <div class="group">
+                                        <label class="block text-sm font-semibold mb-2 text-gray-700"
+                                            x-text="field.label"></label>
+                                        <div class="relative">
+                                            <input type="text" x-model="form.fields[field.key]"
+                                                class="w-full border rounded-xl px-4 py-3 shadow-sm transition-all focus:shadow-md"
+                                                :placeholder="field.placeholder" />
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- Sections 1-7 Card -->
+                    <div class="card transition-all" x-data="{ isOpen: true }">
+                        <div class="flex items-center justify-between mb-6 cursor-pointer" @click="isOpen = !isOpen">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-list-check text-indigo-600"></i>
+                                </div>
+                                <h2 class="text-xl font-bold text-gray-800">Vali punktid (1–7)</h2>
+                            </div>
+                            <button class="p-2 rounded-full hover:bg-indigo-100 transition-all">
+                                <i class="fas transition-transform duration-300"
+                                    :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </button>
+                        </div>
+
+                        <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 transform -translate-y-2"
+                            x-transition:enter-end="opacity-100 transform translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 transform translate-y-0"
+                            x-transition:leave-end="opacity-0 transform -translate-y-2">
+                            <div class="flex gap-2 mb-6">
+                                <button @click="selectAllOptions"
+                                    class="flex items-center text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg transition-colors">
+                                    <i class="fas mr-1"
+                                        :class="form.sections.some(section => section.options.some(option => !option.checked)) ? 'fa-check-double' : 'fa-times'"></i>
+                                    <span
+                                        x-text="form.sections.some(section => section.options.some(option => !option.checked)) ? 'Lisa kõik' : 'Eemalda kõik'"></span>
+                                </button>
+                                <button @click="toggleAllSections"
+                                    class="flex items-center text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
+                                    <i class="fas mr-1"
+                                        :class="form.sections.some(section => !section.open) ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+                                    <span
+                                        x-text="form.sections.some(section => !section.open) ? 'Ava kõik' : 'Sulge kõik'"></span>
+                                </button>
+                            </div>
+
+                            <div id="draggableSections" x-ref="draggableSections" class="space-y-4">
+                                <template x-for="(section, index) in form.sections" :key="index">
+                                    <div class="mb-4 border bg-white/50 backdrop-blur-sm border-gray-200 rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-md"
+                                        x-data="{ section }" :class="{ 'active-section': section.enabled }">
+                                        <div class="section-header" @click="section.open = !section.open">
+                                            <input type="checkbox" x-model="section.enabled" class="mr-3" @click.stop>
+                                            <span
+                                                class="drag-handle cursor-move mr-3 text-gray-400 hover:text-indigo-500 transition-colors">
+                                                <i class="fas fa-grip-lines"></i>
+                                            </span>
+                                            <span x-text="section.title" class="flex-grow"></span>
+                                            <i class="fas transition-transform duration-300"
+                                                :class="section.open ? 'fa-chevron-down transform rotate-180' : 'fa-chevron-right'"></i>
+                                        </div>
+                                        <div x-show="section.open" x-transition:enter="transition ease-out duration-200"
+                                            x-transition:enter-start="opacity-0 transform -translate-y-4"
+                                            x-transition:enter-end="opacity-100 transform translate-y-0"
+                                            x-transition:leave="transition ease-in duration-150"
+                                            x-transition:leave-start="opacity-100 transform translate-y-0"
+                                            x-transition:leave-end="opacity-0 transform -translate-y-4"
+                                            class="section-content">
+                                            <template x-for="(opt, i) in section.options" :key="i">
+                                                <label
+                                                    class="block p-3 hover:bg-white/50 rounded-lg transition-colors mb-2">
+                                                    <div class="flex items-start">
+                                                        <input type="checkbox" x-model="opt.checked"
+                                                            class="mt-1 mr-3 rounded">
+                                                        <template x-if="opt.isEditing">
+                                                            <input type="text" x-model="opt.text"
+                                                                @blur="opt.isEditing = false"
+                                                                @keydown.enter="opt.isEditing = false"
+                                                                class="flex-grow border rounded-lg px-3 py-2 text-sm shadow-sm"
+                                                                x-ref="editInput">
+                                                        </template>
+                                                        <template x-if="!opt.isEditing">
+                                                            <span x-text="opt.text"
+                                                                class="text-sm cursor-pointer hover:text-indigo-600"
+                                                                @dblclick="opt.isEditing = true; $nextTick(() => $refs.editInput?.focus())">
+                                                            </span>
+                                                        </template>
+                                                    </div>
+                                                </label>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="flex justify-between mt-6">
+                                <button @click="addNewSection"
+                                    class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm px-3 py-2 rounded-lg hover:bg-indigo-50 transition-colors">
+                                    <i class="fas fa-plus-circle mr-1"></i> Lisa uus punkt
+                                </button>
+                                <template x-for="(section, index) in form.sections" :key="index">
+                                    <button @click="addOption(index)" x-show="section.open"
+                                        class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm px-3 py-2 rounded-lg hover:bg-indigo-50 transition-colors">
+                                        <i class="fas fa-plus-circle mr-1"></i>
+                                        <span x-text="index === 0 ? 'Lisa tingimus' : 
+                                                    index === 6 ? 'Lisa lisa' : 
+                                                    'Lisa punkt'"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Upload Section -->
+                    <div class="card transition-all" x-data="{ isOpen: true }">
+                        <div class="flex items-center justify-between mb-2 cursor-pointer" @click="isOpen = !isOpen">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-paperclip text-indigo-600 text-sm"></i>
+                                </div>
+                                <h2 class="text-lg font-bold text-gray-800">Manused</h2>
+                            </div>
+                            <button class="p-1 rounded-full hover:bg-indigo-100 transition-all">
+                                <i class="fas transition-transform duration-300 text-sm"
+                                    :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                            </button>
+                        </div>
+
+                        <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 transform -translate-y-2"
+                            x-transition:enter-end="opacity-100 transform translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 transform translate-y-0"
+                            x-transition:leave-end="opacity-0 transform -translate-y-2">
+                            <div @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop"
+                                :class="{'border-indigo-500 bg-indigo-50/50': isDragging}"
+                                class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer transition-colors hover:border-indigo-400">
+                                <input type="file" id="fileInput" class="hidden" @change="handleFileInput" multiple>
+                                <label for="fileInput" class="cursor-pointer block">
+                                    <i class="fas fa-cloud-upload-alt text-xl text-indigo-500 mb-2"></i>
+                                    <p class="text-gray-700 font-medium text-sm mb-1">Lohista failid siia või <span
+                                            class="text-indigo-600 underline">kliki
+                                            valimiseks</span></p>
+                                    <p class="text-xs text-gray-500">Max 10MB fail</p>
+                                </label>
+                            </div>
+
+                            <div class="mt-3 space-y-2" x-show="files.length > 0">
+                                <template x-for="(file, index) in files" :key="index">
+                                    <div class="file-item hover-scale py-2 px-3">
+                                        <div class="flex items-center truncate max-w-[80%]">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
+                                                <i class="fas fa-file-alt text-indigo-500 text-xs"></i>
+                                            </div>
+                                            <div class="truncate">
+                                                <div x-text="file.name"
+                                                    class="truncate text-gray-800 font-medium text-sm">
+                                                </div>
+                                                <div class="text-xs text-gray-500" x-text="formatFileSize(file.size)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button @click="removeFile(index)"
+                                            class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap gap-5 mt-8">
+                        <button @click="generatePDF" x-show="currentUser"
+                            class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1">
+                            <div
+                                class="absolute inset-0 w-full h-full bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
+                            <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
+                                <i class="fas fa-file-pdf text-white text-sm"></i>
+                            </div>
+                            <span class="relative">Loo PDF</span>
+                        </button>
+
+                        <button @click="manualSave" x-show="currentUser"
+                            class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-1">
+                            <div
+                                class="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
+                            <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
+                                <i class="fas fa-save text-white text-sm"></i>
+                            </div>
+                            <span class="relative">Salvesta</span>
+                        </button>
+
+                        <button @click="resetForm" x-show="currentUser"
+                            class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-red-500/30 hover:-translate-y-1">
+                            <div
+                                class="absolute inset-0 w-full h-full bg-gradient-to-r from-red-600 to-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
+                            <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
+                                <i class="fas fa-trash-alt text-white text-sm"></i>
+                            </div>
+                            <span class="relative">Tühjenda</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Põhiandmed Card -->
-                <div class="card transition-all" x-data="{ isOpen: true }">
-                    <div class="flex items-center justify-between mb-6 cursor-pointer" @click="isOpen = !isOpen">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <i class="fas fa-sliders-h text-indigo-600"></i>
+                <!-- Right: PDF Preview -->
+                <div>
+                    <div class="sticky top-24">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-eye text-indigo-600"></i>
                             </div>
-                            <h2 class="text-xl font-bold text-gray-800">Põhiandmed</h2>
+                            <h2 class="text-lg font-bold text-gray-800">Reaalajas eelvaade</h2>
                         </div>
-                        <button class="p-2 rounded-full hover:bg-indigo-100 transition-all">
-                            <i class="fas transition-transform duration-300"
-                                :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-                        </button>
-                    </div>
 
-                    <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 transform translate-y-0"
-                        x-transition:leave-end="opacity-0 transform -translate-y-2">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <template x-for="field in standardFields" :key="field.key">
-                                <div class="group">
-                                    <label class="block text-sm font-semibold mb-2 text-gray-700"
-                                        x-text="field.label"></label>
-                                    <div class="relative">
-                                        <input type="text" x-model="form.fields[field.key]"
-                                            class="w-full border rounded-xl px-4 py-3 shadow-sm transition-all focus:shadow-md"
-                                            :placeholder="field.placeholder" />
+                        <div id="pdfPreview"
+                            class="border-0 card space-y-6 min-h-[70vh] max-h-[80vh] overflow-auto backdrop-blur-md transition-all scroll-smooth">
+                            <!-- Header -->
+                            <div
+                                class="bg-gradient-to-r from-indigo-600 to-indigo-800 backdrop-blur-sm text-white p-5 rounded-t-2xl -mx-6 -mt-6 mb-6">
+                                <h1 class="text-2xl font-bold text-center" x-text="form.name || 'Ostumenetluse kutse'">
+                                </h1>
+                            </div>
+
+                            <!-- Intro text -->
+                            <div class="text-gray-800 font-medium text-sm leading-relaxed p-2" x-text="form.intro">
+                            </div>
+
+                            <!-- Standard fields -->
+                            <div class="space-y-3">
+                                <template x-for="field in standardFields">
+                                    <div x-show="form.fields[field.key]"
+                                        class="bg-white/40 backdrop-blur-sm p-3 rounded-xl shadow-sm transition-all hover:shadow-md">
+                                        <div class="flex items-start">
+                                            <span class="font-semibold text-indigo-700 mr-2"
+                                                x-text="field.label + ':'"></span>
+                                            <span class="text-gray-800 font-medium"
+                                                x-text="form.fields[field.key] || ''"></span>
+                                        </div>
                                     </div>
+                                </template>
+                            </div>
+
+                            <!-- Sections -->
+                            <template x-for="(section, idx) in visibleSections" :key="idx">
+                                <div class="mt-8">
+                                    <!-- Section title -->
+                                    <div class="flex items-center mb-4">
+                                        <h2 class="text-lg font-bold text-indigo-700"
+                                            x-text="(idx + 1) + ' ' + section.title.split(' ').slice(1).join(' ')"></h2>
+                                        <div
+                                            class="flex-grow h-0.5 bg-gradient-to-r from-indigo-500 to-indigo-300 ml-3 rounded-full">
+                                        </div>
+                                    </div>
+
+                                    <!-- Section options -->
+                                    <ul class="space-y-3 pl-2">
+                                        <template x-for="(opt, i) in section.options.filter(o => o.checked)" :key="i">
+                                            <li
+                                                class="flex items-start p-2 bg-white/30 rounded-lg shadow-sm hover:shadow-md transition-all">
+                                                <div
+                                                    class="min-w-8 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-bold text-indigo-700 mr-3">
+                                                    <span x-text="(idx + 1) + '.' + (i+1)"></span>
+                                                </div>
+                                                <span class="text-sm text-gray-800" x-text="opt.text"></span>
+                                            </li>
+                                        </template>
+                                    </ul>
                                 </div>
                             </template>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Sections 1-7 Card -->
-                <div class="card transition-all" x-data="{ isOpen: true }">
-                    <div class="flex items-center justify-between mb-6 cursor-pointer" @click="isOpen = !isOpen">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <i class="fas fa-list-check text-indigo-600"></i>
-                            </div>
-                            <h2 class="text-xl font-bold text-gray-800">Vali punktid (1–7)</h2>
-                        </div>
-                        <button class="p-2 rounded-full hover:bg-indigo-100 transition-all">
-                            <i class="fas transition-transform duration-300"
-                                :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-                        </button>
-                    </div>
-
-                    <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 transform translate-y-0"
-                        x-transition:leave-end="opacity-0 transform -translate-y-2">
-                        <div class="flex gap-2 mb-6">
-                            <button @click="selectAllOptions"
-                                class="flex items-center text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg transition-colors">
-                                <i class="fas mr-1"
-                                    :class="form.sections.some(section => section.options.some(option => !option.checked)) ? 'fa-check-double' : 'fa-times'"></i>
-                                <span
-                                    x-text="form.sections.some(section => section.options.some(option => !option.checked)) ? 'Lisa kõik' : 'Eemalda kõik'"></span>
-                            </button>
-                            <button @click="toggleAllSections"
-                                class="flex items-center text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
-                                <i class="fas mr-1"
-                                    :class="form.sections.some(section => !section.open) ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
-                                <span
-                                    x-text="form.sections.some(section => !section.open) ? 'Ava kõik' : 'Sulge kõik'"></span>
-                            </button>
-                        </div>
-
-                        <div id="draggableSections" x-ref="draggableSections" class="space-y-4">
-                            <template x-for="(section, index) in form.sections" :key="index">
-                                <div class="mb-4 border bg-white/50 backdrop-blur-sm border-gray-200 rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-md"
-                                    x-data="{ section }" :class="{ 'active-section': section.enabled }">
-                                    <div class="section-header" @click="section.open = !section.open">
-                                        <input type="checkbox" x-model="section.enabled" class="mr-3" @click.stop>
-                                        <span
-                                            class="drag-handle cursor-move mr-3 text-gray-400 hover:text-indigo-500 transition-colors">
-                                            <i class="fas fa-grip-lines"></i>
-                                        </span>
-                                        <span x-text="section.title" class="flex-grow"></span>
-                                        <i class="fas transition-transform duration-300"
-                                            :class="section.open ? 'fa-chevron-down transform rotate-180' : 'fa-chevron-right'"></i>
+                            <!-- Footer -->
+                            <div class="mt-10 pt-5 border-t border-gray-200">
+                                <div class="flex justify-between text-sm">
+                                    <div class="text-indigo-700 font-semibold">
+                                        <p>Kuupäev: <span class="text-gray-800" x-text="today"></span></p>
                                     </div>
-                                    <div x-show="section.open" x-transition:enter="transition ease-out duration-200"
-                                        x-transition:enter-start="opacity-0 transform -translate-y-4"
-                                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                                        x-transition:leave="transition ease-in duration-150"
-                                        x-transition:leave-start="opacity-100 transform translate-y-0"
-                                        x-transition:leave-end="opacity-0 transform -translate-y-4"
-                                        class="section-content">
-                                        <template x-for="(opt, i) in section.options" :key="i">
-                                            <label
-                                                class="block p-3 hover:bg-white/50 rounded-lg transition-colors mb-2">
-                                                <div class="flex items-start">
-                                                    <input type="checkbox" x-model="opt.checked"
-                                                        class="mt-1 mr-3 rounded">
-                                                    <template x-if="opt.isEditing">
-                                                        <input type="text" x-model="opt.text"
-                                                            @blur="opt.isEditing = false"
-                                                            @keydown.enter="opt.isEditing = false"
-                                                            class="flex-grow border rounded-lg px-3 py-2 text-sm shadow-sm"
-                                                            x-ref="editInput">
-                                                    </template>
-                                                    <template x-if="!opt.isEditing">
-                                                        <span x-text="opt.text"
-                                                            class="text-sm cursor-pointer hover:text-indigo-600"
-                                                            @dblclick="opt.isEditing = true; $nextTick(() => $refs.editInput?.focus())">
-                                                        </span>
-                                                    </template>
+                                    <div class="text-indigo-700 font-semibold">
+                                        <p>Vastutav isik: <span class="text-gray-800"
+                                                x-text="form.fields.responsible || ''"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Attachments -->
+                            <template x-if="files.length > 0">
+                                <div class="mt-8">
+                                    <div class="flex items-center mb-4">
+                                        <h3 class="text-lg font-bold text-indigo-700">Manused</h3>
+                                        <div
+                                            class="flex-grow h-0.5 bg-gradient-to-r from-indigo-500 to-indigo-300 ml-3 rounded-full">
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <template x-for="(file, index) in files" :key="index">
+                                            <div
+                                                class="flex items-center p-3 bg-white/40 rounded-xl transition-all hover:bg-white/60">
+                                                <div
+                                                    class="w-8 h-8 flex items-center justify-center bg-indigo-100 rounded-full mr-3">
+                                                    <i class="fas fa-file-alt text-indigo-600"></i>
                                                 </div>
-                                            </label>
+                                                <span class="text-sm text-gray-800">
+                                                    <span x-text="index + 1 + '. '"></span>
+                                                    <span x-text="file.name" class="font-medium"></span>
+                                                    <span class="text-gray-500"
+                                                        x-text="' (' + formatFileSize(file.size) + ')'"></span>
+                                                    <span x-show="file.comment" class="text-gray-500"
+                                                        x-text="' - ' + file.comment"></span>
+                                                </span>
+                                            </div>
                                         </template>
                                     </div>
                                 </div>
                             </template>
                         </div>
-
-                        <div class="flex justify-between mt-6">
-                            <button @click="addNewSection"
-                                class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm px-3 py-2 rounded-lg hover:bg-indigo-50 transition-colors">
-                                <i class="fas fa-plus-circle mr-1"></i> Lisa uus punkt
-                            </button>
-                            <template x-for="(section, index) in form.sections" :key="index">
-                                <button @click="addOption(index)" x-show="section.open"
-                                    class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm px-3 py-2 rounded-lg hover:bg-indigo-50 transition-colors">
-                                    <i class="fas fa-plus-circle mr-1"></i>
-                                    <span x-text="index === 0 ? 'Lisa tingimus' : 
-                                                index === 6 ? 'Lisa lisa' : 
-                                                'Lisa punkt'"></span>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- File Upload Section -->
-                <div class="card transition-all" x-data="{ isOpen: true }">
-                    <div class="flex items-center justify-between mb-2 cursor-pointer" @click="isOpen = !isOpen">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <i class="fas fa-paperclip text-indigo-600 text-sm"></i>
-                            </div>
-                            <h2 class="text-lg font-bold text-gray-800">Manused</h2>
-                        </div>
-                        <button class="p-1 rounded-full hover:bg-indigo-100 transition-all">
-                            <i class="fas transition-transform duration-300 text-sm"
-                                :class="isOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-                        </button>
-                    </div>
-
-                    <div x-show="isOpen" x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                        x-transition:enter-end="opacity-100 transform translate-y-0"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 transform translate-y-0"
-                        x-transition:leave-end="opacity-0 transform -translate-y-2">
-                        <div @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop"
-                            :class="{'border-indigo-500 bg-indigo-50/50': isDragging}"
-                            class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer transition-colors hover:border-indigo-400">
-                            <input type="file" id="fileInput" class="hidden" @change="handleFileInput" multiple>
-                            <label for="fileInput" class="cursor-pointer block">
-                                <i class="fas fa-cloud-upload-alt text-xl text-indigo-500 mb-2"></i>
-                                <p class="text-gray-700 font-medium text-sm mb-1">Lohista failid siia või <span
-                                        class="text-indigo-600 underline">kliki
-                                        valimiseks</span></p>
-                                <p class="text-xs text-gray-500">Max 10MB fail</p>
-                            </label>
-                        </div>
-
-                        <div class="mt-3 space-y-2" x-show="files.length > 0">
-                            <template x-for="(file, index) in files" :key="index">
-                                <div class="file-item hover-scale py-2 px-3">
-                                    <div class="flex items-center truncate max-w-[80%]">
-                                        <div
-                                            class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
-                                            <i class="fas fa-file-alt text-indigo-500 text-xs"></i>
-                                        </div>
-                                        <div class="truncate">
-                                            <div x-text="file.name" class="truncate text-gray-800 font-medium text-sm">
-                                            </div>
-                                            <div class="text-xs text-gray-500" x-text="formatFileSize(file.size)"></div>
-                                        </div>
-                                    </div>
-                                    <button @click="removeFile(index)"
-                                        class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors">
-                                        <i class="fas fa-trash-alt text-xs"></i>
-                                    </button>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex flex-wrap gap-5 mt-8">
-                    <button @click="generatePDF" x-show="currentUser"
-                        class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1">
-                        <div
-                            class="absolute inset-0 w-full h-full bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        </div>
-                        <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
-                            <i class="fas fa-file-pdf text-white text-sm"></i>
-                        </div>
-                        <span class="relative">Loo PDF</span>
-                    </button>
-
-                    <button @click="manualSave" x-show="currentUser"
-                        class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-1">
-                        <div
-                            class="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        </div>
-                        <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
-                            <i class="fas fa-save text-white text-sm"></i>
-                        </div>
-                        <span class="relative">Salvesta</span>
-                    </button>
-
-                    <button @click="resetForm" x-show="currentUser"
-                        class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-red-500/30 hover:-translate-y-1">
-                        <div
-                            class="absolute inset-0 w-full h-full bg-gradient-to-r from-red-600 to-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        </div>
-                        <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
-                            <i class="fas fa-trash-alt text-white text-sm"></i>
-                        </div>
-                        <span class="relative">Tühjenda</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Right: PDF Preview -->
-            <div>
-                <div class="sticky top-24">
-                    <div class="flex items-center mb-4">
-                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                            <i class="fas fa-eye text-indigo-600"></i>
-                        </div>
-                        <h2 class="text-lg font-bold text-gray-800">Reaalajas eelvaade</h2>
-                    </div>
-
-                    <div id="pdfPreview"
-                        class="border-0 card space-y-6 min-h-[70vh] max-h-[80vh] overflow-auto backdrop-blur-md transition-all scroll-smooth">
-                        <!-- Header -->
-                        <div
-                            class="bg-gradient-to-r from-indigo-600 to-indigo-800 backdrop-blur-sm text-white p-5 rounded-t-2xl -mx-6 -mt-6 mb-6">
-                            <h1 class="text-2xl font-bold text-center" x-text="form.name || 'Ostumenetluse kutse'"></h1>
-                        </div>
-
-                        <!-- Intro text -->
-                        <div class="text-gray-800 font-medium text-sm leading-relaxed p-2" x-text="form.intro"></div>
-
-                        <!-- Standard fields -->
-                        <div class="space-y-3">
-                            <template x-for="field in standardFields">
-                                <div x-show="form.fields[field.key]"
-                                    class="bg-white/40 backdrop-blur-sm p-3 rounded-xl shadow-sm transition-all hover:shadow-md">
-                                    <div class="flex items-start">
-                                        <span class="font-semibold text-indigo-700 mr-2"
-                                            x-text="field.label + ':'"></span>
-                                        <span class="text-gray-800 font-medium"
-                                            x-text="form.fields[field.key] || ''"></span>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-
-                        <!-- Sections -->
-                        <template x-for="(section, idx) in visibleSections" :key="idx">
-                            <div class="mt-8">
-                                <!-- Section title -->
-                                <div class="flex items-center mb-4">
-                                    <h2 class="text-lg font-bold text-indigo-700"
-                                        x-text="(idx + 1) + ' ' + section.title.split(' ').slice(1).join(' ')"></h2>
-                                    <div
-                                        class="flex-grow h-0.5 bg-gradient-to-r from-indigo-500 to-indigo-300 ml-3 rounded-full">
-                                    </div>
-                                </div>
-
-                                <!-- Section options -->
-                                <ul class="space-y-3 pl-2">
-                                    <template x-for="(opt, i) in section.options.filter(o => o.checked)" :key="i">
-                                        <li
-                                            class="flex items-start p-2 bg-white/30 rounded-lg shadow-sm hover:shadow-md transition-all">
-                                            <div
-                                                class="min-w-8 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-bold text-indigo-700 mr-3">
-                                                <span x-text="(idx + 1) + '.' + (i+1)"></span>
-                                            </div>
-                                            <span class="text-sm text-gray-800" x-text="opt.text"></span>
-                                        </li>
-                                    </template>
-                                </ul>
-                            </div>
-                        </template>
-
-                        <!-- Footer -->
-                        <div class="mt-10 pt-5 border-t border-gray-200">
-                            <div class="flex justify-between text-sm">
-                                <div class="text-indigo-700 font-semibold">
-                                    <p>Kuupäev: <span class="text-gray-800" x-text="today"></span></p>
-                                </div>
-                                <div class="text-indigo-700 font-semibold">
-                                    <p>Vastutav isik: <span class="text-gray-800"
-                                            x-text="form.fields.responsible || ''"></span></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Attachments -->
-                        <template x-if="files.length > 0">
-                            <div class="mt-8">
-                                <div class="flex items-center mb-4">
-                                    <h3 class="text-lg font-bold text-indigo-700">Manused</h3>
-                                    <div
-                                        class="flex-grow h-0.5 bg-gradient-to-r from-indigo-500 to-indigo-300 ml-3 rounded-full">
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <template x-for="(file, index) in files" :key="index">
-                                        <div
-                                            class="flex items-center p-3 bg-white/40 rounded-xl transition-all hover:bg-white/60">
-                                            <div
-                                                class="w-8 h-8 flex items-center justify-center bg-indigo-100 rounded-full mr-3">
-                                                <i class="fas fa-file-alt text-indigo-600"></i>
-                                            </div>
-                                            <span class="text-sm text-gray-800">
-                                                <span x-text="index + 1 + '. '"></span>
-                                                <span x-text="file.name" class="font-medium"></span>
-                                                <span class="text-gray-500"
-                                                    x-text="' (' + formatFileSize(file.size) + ')'"></span>
-                                                <span x-show="file.comment" class="text-gray-500"
-                                                    x-text="' - ' + file.comment"></span>
-                                            </span>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </template>
                     </div>
                 </div>
             </div>
