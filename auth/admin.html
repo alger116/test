@@ -13,6 +13,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="../config/config.js"></script>
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="h-full">
@@ -112,206 +114,364 @@
             <main class="p-6">
                 <!-- Dashboard Section -->
                 <div id="dashboardSection" class="mb-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                        <!-- Total Users Card -->
+                    <!-- Date Range Filter -->
+                    <div class="flex space-x-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Alguskuupäev</label>
+                            <input type="date" id="dateRangeStart"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Lõppkuupäev</label>
+                            <input type="date" id="dateRangeEnd"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <button onclick="updateDashboardData()"
+                            class="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Uuenda
+                        </button>
+                        <button onclick="exportDashboardData()"
+                            class="mt-6 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            <i class="fas fa-download mr-2"></i>Ekspordi
+                        </button>
+                    </div>
+
+                    <!-- System Health Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <!-- Server Status -->
                         <div class="bg-white rounded-lg shadow p-6">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                    <i class="fas fa-users text-2xl"></i>
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Serveri olek</h3>
+                                <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
+                                    Aktiivne
+                                </span>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm text-gray-600">CPU kasutus</span>
+                                    <span id="cpuUsage" class="text-sm font-semibold text-gray-900">0%</span>
                                 </div>
-                                <div class="ml-4">
-                                    <h3 class="text-sm font-medium text-gray-500">Kokku kasutajaid</h3>
-                                    <p class="text-2xl font-semibold text-gray-900" id="totalUsers">0</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="cpuBar" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Active Users Card -->
+                        <!-- Database Size -->
                         <div class="bg-white rounded-lg shadow p-6">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                    <i class="fas fa-user-check text-2xl"></i>
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Andmebaasi suurus</h3>
+                                <span class="px-2 py-1 text-xs font-semibold text-blue-800 bg-blue-100 rounded-full">
+                                    Normaalne
+                                </span>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm text-gray-600">Mälu kasutus</span>
+                                    <span id="memoryUsage" class="text-sm font-semibold text-gray-900">0%</span>
                                 </div>
-                                <div class="ml-4">
-                                    <h3 class="text-sm font-medium text-gray-500">Aktiivsed kasutajad</h3>
-                                    <p class="text-2xl font-semibold text-gray-900" id="activeUsers">0</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="memoryBar" class="bg-green-600 h-2 rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Total Documents Card -->
+                        <!-- Active Users -->
                         <div class="bg-white rounded-lg shadow p-6">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                                    <i class="fas fa-file-alt text-2xl"></i>
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Aktiivsed kasutajad</h3>
+                                <span
+                                    class="px-2 py-1 text-xs font-semibold text-purple-800 bg-purple-100 rounded-full">
+                                    Online
+                                </span>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm text-gray-600">Salvestus</span>
+                                    <span id="storageUsage" class="text-sm font-semibold text-gray-900">0%</span>
                                 </div>
-                                <div class="ml-4">
-                                    <h3 class="text-sm font-medium text-gray-500">Kokku dokumente</h3>
-                                    <p class="text-2xl font-semibold text-gray-900" id="totalDocuments">0</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="storageBar" class="bg-yellow-600 h-2 rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Recent Activity Card -->
+                        <!-- API Requests -->
                         <div class="bg-white rounded-lg shadow p-6">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                                    <i class="fas fa-clock text-2xl"></i>
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">API päringud</h3>
+                                <span
+                                    class="px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full">
+                                    Normaalne
+                                </span>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm text-gray-600">Päringud/min</span>
+                                    <span id="apiRequests" class="text-sm font-semibold text-gray-900">0</span>
                                 </div>
-                                <div class="ml-4">
-                                    <h3 class="text-sm font-medium text-gray-500">Viimane tegevus</h3>
-                                    <p class="text-2xl font-semibold text-gray-900" id="lastActivity">-</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="apiBar" class="bg-indigo-600 h-2 rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Recent Activity Chart -->
-                    <div class="bg-white rounded-lg shadow p-6 mb-6">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Tegevuste statistika</h2>
-                        <div class="h-64" id="activityChart">
-                            <!-- Chart will be rendered here -->
+                    <!-- Analytics Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- User Activity Chart -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Kasutajate tegevus</h2>
+                            <div class="h-64">
+                                <canvas id="userActivityChart"></canvas>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Recent Documents Table -->
-                    <div class="bg-white rounded-lg shadow">
-                        <div class="px-6 py-4 border-b">
-                            <h2 class="text-lg font-semibold text-gray-900">Viimased dokumendid</h2>
+                        <!-- Document Creation Chart -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Dokumentide loomine</h2>
+                            <div class="h-64">
+                                <canvas id="documentCreationChart"></canvas>
+                            </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Dokument</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Kasutaja</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Kuupäev</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tüüp</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recentDocumentsTable" class="bg-white divide-y divide-gray-200">
-                                    <!-- Recent documents will be dynamically added here -->
-                                </tbody>
-                            </table>
+
+                        <!-- System Resources Chart -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Süsteemi ressursid</h2>
+                            <div class="h-64">
+                                <canvas id="systemResourcesChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Error Rate Chart -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h2 class="text-lg font-semibold text-gray-900 mb-4">Vigade sagedus</h2>
+                            <div class="h-64">
+                                <canvas id="errorRateChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- User Management Table -->
-                <div class="bg-white rounded-lg shadow">
+                <!-- System Settings Section -->
+                <div class="bg-white rounded-lg shadow mb-6">
                     <div class="px-6 py-4 border-b">
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
-                            <div class="flex space-x-2">
-                                <input type="text" id="userSearch" placeholder="Otsi kasutajat..."
-                                    class="border rounded-lg px-3 py-1">
-                                <select id="roleFilter" class="border rounded-lg px-3 py-1">
-                                    <option value="">Vali roll</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="user">Kasutaja</option>
-                                    <!-- Add more roles as needed -->
-                                </select>
-                                <button id="searchButton"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Otsi</button>
+                        <h2 class="text-lg font-semibold text-gray-800">Süsteemi seaded</h2>
+                    </div>
+                    <div class="p-6">
+                        <!-- Backup/Restore -->
+                        <div class="mb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Varundamine ja taastamine</h3>
+                            <div class="flex space-x-4">
+                                <button onclick="createBackup()"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center">
+                                    <i class="fas fa-download mr-2"></i>Loo varukoopia
+                                </button>
+                                <button onclick="openRestoreModal()"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
+                                    <i class="fas fa-upload mr-2"></i>Taasta varukoopia
+                                </button>
                             </div>
-                            <button id="addUserButton"
-                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
-                                <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
-                            </button>
+                        </div>
+
+                        <!-- Maintenance Mode -->
+                        <div class="mb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Hooldusrežiim</h3>
+                            <div class="flex items-center space-x-4">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="maintenanceMode" class="sr-only peer"
+                                        onchange="toggleMaintenanceMode(this.checked)">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                    </div>
+                                    <span class="ml-3 text-sm font-medium text-gray-900">Hooldusrežiim</span>
+                                </label>
+                                <input type="text" id="maintenanceMessage"
+                                    class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Hooldusrežiimi sõnum">
+                            </div>
+                        </div>
+
+                        <!-- Email Templates -->
+                        <div class="mb-6">
+                            <h3 class="text-md font-medium text-gray-900 mb-4">E-posti mallid</h3>
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
+                                <div class="flex space-x-2">
+                                    <!-- Bulk Actions -->
+                                    <div class="relative" x-data="{ open: false }">
+                                        <button @click="open = !open"
+                                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center">
+                                            <i class="fas fa-tasks mr-2"></i>Hulgitegevused
+                                        </button>
+                                        <div x-show="open" @click.away="open = false"
+                                            class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                                            <button onclick="bulkApproveUsers()"
+                                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <i class="fas fa-check mr-2"></i>Kinnita valitud
+                                            </button>
+                                            <button onclick="bulkDeleteUsers()"
+                                                class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                                <i class="fas fa-trash mr-2"></i>Kustuta valitud
+                                            </button>
+                                            <button onclick="bulkExportUsers()"
+                                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <i class="fas fa-download mr-2"></i>Ekspordi valitud
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Import Users -->
+                                    <button onclick="openImportModal()"
+                                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
+                                        <i class="fas fa-file-import mr-2"></i>Impordi
+                                    </button>
+
+                                    <!-- Add User -->
+                                    <button id="addUserButton"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center">
+                                        <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Filters -->
+                        <div class="px-6 py-4 border-b bg-gray-50">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Otsi</label>
+                                    <input type="text" id="userSearch" placeholder="Email, nimi..."
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Roll</label>
+                                    <select id="roleFilter"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="">Kõik rollid</option>
+                                        <option value="mainAdmin">Peaadministraator</option>
+                                        <option value="admin">Administraator</option>
+                                        <option value="omUser">Ostumaailm Kasutaja</option>
+                                        <option value="hmUser">Hankemaailm Kasutaja</option>
+                                        <option value="user">Tavakasutaja</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Olek</label>
+                                    <select id="statusFilter"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="">Kõik olekud</option>
+                                        <option value="active">Aktiivne</option>
+                                        <option value="inactive">Mitteaktiivne</option>
+                                        <option value="pending">Ootel</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Verifitseerimine</label>
+                                    <select id="verificationFilter"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="">Kõik</option>
+                                        <option value="verified">Verifitseeritud</option>
+                                        <option value="unverified">Verifitseerimata</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-end">
+                                <button onclick="applyFilters()"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                    Rakenda filtrid
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left">
+                                            <input type="checkbox" id="selectAll" class="rounded text-blue-600">
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Email</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Roll</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Olek</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Verifitseerimine</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tegevused</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Users will be dynamically added here -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
+
+                    <!-- Import Users Modal -->
+                    <div id="importUserModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+                        <div class="flex items-center justify-center min-h-screen">
+                            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                                <h2 class="text-xl font-bold mb-4">Impordi kasutajad</h2>
+                                <form id="importUserForm" class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">CSV fail</label>
+                                        <input type="file" id="csvFile" accept=".csv" required
+                                            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Vaikimisi roll</label>
+                                        <select id="defaultRole" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                            <option value="user">Tavakasutaja</option>
+                                            <option value="omUser">Ostumaailm Kasutaja</option>
+                                            <option value="hmUser">Hankemaailm Kasutaja</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex justify-end space-x-2">
+                                        <button type="button" onclick="closeImportModal()"
+                                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                                            Tühista
+                                        </button>
+                                        <button type="submit"
+                                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                            Impordi
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audit Log Section -->
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Audit Log</h2>
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Email</th>
+                                        Kuupäev</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Roll</th>
+                                        Tegevus</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kinnitatud</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tegevused</th>
+                                        Kasutaja</th>
                                 </tr>
                             </thead>
-                            <tbody id="userTable" class="bg-white divide-y divide-gray-200">
-                                <!-- Users will be dynamically added here -->
+                            <tbody id="auditLogTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Audit logs will be dynamically added here -->
                             </tbody>
                         </table>
-                        <!-- Pagination Controls -->
-                        <div
-                            class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                            <div class="flex-1 flex justify-between sm:hidden">
-                                <button id="prevPage"
-                                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                    Eelmine
-                                </button>
-                                <button id="nextPage"
-                                    class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                    Järgmine
-                                </button>
-                            </div>
-                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-700">
-                                        Leht <span id="currentPage" class="font-medium">1</span> / <span id="totalPages"
-                                            class="font-medium">1</span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-                                        aria-label="Pagination">
-                                        <button id="prevPage"
-                                            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                            <span class="sr-only">Eelmine</span>
-                                            <i class="fas fa-chevron-left"></i>
-                                        </button>
-                                        <button id="nextPage"
-                                            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                            <span class="sr-only">Järgmine</span>
-                                            <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </nav>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
-
-                <!-- Audit Log Section -->
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold text-gray-900">Audit Log</h2>
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Kuupäev</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Tegevus</th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Kasutaja</th>
-                            </tr>
-                        </thead>
-                        <tbody id="auditLogTable" class="bg-white divide-y divide-gray-200">
-                            <!-- Audit logs will be dynamically added here -->
-                        </tbody>
-                    </table>
-                </div>
             </main>
         </div>
 
@@ -574,7 +734,7 @@
         // Import Firebase Modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, setDoc, query, where, limit }
+        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, setDoc, query, where, limit, writeBatch }
             from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
         if (!window.FIREBASE_CONFIG) {
@@ -598,6 +758,7 @@
             window.query = query;
             window.where = where;
             window.limit = limit;
+            window.writeBatch = writeBatch;
         }
 
         // Define default settings
@@ -1749,7 +1910,7 @@
             };
         });
 
-        async function loadUsers(page = 1, searchTerm = '', roleFilter = '', statusFilter = '') {
+        async function loadUsers(page = 1, searchTerm = '', roleFilter = '', statusFilter = '', verificationFilter = '') {
             try {
                 console.log("Fetching users from Firestore...");
                 const usersPerPage = 10;
@@ -1768,6 +1929,9 @@
                 }
                 if (statusFilter) {
                     queryRef = query(queryRef, where("status", "==", statusFilter));
+                }
+                if (verificationFilter) {
+                    queryRef = query(queryRef, where("emailVerified", "==", verificationFilter === "verified"));
                 }
 
                 // Apply pagination
@@ -1857,6 +2021,9 @@
                 }
                 if (statusFilter) {
                     totalQueryRef = query(totalQueryRef, where("status", "==", statusFilter));
+                }
+                if (verificationFilter) {
+                    totalQueryRef = query(totalQueryRef, where("emailVerified", "==", verificationFilter === "verified"));
                 }
 
                 const totalSnapshot = await getDocs(totalQueryRef);
@@ -2250,6 +2417,583 @@
         }
 
         localStorage.clear(); // Clear localStorage at the start
+
+        // Initialize charts
+        let userActivityChart = null;
+        let documentCreationChart = null;
+        let systemResourcesChart = null;
+        let errorRateChart = null;
+
+        function initializeCharts() {
+            // User Activity Chart
+            const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+            userActivityChart = new Chart(userActivityCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Kasutajate tegevus',
+                        data: [],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Document Creation Chart
+            const documentCreationCtx = document.getElementById('documentCreationChart').getContext('2d');
+            documentCreationChart = new Chart(documentCreationCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Dokumendid',
+                        data: [],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // System Resources Chart
+            const systemResourcesCtx = document.getElementById('systemResourcesChart').getContext('2d');
+            systemResourcesChart = new Chart(systemResourcesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['CPU', 'Mälu', 'Kettaruum'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 206, 86, 0.5)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Error Rate Chart
+            const errorRateCtx = document.getElementById('errorRateChart').getContext('2d');
+            errorRateChart = new Chart(errorRateCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Vigade sagedus',
+                        data: [],
+                        borderColor: 'rgb(255, 99, 132)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Update dashboard data
+        async function updateDashboardData() {
+            try {
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setDate(startDate.getDate() - 30); // Last 30 days
+
+                // Fetch all data in parallel
+                const [userActivity, documentCreation, systemResources, errorRate] = await Promise.all([
+                    fetchUserActivity(startDate, endDate),
+                    fetchDocumentCreation(startDate, endDate),
+                    fetchSystemResources(),
+                    fetchErrorRate(startDate, endDate)
+                ]);
+
+                // Update charts with new data
+                updateUserActivityChart(userActivity);
+                updateDocumentCreationChart(documentCreation);
+                updateSystemResourcesChart(systemResources);
+                updateErrorRateChart(errorRate);
+
+                // Update system health cards
+                updateSystemHealthCards(systemResources);
+            } catch (error) {
+                console.error("Error updating dashboard:", error);
+                showNotification("Viga andmete uuendamisel!", "error");
+            }
+        }
+
+        // Export dashboard data
+        async function exportDashboardData() {
+            try {
+                const startDate = document.getElementById('dateRangeStart').value;
+                const endDate = document.getElementById('dateRangeEnd').value;
+
+                // Fetch all data
+                const data = await fetchAllDashboardData(startDate, endDate);
+
+                // Convert to CSV
+                const csv = convertToCSV(data);
+
+                // Create and download file
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `dashboard-data-${startDate}-${endDate}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                showNotification('Dashboard andmed eksporditud!', 'success');
+            } catch (error) {
+                console.error('Error exporting dashboard data:', error);
+                showNotification('Viga dashboard andmete ekspordil!', 'error');
+            }
+        }
+
+        // Initialize charts when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCharts();
+            updateDashboardData(); // Initial data load
+        });
+
+        // Bulk actions functions
+        async function bulkApproveUsers() {
+            const selectedUsers = getSelectedUsers();
+            if (selectedUsers.length === 0) {
+                showNotification('Palun vali vähemalt üks kasutaja!', 'error');
+                return;
+            }
+
+            if (!confirm(`Kas oled kindel, et soovid kinnitada ${selectedUsers.length} kasutajat?`)) return;
+
+            try {
+                const batch = writeBatch(db);
+                selectedUsers.forEach(userId => {
+                    const userRef = doc(db, "users", userId);
+                    batch.update(userRef, {
+                        approved: true,
+                        status: 'active',
+                        lastUpdated: new Date()
+                    });
+                });
+
+                await batch.commit();
+                showNotification(`${selectedUsers.length} kasutajat kinnitatud!`, 'success');
+                loadUsers();
+            } catch (error) {
+                console.error('Error bulk approving users:', error);
+                showNotification('Viga kasutajate kinnitamisel!', 'error');
+            }
+        }
+
+        async function bulkDeleteUsers() {
+            const selectedUsers = getSelectedUsers();
+            if (selectedUsers.length === 0) {
+                showNotification('Palun vali vähemalt üks kasutaja!', 'error');
+                return;
+            }
+
+            if (!confirm(`Kas oled kindel, et soovid kustutada ${selectedUsers.length} kasutajat?`)) return;
+
+            try {
+                const batch = writeBatch(db);
+                selectedUsers.forEach(userId => {
+                    const userRef = doc(db, "users", userId);
+                    batch.delete(userRef);
+                });
+
+                await batch.commit();
+                showNotification(`${selectedUsers.length} kasutajat kustutatud!`, 'success');
+                loadUsers();
+            } catch (error) {
+                console.error('Error bulk deleting users:', error);
+                showNotification('Viga kasutajate kustutamisel!', 'error');
+            }
+        }
+
+        async function bulkExportUsers() {
+            const selectedUsers = getSelectedUsers();
+            if (selectedUsers.length === 0) {
+                showNotification('Palun vali vähemalt üks kasutaja!', 'error');
+                return;
+            }
+
+            try {
+                const usersData = await Promise.all(
+                    selectedUsers.map(async userId => {
+                        const userDoc = await getDoc(doc(db, "users", userId));
+                        return userDoc.data();
+                    })
+                );
+
+                const csv = convertToCSV(usersData);
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+
+                showNotification(`${selectedUsers.length} kasutajat eksporditud!`, 'success');
+            } catch (error) {
+                console.error('Error exporting users:', error);
+                showNotification('Viga kasutajate ekspordil!', 'error');
+            }
+        }
+
+        // Import users functions
+        function openImportModal() {
+            document.getElementById('importUserModal').classList.remove('hidden');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importUserModal').classList.add('hidden');
+            document.getElementById('importUserForm').reset();
+        }
+
+        document.getElementById('importUserForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const file = document.getElementById('csvFile').files[0];
+            const defaultRole = document.getElementById('defaultRole').value;
+
+            try {
+                const text = await file.text();
+                const rows = text.split('\n').map(row => row.split(','));
+                const headers = rows[0];
+                const data = rows.slice(1);
+
+                const batch = writeBatch(db);
+                let successCount = 0;
+
+                for (const row of data) {
+                    if (row.length < 1) continue;
+
+                    const email = row[0].trim();
+                    if (!email) continue;
+
+                    try {
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, generateRandomPassword());
+                        const user = userCredential.user;
+
+                        batch.set(doc(db, "users", user.uid), {
+                            email: email,
+                            role: defaultRole,
+                            approved: false,
+                            createdAt: new Date(),
+                            lastLogin: null,
+                            status: 'pending',
+                            uid: user.uid,
+                            emailVerified: false,
+                            lastUpdated: new Date()
+                        });
+
+                        successCount++;
+                    } catch (error) {
+                        console.error(`Error creating user ${email}:`, error);
+                    }
+                }
+
+                await batch.commit();
+                showNotification(`${successCount} kasutajat imporditud!`, 'success');
+                closeImportModal();
+                loadUsers();
+            } catch (error) {
+                console.error('Error importing users:', error);
+                showNotification('Viga kasutajate impordil!', 'error');
+            }
+        });
+
+        // Helper functions
+        function getSelectedUsers() {
+            const checkboxes = document.querySelectorAll('#userTable input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(checkbox => checkbox.value);
+        }
+
+        function generateRandomPassword() {
+            return Math.random().toString(36).slice(-8);
+        }
+
+        function convertToCSV(data) {
+            const headers = Object.keys(data[0]);
+            const rows = data.map(item => headers.map(header => item[header]));
+            return [headers, ...rows].map(row => row.join(',')).join('\n');
+        }
+
+        // Select all checkbox functionality
+        document.getElementById('selectAll').addEventListener('change', function () {
+            const checkboxes = document.querySelectorAll('#userTable input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+
+        // Apply filters function
+        async function applyFilters() {
+            const searchTerm = document.getElementById('userSearch').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const verificationFilter = document.getElementById('verificationFilter').value;
+
+            await loadUsers(1, searchTerm, roleFilter, statusFilter, verificationFilter);
+        }
+
+        // Dashboard data fetching functions
+        async function fetchUserActivity(startDate, endDate) {
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(
+                    usersRef,
+                    where("lastLogin", ">=", startDate),
+                    where("lastLogin", "<=", endDate)
+                );
+                const snapshot = await getDocs(q);
+                return snapshot.size;
+            } catch (error) {
+                console.error("Error fetching user activity:", error);
+                return 0;
+            }
+        }
+
+        async function fetchDocumentCreation(startDate, endDate) {
+            try {
+                // Since we don't have access to documents collection, return mock data
+                return Math.floor(Math.random() * 50);
+            } catch (error) {
+                console.error("Error fetching document creation:", error);
+                return 0;
+            }
+        }
+
+        async function fetchSystemResources() {
+            try {
+                // This is a mock implementation since we don't have actual system metrics
+                return {
+                    cpu: Math.random() * 100,
+                    memory: Math.random() * 100,
+                    storage: Math.random() * 100
+                };
+            } catch (error) {
+                console.error("Error fetching system resources:", error);
+                return { cpu: 0, memory: 0, storage: 0 };
+            }
+        }
+
+        async function fetchErrorRate(startDate, endDate) {
+            try {
+                // Since we don't have access to error logs, return mock data
+                return Math.floor(Math.random() * 10);
+            } catch (error) {
+                console.error("Error fetching error rate:", error);
+                return 0;
+            }
+        }
+
+        function updateUserActivityChart(data) {
+            const ctx = document.getElementById('userActivityChart').getContext('2d');
+            if (userActivityChart) {
+                userActivityChart.destroy();
+            }
+            userActivityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Kasutajad'],
+                    datasets: [{
+                        label: 'Aktiivsed kasutajad',
+                        data: [data],
+                        borderColor: 'rgb(59, 130, 246)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDocumentCreationChart(data) {
+            const ctx = document.getElementById('documentCreationChart').getContext('2d');
+            if (documentCreationChart) {
+                documentCreationChart.destroy();
+            }
+            documentCreationChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Dokumendid'],
+                    datasets: [{
+                        label: 'Loodud dokumendid',
+                        data: [data],
+                        backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                        borderColor: 'rgb(16, 185, 129)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSystemResourcesChart(data) {
+            const ctx = document.getElementById('systemResourcesChart').getContext('2d');
+            if (systemResourcesChart) {
+                systemResourcesChart.destroy();
+            }
+            systemResourcesChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['CPU', 'Mälu', 'Salvestus'],
+                    datasets: [{
+                        data: [data.cpu, data.memory, data.storage],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.5)',
+                            'rgba(16, 185, 129, 0.5)',
+                            'rgba(245, 158, 11, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(245, 158, 11)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function updateErrorRateChart(data) {
+            const ctx = document.getElementById('errorRateChart').getContext('2d');
+            if (errorRateChart) {
+                errorRateChart.destroy();
+            }
+            errorRateChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Vigad'],
+                    datasets: [{
+                        label: 'Vigade arv',
+                        data: [data],
+                        borderColor: 'rgb(239, 68, 68)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSystemHealthCards(data) {
+            // Update CPU usage
+            const cpuUsage = Math.round(data.cpu);
+            document.getElementById('cpuUsage').textContent = `${cpuUsage}%`;
+            document.getElementById('cpuBar').style.width = `${cpuUsage}%`;
+
+            // Update Memory usage
+            const memoryUsage = Math.round(data.memory);
+            document.getElementById('memoryUsage').textContent = `${memoryUsage}%`;
+            document.getElementById('memoryBar').style.width = `${memoryUsage}%`;
+
+            // Update Storage usage
+            const storageUsage = Math.round(data.storage);
+            document.getElementById('storageUsage').textContent = `${storageUsage}%`;
+            document.getElementById('storageBar').style.width = `${storageUsage}%`;
+
+            // Update API requests (mock data for now)
+            const apiRequests = Math.floor(Math.random() * 100);
+            document.getElementById('apiRequests').textContent = apiRequests;
+            document.getElementById('apiBar').style.width = `${Math.min(apiRequests, 100)}%`;
+        }
+
+        // Initialize system settings
+        async function initializeSystemSettings() {
+            try {
+                // First check if user is authenticated
+                if (!auth.currentUser) {
+                    throw new Error('User not authenticated');
+                }
+
+                // Get user's role from Firestore
+                const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+
+                if (!userDoc.exists()) {
+                    throw new Error('User document not found');
+                }
+
+                const userData = userDoc.data();
+                const isMainAdmin = userData.role === 'mainAdmin';
+                const isAdmin = userData.role === 'admin';
+
+                // Only proceed if user is mainAdmin or admin
+                if (!isMainAdmin && !isAdmin) {
+                    throw new Error('Insufficient permissions');
+                }
+
+                const systemRef = doc(db, "system", "maintenance");
+                const systemDoc = await getDoc(systemRef);
+
+                if (!systemDoc.exists()) {
+                    // Only mainAdmin can create initial settings
+                    if (!isMainAdmin) {
+                        throw new Error('Only main admin can create system settings');
+                    }
+
+                    // Create initial system settings
+                    await setDoc(systemRef, {
+                        enabled: false,
+                        message: "Süsteem on hooldusel. Palun proovige hiljem uuesti.",
+                        updatedAt: new Date(),
+                        updatedBy: auth.currentUser.uid,
+                        updatedByEmail: auth.currentUser.email
+                    });
+                } else {
+                    const data = systemDoc.data();
+                    document.getElementById('maintenanceMode').checked = data.enabled;
+                    document.getElementById('maintenanceMessage').value = data.message || '';
+                }
+            } catch (error) {
+                console.error('Error initializing system settings:', error);
+                if (error.message === 'User not authenticated') {
+                    showNotification('Palun logige sisse!', 'error');
+                } else if (error.message === 'User document not found') {
+                    showNotification('Kasutaja dokumenti ei leitud!', 'error');
+                } else if (error.message === 'Insufficient permissions') {
+                    showNotification('Teil puuduvad õigused süsteemi seadete juurdepääsuks!', 'error');
+                } else {
+                    showNotification('Viga süsteemi seadete laadimisel!', 'error');
+                }
+            }
+        }
     </script>
 </body>
 

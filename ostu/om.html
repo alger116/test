@@ -1457,7 +1457,7 @@
                     </button>
 
                     <!-- Settings Button -->
-                    <button @click="showSettingsModal = true"
+                    <button @click="showSettingsModal = true" x-show="currentUser"
                         class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
                         <i class="fas fa-cog"></i>
                         <span class="hidden md:inline">Seaded</span>
@@ -1742,7 +1742,7 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap gap-5 mt-8">
-                    <button @click="generatePDF"
+                    <button @click="generatePDF" x-show="currentUser"
                         class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1">
                         <div
                             class="absolute inset-0 w-full h-full bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -1753,7 +1753,7 @@
                         <span class="relative">Loo PDF</span>
                     </button>
 
-                    <button @click="manualSave"
+                    <button @click="manualSave" x-show="currentUser"
                         class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-1">
                         <div
                             class="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -1764,7 +1764,7 @@
                         <span class="relative">Salvesta</span>
                     </button>
 
-                    <button @click="resetForm"
+                    <button @click="resetForm" x-show="currentUser"
                         class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-red-500/30 hover:-translate-y-1">
                         <div
                             class="absolute inset-0 w-full h-full bg-gradient-to-r from-red-600 to-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
