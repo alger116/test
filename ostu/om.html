@@ -572,9 +572,6 @@
                     },
 
                     init() {
-                        // Remove this line that clears localStorage
-                        // localStorage.removeItem('OM_DRAFT');
-
                         // Check localStorage availability
                         this.checkLocalStorage();
 
@@ -1363,14 +1360,14 @@
 <body class="backdrop-blur-2xl min-h-screen flex flex-col" x-data="formApp" x-cloak :class="{'dark': isDarkMode}">
     <!-- Login Modal -->
     <div x-show="showLoginModal" x-cloak x-transition:enter="transition duration-300 ease-out"
-        x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100"
-        x-transition:leave="transition duration-200 ease-in" x-transition:leave-start="opacity-100 transform scale-100"
-        x-transition:leave-end="opacity-0 transform scale-95"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition duration-200 ease-in" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
         class="fixed inset-0 z-50 overflow-y-auto bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
-        <div
-            class="glassmorphism w-full max-w-md transform transition-all rounded-2xl shadow-2xl p-6 border border-white/30">
+        <div class="fixed left-1/2 transform -translate-x-1/2 top-8 md:top-24 w-full max-w-md rounded-2xl shadow-2xl border border-white/40 bg-white"
+            @click.stop>
             <!-- Close Button -->
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center p-6 border-b border-gray-100/30">
                 <h2
                     class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-700">
                     Logi sisse</h2>
@@ -1380,48 +1377,46 @@
                 </button>
             </div>
 
-            <!-- Email Input -->
-            <div class="space-y-5">
-                <div class="relative">
-                    <label class="text-gray-700 font-medium text-sm mb-1 block">E-post</label>
-                    <div class="relative flex items-center">
-                        <div class="absolute left-3 text-gray-400">
-                            <i class="fas fa-envelope"></i>
+            <div class="p-6">
+                <!-- Email Input -->
+                <div class="space-y-5">
+                    <div class="relative">
+                        <label class="text-gray-700 font-medium text-sm mb-1 block">E-post</label>
+                        <div class="relative flex items-center">
+                            <div class="absolute left-3 text-gray-400">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <input type="email" id="emailLogin" placeholder="Sisesta oma e-post"
+                                class="input w-full pl-10 pr-4 py-3 border border-gray-200 text-gray-900 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all duration-300" />
                         </div>
-                        <input type="email" id="emailLogin" placeholder="Sisesta oma e-post"
-                            class="input w-full pl-10 pr-4 py-3 border border-gray-200 text-gray-900 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all duration-300" />
                     </div>
-                </div>
 
-                <!-- Password Input -->
-                <div class="relative">
-                    <label class="text-gray-700 font-medium text-sm mb-1 block">Parool</label>
-                    <div class="relative flex items-center">
-                        <div class="absolute left-3 text-gray-400">
-                            <i class="fas fa-lock"></i>
+                    <!-- Password Input -->
+                    <div class="relative">
+                        <label class="text-gray-700 font-medium text-sm mb-1 block">Parool</label>
+                        <div class="relative flex items-center">
+                            <div class="absolute left-3 text-gray-400">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <input type="password" id="passwordLogin" placeholder="Sisesta oma parool"
+                                class="input w-full pl-10 pr-4 py-3 border border-gray-200 text-gray-900 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all duration-300" />
                         </div>
-                        <input type="password" id="passwordLogin" placeholder="Sisesta oma parool"
-                            class="input w-full pl-10 pr-4 py-3 border border-gray-200 text-gray-900 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all duration-300" />
+                    </div>
+
+                    <div class="flex items-center justify-between mt-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="rememberMe" class="mr-2 rounded-md">
+                            <label for="rememberMe" class="text-gray-700 text-sm">Pea meeles mind</label>
+                        </div>
+                        <a href="#" class="text-sm text-indigo-600 hover:text-indigo-800">Unustasid parooli?</a>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between mt-2">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="rememberMe" class="mr-2 rounded-md">
-                        <label for="rememberMe" class="text-gray-700 text-sm">Pea meeles mind</label>
-                    </div>
-                    <a href="#" class="text-sm text-indigo-600 hover:text-indigo-800">Unustasid parooli?</a>
-                </div>
-            </div>
-
-            <!-- Login Button -->
-            <button @click="login(); showLoginModal = false"
-                class="w-full mt-6 py-3 px-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1">
-                <i class="fas fa-sign-in-alt mr-2"></i> Logi sisse
-            </button>
-
-            <div class="mt-5 text-center text-sm text-gray-600">
-                Puudub konto? <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">Registreeru</a>
+                <!-- Login Button -->
+                <button @click="login()"
+                    class="w-full mt-6 py-3 px-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Logi sisse
+                </button>
             </div>
         </div>
     </div>

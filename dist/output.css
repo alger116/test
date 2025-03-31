@@ -348,6 +348,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .z-50 {
   z-index: 50;
 }
+.z-\[100\] {
+  z-index: 100;
+}
 .z-auto {
   z-index: auto;
 }
@@ -5443,6 +5446,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .motion-safe\:animate-bounce {
   @media (prefers-reduced-motion: no-preference) {
     animation: var(--animate-bounce);
+  }
+}
+.sm\:my-0 {
+  @media (width >= 40rem) {
+    margin-block: calc(var(--spacing) * 0);
   }
 }
 .sm\:my-8 {
