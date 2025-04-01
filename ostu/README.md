@@ -77,4 +77,4 @@ Modernne ja funktsionaalne ostumenetluse kutse süsteem koos dashboardiga.
 
 ## Litsents
 
-MIT VP
+License: Proprietary – usage by written permission only. Contact viljarpartel@gmail.com
