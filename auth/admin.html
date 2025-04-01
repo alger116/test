@@ -1301,6 +1301,49 @@
                         // ... add more UI updates as needed ...
                     }
 
+                    // Define default roles
+                    const defaultRoles = {
+                        mainAdmin: {
+                            name: "Peaadministraator",
+                            permissions: {
+                                fullAccess: true,
+                                userManagement: true,
+                                settingsManagement: true,
+                                roleManagement: true,
+                                omAccess: true,
+                                hmAccess: true,
+                                auditLogAccess: true,
+                                systemSettings: true
+                            }
+                        },
+                        admin: {
+                            name: "Administraator",
+                            permissions: {
+                                fullAccess: true,
+                                userManagement: true,
+                                settingsManagement: true,
+                                roleManagement: true,
+                                omAccess: true,
+                                hmAccess: true,
+                                auditLogAccess: true,
+                                systemSettings: true
+                            }
+                        },
+                        user: {
+                            name: "Tavakasutaja",
+                            permissions: {
+                                fullAccess: false,
+                                userManagement: false,
+                                settingsManagement: false,
+                                roleManagement: false,
+                                omAccess: false,
+                                hmAccess: false,
+                                auditLogAccess: false,
+                                systemSettings: false
+                            }
+                        }
+                    };
+
                     // Function to load saved roles from localStorage
                     function loadSavedRoles() {
                         try {
