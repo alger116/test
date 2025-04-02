@@ -2319,6 +2319,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .bg-indigo-400 {
   background-color: var(--color-indigo-400);
 }
+.bg-indigo-500 {
+  background-color: var(--color-indigo-500);
+}
 .bg-indigo-600 {
   background-color: var(--color-indigo-600);
 }
@@ -4698,6 +4701,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       background-color: var(--color-indigo-500);
+    }
+  }
+}
+.hover\:bg-indigo-600 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-indigo-600);
     }
   }
 }

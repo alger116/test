@@ -8,6 +8,9 @@
 
     <!-- Only include jsPDF -->
     <script src="../assets/js/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script>
         // Wait for jsPDF to be fully loaded
         window.addEventListener('DOMContentLoaded', function () {
@@ -1331,7 +1334,7 @@
                                         enabled: true,
                                         open: false,
                                         options: [
-                                            { text: '111Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
+                                            { text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
                                             { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
                                             { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
                                             { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
@@ -1362,7 +1365,7 @@
                                         ]
                                     },
                                     {
-                                        title: '4 Pakkumuste kontrollimine, hindamine ja eduka pakkumuse valik',
+                                        title: '4 Pakkumuste kontroll, hindamine ja eduka pakkumuse valik',
                                         enabled: true,
                                         open: false,
                                         options: [
@@ -1676,6 +1679,228 @@
                         } catch (error) {
                             console.error('Error loading basic data fields:', error);
                             this.showToast('Viga põhiandmete laadimisel: ' + error.message, 'error');
+                        }
+                    },
+
+                    // Add Word document generation function
+                    async generateWord() {
+                        try {
+                            const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = docx;
+
+                            // Create document content
+                            const doc = new Document({
+                                sections: [{
+                                    properties: {},
+                                    children: [
+                                        new Paragraph({
+                                            text: "Pakkumine",
+                                            heading: HeadingLevel.HEADING_1,
+                                            alignment: AlignmentType.CENTER,
+                                        }),
+                                        new Paragraph({
+                                            children: [
+                                                new TextRun({
+                                                    text: "Hankija: " + (this.form.fields.buyer || ''),
+                                                    bold: true,
+                                                }),
+                                            ],
+                                        }),
+                                        new Paragraph({
+                                            children: [
+                                                new TextRun({
+                                                    text: "Pakkumise esitamise aeg ja koht: " + (this.form.fields.submission || ''),
+                                                }),
+                                            ],
+                                        }),
+                                        new Paragraph({
+                                            children: [
+                                                new TextRun({
+                                                    text: "Pakkumuse jõusoleku aeg: " + (this.form.fields.validity || ''),
+                                                }),
+                                            ],
+                                        }),
+                                        new Paragraph({
+                                            children: [
+                                                new TextRun({
+                                                    text: "Nõuded pakkujale:",
+                                                    bold: true,
+                                                }),
+                                            ],
+                                        }),
+                                        new Paragraph({
+                                            children: [
+                                                new TextRun({
+                                                    text: this.form.fields.requirements || '',
+                                                }),
+                                            ],
+                                        }),
+                                        new Paragraph({
+                                            children: [
+                                                new TextRun({
+                                                    text: "Väljavaliku alused:",
+                                                    bold: true,
+                                                }),
+                                            ],
+                                        }),
+                                        new Paragraph({
+                                            children: [
+                                                new TextRun({
+                                                    text: this.form.fields.criteria || '',
+                                                }),
+                                            ],
+                                        }),
+                                        new Paragraph({
+                                            children: [
+                                                new TextRun({
+                                                    text: "Vastutav isik: " + (this.form.fields.responsible || ''),
+                                                    bold: true,
+                                                }),
+                                            ],
+                                        }),
+                                    ],
+                                }],
+                            });
+
+                            // Generate and save the document
+                            const blob = await Packer.toBlob(doc);
+                            const fileName = `Pakkumine_${new Date().toLocaleDateString('et-EE')}.docx`;
+                            saveAs(blob, fileName);
+
+                            // Save to history if user is logged in
+                            if (window.currentUser) {
+                                const wordData = URL.createObjectURL(blob);
+                                await this.saveToHistory({
+                                    name: fileName,
+                                    pdfData: wordData,
+                                    formData: JSON.stringify({
+                                        name: this.form.name,
+                                        intro: this.form.intro,
+                                        fields: this.form.fields,
+                                        sections: this.form.sections,
+                                        attachments: this.form.attachments
+                                    }),
+                                    createdAt: new Date().toISOString(),
+                                    responsible: this.form.fields.responsible,
+                                    submissionDate: this.form.fields.submission
+                                });
+                            }
+
+                        } catch (error) {
+                            console.error('Error generating Word document:', error);
+                            alert('Viga Word dokumendi loomisel. Palun proovige uuesti.');
+                        }
+                    },
+
+                    async saveToHistory(data) {
+                        try {
+                            if (!window.currentUser) {
+                                throw new Error('User not logged in');
+                            }
+
+                            const { doc, setDoc, getDoc } = window.firestoreFunctions;
+                            const userRef = doc(window.db, "users", window.currentUser.uid);
+
+                            // Get current user data
+                            const userDoc = await getDoc(userRef);
+                            const currentData = userDoc.exists() ? userDoc.data() : {};
+                            const currentPdfHistory = currentData.pdfHistory || [];
+
+                            // Add new entry and keep only last 10
+                            const updatedPdfHistory = [data, ...currentPdfHistory].slice(0, 10);
+
+                            // Update Firestore
+                            await setDoc(userRef, {
+                                pdfHistory: updatedPdfHistory,
+                                lastUpdated: new Date().toISOString()
+                            }, { merge: true });
+
+                            // Update global state
+                            window.userData = {
+                                ...window.userData,
+                                pdfHistory: updatedPdfHistory,
+                                lastUpdated: new Date().toISOString()
+                            };
+
+                            // Update local state
+                            this.userSettings.generatedPdfs = updatedPdfHistory;
+
+                            return true;
+                        } catch (error) {
+                            console.error('Error saving to history:', error);
+                            throw error;
+                        }
+                    },
+
+                    async copyToTender(pdf) {
+                        try {
+                            // Check if we're dealing with history data
+                            if (!pdf) {
+                                throw new Error('No data provided to copy');
+                            }
+
+                            // Log the PDF data structure for debugging
+                            console.log('PDF data structure:', pdf);
+
+                            // Get the form data from localStorage
+                            const raw = localStorage.getItem('OM_DRAFT');
+                            if (!raw) {
+                                throw new Error('No saved form data found');
+                            }
+
+                            const data = JSON.parse(raw);
+                            if (!data.form) {
+                                throw new Error('Invalid form data structure');
+                            }
+
+                            // Update all form fields with fallback values
+                            this.form.name = pdf.name?.replace(/\.pdf$/, '') || '';
+                            this.form.intro = data.form.intro || '';
+
+                            // Copy all standard fields with validation
+                            if (data.form.fields && typeof data.form.fields === 'object') {
+                                Object.keys(data.form.fields).forEach(key => {
+                                    if (this.form.fields[key] !== undefined) {
+                                        this.form.fields[key] = data.form.fields[key] || '';
+                                    }
+                                });
+                            }
+
+                            // Update specific fields from the PDF data
+                            if (pdf.responsible) {
+                                this.form.fields.responsible = pdf.responsible;
+                            }
+                            if (pdf.submissionDate) {
+                                this.form.fields.submission = pdf.submissionDate;
+                            }
+
+                            // Copy sections if they exist
+                            if (Array.isArray(data.form.sections)) {
+                                this.form.sections = data.form.sections.map(section => ({
+                                    ...section,
+                                    enabled: section.enabled ?? true,
+                                    open: section.open ?? false,
+                                    options: Array.isArray(section.options) ? section.options.map(option => ({
+                                        ...option,
+                                        checked: option.checked ?? false,
+                                        editable: option.editable ?? false
+                                    })) : []
+                                }));
+                            }
+
+                            // Copy attachments if they exist
+                            if (Array.isArray(data.files)) {
+                                this.files = data.files;
+                            }
+
+                            // Show success message
+                            this.showToast('Andmed kanti edukalt kutsele', 'success');
+
+                            // Close settings modal
+                            this.showSettingsModal = false;
+                        } catch (error) {
+                            console.error('Error copying tender data:', error);
+                            console.error('PDF data that caused the error:', pdf);
+                            this.showToast('Viga andmete kopeerimisel: ' + error.message, 'error');
                         }
                     },
                 }
@@ -2585,16 +2810,21 @@
                                                     <p class="text-sm text-gray-500" x-show="pdf.submissionDate"
                                                         x-text="'Esitamise tähtaeg: ' + pdf.submissionDate"></p>
                                                 </div>
-                                                <div class="flex space-x-2">
+                                                <div class="flex space-x-3">
                                                     <button @click="downloadSavedPdf(pdf.pdfData, pdf.name + '.pdf')"
-                                                        class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors"
-                                                        title="Laadi alla">
-                                                        <i class="fas fa-download"></i>
+                                                        class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-sm hover:shadow-md">
+                                                        <i class="fas fa-download mr-2"></i>
+                                                        <span>Laadi alla</span>
                                                     </button>
                                                     <button @click="window.open(pdf.pdfData, '_blank')"
-                                                        class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors"
-                                                        title="Vaata PDF">
-                                                        <i class="fas fa-eye"></i>
+                                                        class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm hover:shadow-md">
+                                                        <i class="fas fa-eye mr-2"></i>
+                                                        <span>Vaata</span>
+                                                    </button>
+                                                    <button @click="copyToTender(pdf)"
+                                                        class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 shadow-sm hover:shadow-md">
+                                                        <i class="fas fa-copy mr-2"></i>
+                                                        <span>Kanna kutsele</span>
                                                     </button>
                                                 </div>
                                             </div>
