@@ -212,10 +212,10 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
         // Make Firestore functions available globally
-        window.firestoreFunctions = { doc, getDoc, setDoc };
+        window.firestoreFunctions = { doc, getDoc, setDoc, arrayUnion, arrayRemove };
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -241,6 +241,67 @@
         // Make auth and db available globally
         window.auth = auth;
         window.db = db;
+
+        // Add auth state listener
+        onAuthStateChanged(auth, async (user) => {
+            console.log('Auth state changed:', user ? 'User logged in' : 'No user');
+            if (user) {
+                // User is signed in
+                window.currentUser = {
+                    uid: user.uid,
+                    email: user.email
+                };
+                // Load user data from Firestore
+                const { doc, getDoc } = window.firestoreFunctions;
+                const userRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userRef);
+
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    console.log('Loaded user data:', data);
+                    // Store user data globally
+                    window.userData = data;
+                    // Dispatch custom event for Alpine.js
+                    window.dispatchEvent(new CustomEvent('userDataUpdated', {
+                        detail: {
+                            currentUser: window.currentUser,
+                            userData: data
+                        }
+                    }));
+                } else {
+                    console.log('No user document found, creating new one');
+                    // Create new user document
+                    await setDoc(userRef, {
+                        settings: {},
+                        pdfHistory: [],
+                        lastUpdated: new Date().toISOString()
+                    });
+                    window.userData = {
+                        settings: {},
+                        pdfHistory: [],
+                        lastUpdated: new Date().toISOString()
+                    };
+                    // Dispatch custom event for Alpine.js
+                    window.dispatchEvent(new CustomEvent('userDataUpdated', {
+                        detail: {
+                            currentUser: window.currentUser,
+                            userData: window.userData
+                        }
+                    }));
+                }
+            } else {
+                // User is signed out
+                window.currentUser = null;
+                window.userData = null;
+                // Dispatch custom event for Alpine.js
+                window.dispatchEvent(new CustomEvent('userDataUpdated', {
+                    detail: {
+                        currentUser: null,
+                        userData: null
+                    }
+                }));
+            }
+        });
 
         // Make logout function available globally
         window.handleLogout = async () => {
@@ -484,12 +545,242 @@
                         criteria: '',
                         responsible: '',
                         autofillEnabled: false,
-                        // Design settings
-                        theme: 'indigo', // Default theme color
-                        font: 'Inter', // Default font
-                        buttonStyle: 'rounded', // Default button style
-                        // History settings
-                        generatedPdfs: []
+                        theme: 'indigo',
+                        font: 'Inter',
+                        buttonStyle: 'rounded',
+                        generatedPdfs: [],
+                        lastUpdated: null
+                    },
+
+                    async init() {
+                        console.log('Initializing Alpine.js component...');
+                        // Check localStorage availability
+                        this.checkLocalStorage();
+
+                        // Check for remembered user
+                        const rememberedUser = localStorage.getItem('rememberedUser');
+                        if (rememberedUser) {
+                            const { username } = JSON.parse(rememberedUser);
+                            document.getElementById('emailLogin').value = username;
+                            document.getElementById('rememberMe').checked = true;
+                        }
+
+                        // Check for current user
+                        const currentUser = localStorage.getItem('currentUser');
+                        if (currentUser) {
+                            const userData = JSON.parse(currentUser);
+                            this.currentUser = userData;
+                            this.isAdmin = userData.isAdmin;
+                            this.showLoginModal = false;
+                        }
+
+                        // Initialize Sortable for the sections
+                        this.$nextTick(() => {
+                            if (this.$refs.draggableSections) {
+                                new Sortable(this.$refs.draggableSections, {
+                                    animation: 150,
+                                    handle: '.drag-handle',
+                                    onEnd: (evt) => {
+                                        const newOrder = Array.from(evt.from.children).map(child => {
+                                            return child.__x.$data.section;
+                                        });
+                                        this.form.sections = newOrder;
+                                        this.saveToStorage();
+                                    }
+                                });
+                            }
+                        });
+
+                        // Load data from storage initially
+                        this.loadFromStorage();
+
+                        // Set up manual watcher for form changes
+                        this.setupFormWatcher();
+
+                        // Auto-hide error messages
+                        setInterval(() => {
+                            if (this.showError) {
+                                this.showError = false;
+                            }
+                        }, 5000);
+
+                        // Load user settings and PDF history
+                        await this.loadUserSettings();
+
+                        // Listen for user data updates
+                        window.addEventListener('userDataUpdated', (event) => {
+                            console.log('Received user data update:', event.detail);
+                            const { currentUser, userData } = event.detail;
+                            this.currentUser = currentUser;
+                            if (userData) {
+                                window.userData = userData;
+                                if (userData.pdfHistory) {
+                                    this.userSettings.generatedPdfs = userData.pdfHistory;
+                                    console.log('Updated PDF history in Alpine:', this.userSettings.generatedPdfs);
+                                }
+                            } else {
+                                window.userData = null;
+                                this.userSettings.generatedPdfs = [];
+                            }
+                        });
+
+                        // Set up watchers
+                        this.watchAutofill();
+                        this.watchBasicDataFields();
+                    },
+
+                    async loadPdfHistory() {
+                        try {
+                            console.log('Loading PDF history in Alpine...');
+                            if (window.currentUser) {
+                                console.log('Current user in Alpine:', window.currentUser);
+                                const { doc, getDoc } = window.firestoreFunctions;
+                                const userRef = doc(window.db, "users", window.currentUser.uid);
+                                console.log('User reference:', userRef);
+
+                                const userDoc = await getDoc(userRef);
+                                console.log('User document exists:', userDoc.exists());
+
+                                if (userDoc.exists()) {
+                                    const data = userDoc.data();
+                                    console.log('Full user data:', data);
+
+                                    if (data.pdfHistory && Array.isArray(data.pdfHistory)) {
+                                        console.log('PDF History array:', data.pdfHistory);
+                                        this.userSettings.generatedPdfs = data.pdfHistory;
+                                        // Update global state
+                                        window.userData = {
+                                            ...window.userData,
+                                            pdfHistory: data.pdfHistory
+                                        };
+                                        console.log('Updated userSettings.generatedPdfs:', this.userSettings.generatedPdfs);
+                                    } else {
+                                        console.log('No PDF history array found in data');
+                                        this.userSettings.generatedPdfs = [];
+                                    }
+                                } else {
+                                    console.log('No user document found');
+                                    this.userSettings.generatedPdfs = [];
+                                }
+                            } else {
+                                console.log('No current user found');
+                                this.userSettings.generatedPdfs = [];
+                            }
+                        } catch (error) {
+                            console.error('Error loading PDF history:', error);
+                            this.showToast('Viga PDF ajaloo laadimisel: ' + error.message, 'error');
+                            this.userSettings.generatedPdfs = [];
+                        }
+                    },
+
+                    async loadUserSettings() {
+                        try {
+                            console.log('Loading user settings...');
+                            if (window.currentUser && window.userData) {
+                                console.log('User is logged in, loading from global data');
+                                // Load settings
+                                if (window.userData.settings) {
+                                    console.log('Loading settings from global data');
+                                    Object.keys(window.userData.settings).forEach(key => {
+                                        if (this.userSettings.hasOwnProperty(key)) {
+                                            this.userSettings[key] = window.userData.settings[key];
+                                        }
+                                    });
+                                }
+
+                                // Load PDF history
+                                if (window.userData.pdfHistory) {
+                                    console.log('Loading PDF history from global data:', window.userData.pdfHistory);
+                                    this.userSettings.generatedPdfs = window.userData.pdfHistory;
+                                    this.userSettings.lastUpdated = window.userData.lastUpdated;
+                                } else {
+                                    console.log('No PDF history found in global data');
+                                    this.userSettings.generatedPdfs = [];
+                                }
+
+                                // Apply autofill if enabled
+                                if (this.userSettings.autofillEnabled) {
+                                    this.applyAutofill();
+                                }
+                            } else {
+                                console.log('No user logged in, falling back to localStorage');
+                                // Fallback to localStorage
+                                const savedSettings = localStorage.getItem('userSettings');
+                                if (savedSettings) {
+                                    const settings = JSON.parse(savedSettings);
+                                    Object.keys(settings).forEach(key => {
+                                        if (this.userSettings.hasOwnProperty(key)) {
+                                            this.userSettings[key] = settings[key];
+                                        }
+                                    });
+                                }
+                            }
+
+                            console.log('Final userSettings:', this.userSettings);
+                        } catch (error) {
+                            console.error('Settings load error:', error);
+                            this.showToast('Viga seadete laadimisel: ' + error.message, 'error');
+                        }
+                    },
+
+                    async saveUserSettings() {
+                        try {
+                            console.log('Saving user settings...');
+                            // Apply theme changes immediately
+                            this.applyTheme();
+
+                            // Save to Firestore if logged in
+                            if (window.currentUser) {
+                                console.log('User is logged in, saving to Firestore:', window.currentUser.uid);
+                                const { doc, setDoc } = window.firestoreFunctions;
+                                const userRef = doc(window.db, "users", window.currentUser.uid);
+
+                                // Create settings object without generatedPdfs
+                                const settingsToSave = { ...this.userSettings };
+                                delete settingsToSave.generatedPdfs;
+                                delete settingsToSave.lastUpdated;
+
+                                console.log('Saving to Firestore:', {
+                                    settings: settingsToSave,
+                                    pdfHistory: this.userSettings.generatedPdfs,
+                                    lastUpdated: new Date().toISOString()
+                                });
+
+                                await setDoc(userRef, {
+                                    settings: settingsToSave,
+                                    pdfHistory: this.userSettings.generatedPdfs,
+                                    lastUpdated: new Date().toISOString()
+                                }, { merge: true });
+
+                                // Update global state
+                                window.userData = {
+                                    ...window.userData,
+                                    settings: settingsToSave,
+                                    lastUpdated: new Date().toISOString()
+                                };
+
+                                // Dispatch event to update other components
+                                window.dispatchEvent(new CustomEvent('userDataUpdated', {
+                                    detail: {
+                                        currentUser: window.currentUser,
+                                        userData: window.userData
+                                    }
+                                }));
+                            } else {
+                                console.log('No user logged in, saving to localStorage');
+                                // Fallback to localStorage
+                                const settingsToSave = { ...this.userSettings };
+                                delete settingsToSave.generatedPdfs;
+                                delete settingsToSave.lastUpdated;
+                                localStorage.setItem('userSettings', JSON.stringify(settingsToSave));
+                            }
+
+                            this.showSettingsModal = false;
+                            this.showToast('Seaded salvestatud!', 'success');
+                        } catch (error) {
+                            console.error('Settings save error:', error);
+                            this.showToast('Viga seadete salvestamisel: ' + error.message, 'error');
+                        }
                     },
 
                     async login() {
@@ -575,61 +866,6 @@
                         }
                     },
 
-                    init() {
-                        // Check localStorage availability
-                        this.checkLocalStorage();
-
-                        // Check for remembered user
-                        const rememberedUser = localStorage.getItem('rememberedUser');
-                        if (rememberedUser) {
-                            const { username } = JSON.parse(rememberedUser);
-                            document.getElementById('emailLogin').value = username;
-                            document.getElementById('rememberMe').checked = true;
-                        }
-
-                        // Check for current user
-                        const currentUser = localStorage.getItem('currentUser');
-                        if (currentUser) {
-                            const userData = JSON.parse(currentUser);
-                            this.currentUser = userData;
-                            this.isAdmin = userData.isAdmin;
-                            this.showLoginModal = false;
-                        }
-
-                        // Initialize Sortable for the sections
-                        this.$nextTick(() => {
-                            if (this.$refs.draggableSections) {
-                                new Sortable(this.$refs.draggableSections, {
-                                    animation: 150,
-                                    handle: '.drag-handle',
-                                    onEnd: (evt) => {
-                                        const newOrder = Array.from(evt.from.children).map(child => {
-                                            return child.__x.$data.section;
-                                        });
-                                        this.form.sections = newOrder;
-                                        // Save changes after reordering
-                                        this.saveToStorage();
-                                    }
-                                });
-                            }
-                        });
-
-                        // Load data from storage initially
-                        this.loadFromStorage();
-
-                        // Set up manual watcher for form changes instead of using Alpine.effect
-                        this.setupFormWatcher();
-
-                        // Veateadete automaatne peitmine
-                        setInterval(() => {
-                            if (this.showError) {
-                                this.showError = false;
-                            }
-                        }, 5000);
-
-                        this.loadUserSettings();
-                    },
-
                     setupFormWatcher() {
                         // Watch for changes to form inputs
                         document.addEventListener('input', (e) => {
@@ -665,11 +901,11 @@
                     },
 
                     async generatePDF() {
-                        if (!this.validateForm()) return;
-
                         try {
                             this.isGeneratingPDF = true;
-                            this.isLoading = true;
+                            console.log('Generating PDF...');
+
+                            if (!this.validateForm()) return;
 
                             // Check if jsPDF is properly loaded
                             if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
@@ -805,33 +1041,67 @@
 
                             // Save the PDF
                             const pdfName = `${this.form.name || 'ostumenetlus'}.pdf`;
-                            doc.save(pdfName);
+                            const pdfData = doc.output('datauristring');
 
-                            // Track PDF generation in dashboard stats
-                            const recentPdfs = JSON.parse(localStorage.getItem('recentPdfs')) || [];
-                            recentPdfs.unshift({
-                                id: Date.now(),
-                                name: this.form.name || 'Ostumenetlus',
-                                responsible: this.form.fields.responsible || '',
-                                submissionDate: this.form.fields.submission || '',
-                                createdAt: this.today,
-                                createdBy: this.currentUser.username,
-                                role: this.currentUser.role
-                            });
+                            // Save PDF to Firestore if user is logged in
+                            if (window.currentUser) {
+                                console.log('User is logged in, saving PDF to Firestore');
+                                const { doc, setDoc, getDoc } = window.firestoreFunctions;
+                                const userRef = doc(window.db, "users", window.currentUser.uid);
 
-                            // Keep only last 50 PDFs
-                            if (recentPdfs.length > 50) {
-                                recentPdfs.pop();
+                                const pdfEntry = {
+                                    id: Date.now().toString(),
+                                    name: `${this.form.name || 'Pakkumus'}_${new Date().toLocaleDateString('et-EE')}.pdf`,
+                                    pdfData: pdfData,
+                                    createdAt: new Date().toISOString(),
+                                    responsible: this.form.fields.responsible || '',
+                                    submissionDate: this.form.fields.submission || ''
+                                };
+
+                                console.log('Saving PDF entry:', pdfEntry);
+
+                                // Get current user data
+                                const userDoc = await getDoc(userRef);
+                                const currentData = userDoc.exists() ? userDoc.data() : {};
+                                const currentPdfHistory = currentData.pdfHistory || [];
+
+                                console.log('Current PDF history:', currentPdfHistory);
+
+                                // Add new PDF and keep only last 10
+                                const updatedPdfHistory = [pdfEntry, ...currentPdfHistory].slice(0, 10);
+
+                                console.log('Updated PDF history:', updatedPdfHistory);
+
+                                // Update Firestore
+                                await setDoc(userRef, {
+                                    pdfHistory: updatedPdfHistory,
+                                    lastUpdated: new Date().toISOString()
+                                }, { merge: true });
+
+                                // Update global state
+                                window.userData = {
+                                    ...window.userData,
+                                    pdfHistory: updatedPdfHistory,
+                                    lastUpdated: new Date().toISOString()
+                                };
+
+                                // Update local state
+                                this.userSettings.generatedPdfs = updatedPdfHistory;
+
+                                console.log('PDF saved to Firestore successfully');
+                            } else {
+                                console.log('No user logged in, not saving PDF to Firestore');
                             }
 
-                            localStorage.setItem('recentPdfs', JSON.stringify(recentPdfs));
+                            // Download the PDF
+                            doc.save(pdfName);
 
                             this.showToast('PDF edukalt loodud', 'success');
                         } catch (error) {
-                            this.showToast('PDF loomisel tekkis viga: ' + error.message, 'error');
+                            console.error('PDF generation error:', error);
+                            this.showToast('Viga PDF genereerimisel: ' + error.message, 'error');
                         } finally {
                             this.isGeneratingPDF = false;
-                            this.isLoading = false;
                         }
                     },
 
@@ -1209,9 +1479,9 @@
                             this.applyTheme();
 
                             // Try to save to Firestore if logged in
-                            if (window.auth?.currentUser) {
+                            if (window.currentUser) {
                                 const { doc, setDoc } = window.firestoreFunctions;
-                                const userRef = doc(window.db, "users", window.auth.currentUser.uid);
+                                const userRef = doc(window.db, "users", window.currentUser.uid);
                                 await setDoc(userRef, {
                                     settings: this.userSettings
                                 }, { merge: true });
@@ -1285,64 +1555,129 @@
                         });
                     },
 
-                    async loadUserSettings() {
+                    applyAutofill() {
+                        console.log('Applying autofill settings');
+                        const updatedFields = { ...this.form.fields };
+                        if (this.userSettings.buyer) updatedFields.buyer = this.userSettings.buyer;
+                        if (this.userSettings.submission) updatedFields.submission = this.userSettings.submission;
+                        if (this.userSettings.validity) updatedFields.validity = this.userSettings.validity;
+                        if (this.userSettings.requirements) updatedFields.requirements = this.userSettings.requirements;
+                        if (this.userSettings.criteria) updatedFields.criteria = this.userSettings.criteria;
+                        if (this.userSettings.responsible) updatedFields.responsible = this.userSettings.responsible;
+                        this.form.fields = updatedFields;
+                        console.log('Autofill applied:', updatedFields);
+                    },
+
+                    // Add watcher for autofill toggle
+                    watchAutofill() {
+                        this.$watch('userSettings.autofillEnabled', (value) => {
+                            console.log('Autofill toggled:', value);
+                            if (value) {
+                                this.applyAutofill();
+                            }
+                        });
+                    },
+
+                    // Add watchers for basic data fields
+                    watchBasicDataFields() {
+                        const fields = ['buyer', 'submission', 'validity', 'requirements', 'criteria', 'responsible'];
+                        fields.forEach(field => {
+                            this.$watch(`userSettings.${field}`, (value) => {
+                                console.log(`${field} changed:`, value);
+                                if (this.userSettings.autofillEnabled) {
+                                    this.applyAutofill();
+                                }
+                            });
+                        });
+                    },
+
+                    // Add function to download saved PDF
+                    async downloadSavedPdf(pdfData, fileName) {
                         try {
-                            // Try to load from Firestore if logged in
-                            if (window.auth?.currentUser) {
+                            const link = document.createElement('a');
+                            link.href = pdfData;
+                            link.download = fileName;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        } catch (error) {
+                            this.showToast('Viga PDF allalaadimisel: ' + error.message, 'error');
+                        }
+                    },
+
+                    // Add function to clear PDF history
+                    async clearPdfHistory() {
+                        if (!confirm('Kas olete kindel, et soovite kogu PDF ajaloo kustutada?')) return;
+
+                        try {
+                            if (window.currentUser) {
+                                const { doc, setDoc } = window.firestoreFunctions;
+                                const userRef = doc(window.db, "users", window.currentUser.uid);
+                                await setDoc(userRef, {
+                                    pdfHistory: []
+                                }, { merge: true });
+
+                                this.userSettings.generatedPdfs = [];
+                                this.showToast('PDF ajalugu kustutatud', 'success');
+                            }
+                        } catch (error) {
+                            this.showToast('Viga PDF ajaloo kustutamisel: ' + error.message, 'error');
+                        }
+                    },
+
+                    // Update the tab click handler
+                    handleTabClick(tab) {
+                        console.log('Tab clicked:', tab);
+                        this.activeTab = tab;
+                        if (tab === 'history') {
+                            console.log('Loading PDF history for history tab');
+                            this.loadPdfHistory();
+                        } else if (tab === 'basicInfo') {
+                            console.log('Loading user settings for basic info tab');
+                            this.loadUserSettings();
+                        }
+                    },
+
+                    async loadBasicDataFields() {
+                        try {
+                            console.log('Loading basic data fields...');
+                            if (window.currentUser) {
+                                console.log('Current user:', window.currentUser);
                                 const { doc, getDoc } = window.firestoreFunctions;
-                                const userRef = doc(window.db, "users", window.auth.currentUser.uid);
+                                const userRef = doc(window.db, "users", window.currentUser.uid);
+                                console.log('User reference:', userRef);
+
                                 const userDoc = await getDoc(userRef);
+                                console.log('User document exists:', userDoc.exists());
 
                                 if (userDoc.exists()) {
                                     const data = userDoc.data();
+                                    console.log('Full user data:', data);
+
                                     if (data.settings) {
-                                        // Only update fields that exist in the saved settings
-                                        Object.keys(data.settings).forEach(key => {
-                                            if (this.userSettings.hasOwnProperty(key)) {
-                                                this.userSettings[key] = data.settings[key];
+                                        console.log('Loading settings from Firestore:', data.settings);
+                                        // Update only the basic data fields
+                                        const basicFields = ['buyer', 'submission', 'validity', 'requirements', 'criteria', 'responsible', 'autofillEnabled'];
+                                        basicFields.forEach(field => {
+                                            if (data.settings[field] !== undefined) {
+                                                this.userSettings[field] = data.settings[field];
                                             }
                                         });
+                                        console.log('Updated userSettings:', this.userSettings);
+                                    } else {
+                                        console.log('No settings found in data');
                                     }
+                                } else {
+                                    console.log('No user document found');
                                 }
                             } else {
-                                // Fallback: Try to load from localStorage if not logged in
-                                const savedSettings = localStorage.getItem('userSettings');
-                                if (savedSettings) {
-                                    const settings = JSON.parse(savedSettings);
-                                    // Only update fields that exist in the saved settings
-                                    Object.keys(settings).forEach(key => {
-                                        if (this.userSettings.hasOwnProperty(key)) {
-                                            this.userSettings[key] = settings[key];
-                                        }
-                                    });
-                                    console.log('Settings loaded from localStorage since user is not logged in');
-                                }
+                                console.log('No current user found');
                             }
-
-                            // If autofill is enabled, populate only the fields that have values
-                            if (this.userSettings.autofillEnabled) {
-                                const updatedFields = { ...this.form.fields };
-
-                                // Only update fields that have values in settings
-                                if (this.userSettings.buyer) updatedFields.buyer = this.userSettings.buyer;
-                                if (this.userSettings.submission) updatedFields.submission = this.userSettings.submission;
-                                if (this.userSettings.validity) updatedFields.validity = this.userSettings.validity;
-                                if (this.userSettings.requirements) updatedFields.requirements = this.userSettings.requirements;
-                                if (this.userSettings.criteria) updatedFields.criteria = this.userSettings.criteria;
-                                if (this.userSettings.responsible) updatedFields.responsible = this.userSettings.responsible;
-
-                                this.form.fields = updatedFields;
-                            }
-
-                            // Apply theme settings after loading
-                            this.$nextTick(() => {
-                                this.applyTheme();
-                            });
                         } catch (error) {
-                            console.error('Settings load error:', error);
-                            this.showToast('Viga seadete laadimisel: ' + error.message, 'error');
+                            console.error('Error loading basic data fields:', error);
+                            this.showToast('Viga põhiandmete laadimisel: ' + error.message, 'error');
                         }
-                    }
+                    },
                 }
             });
         });
@@ -1932,7 +2267,44 @@
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition duration-200 ease-in" x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md"
-        @click.self="showSettingsModal = false" x-data="{ activeTab: 'basicInfo' }">
+        @click.self="showSettingsModal = false" x-data="{ 
+            activeTab: 'basicInfo',
+            async handleTabClick(tab) {
+                console.log('Tab clicked:', tab);
+                this.activeTab = tab;
+                if (tab === 'history') {
+                    console.log('Loading PDF history for history tab');
+                    await this.loadPdfHistory();
+                } else if (tab === 'basicInfo') {
+                    console.log('Loading user settings for basic info tab');
+                    await this.loadUserSettings();
+                }
+            },
+            async loadUserSettings() {
+                try {
+                    console.log('Loading user settings...');
+                    if (window.currentUser && window.userData) {
+                        console.log('User is logged in, loading from global data');
+                        if (window.userData.settings) {
+                            console.log('Loading settings from global data');
+                            Object.keys(window.userData.settings).forEach(key => {
+                                if (this.userSettings.hasOwnProperty(key)) {
+                                    this.userSettings[key] = window.userData.settings[key];
+                                }
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Settings load error:', error);
+                    this.showToast('Viga seadete laadimisel: ' + error.message, 'error');
+                }
+            },
+            async loadPdfHistory() {
+                if (window.currentUser && window.userData && window.userData.pdfHistory) {
+                    this.userSettings.generatedPdfs = window.userData.pdfHistory;
+                }
+            }
+        }" x-init="loadUserSettings()">
         <div class="fixed left-1/2 transform -translate-x-1/2 top-8 md:top-24 w-full max-w-3xl rounded-2xl shadow-2xl border border-white/40 max-h-[85vh] overflow-y-auto mx-auto bg-white/90 backdrop-blur-xl"
             @click.stop>
             <!-- Header -->
@@ -1950,17 +2322,12 @@
 
                 <!-- Tabs -->
                 <div class="flex space-x-1 mt-5">
-                    <button @click="activeTab = 'basicInfo'"
+                    <button @click="handleTabClick('basicInfo')"
                         :class="activeTab === 'basicInfo' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
                         class="px-4 py-2 rounded-t-lg font-medium transition-colors">
                         Põhiandmed
                     </button>
-                    <button @click="activeTab = 'design'"
-                        :class="activeTab === 'design' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
-                        class="px-4 py-2 rounded-t-lg font-medium transition-colors">
-                        Kujundus
-                    </button>
-                    <button @click="activeTab = 'history'"
+                    <button @click="handleTabClick('history')"
                         :class="activeTab === 'history' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
                         class="px-4 py-2 rounded-t-lg font-medium transition-colors">
                         Ajalugu
@@ -2089,88 +2456,6 @@
                     </form>
                 </div>
 
-                <!-- Design Tab Content -->
-                <div x-show="activeTab === 'design'" x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                    <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Kujunduse seaded</h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Theme Options -->
-                            <div class="col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-3">Värvipalett</label>
-                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    <div @click="userSettings.theme = 'indigo'"
-                                        :class="userSettings.theme === 'indigo' ? 'ring-2 ring-indigo-500 shadow-md' : ''"
-                                        class="flex flex-col items-center space-y-2 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-all cursor-pointer">
-                                        <div class="w-full h-6 bg-indigo-600 rounded-t-lg"></div>
-                                        <div class="w-full h-6 bg-indigo-400 rounded-b-lg"></div>
-                                        <span class="text-sm font-medium text-gray-700">Indigo</span>
-                                    </div>
-                                    <div @click="userSettings.theme = 'blue'"
-                                        :class="userSettings.theme === 'blue' ? 'ring-2 ring-blue-500 shadow-md' : ''"
-                                        class="flex flex-col items-center space-y-2 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-all cursor-pointer">
-                                        <div class="w-full h-6 bg-blue-600 rounded-t-lg"></div>
-                                        <div class="w-full h-6 bg-blue-400 rounded-b-lg"></div>
-                                        <span class="text-sm font-medium text-gray-700">Sinine</span>
-                                    </div>
-                                    <div @click="userSettings.theme = 'emerald'"
-                                        :class="userSettings.theme === 'emerald' ? 'ring-2 ring-emerald-500 shadow-md' : ''"
-                                        class="flex flex-col items-center space-y-2 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-all cursor-pointer">
-                                        <div class="w-full h-6 bg-emerald-600 rounded-t-lg"></div>
-                                        <div class="w-full h-6 bg-emerald-400 rounded-b-lg"></div>
-                                        <span class="text-sm font-medium text-gray-700">Emerald</span>
-                                    </div>
-                                    <div @click="userSettings.theme = 'purple'"
-                                        :class="userSettings.theme === 'purple' ? 'ring-2 ring-purple-500 shadow-md' : ''"
-                                        class="flex flex-col items-center space-y-2 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-all cursor-pointer">
-                                        <div class="w-full h-6 bg-purple-600 rounded-t-lg"></div>
-                                        <div class="w-full h-6 bg-purple-400 rounded-b-lg"></div>
-                                        <span class="text-sm font-medium text-gray-700">Lilla</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Font Selection -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Fondid</label>
-                                <select x-model="userSettings.font"
-                                    class="w-full border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
-                                    <option value="Inter">Inter (Vaikimisi)</option>
-                                    <option value="Roboto">Roboto</option>
-                                    <option value="Open Sans">Open Sans</option>
-                                    <option value="Poppins">Poppins</option>
-                                </select>
-                            </div>
-
-                            <!-- Button Style -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Nuppude stiil</label>
-                                <select x-model="userSettings.buttonStyle"
-                                    class="w-full border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
-                                    <option value="rounded">Ümarad (Vaikimisi)</option>
-                                    <option value="square">Kandilised</option>
-                                    <option value="soft">Pehmed nurgad</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
-                            <button type="button" @click="showSettingsModal = false" class="px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl 
-                                hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
-                                transition-all shadow-sm hover:shadow">
-                                Tühista
-                            </button>
-                            <button type="button" @click="saveUserSettings()" class="px-5 py-3 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-indigo-700 border border-transparent 
-                                rounded-xl hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 
-                                focus:ring-indigo-500 transition-all shadow-sm hover:shadow-md">
-                                <i class="fas fa-save mr-2"></i> Salvesta seaded
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- History Tab Content -->
                 <div x-show="activeTab === 'history'" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
@@ -2181,56 +2466,50 @@
                             <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
                                 <div class="flex justify-between items-center">
                                     <h4 class="font-medium text-gray-700">Viimased genereeritud PDF-id</h4>
-                                    <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                    <button @click="clearPdfHistory()"
+                                        class="text-red-600 hover:text-red-800 text-sm font-medium">
                                         <i class="fas fa-trash-alt mr-1"></i> Tühjenda
                                     </button>
                                 </div>
                             </div>
 
                             <div class="divide-y divide-gray-200">
-                                <div class="p-4 hover:bg-gray-50 transition-colors">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <p class="font-medium text-gray-800">Haljasala rajamine</p>
-                                            <p class="text-sm text-gray-500">Genereeritud: 15.04.2023</p>
+                                <template x-if="userSettings.generatedPdfs && userSettings.generatedPdfs.length > 0">
+                                    <template x-for="pdf in userSettings.generatedPdfs" :key="pdf.id">
+                                        <div class="p-4 hover:bg-gray-50 transition-colors">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <p class="font-medium text-gray-800" x-text="pdf.name"></p>
+                                                    <p class="text-sm text-gray-500"
+                                                        x-text="'Genereeritud: ' + new Date(pdf.createdAt).toLocaleDateString('et-EE')">
+                                                    </p>
+                                                    <p class="text-sm text-gray-500" x-show="pdf.responsible"
+                                                        x-text="'Vastutav: ' + pdf.responsible"></p>
+                                                    <p class="text-sm text-gray-500" x-show="pdf.submissionDate"
+                                                        x-text="'Esitamise tähtaeg: ' + pdf.submissionDate"></p>
+                                                </div>
+                                                <div class="flex space-x-2">
+                                                    <button @click="downloadSavedPdf(pdf.pdfData, pdf.name + '.pdf')"
+                                                        class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors"
+                                                        title="Laadi alla">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button @click="window.open(pdf.pdfData, '_blank')"
+                                                        class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors"
+                                                        title="Vaata PDF">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="flex space-x-2">
-                                            <button
-                                                class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button
-                                                class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
-                                        </div>
+                                    </template>
+                                </template>
+                                <template x-if="!userSettings.generatedPdfs || userSettings.generatedPdfs.length === 0">
+                                    <div class="p-4 text-center text-gray-500">
+                                        <i class="fas fa-file-pdf text-2xl mb-2"></i>
+                                        <p>Pole veel genereeritud PDF-e</p>
                                     </div>
-                                </div>
-
-                                <div class="p-4 hover:bg-gray-50 transition-colors">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <p class="font-medium text-gray-800">Lumekoristus 2023</p>
-                                            <p class="text-sm text-gray-500">Genereeritud: 12.04.2023</p>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button
-                                                class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button
-                                                class="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-full transition-colors">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-gray-50 p-4 flex justify-center border-t border-gray-200">
-                                <button class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                                    Näita rohkem <i class="fas fa-chevron-down ml-1"></i>
-                                </button>
+                                </template>
                             </div>
                         </div>
                     </div>
