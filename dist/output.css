@@ -2061,6 +2061,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .border-current {
   border-color: currentColor;
 }
+.border-emerald-100 {
+  border-color: var(--color-emerald-100);
+}
 .border-emerald-600 {
   border-color: var(--color-emerald-600);
 }
@@ -2204,6 +2207,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-blue-600 {
   background-color: var(--color-blue-600);
+}
+.bg-emerald-50 {
+  background-color: var(--color-emerald-50);
+}
+.bg-emerald-100 {
+  background-color: var(--color-emerald-100);
 }
 .bg-emerald-400 {
   background-color: var(--color-emerald-400);
@@ -3228,6 +3237,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .text-blue-800 {
   color: var(--color-blue-800);
+}
+.text-emerald-500 {
+  color: var(--color-emerald-500);
 }
 .text-emerald-600 {
   color: var(--color-emerald-600);
@@ -6246,6 +6258,8 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --color-green-700: oklch(52.7% 0.154 150.069);
     --color-green-800: oklch(44.8% 0.119 151.328);
     --color-green-900: oklch(39.3% 0.095 152.535);
+    --color-emerald-50: oklch(97.9% 0.021 166.113);
+    --color-emerald-100: oklch(95% 0.052 163.051);
     --color-emerald-200: oklch(90.5% 0.093 164.15);
     --color-emerald-300: oklch(84.5% 0.143 164.978);
     --color-emerald-400: oklch(76.5% 0.177 163.223);

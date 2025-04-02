@@ -535,6 +535,149 @@ The functionality should remain the same for the remaining tabs. Would you like 
 
 ---
 
+_**User**_
+
+lisa uus tab seadete alla mis oleks esimene tab "Info", seal lihtsalt lisame seletused et kuidas töötavad tabid põhiandmed ja ajalugu
+
+---
+
+_**Assistant**_
+
+I'll add a new "Info" tab as the first tab in the settings modal with explanations about how the "Põhiandmed" and "Ajalugu" tabs work.
+
+
+---
+
+```diff
+          x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md"
+          @click.self="showSettingsModal = false" x-data="{ 
+-             activeTab: 'basicInfo',
++             activeTab: 'info',
+              async handleTabClick(tab) {
+                  console.log('Tab clicked:', tab);
+                  <!-- Tabs -->
+                  <div class="flex space-x-1 mt-5">
++                     <button @click="handleTabClick('info')"
++                         :class="activeTab === 'info' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
++                         class="px-4 py-2 rounded-t-lg font-medium transition-colors">
++                         Info
++                     </button>
+                      <button @click="handleTabClick('basicInfo')"
+                          :class="activeTab === 'basicInfo' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
+              <!-- Content -->
+              <div class="p-6 bg-white/90">
++                 <!-- Info Tab Content -->
++                 <div x-show="activeTab === 'info'" x-transition:enter="transition ease-out duration-200"
++                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
++                     <div class="space-y-6">
++                         <h3 class="text-lg font-semibold text-gray-800 mb-4">Seadete info</h3>
++                         
++                         <!-- Põhiandmed Info -->
++                         <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
++                             <div class="flex items-start mb-4">
++                                 <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
++                                     <i class="fas fa-info-circle text-indigo-600"></i>
++                                 </div>
++                                 <div>
++                                     <h4 class="text-lg font-medium text-gray-800 mb-2">Põhiandmed</h4>
++                                     <p class="text-gray-600">Põhiandmete sektsioonis saate salvestada oma põhiteave, mida saab automaatselt täita vormi avamisel. See hõlmab:</p>
++                                     <ul class="mt-3 space-y-2 text-gray-600">
++                                         <li class="flex items-center">
++                                             <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
++                                             Hankija info (nimi, aadress, registrikood)
++                                         </li>
++                                         <li class="flex items-center">
++                                             <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
++                                             Pakkumise esitamise aeg ja koht
++                                         </li>
++                                         <li class="flex items-center">
++                                             <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
++                                             Pakkumuse jõusoleku aeg
++                                         </li>
++                                         <li class="flex items-center">
++                                             <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
++                                             Nõuded pakkujale
++                                         </li>
++                                         <li class="flex items-center">
++                                             <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
++                                             Väljavaliku alused
++                                         </li>
++                                         <li class="flex items-center">
++                                             <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
++                                             Vastutav isik
++                                         </li>
++                                     </ul>
++                                     <div class="mt-4 p-4 bg-white rounded-lg border border-indigo-100">
++                                         <p class="text-sm text-gray-600">
++                                             <i class="fas fa-lightbulb text-indigo-500 mr-2"></i>
++                                             <strong>Automaatne täitmine:</strong> Kui soovite, et põhiandmed täidetaksid vormi automaatselt, lülitage sisse "Automaatne täitmine" lüliti Põhiandmete sektsioonis.
++                                         </p>
++                                     </div>
++                                 </div>
++                             </div>
++                         </div>
++ 
++                         <!-- Ajalugu Info -->
++                         <div class="bg-emerald-50 rounded-xl p-6 border border-emerald-100">
++                             <div class="flex items-start mb-4">
++                                 <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-3">
++                                     <i class="fas fa-history text-emerald-600"></i>
++                                 </div>
++                                 <div>
++                                     <h4 class="text-lg font-medium text-gray-800 mb-2">Ajalugu</h4>
++                                     <p class="text-gray-600">Ajaloo sektsioonis näete kõiki teie genereeritud PDF-e, mis on salvestatud teie kontole. See hõlmab:</p>
++                                     <ul class="mt-3 space-y-2 text-gray-600">
++                                         <li class="flex items-center">
++                                             <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
++                                             PDF-i nimi ja loomise kuupäev
++                                         </li>
++                                         <li class="flex items-center">
++                                             <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
++                                             Vastutava isiku info
++                                         </li>
++                                         <li class="flex items-center">
++                                             <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
++                                             Esitamise tähtaeg
++                                         </li>
++                                     </ul>
++                                     <div class="mt-4 p-4 bg-white rounded-lg border border-emerald-100">
++                                         <p class="text-sm text-gray-600">
++                                             <i class="fas fa-info-circle text-emerald-500 mr-2"></i>
++                                             <strong>Tegevused:</strong> Iga PDF-i puhul saate vaadata seda otse brauseris või laadida alla. Kogu ajaloo saate kustutada "Tühjenda" nupuga.
++                                         </p>
++                                     </div>
++                                 </div>
++                             </div>
++                         </div>
++                     </div>
++                 </div>
++ 
+                  <!-- Põhiandmed Tab Content -->
+                  <div x-show="activeTab === 'basicInfo'" x-transition:enter="transition ease-out duration-200"
+```
+
+---
+
+I've made the following changes:
+
+1. Added a new "Info" tab as the first tab in the settings modal
+2. Changed the default active tab to 'info' when the modal opens
+3. Added a new Info tab content section with two main sections:
+   - Põhiandmed (Basic Info) section with:
+     - Explanation of what can be saved
+     - List of all available fields
+     - Information about autofill functionality
+   - Ajalugu (History) section with:
+     - Explanation of what's stored in history
+     - List of available information
+     - Information about available actions
+
+The Info tab provides a clear overview of how both the "Põhiandmed" and "Ajalugu" tabs work, making it easier for users to understand the functionality. The design uses different colors (indigo for Põhiandmed and emerald for Ajalugu) to visually distinguish between the sections.
+
+Would you like me to make any adjustments to the content or styling of the Info tab?
+
+---
+
 
 
 ---
