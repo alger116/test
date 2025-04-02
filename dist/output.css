@@ -1280,6 +1280,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .animate-spin {
   animation: var(--animate-spin);
 }
+.cursor-default {
+  cursor: default;
+}
 .cursor-move {
   cursor: move;
 }
@@ -2969,6 +2972,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .pt-32 {
   padding-top: calc(var(--spacing) * 32);
+}
+.pr-2 {
+  padding-right: calc(var(--spacing) * 2);
 }
 .pr-3 {
   padding-right: calc(var(--spacing) * 3);
@@ -5197,13 +5203,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       color: var(--color-white);
-    }
-  }
-}
-.hover\:text-white\/80 {
-  &:hover {
-    @media (hover: hover) {
-      color: color-mix(in oklab, var(--color-white) 80%, transparent);
     }
   }
 }
