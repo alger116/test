@@ -1841,41 +1841,36 @@
                             // Log the PDF data structure for debugging
                             console.log('PDF data structure:', pdf);
 
-                            // Get the form data from localStorage
-                            const raw = localStorage.getItem('OM_DRAFT');
-                            if (!raw) {
-                                throw new Error('No saved form data found');
+                            // Parse the form data
+                            let formData;
+                            try {
+                                formData = typeof pdf.formData === 'string' ? JSON.parse(pdf.formData) : pdf.formData;
+                            } catch (error) {
+                                console.error('Error parsing formData:', error);
+                                throw new Error('Invalid tender data: could not parse formData');
                             }
 
-                            const data = JSON.parse(raw);
-                            if (!data.form) {
-                                throw new Error('Invalid form data structure');
+                            if (!formData || typeof formData !== 'object') {
+                                console.error('Invalid formData structure:', formData);
+                                throw new Error('Invalid tender data: formData is not an object');
                             }
 
-                            // Update all form fields with fallback values
-                            this.form.name = pdf.name?.replace(/\.pdf$/, '') || '';
-                            this.form.intro = data.form.intro || '';
+                            // Update form with saved data
+                            this.form.name = formData.name || '';
+                            this.form.intro = formData.intro || '';
 
-                            // Copy all standard fields with validation
-                            if (data.form.fields && typeof data.form.fields === 'object') {
-                                Object.keys(data.form.fields).forEach(key => {
+                            // Copy all standard fields
+                            if (formData.fields && typeof formData.fields === 'object') {
+                                Object.keys(formData.fields).forEach(key => {
                                     if (this.form.fields[key] !== undefined) {
-                                        this.form.fields[key] = data.form.fields[key] || '';
+                                        this.form.fields[key] = formData.fields[key] || '';
                                     }
                                 });
                             }
 
-                            // Update specific fields from the PDF data
-                            if (pdf.responsible) {
-                                this.form.fields.responsible = pdf.responsible;
-                            }
-                            if (pdf.submissionDate) {
-                                this.form.fields.submission = pdf.submissionDate;
-                            }
-
-                            // Copy sections if they exist
-                            if (Array.isArray(data.form.sections)) {
-                                this.form.sections = data.form.sections.map(section => ({
+                            // Copy sections
+                            if (Array.isArray(formData.sections)) {
+                                this.form.sections = formData.sections.map(section => ({
                                     ...section,
                                     enabled: section.enabled ?? true,
                                     open: section.open ?? false,
@@ -1887,9 +1882,9 @@
                                 }));
                             }
 
-                            // Copy attachments if they exist
-                            if (Array.isArray(data.files)) {
-                                this.files = data.files;
+                            // Copy files if they exist
+                            if (Array.isArray(formData.files)) {
+                                this.files = formData.files;
                             }
 
                             // Show success message
@@ -1993,16 +1988,17 @@
                     <a href="om.html" class="text-xl font-bold bg-clip-text text-transparent bg-black">
                     </a>
                     <div class="hidden md:flex md:space-x-4">
-                        <a href="om.html"
-                            class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Kutse koostamine</span>
-                        </a>
                         <a href="../index.html"
                             class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
                             <i class="fas fa-home"></i>
                             <span>Avalehele</span>
                         </a>
+                        <a href="om.html"
+                            class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Kutse</span>
+                        </a>
+
                         <a href="users.html"
                             class="hidden flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all"
                             x-show="isAdmin">
@@ -2012,10 +2008,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button @click="isDarkMode = !isDarkMode"
-                        class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
-                        <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
-                    </button>
+
 
                     <!-- Settings Button -->
                     <button @click="showSettingsModal = true" x-show="currentUser"
@@ -2570,88 +2563,134 @@
                 <!-- Info Tab Content -->
                 <div x-show="activeTab === 'info'" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                    <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Seadete info</h3>
+                    <div class="space-y-8">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <i class="fas fa-cog text-2xl text-gray-700"></i>
+                            <h3 class="text-2xl font-bold text-gray-800">Seadete info</h3>
+                        </div>
 
                         <!-- Põhiandmed Info -->
-                        <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
-                            <div class="flex items-start mb-4">
-                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                    <i class="fas fa-info-circle text-indigo-600"></i>
+                        <div
+                            class="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-8 border border-indigo-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center mr-4">
+                                    <i class="fas fa-info-circle text-xl text-indigo-600"></i>
                                 </div>
-                                <div>
-                                    <h4 class="text-lg font-medium text-gray-800 mb-2">Põhiandmed</h4>
-                                    <p class="text-gray-600">Põhiandmete sektsioonis saate salvestada oma põhiteave,
-                                        mida saab automaatselt täita vormi avamisel. See hõlmab:</p>
-                                    <ul class="mt-3 space-y-2 text-gray-600">
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
-                                            Hankija info (nimi, aadress, registrikood)
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
-                                            Pakkumise esitamise aeg ja koht
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
-                                            Pakkumuse jõusoleku aeg
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
-                                            Nõuded pakkujale
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
-                                            Väljavaliku alused
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
-                                            Vastutav isik
-                                        </li>
-                                    </ul>
-                                    <div class="mt-4 p-4 bg-white rounded-lg border border-indigo-100">
-                                        <p class="text-sm text-gray-600">
-                                            <i class="fas fa-lightbulb text-indigo-500 mr-2"></i>
-                                            <strong>Automaatne täitmine:</strong> Kui soovite, et põhiandmed täidetaksid
-                                            vormi automaatselt, lülitage sisse "Automaatne täitmine" lüliti Põhiandmete
-                                            sektsioonis.
-                                        </p>
+                                <div class="flex-1">
+                                    <h4 class="text-xl font-semibold text-gray-800 mb-3">Põhiandmed</h4>
+                                    <p class="text-gray-600 mb-4">Salvestage oma põhiteave, mida saab automaatselt täita
+                                        vormi avamisel.</p>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                        <div class="bg-white/80 rounded-xl p-4 border border-indigo-100">
+                                            <h5 class="font-medium text-gray-700 mb-2">Salvestatav info</h5>
+                                            <ul class="space-y-2 text-gray-600">
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
+                                                    Hankija info
+                                                </li>
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
+                                                    Pakkumise aeg ja koht
+                                                </li>
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
+                                                    Jõusoleku aeg
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white/80 rounded-xl p-4 border border-indigo-100">
+                                            <h5 class="font-medium text-gray-700 mb-2">Täiendav info</h5>
+                                            <ul class="space-y-2 text-gray-600">
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
+                                                    Nõuded pakkujale
+                                                </li>
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
+                                                    Väljavaliku alused
+                                                </li>
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-check-circle text-indigo-500 mr-2"></i>
+                                                    Vastutav isik
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-lightbulb text-indigo-500 text-xl mt-1 mr-3"></i>
+                                            <div>
+                                                <h5 class="font-medium text-gray-700 mb-1">Automaatne täitmine</h5>
+                                                <p class="text-sm text-gray-600">Lülitage sisse "Automaatne täitmine"
+                                                    lüliti Põhiandmete sektsioonis, et põhiandmed täidetaksid vormi
+                                                    automaatselt.</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Ajalugu Info -->
-                        <div class="bg-emerald-50 rounded-xl p-6 border border-emerald-100">
-                            <div class="flex items-start mb-4">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-3">
-                                    <i class="fas fa-history text-emerald-600"></i>
+                        <div
+                            class="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-8 border border-emerald-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mr-4">
+                                    <i class="fas fa-history text-xl text-emerald-600"></i>
                                 </div>
-                                <div>
-                                    <h4 class="text-lg font-medium text-gray-800 mb-2">Ajalugu</h4>
-                                    <p class="text-gray-600">Ajaloo sektsioonis näete kõiki teie genereeritud PDF-e, mis
-                                        on salvestatud teie kontole. See hõlmab:</p>
-                                    <ul class="mt-3 space-y-2 text-gray-600">
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                            PDF-i nimi ja loomise kuupäev
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                            Vastutava isiku info
-                                        </li>
-                                        <li class="flex items-center">
-                                            <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
-                                            Esitamise tähtaeg
-                                        </li>
-                                    </ul>
-                                    <div class="mt-4 p-4 bg-white rounded-lg border border-emerald-100">
-                                        <p class="text-sm text-gray-600">
-                                            <i class="fas fa-info-circle text-emerald-500 mr-2"></i>
-                                            <strong>Tegevused:</strong> Iga PDF-i puhul saate vaadata seda otse
-                                            brauseris või laadida alla. Kogu ajaloo saate kustutada "Tühjenda" nupuga.
-                                        </p>
+                                <div class="flex-1">
+                                    <h4 class="text-xl font-semibold text-gray-800 mb-3">Ajalugu</h4>
+                                    <p class="text-gray-600 mb-4">Vaadake ja hallake kõiki teie genereeritud PDF-e.</p>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                        <div class="bg-white/80 rounded-xl p-4 border border-emerald-100">
+                                            <h5 class="font-medium text-gray-700 mb-2">PDF info</h5>
+                                            <ul class="space-y-2 text-gray-600">
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                                    PDF-i nimi
+                                                </li>
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                                    Loomise kuupäev
+                                                </li>
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-check-circle text-emerald-500 mr-2"></i>
+                                                    Vastutava isiku info
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="bg-white/80 rounded-xl p-4 border border-emerald-100">
+                                            <h5 class="font-medium text-gray-700 mb-2">Tegevused</h5>
+                                            <ul class="space-y-2 text-gray-600">
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-eye text-emerald-500 mr-2"></i>
+                                                    Vaata PDF-i
+                                                </li>
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-download text-emerald-500 mr-2"></i>
+                                                    Lae alla
+                                                </li>
+                                                <li class="flex items-center">
+                                                    <i class="fas fa-trash text-emerald-500 mr-2"></i>
+                                                    Kustuta ajalugu
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-info-circle text-emerald-500 text-xl mt-1 mr-3"></i>
+                                            <div>
+                                                <h5 class="font-medium text-gray-700 mb-1">Tähelepanu</h5>
+                                                <p class="text-sm text-gray-600">"Tühjenda" nupp kustutab kogu ajaloo
+                                                    jäädavalt. Enne kustutamist veenduge, et olete salvestanud vajalikud
+                                                    PDF-id.</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

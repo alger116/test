@@ -976,6 +976,897 @@ I see the issue now. Looking at the error log, I can see that the PDF data struc
 
 ---
 
+Read file: ostu/om.html
+
+---
+
+I see the issue. When saving the PDF to history, we're not including the form data. Let me fix this by updating the `copyToTender` function to handle the data correctly:
+
+---
+
+```diff
+                              console.log('PDF data structure:', pdf);
+  
+-                             // Parse the form data
+-                             let formData;
+-                             try {
+-                                 formData = typeof pdf.formData === 'string' ? JSON.parse(pdf.formData) : pdf.formData;
+-                             } catch (error) {
+-                                 console.error('Error parsing formData:', error);
+-                                 throw new Error('Invalid tender data: could not parse formData');
++                             // Get the form data from localStorage
++                             const raw = localStorage.getItem('OM_DRAFT');
++                             if (!raw) {
++                                 throw new Error('No saved form data found');
+                              }
+  
+-                             if (!formData || typeof formData !== 'object') {
+-                                 console.error('Invalid formData structure:', formData);
+-                                 throw new Error('Invalid tender data: formData is not an object');
++                             const data = JSON.parse(raw);
++                             if (!data.form) {
++                                 throw new Error('Invalid form data structure');
+                              }
+  
+                              // Update all form fields with fallback values
+-                             this.form.name = formData.name || '';
+-                             this.form.intro = formData.intro || '';
++                             this.form.name = pdf.name?.replace(/\.pdf$/, '') || '';
++                             this.form.intro = data.form.intro || '';
+  
+                              // Copy all standard fields with validation
+-                             if (formData.fields && typeof formData.fields === 'object') {
+-                                 Object.keys(formData.fields).forEach(key => {
++                             if (data.form.fields && typeof data.form.fields === 'object') {
++                                 Object.keys(data.form.fields).forEach(key => {
+                                      if (this.form.fields[key] !== undefined) {
+-                                         this.form.fields[key] = formData.fields[key] || '';
++                                         this.form.fields[key] = data.form.fields[key] || '';
+                                      }
+                                  });
+                              }
++ 
++                             // Update specific fields from the PDF data
++                             if (pdf.responsible) {
++                                 this.form.fields.responsible = pdf.responsible;
++                             }
++                             if (pdf.submissionDate) {
++                                 this.form.fields.submission = pdf.submissionDate;
++                             }
+  
+                              // Copy sections if they exist
+-                             if (Array.isArray(formData.sections)) {
+-                                 this.form.sections = formData.sections.map(section => ({
++                             if (Array.isArray(data.form.sections)) {
++                                 this.form.sections = data.form.sections.map(section => ({
+                                      ...section,
+                                      enabled: section.enabled ?? true,
+  
+                              // Copy attachments if they exist
+-                             if (Array.isArray(formData.attachments)) {
+-                                 this.form.attachments = formData.attachments;
++                             if (Array.isArray(data.files)) {
++                                 this.files = data.files;
+                              }
+  
+```
+
+---
+
+I've completely revamped the `copyToTender` function to handle the data correctly. The key changes are:
+
+1. Instead of trying to parse form data from the PDF (which doesn't exist), we're now:
+   - Loading the form template from localStorage
+   - Using the PDF metadata (name, responsible, submissionDate) to update specific fields
+   - Keeping the rest of the form structure intact
+
+2. The function now:
+   - Gets the base form structure from localStorage
+   - Updates the form name from the PDF name
+   - Updates responsible and submission date from the PDF metadata
+   - Keeps all other form fields and sections from the template
+   - Properly handles attachments
+
+3. Added better error handling and validation
+
+This should fix the issue because:
+1. We're no longer trying to parse non-existent form data from the PDF
+2. We're using the saved form template as a base
+3. We're only updating the fields we know exist in the PDF metadata
+
+Try using the copy functionality again. The error you were seeing should now be resolved. If you still encounter any issues, please check the browser console and let me know:
+1. What is logged for "PDF data structure"?
+2. Are you seeing any other errors in the console?
+3. What action are you taking when the error occurs?
+
+---
+
+_**User**_
+
+it transfer only a few lines of data
+
+---
+
+_**Assistant**_
+
+I understand the issue. The problem is that we're trying to load the template from localStorage, but we should be saving and loading the actual form data when generating the PDF. Let me fix this by updating both the PDF generation and copying functionality:
+
+---
+
+```diff
+                                  const { doc, setDoc, getDoc } = window.firestoreFunctions;
+                                  const userRef = doc(window.db, "users", window.currentUser.uid);
++ 
++                                 // Save the current form state
++                                 const formData = {
++                                     name: this.form.name,
++                                     intro: this.form.intro,
++                                     fields: this.form.fields,
++                                     sections: this.form.sections,
++                                     files: this.files
++                                 };
+  
+                                  const pdfEntry = {
+                                      id: Date.now().toString(),
+                                      name: `${this.form.name || 'Pakkumus'}_${new Date().toLocaleDateString('et-EE')}.pdf`,
+                                      pdfData: pdfData,
++                                     formData: JSON.stringify(formData),
+                                      createdAt: new Date().toISOString(),
+                                      responsible: this.form.fields.responsible || '',
+-                                     submissionDate: this.form.fields.submission || ''
+-                                 };
+- 
+-                                 console.log('Saving PDF entry:', pdfEntry);
+- 
+-                                 // Get current user data
+-                                 const userDoc = await getDoc(userRef);
+-                                 const currentData = userDoc.exists() ? userDoc.data() : {};
+-                                 const currentPdfHistory = currentData.pdfHistory || [];
+- 
+-                                 console.log('Current PDF history:', currentPdfHistory);
+- 
+-                                 // Add new PDF and keep only last 10
+-                                 const updatedPdfHistory = [pdfEntry, ...currentPdfHistory].slice(0, 10);
+- 
+-                                 console.log('Updated PDF history:', updatedPdfHistory);
+- 
+-                                 // Update Firestore
+-                                 await setDoc(userRef, {
+-                                     pdfHistory: updatedPdfHistory,
+-                                     lastUpdated: new Date().toISOString()
+-                                 }, { merge: true });
+- 
+-                                 // Update global state
+-                                 window.userData = {
+-                                     ...window.userData,
+-                                     pdfHistory: updatedPdfHistory,
+-                                     lastUpdated: new Date().toISOString()
+-                                 };
+- 
+-                                 // Update local state
+-                                 this.userSettings.generatedPdfs = updatedPdfHistory;
+- 
+-                                 console.log('PDF saved to Firestore successfully');
+-                             } else {
+-                                 console.log('No user logged in, not saving PDF to Firestore');
+-                             }
+- 
+-                             // Download the PDF
+-                             doc.save(pdfName);
+- 
+-                             this.showToast('PDF edukalt loodud', 'success');
+-                         } catch (error) {
+-                             console.error('PDF generation error:', error);
+-                             this.showToast('Viga PDF genereerimisel: ' + error.message, 'error');
+-                         } finally {
+-                             this.isGeneratingPDF = false;
+-                         }
+-                     },
+- 
+-                     saveToStorage() {
+-                         try {
+-                             // Create a deep clone of the form data to avoid reference issues
+-                             const formToSave = JSON.parse(JSON.stringify(this.form));
+- 
+-                             const payload = {
+-                                 form: formToSave,
+-                                 timestamp: Date.now(),
+-                                 version: '1.4',
+-                                 lastModified: new Date().toISOString(),
+-                                 files: this.files.length > 0 ? this.files : []
+-                             };
+- 
+-                             // Save to localStorage
+-                             localStorage.setItem('OM_DRAFT', JSON.stringify(payload));
+-                             console.log('Form data saved successfully:', formToSave);
+-                             this.showToast('Salvestatud!', 'success');
+-                             return true;
+-                         } catch (error) {
+-                             console.error('Failed to save to storage:', error);
+-                             this.showToast('Salvestamine ebaõnnestus: ' + error.message, 'error');
+-                             return false;
+-                         }
+-                     },
+- 
+-                     loadFromStorage() {
+-                         try {
+-                             const raw = localStorage.getItem('OM_DRAFT');
+-                             if (!raw) {
+-                                 console.log('No saved data found in localStorage');
+-                                 return false;
+-                             }
+- 
+-                             const data = JSON.parse(raw);
+-                             if (data.version === '1.4' && data.form) {
+-                                 console.log('Loading saved form data:', data.form);
+- 
+-                                 // Create a fresh default form
+-                                 const freshDefaultFields = {};
+-                                 this.standardFields.forEach(field => {
+-                                     freshDefaultFields[field.key] = '';
+-                                 });
+- 
+-                                 // Apply saved data to the form
+-                                 this.form = {
+-                                     name: data.form.name || '',
+-                                     intro: data.form.intro || 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+-                                     fields: {
+-                                         ...freshDefaultFields,
+-                                         ...(data.form.fields || {})
+-                                     },
+-                                     sections: data.form.sections || this.form.sections
+-                                 };
+- 
+-                                 // Load files if present
+-                                 if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+-                                     this.files = data.files;
+-                                 }
+- 
+-                                 this.showToast('Laaditud salvestatud andmed', 'success');
+-                                 return true;
+-                             } else {
+-                                 console.warn('Incompatible data version or missing form data');
+-                                 localStorage.removeItem('OM_DRAFT');
+-                                 this.showToast('Vana versiooni andmed, algandmed laetud', 'info');
+-                                 return false;
+-                             }
+-                         } catch (error) {
+-                             console.error('Failed to load from storage:', error, error.stack);
+-                             localStorage.removeItem('OM_DRAFT');
+-                             this.showToast('Viga andmete laadimisel: ' + error.message, 'error');
+-                             return false;
+-                         }
+-                     },
+- 
+-                     manualSave() {
+-                         // This is called directly from the save button click
+-                         clearTimeout(this.saveTimeout); // Clear any pending save
+-                         const success = this.saveToStorage();
+-                         if (success) {
+-                             this.showToast('Andmed edukalt salvestatud!', 'success');
+-                         }
+-                     },
+- 
+-                     addAttachment() {
+-                         const lisaCount = this.form.sections[6].options.length + 1;
+-                         this.form.sections[6].options.push({
+-                             text: `Lisa ${lisaCount}. `,
+-                             checked: false,
+-                             editable: true
+-                         });
+-                         this.showToast('Lisa lisatud', 'success');
+-                     },
+- 
+-                     addNewSection() {
+-                         const nextNum = this.form.sections.length + 1;
+-                         const title = prompt(`Lisa punktile pealkiri (${nextNum}):`);
+- 
+-                         if (title) {
+-                             this.form.sections.push({
+-                                 title: `${nextNum} ${title}`,
+-                                 enabled: false,
+-                                 open: true,
+-                                 options: [{ text: 'Lisa tingimus', checked: false, editable: true, isEditing: true }]
+-                             });
+-                             this.showToast('Uus sektsioon lisatud', 'success');
+-                         }
+-                     },
+- 
+-                     toggleAllSections() {
+-                         const hasClosedSections = this.form.sections.some(section => !section.open);
+-                         this.form.sections.forEach(section => {
+-                             section.open = hasClosedSections;
+-                         });
+-                         this.showToast(hasClosedSections ? 'Kõik sektsioonid avatud' : 'Kõik sektsioonid suletud', 'success');
+-                     },
+- 
+-                     selectAllOptions() {
+-                         const hasUncheckedOptions = this.form.sections.some(section =>
+-                             section.options.some(option => !option.checked)
+-                         );
+- 
+-                         this.form.sections.forEach(section => {
+-                             section.enabled = true;
+-                             section.options.forEach(option => {
+-                                 option.checked = hasUncheckedOptions;
+-                             });
+-                         });
+-                         this.showToast(hasUncheckedOptions ? 'Kõik valikud valitud' : 'Kõik valikud eemaldatud', 'success');
+-                     },
+- 
+-                     showToast(message, type = 'info', duration = 3000) {
+-                         const toast = {
+-                             id: Date.now(),
+-                             message,
+-                             type,
+-                             duration
+-                         };
+-                         this.toasts.push(toast);
+-                         setTimeout(() => {
+-                             this.toasts = this.toasts.filter(t => t.id !== toast.id);
+-                         }, duration);
+-                     },
+- 
+-                     handleDragOver(e) {
+-                         e.preventDefault();
+-                         this.isDragging = true;
+-                     },
+- 
+-                     handleDragLeave() {
+-                         this.isDragging = false;
+-                     },
+- 
+-                     handleDrop(e) {
+-                         e.preventDefault();
+-                         this.isDragging = false;
+-                         const files = Array.from(e.dataTransfer.files);
+-                         this.processFiles(files);
+-                     },
+- 
+-                     handleFileInput(e) {
+-                         const files = Array.from(e.target.files);
+-                         this.processFiles(files);
+-                         e.target.value = ''; // Reset input
+-                     },
+- 
+-                     processFiles(files) {
+-                         const maxFileSize = 10 * 1024 * 1024; // 10MB
+-                         const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'];
+- 
+-                         Array.from(files).forEach(file => {
+-                             if (file.size > maxFileSize) {
+-                                 this.showToast(`Fail ${file.name} on liiga suur. Maksimaalne suurus on 10MB.`, 'error');
+-                                 return;
+-                             }
+- 
+-                             if (!allowedTypes.includes(file.type)) {
+-                                 this.showToast(`Fail ${file.name} on sobimatu tüüp. Lubatud on PDF ja pildifailid.`, 'error');
+-                                 return;
+-                             }
+- 
+-                             const reader = new FileReader();
+-                             reader.onload = (e) => {
+-                                 this.files.push({
+-                                     name: file.name,
+-                                     size: file.size,
+-                                     type: file.type,
+-                                     data: e.target.result,
+-                                     comment: ''
+-                                 });
+-                                 this.showToast('Fail lisatud', 'success');
+-                             };
+-                             reader.onerror = () => {
+-                                 this.showToast(`Faili ${file.name} lugemisel tekkis viga`, 'error');
+-                             };
+-                             reader.readAsDataURL(file);
+-                         });
+-                     },
+- 
+-                     removeFile(index) {
+-                         const fileName = this.files[index].name;
+-                         this.files.splice(index, 1);
+-                         this.showToast(`Fail ${fileName} eemaldatud`, 'info');
+-                     },
+- 
+-                     formatFileSize(bytes) {
+-                         if (bytes === 0) return '0 Bytes';
+-                         const k = 1024;
+-                         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+-                         const i = Math.floor(Math.log(bytes) / Math.log(k));
+-                         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+-                     },
+- 
+-                     resetForm() {
+-                         if (confirm('Kas oled kindel, et soovid kõik andmed kustutada? Seda tegevust ei saa tagasi võtta.')) {
+-                             // Reset to default form structure
+-                             this.form = {
+-                                 name: '',
+-                                 intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+-                                 fields: { ...defaultFields },
+-                                 sections: [
+-                                     {
+-                                         title: '1 Üldised tingimused',
+-                                         enabled: true,
+-                                         open: false,
+-                                         options: [
+-                                             { text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
+-                                             { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
+-                                             { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
+-                                             { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
+-                                             { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false },
+- 
+-                                         ]
+-                                     },
+-                                     {
+-                                         title: '2 Ostumenetluse tehniline kirjeldus',
+-                                         enabled: true,
+-                                         open: false,
+-                                         options: [
+-                                             { text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.', checked: false, editable: true }
+-                                         ]
+-                                     },
+-                                     {
+-                                         title: '3 Nõuded pakkumusele',
+-                                         enabled: true,
+-                                         open: false,
+-                                         options: [
+-                                             { text: 'Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.', checked: false },
+-                                             { text: 'Hilinenud pakkumusi hankija vastu ei võta.', checked: false },
+-                                             { text: 'Pakkumus peab sisaldama: Pakkumuse maksumust vastavalt lisale 1;', checked: false },
+-                                             { text: 'Pakkumus peab sisaldama: Pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.', checked: false },
+-                                             { text: 'Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.', checked: false },
+-                                             { text: 'Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.', checked: false },
+-                                             { text: 'Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist... Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.', checked: false }
+-                                         ]
+-                                     },
+-                                     {
+-                                         title: '4 Pakkumuste kontroll, hindamine ja eduka pakkumuse valik',
+-                                         enabled: true,
+-                                         open: false,
+-                                         options: [
+-                                             { text: 'Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele...', checked: false },
+-                                             { text: 'Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.', checked: false },
+-                                             { text: 'Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel...', checked: false },
+-                                             { text: 'Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi...', checked: false },
+-                                             { text: 'Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama...', checked: false }
+-                                         ]
+-                                     },
+-                                     {
+-                                         title: '5 Läbirääkimiste pidamine',
+-                                         enabled: true,
+-                                         open: false,
+-                                         options: [
+-                                             { text: 'Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu ja maksumuse ning tellimuse tingimuste üle.', checked: false },
+-                                             { text: 'Hankijal on õigus loobuda ühest või mitmest pakkumuses kirjeldatud teenusest, tööst või asjast või vähendada nende mahtusid või koguseid...', checked: false },
+-                                             { text: 'Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja... Läbirääkimised on konfidentsiaalsed.', checked: false },
+-                                             { text: 'Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse...', checked: false }
+-                                         ]
+-                                     },
+-                                     {
+-                                         title: '6 Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine',
+-                                         enabled: true,
+-                                         open: false,
+-                                         options: [
+-                                             { text: 'Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata...', checked: false },
+-                                             { text: 'Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta...', checked: false },
+-                                             { text: 'Hankija võib ostumenetluse kehtetuks tunnistada, kui peale pakkumuste esitamise tähtpäeva selgub, et hankija on teinud vea...', checked: false }
+-                                         ]
+-                                     },
+-                                     {
+-                                         title: '7 Lisad',
+-                                         enabled: true,
+-                                         open: false,
+-                                         options: [
+-                                             { text: 'Lisa 1. ', checked: false, editable: true }
+-                                         ]
+-                                     }
+-                                 ]
+-                             };
+- 
+-                             // Clear files
+-                             this.files = [];
+- 
+-                             // Remove from local storage
+-                             localStorage.removeItem('OM_DRAFT');
+- 
+-                             // Show success message
+-                             this.showToast('Vorm on tühjendatud', 'info');
+-                         }
+-                     },
+- 
+-                     removeSection(index) {
+-                         if (confirm('Kas olete kindel, et soovite selle sektsiooni kustutada?')) {
+-                             this.form.sections.splice(index, 1);
+-                             this.showToast('Sektsioon kustutatud', 'success');
+-                         }
+-                     },
+- 
+-                     debouncedSave() {
+-                         clearTimeout(this.saveTimeout);
+-                         this.saveTimeout = setTimeout(() => {
+-                             this.saveToStorage();
+-                         }, 2000);
+-                     },
+- 
+-                     addOption(sectionIndex) {
+-                         const section = this.form.sections[sectionIndex];
+-                         const optionCount = section.options.length + 1;
+- 
+-                         let newOption;
+-                         if (sectionIndex === 6) { // Lisad section
+-                             newOption = {
+-                                 text: `Lisa ${optionCount}. `,
+-                                 checked: false,
+-                                 editable: true,
+-                                 isEditing: true
+-                             };
+-                         } else if (sectionIndex === 0) { // Üldised tingimused section
+-                             newOption = {
+-                                 text: `${optionCount}. `,
+-                                 checked: false,
+-                                 checked: true,
+-                                 editable: true,
+-                                 isEditing: true
+-                             };
+-                         } else { // Other sections
+-                             newOption = {
+-                                 text: `${optionCount}. `,
+-                                 checked: false,
+-                                 editable: true,
+-                                 isEditing: true
+-                             };
+-                         }
+- 
+-                         section.options.push(newOption);
+-                         this.showToast('Punkt lisatud', 'success');
+-                     },
+- 
+-                     toggleUserMenu() {
+-                         if (this.currentUser) {
+-                             this.showUserMenu = !this.showUserMenu;
+-                         }
+-                     },
+- 
+-                     logout() {
+-                         window.handleLogout();
+-                     },
+- 
+-                     async saveUserSettings() {
+-                         try {
+-                             // Apply theme changes immediately
+-                             this.applyTheme();
+- 
+-                             // Try to save to Firestore if logged in
+-                             if (window.currentUser) {
+-                                 const { doc, setDoc } = window.firestoreFunctions;
+-                                 const userRef = doc(window.db, "users", window.currentUser.uid);
+-                                 await setDoc(userRef, {
+-                                     settings: this.userSettings
+-                                 }, { merge: true });
+-                             } else {
+-                                 // Fallback: Save to localStorage if not logged in
+-                                 localStorage.setItem('userSettings', JSON.stringify(this.userSettings));
+-                                 console.log('Settings saved to localStorage since user is not logged in');
+-                             }
+- 
+-                             // If autofill is enabled, update the form fields
+-                             if (this.userSettings.autofillEnabled) {
+-                                 this.form.fields = {
+-                                     ...this.form.fields,
+-                                     buyer: this.userSettings.buyer,
+-                                     submission: this.userSettings.submission,
+-                                     validity: this.userSettings.validity,
+-                                     requirements: this.userSettings.requirements,
+-                                     criteria: this.userSettings.criteria,
+-                                     responsible: this.userSettings.responsible
+-                                 };
+-                             }
+- 
+-                             this.showSettingsModal = false;
+-                             this.showToast('Seaded salvestatud!', 'success');
+-                         } catch (error) {
+-                             console.error('Settings save error:', error);
+-                             this.showToast('Viga seadete salvestamisel: ' + error.message, 'error');
+-                         }
+-                     },
+- 
+-                     applyTheme() {
+-                         // Apply current theme settings to the UI
+-                         const html = document.documentElement;
+- 
+-                         // Apply font setting
+-                         if (this.userSettings.font) {
+-                             html.style.fontFamily = this.userSettings.font;
+-                         }
+- 
+-                         // Apply button style
+-                         // This would normally be implemented with CSS classes or custom properties
+- 
+-                         // You could also change gradient colors based on theme
+-                         const gradientElements = document.querySelectorAll('.bg-gradient-to-r');
+-                         const theme = this.userSettings.theme;
+- 
+-                         gradientElements.forEach(el => {
+-                             el.classList.remove(
+-                                 'from-indigo-600', 'to-indigo-700',
+-                                 'from-blue-600', 'to-blue-700',
+-                                 'from-emerald-600', 'to-emerald-700',
+-                                 'from-purple-600', 'to-purple-700'
+-                             );
+- 
+-                             switch (theme) {
+-                                 case 'indigo':
+-                                     el.classList.add('from-indigo-600', 'to-indigo-700');
+-                                     break;
+-                                 case 'blue':
+-                                     el.classList.add('from-blue-600', 'to-blue-700');
+-                                     break;
+-                                 case 'emerald':
+-                                     el.classList.add('from-emerald-600', 'to-emerald-700');
+-                                     break;
+-                                 case 'purple':
+-                                     el.classList.add('from-purple-600', 'to-purple-700');
+-                                     break;
+-                                 default:
+-                                     el.classList.add('from-indigo-600', 'to-indigo-700');
+-                             }
+-                         });
+-                     },
+- 
+-                     applyAutofill() {
+-                         console.log('Applying autofill settings');
+-                         const updatedFields = { ...this.form.fields };
+-                         if (this.userSettings.buyer) updatedFields.buyer = this.userSettings.buyer;
+-                         if (this.userSettings.submission) updatedFields.submission = this.userSettings.submission;
+-                         if (this.userSettings.validity) updatedFields.validity = this.userSettings.validity;
+-                         if (this.userSettings.requirements) updatedFields.requirements = this.userSettings.requirements;
+-                         if (this.userSettings.criteria) updatedFields.criteria = this.userSettings.criteria;
+-                         if (this.userSettings.responsible) updatedFields.responsible = this.userSettings.responsible;
+-                         this.form.fields = updatedFields;
+-                         console.log('Autofill applied:', updatedFields);
+-                     },
+- 
+-                     // Add watcher for autofill toggle
+-                     watchAutofill() {
+-                         this.$watch('userSettings.autofillEnabled', (value) => {
+-                             console.log('Autofill toggled:', value);
+-                             if (value) {
+-                                 this.applyAutofill();
+-                             }
+-                         });
+-                     },
+- 
+-                     // Add watchers for basic data fields
+-                     watchBasicDataFields() {
+-                         const fields = ['buyer', 'submission', 'validity', 'requirements', 'criteria', 'responsible'];
+-                         fields.forEach(field => {
+-                             this.$watch(`userSettings.${field}`, (value) => {
+-                                 console.log(`${field} changed:`, value);
+-                                 if (this.userSettings.autofillEnabled) {
+-                                     this.applyAutofill();
+-                                 }
+-                             });
+-                         });
+-                     },
+- 
+-                     // Add function to download saved PDF
+-                     async downloadSavedPdf(pdfData, fileName) {
+-                         try {
+-                             const link = document.createElement('a');
+-                             link.href = pdfData;
+-                             link.download = fileName;
+-                             document.body.appendChild(link);
+-                             link.click();
+-                             document.body.removeChild(link);
+-                         } catch (error) {
+-                             this.showToast('Viga PDF allalaadimisel: ' + error.message, 'error');
+-                         }
+-                     },
+- 
+-                     // Add function to clear PDF history
+-                     async clearPdfHistory() {
+-                         if (!confirm('Kas olete kindel, et soovite kogu PDF ajaloo kustutada?')) return;
+- 
+-                         try {
+-                             if (window.currentUser) {
+-                                 const { doc, setDoc } = window.firestoreFunctions;
+-                                 const userRef = doc(window.db, "users", window.currentUser.uid);
+-                                 await setDoc(userRef, {
+-                                     pdfHistory: []
+-                                 }, { merge: true });
+- 
+-                                 this.userSettings.generatedPdfs = [];
+-                                 this.showToast('PDF ajalugu kustutatud', 'success');
+-                             }
+-                         } catch (error) {
+-                             this.showToast('Viga PDF ajaloo kustutamisel: ' + error.message, 'error');
+-                         }
+-                     },
+- 
+-                     // Update the tab click handler
+-                     handleTabClick(tab) {
+-                         console.log('Tab clicked:', tab);
+-                         this.activeTab = tab;
+-                         if (tab === 'history') {
+-                             console.log('Loading PDF history for history tab');
+-                             this.loadPdfHistory();
+-                         } else if (tab === 'basicInfo') {
+-                             console.log('Loading user settings for basic info tab');
+-                             this.loadUserSettings();
+-                         }
+-                     },
+- 
+-                     async loadBasicDataFields() {
+-                         try {
+-                             console.log('Loading basic data fields...');
+-                             if (window.currentUser) {
+-                                 console.log('Current user:', window.currentUser);
+-                                 const { doc, getDoc } = window.firestoreFunctions;
+-                                 const userRef = doc(window.db, "users", window.currentUser.uid);
+-                                 console.log('User reference:', userRef);
+- 
+-                                 const userDoc = await getDoc(userRef);
+-                                 console.log('User document exists:', userDoc.exists());
+- 
+-                                 if (userDoc.exists()) {
+-                                     const data = userDoc.data();
+-                                     console.log('Full user data:', data);
+- 
+-                                     if (data.settings) {
+-                                         console.log('Loading settings from Firestore:', data.settings);
+-                                         // Update only the basic data fields
+-                                         const basicFields = ['buyer', 'submission', 'validity', 'requirements', 'criteria', 'responsible', 'autofillEnabled'];
+-                                         basicFields.forEach(field => {
+-                                             if (data.settings[field] !== undefined) {
+-                                                 this.userSettings[field] = data.settings[field];
+-                                             }
+-                                         });
+-                                         console.log('Updated userSettings:', this.userSettings);
+-                                     } else {
+-                                         console.log('No settings found in data');
+-                                     }
+-                                 } else {
+-                                     console.log('No user document found');
+-                                 }
+-                             } else {
+-                                 console.log('No current user found');
+-                             }
+-                         } catch (error) {
+-                             console.error('Error loading basic data fields:', error);
+-                             this.showToast('Viga põhiandmete laadimisel: ' + error.message, 'error');
+-                         }
+-                     },
+- 
+-                     // Add Word document generation function
+-                     async generateWord() {
+-                         try {
+-                             const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = docx;
+- 
+-                             // Create document content
+-                             const doc = new Document({
+-                                 sections: [{
+-                                     properties: {},
+-                                     children: [
+-                                         new Paragraph({
+-                                             text: "Pakkumine",
+-                                             heading: HeadingLevel.HEADING_1,
+-                                             alignment: AlignmentType.CENTER,
+-                                         }),
+-                                         new Paragraph({
+-                                             children: [
+-                                                 new TextRun({
+-                                                     text: "Hankija: " + (this.form.fields.buyer || ''),
+-                                                     bold: true,
+-                                                 }),
+-                                             ],
+-                                         }),
+-                                         new Paragraph({
+-                                             children: [
+-                                                 new TextRun({
+-                                                     text: "Pakkumise esitamise aeg ja koht: " + (this.form.fields.submission || ''),
+-                                                 }),
+-                                             ],
+-                                         }),
+-                                         new Paragraph({
+-                                             children: [
+-                                                 new TextRun({
+-                                                     text: "Pakkumuse jõusoleku aeg: " + (this.form.fields.validity || ''),
+-                                                 }),
+-                                             ],
+-                                         }),
+-                                         new Paragraph({
+-                                             children: [
+-                                                 new TextRun({
+-                                                     text: "Nõuded pakkujale:",
+-                                                     bold: true,
+-                                                 }),
+-                                             ],
+-                                         }),
+-                                         new Paragraph({
+-                                             children: [
+-                                                 new TextRun({
+-                                                     text: this.form.fields.requirements || '',
+-                                                 }),
+-                                             ],
+-                                         }),
+-                                         new Paragraph({
+-                                             children: [
+-                                                 new TextRun({
+-                                                     text: "Väljavaliku alused:",
+-                                                     bold: true,
+-                                                 }),
+-                                             ],
+-                                         }),
+-                                         new Paragraph({
+-                                             children: [
+-                                                 new TextRun({
+-                                                     text: this.form.fields.criteria || '',
+-                                                 }),
+-                                             ],
+-                                         }),
+-                                         new Paragraph({
+-                                             children: [
+-                                                 new TextRun({
+-                                                     text: "Vastutav isik: " + (this.form.fields.responsible || ''),
+-                                                     bold: true,
+-                                                 }),
+-                                             ],
+-                                         }),
+-                                     ],
+-                                 }],
+-                             });
+- 
+-                             // Generate and save the document
+-                             const blob = await Packer.toBlob(doc);
+-                             const fileName = `Pakkumine_${new Date().toLocaleDateString('et-EE')}.docx`;
+-                             saveAs(blob, fileName);
+- 
+-                             // Save to history if user is logged in
+-                             if (window.currentUser) {
+-                                 const wordData = URL.createObjectURL(blob);
+-                                 await this.saveToHistory({
+-                                     name: fileName,
+-                                     pdfData: wordData,
+-                                     formData: JSON.stringify({
+-                                         name: this.form.name,
+-                                         intro: this.form.intro,
+-                                         fields: this.form.fields,
+-                                         sections: this.form.sections,
+                                      attachments: this.form.attachments
+                                  }),
+```
+
+---
+
+Let me try a different approach to fix this. I'll update just the necessary parts:
+
+---
+
+Cancelled
+
+---
+
+_**User**_
+
+dont touch the pdf generation
+
+---
+
+_**Assistant**_
+
+I understand. Let me focus only on fixing the `copyToTender` function to properly handle the form data:
+
+
+---
+
+Cancelled
+
+---
+
+
+
+---
+
 
 
 ---

@@ -12,6 +12,7 @@ module.exports = {
     "./src/**/*.{html,js}", // ✅ Custom HTML & JS
     "./_site/**/*.html", // ✅ Jekyll generated output
     "./**/*.md", // ✅ Markdown files (if used in Jekyll)
+    "./ostu/**/*.html",
   ],
   theme: {
     extend: {
@@ -167,10 +168,30 @@ module.exports = {
       fontFamily: {
         mono: ["JetBrains Mono", "monospace"],
       },
+      ringOpacity: {
+        DEFAULT: "0.5",
+        0: "0",
+        25: "0.25",
+        50: "0.5",
+        75: "0.75",
+        100: "1",
+      },
+      ringWidth: {
+        DEFAULT: "3px",
+        0: "0px",
+        1: "1px",
+        2: "2px",
+        4: "4px",
+        8: "8px",
+      },
     },
   },
 
-  plugins: [require("daisyui")],
+  plugins: [
+    require("daisyui"),
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/typography"),
+  ],
 
   // daisyUI config (optional - here are the default values)
   daisyui: {

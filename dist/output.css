@@ -2115,6 +2115,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .border-indigo-500 {
   border-color: var(--color-indigo-500);
 }
+.border-indigo-500\/50 {
+  border-color: color-mix(in oklab, var(--color-indigo-500) 50%, transparent);
+}
 .border-indigo-600 {
   border-color: var(--color-indigo-600);
 }
@@ -2494,6 +2497,10 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .from-blue-600 {
   --tw-gradient-from: var(--color-blue-600);
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+}
+.from-emerald-50 {
+  --tw-gradient-from: var(--color-emerald-50);
   --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
 }
 .from-emerald-500 {
@@ -5193,6 +5200,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.hover\:text-white\/80 {
+  &:hover {
+    @media (hover: hover) {
+      color: color-mix(in oklab, var(--color-white) 80%, transparent);
+    }
+  }
+}
 .hover\:text-yellow-900 {
   &:hover {
     @media (hover: hover) {
@@ -5281,6 +5295,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     z-index: 10;
   }
 }
+.focus\:border-2 {
+  &:focus {
+    border-style: var(--tw-border-style);
+    border-width: 2px;
+  }
+}
 .focus\:border-black {
   &:focus {
     border-color: var(--color-black);
@@ -5289,6 +5309,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .focus\:border-blue-500 {
   &:focus {
     border-color: var(--color-blue-500);
+  }
+}
+.focus\:border-emerald-500 {
+  &:focus {
+    border-color: var(--color-emerald-500);
   }
 }
 .focus\:border-gray-300 {
@@ -5314,6 +5339,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .focus\:border-indigo-500 {
   &:focus {
     border-color: var(--color-indigo-500);
+  }
+}
+.focus\:border-red-400 {
+  &:focus {
+    border-color: var(--color-red-400);
   }
 }
 .focus\:border-transparent {
