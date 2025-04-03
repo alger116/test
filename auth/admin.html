@@ -354,218 +354,213 @@
                         <div class="mb-6">
                             <h3 class="text-md font-medium text-gray-900 mb-4">E-posti mallid</h3>
                             <div class="flex items-center justify-between">
-                                <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
+                                    <div id="mainAdminIndicator"
+                                        class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full flex items-center gap-1 tooltip"
+                                        data-tip="Peaadministraatoril on õigused muuta kõiki rollegi">
+                                        <i class="fas fa-crown text-yellow-500"></i>
+                                        <span>Peaadministraator</span>
+                                    </div>
+                                    <!-- Admin Settings Button - Only visible to mainAdmin -->
+                                    <button id="adminSettingsButton"
+                                        class="hidden px-3 py-1.5 ml-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg flex items-center gap-1"
+                                        onclick="openRoles()">
+                                        <i class="fas fa-user-cog"></i>
+                                        <span>Rollide Seaded</span>
+                                    </button>
+                                </div>
                                 <div class="flex space-x-2">
-                                    <!-- Bulk Actions -->
-                                    <div class="relative" x-data="{ open: false }">
-                                        <button @click="open = !open"
-                                            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center">
-                                            <i class="fas fa-tasks mr-2"></i>Hulgitegevused
-                                        </button>
-                                        <div x-show="open" @click.away="open = false"
-                                            class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
-                                            <button onclick="bulkApproveUsers()"
-                                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                <i class="fas fa-check mr-2"></i>Kinnita valitud
-                                            </button>
-                                            <button onclick="bulkDeleteUsers()"
-                                                class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                                                <i class="fas fa-trash mr-2"></i>Kustuta valitud
-                                            </button>
-                                            <button onclick="bulkExportUsers()"
-                                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                <i class="fas fa-download mr-2"></i>Ekspordi valitud
-                                            </button>
-                                        </div>
-                                    </div>
+                                </div>
 
-                                    <!-- Import Users -->
-                                    <button onclick="openImportModal()"
-                                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
-                                        <i class="fas fa-file-import mr-2"></i>Impordi
-                                    </button>
+                                <!-- Import Users -->
+                                <button onclick="openImportModal()"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
+                                    <i class="fas fa-file-import mr-2"></i>Impordi
+                                </button>
 
-                                    <!-- Add User -->
-                                    <button id="addUserButton"
-                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center">
-                                        <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Advanced Filters -->
-                        <div class="px-6 py-4 border-b bg-gray-50">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Otsi</label>
-                                    <input type="text" id="userSearch" placeholder="Email, nimi..."
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                                <div x-data="{ open: false }" @click.away="open = false" class="relative">
-                                    <label class="block text-sm font-medium text-gray-700">Roll</label>
-                                    <button @click="open = !open" type="button"
-                                        class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                        <span
-                                            x-text="$refs.roleSelect.options[$refs.roleSelect.selectedIndex].text">Kõik
-                                            rollid</span>
-                                        <span
-                                            class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                        </span>
-                                    </button>
-                                    <div x-show="open" x-transition
-                                        class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                                        <select x-ref="roleSelect" id="roleFilter" @change="open = false"
-                                            class="w-full h-full bg-transparent border-0 focus:ring-0">
-                                            <option value="">Kõik rollid</option>
-                                            <option value="mainAdmin">Peaadministraator</option>
-                                            <option value="admin">Administraator</option>
-                                            <option value="omUser">Ostumaailm Kasutaja</option>
-                                            <option value="hmUser">Hankemaailm Kasutaja</option>
-                                            <option value="user">Tavakasutaja</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div x-data="{ open: false }" @click.away="open = false" class="relative">
-                                    <label class="block text-sm font-medium text-gray-700">Olek</label>
-                                    <button @click="open = !open" type="button"
-                                        class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                        <span
-                                            x-text="$refs.statusSelect.options[$refs.statusSelect.selectedIndex].text">Kõik
-                                            olekud</span>
-                                        <span
-                                            class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd"
-                                                    d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                                    clip-rule="evenodd" />
-                                            </svg>
-                                        </span>
-                                    </button>
-                                    <div x-show="open" x-transition
-                                        class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                                        <select x-ref="statusSelect" id="statusFilter" @change="open = false"
-                                            class="w-full h-full bg-transparent border-0 focus:ring-0">
-                                            <option value="">Kõik olekud</option>
-                                            <option value="active">Aktiivne</option>
-                                            <option value="inactive">Mitteaktiivne</option>
-                                            <option value="pending">Ootel</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Kinnitamine</label>
-                                    <select id="verificationFilter"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <option value="">Kõik</option>
-                                        <option value="verified">Kinnitatud</option>
-                                        <option value="unverified">Kinnitamata</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="mt-4 flex justify-end">
-                                <button onclick="applyFilters()"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                    Rakenda filtrid
+                                <!-- Add User -->
+                                <button id="addUserButton"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center">
+                                    <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
                                 </button>
                             </div>
                         </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left">
-                                            <input type="checkbox" id="selectAll" class="rounded text-blue-600">
-                                        </th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Email</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Roll</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Olek</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Kinnitamine</th>
-                                        <th
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tegevused</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="userTable" class="bg-white divide-y divide-gray-200">
-                                    <!-- Users will be dynamically added here -->
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
 
-                    <!-- Import Users Modal -->
-                    <div id="importUserModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-                        <div class="flex items-center justify-center min-h-screen">
-                            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                                <h2 class="text-xl font-bold mb-4">Impordi kasutajad</h2>
-                                <form id="importUserForm" class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">CSV fail</label>
-                                        <input type="file" id="csvFile" accept=".csv" required
-                                            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700">Vaikimisi roll</label>
-                                        <select id="defaultRole" required
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                            <option value="user">Tavakasutaja</option>
-                                            <option value="omUser">Ostumaailm Kasutaja</option>
-                                            <option value="hmUser">Hankemaailm Kasutaja</option>
-                                        </select>
-                                    </div>
-                                    <div class="flex justify-end space-x-2">
-                                        <button type="button" onclick="closeImportModal()"
-                                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                                            Tühista
-                                        </button>
-                                        <button type="submit"
-                                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                            Impordi
-                                        </button>
-                                    </div>
-                                </form>
+                    <!-- Advanced Filters -->
+                    <div class="px-6 py-4 border-b bg-gray-50">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Otsi</label>
+                                <input type="text" id="userSearch" placeholder="Email, nimi..."
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div x-data="{ open: false }" @click.away="open = false" class="relative">
+                                <label class="block text-sm font-medium text-gray-700">Roll</label>
+                                <button @click="open = !open" type="button"
+                                    class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    <span x-text="$refs.roleSelect.options[$refs.roleSelect.selectedIndex].text">Kõik
+                                        rollid</span>
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </button>
+                                <div x-show="open" x-transition
+                                    class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                    <select x-ref="roleSelect" id="roleFilter" @change="open = false"
+                                        class="w-full h-full bg-transparent border-0 focus:ring-0">
+                                        <option value="">Kõik rollid</option>
+                                        <option value="mainAdmin">Peaadministraator 👑</option>
+                                        <option value="admin">Administraator 👑</option>
+                                        <option value="omUser">Ostumaailm Kasutaja</option>
+                                        <option value="hmUser">Hankemaailm Kasutaja</option>
+                                        <option value="user">Tavakasutaja</option>
+                                        <option value="custom">Kohandatud</option>
+                                    </select>
+                                    <small class="absolute -bottom-5 left-0 text-xs text-gray-500">
+                                        👑 Krooniga rolli saab muuta ainult Peaadministraator
+                                    </small>
+                                </div>
+                            </div>
+                            <div x-data="{ open: false }" @click.away="open = false" class="relative">
+                                <label class="block text-sm font-medium text-gray-700">Olek</label>
+                                <button @click="open = !open" type="button"
+                                    class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    <span
+                                        x-text="$refs.statusSelect.options[$refs.statusSelect.selectedIndex].text">Kõik
+                                        olekud</span>
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </button>
+                                <div x-show="open" x-transition
+                                    class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                    <select x-ref="statusSelect" id="statusFilter" @change="open = false"
+                                        class="w-full h-full bg-transparent border-0 focus:ring-0">
+                                        <option value="">Kõik olekud</option>
+                                        <option value="active">Aktiivne</option>
+                                        <option value="inactive">Mitteaktiivne</option>
+                                        <option value="pending">Ootel</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Kinnitamine</label>
+                                <select id="verificationFilter"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="">Kõik</option>
+                                    <option value="verified">Kinnitatud</option>
+                                    <option value="unverified">Kinnitamata</option>
+                                </select>
                             </div>
                         </div>
+                        <div class="mt-4 flex justify-end">
+                            <button onclick="applyFilters()"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                Rakenda filtrid
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Audit Log Section -->
-                    <div class="p-6">
-                        <h2 class="text-2xl font-bold text-gray-900">Audit Log</h2>
+                    <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    <th class="px-6 py-3 text-left">
+                                        <input type="checkbox" id="selectAll" class="rounded text-blue-600">
+                                    </th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kuupäev</th>
+                                        Email</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tegevus</th>
+                                        Roll</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kasutaja</th>
+                                        Olek</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Kinnitamine</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tegevused</th>
                                 </tr>
                             </thead>
-                            <tbody id="auditLogTable" class="bg-white divide-y divide-gray-200">
-                                <!-- Audit logs will be dynamically added here -->
+                            <tbody id="userTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Users will be dynamically added here -->
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <!-- Import Users Modal -->
+                <div id="importUserModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+                    <div class="flex items-center justify-center min-h-screen">
+                        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                            <h2 class="text-xl font-bold mb-4">Impordi kasutajad</h2>
+                            <form id="importUserForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">CSV fail</label>
+                                    <input type="file" id="csvFile" accept=".csv" required
+                                        class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Vaikimisi roll</label>
+                                    <select id="defaultRole" required
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="user">Tavakasutaja</option>
+                                        <option value="omUser">Ostumaailm Kasutaja</option>
+                                        <option value="hmUser">Hankemaailm Kasutaja</option>
+                                    </select>
+                                </div>
+                                <div class="flex justify-end space-x-2">
+                                    <button type="button" onclick="closeImportModal()"
+                                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                                        Tühista
+                                    </button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                        Impordi
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Log Section -->
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Audit Log</h2>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Kuupäev</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Tegevus</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Kasutaja</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditLogTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Audit logs will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
             </main>
         </div>
 
@@ -717,12 +712,21 @@
         <div id="rolesContainer" class="hidden fixed inset-0 z-50 overflow-y-auto transition-all duration-300">
             <div class="flex min-h-full items-center justify-center p-4">
                 <div
-                    class="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200 transform transition-all duration-300">
+                    class="relative w-full max-w-5xl bg-white rounded-xl shadow-2xl border border-gray-200 transform transition-all duration-300">
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <div
+                        class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-900">Kasutajarollid</h2>
-                            <p class="text-sm text-gray-500 mt-1">Halda kasutajarolle ja õigusi</p>
+                            <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                                <i class="fas fa-user-tag text-indigo-500 mr-3"></i>
+                                Kasutajarollid
+                            </h2>
+                            <p class="text-sm text-gray-500 mt-1">Halda kasutajarolle, õigusi ja limiite</p>
+                            <div id="mainAdminRolesIndicator"
+                                class="hidden mt-2 px-3 py-1 bg-indigo-100 text-xs font-medium text-indigo-800 rounded-full inline-flex items-center">
+                                <i class="fas fa-crown text-yellow-500 mr-1"></i>
+                                <span>Peaadministraatorina saad muuta ka süsteemi rolle</span>
+                            </div>
                         </div>
                         <button id="closeRoles"
                             class="text-gray-400 hover:text-gray-500 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
@@ -735,52 +739,53 @@
                         <div class="space-y-6">
                             <!-- Search and Filter Section -->
                             <div class="flex items-center justify-between gap-4">
-                                <div class="flex-1">
-                                    <div class="relative">
-                                        <input type="text" id="roleSearch" placeholder="Otsi rolle..."
-                                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
-                                        <i
-                                            class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    </div>
+                                <div class="flex-1 relative">
+                                    <input type="text" id="roleSearch" placeholder="Otsi rolle..."
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm">
+                                    <i
+                                        class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                                 </div>
                                 <button id="addRoleButton"
-                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 flex items-center shadow-sm hover:shadow-md">
+                                    class="px-5 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 flex items-center shadow-md hover:shadow-lg transform hover:translate-y-[-2px]">
                                     <i class="fas fa-plus mr-2"></i>Lisa Roll
                                 </button>
                             </div>
 
                             <!-- Role Statistics -->
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                                <div
+                                    class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all duration-300 transform hover:translate-y-[-2px]">
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-sm text-blue-600 font-medium">Aktiivsed Rollid</p>
                                             <p class="text-2xl font-bold text-blue-700 mt-1" id="activeRolesCount">0</p>
                                         </div>
-                                        <div class="bg-blue-100 p-3 rounded-full">
+                                        <div class="bg-blue-100 p-3 rounded-full shadow-sm">
                                             <i class="fas fa-users text-blue-600"></i>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                                <div
+                                    class="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100 shadow-sm hover:shadow-md transition-all duration-300 transform hover:translate-y-[-2px]">
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-sm text-green-600 font-medium">Kasutajad</p>
                                             <p class="text-2xl font-bold text-green-700 mt-1" id="totalUsersCount">0</p>
                                         </div>
-                                        <div class="bg-green-100 p-3 rounded-full">
+                                        <div class="bg-green-100 p-3 rounded-full shadow-sm">
                                             <i class="fas fa-user-check text-green-600"></i>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                                <div
+                                    class="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-100 shadow-sm hover:shadow-md transition-all duration-300 transform hover:translate-y-[-2px]">
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-sm text-purple-600 font-medium">Õigused</p>
                                             <p class="text-2xl font-bold text-purple-700 mt-1"
                                                 id="totalPermissionsCount">0</p>
                                         </div>
-                                        <div class="bg-purple-100 p-3 rounded-full">
+                                        <div class="bg-purple-100 p-3 rounded-full shadow-sm">
                                             <i class="fas fa-key text-purple-600"></i>
                                         </div>
                                     </div>
@@ -790,6 +795,13 @@
                             <!-- Role List -->
                             <div class="space-y-4" id="rolesList">
                                 <!-- Roles will be dynamically added here -->
+                                <div class="animate-pulse flex space-x-4">
+                                    <div class="flex-1 space-y-4 py-1">
+                                        <div class="h-20 bg-gray-100 rounded"></div>
+                                        <div class="h-20 bg-gray-100 rounded"></div>
+                                        <div class="h-20 bg-gray-100 rounded"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -853,6 +865,47 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Õigused</label>
                                 <div class="space-y-2" id="permissionsList">
                                     <!-- Permissions will be dynamically added here -->
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kasutuse limiidid</label>
+                                <div class="space-y-3" id="usageLimitsList">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-1/2">
+                                            <label for="searchLimit" class="text-xs text-gray-600">Otsingute arv</label>
+                                            <input type="number" id="searchLimit" name="searchLimit" min="0" max="999"
+                                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                                placeholder="Piiramatu">
+                                        </div>
+                                        <div class="w-1/2">
+                                            <label for="firestoreSaveLimit" class="text-xs text-gray-600">Firestore
+                                                salvestamised</label>
+                                            <input type="number" id="firestoreSaveLimit" name="firestoreSaveLimit"
+                                                min="0" max="999"
+                                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                                placeholder="Piiramatu">
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-1/2">
+                                            <label for="pdfGenerationLimit" class="text-xs text-gray-600">PDF
+                                                genereerimiste arv</label>
+                                            <input type="number" id="pdfGenerationLimit" name="pdfGenerationLimit"
+                                                min="0" max="999"
+                                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                                placeholder="Piiramatu">
+                                        </div>
+                                        <div class="w-1/2">
+                                            <label for="recentSearchLimit" class="text-xs text-gray-600">Viimaste
+                                                otsingute kuvamine</label>
+                                            <input type="number" id="recentSearchLimit" name="recentSearchLimit" min="0"
+                                                max="20"
+                                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                                placeholder="0">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1274,12 +1327,16 @@
                             return false;
                         }
 
-                        // Only mainAdmin can create new admins
-                        if (newRole === 'admin' || newRole === 'mainAdmin') {
-                            if (currentUserRole !== 'mainAdmin') {
-                                showNotification("Ainult peaadministraator võib luua uusi administraatoreid!", "error");
-                                return false;
-                            }
+                        // Allow mainAdmin to change admin roles to any other role
+                        if (currentUserRole === 'mainAdmin') {
+                            // mainAdmin can change any role except other mainAdmins
+                            return true;
+                        }
+
+                        // Only mainAdmin can create or modify admin roles
+                        if (newRole === 'admin' || newRole === 'mainAdmin' || oldRole === 'admin') {
+                            showNotification("Ainult peaadministraator võib luua või muuta administraatoreid!", "error");
+                            return false;
                         }
 
                         // Validate that the role exists
@@ -1361,6 +1418,12 @@
                             return
                         }
 
+                        // Show mainAdmin indicator if the user is a mainAdmin
+                        const mainAdminIndicator = document.getElementById('mainAdminIndicator');
+                        if (mainAdminIndicator && userData.role === 'mainAdmin') {
+                            mainAdminIndicator.classList.remove('hidden');
+                        }
+
                         // Update localStorage based on Firestore data
                         localStorage.setItem('user', JSON.stringify({
                             email: userData.email,
@@ -1412,6 +1475,7 @@
                     const defaultRoles = {
                         mainAdmin: {
                             name: "Peaadministraator",
+                            description: "Täielikud õigused süsteemi haldamiseks",
                             permissions: {
                                 fullAccess: true,
                                 userManagement: true,
@@ -1420,24 +1484,60 @@
                                 omAccess: true,
                                 hmAccess: true,
                                 auditLogAccess: true,
-                                systemSettings: true
-                            }
+                                systemSettings: true,
+                                viewPublicContent: true,
+                                viewHiddenContent: true,
+                                viewTimeline: true,
+                                saveSearches: true,
+                                search: true,
+                                adjustDays: true,
+                                saveToExcel: true,
+                                generatePdf: true,
+                                saveSettings: true,
+                                deleteAdminMenu: true
+                            },
+                            limits: {
+                                searchLimit: -1, // -1 means unlimited
+                                firestoreSaveLimit: -1,
+                                pdfGenerationLimit: -1,
+                                recentSearchLimit: 20
+                            },
+                            isSystem: true
                         },
                         admin: {
                             name: "Administraator",
+                            description: "Peaaegu täielikud õigused süsteemi haldamiseks",
                             permissions: {
-                                fullAccess: true,
+                                fullAccess: false,
                                 userManagement: true,
                                 settingsManagement: true,
                                 roleManagement: true,
                                 omAccess: true,
                                 hmAccess: true,
                                 auditLogAccess: true,
-                                systemSettings: true
-                            }
+                                systemSettings: true,
+                                viewPublicContent: true,
+                                viewHiddenContent: true,
+                                viewTimeline: true,
+                                saveSearches: true,
+                                search: true,
+                                adjustDays: true,
+                                saveToExcel: true,
+                                generatePdf: true,
+                                saveSettings: true,
+                                deleteAdminMenu: false
+                            },
+                            limits: {
+                                searchLimit: -1,
+                                firestoreSaveLimit: -1,
+                                pdfGenerationLimit: -1,
+                                recentSearchLimit: 15
+                            },
+                            isSystem: true
                         },
                         user: {
                             name: "Tavakasutaja",
+                            description: "Piiratud õigused süsteemi kasutamiseks",
                             permissions: {
                                 fullAccess: false,
                                 userManagement: false,
@@ -1446,8 +1546,25 @@
                                 omAccess: false,
                                 hmAccess: false,
                                 auditLogAccess: false,
-                                systemSettings: false
-                            }
+                                systemSettings: false,
+                                viewPublicContent: true,
+                                viewHiddenContent: false,
+                                viewTimeline: true,
+                                saveSearches: false,
+                                search: true,
+                                adjustDays: false,
+                                saveToExcel: false,
+                                generatePdf: false,
+                                saveSettings: false,
+                                deleteAdminMenu: false
+                            },
+                            limits: {
+                                searchLimit: 5,
+                                firestoreSaveLimit: 0,
+                                pdfGenerationLimit: 0,
+                                recentSearchLimit: 3
+                            },
+                            isSystem: true
                         }
                     };
 
@@ -1484,16 +1601,29 @@
 
                     // Function to edit a role
                     window.editRole = async function (roleId) {
-                        if (roles[roleId].isSystem) {
-                            showNotification('Süsteemi rolle ei saa muuta!', 'error');
-                            return;
-                        }
+                        try {
+                            // Check if current user is mainAdmin
+                            const currentUser = auth.currentUser;
+                            if (!currentUser) {
+                                showNotification("Pead olema sisse logitud!", "error");
+                                return;
+                            }
 
-                        const role = roles[roleId];
-                        const container = document.querySelector('#rolesContainer .space-y-4');
-                        if (!container) return;
+                            const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
+                            const currentUserData = currentUserDoc.data();
+                            const isMainAdmin = currentUserData && currentUserData.role === 'mainAdmin';
 
-                        container.innerHTML = `
+                            // Only block system role edits for non-mainAdmin users
+                            if (roles[roleId].isSystem && !isMainAdmin) {
+                                showNotification('Süsteemi rolle saab muuta ainult Peaadministraator!', 'error');
+                                return;
+                            }
+
+                            const role = roles[roleId];
+                            const container = document.querySelector('#rolesContainer .space-y-4');
+                            if (!container) return;
+
+                            container.innerHTML = `
                 <div class="bg-white p-4 rounded-lg shadow-sm space-y-4">
                     <div class="space-y-4">
                         <div>
@@ -1506,11 +1636,11 @@
                             <label for="roleDescription" class="block text-sm font-medium text-gray-700">Kirjeldus:</label>
                             <textarea id="roleDescription"
                                 class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
-                                rows="2">${role.description}</textarea>
+                                rows="2">${role.description || ''}</textarea>
                         </div>
                         <div class="space-y-2">
                             <h5 class="text-sm font-medium text-gray-700">Õigused:</h5>
-                            <div class="space-y-2">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 <label class="flex items-center space-x-2">
                                     <input type="checkbox" id="searchPermission" class="rounded text-blue-600" ${role.permissions.search ? 'checked' : ''}>
                                     <span class="text-sm text-gray-700">Otsingute tegemine</span>
@@ -1539,6 +1669,66 @@
                                     <input type="checkbox" id="userManagement" class="rounded text-blue-600" ${role.permissions.userManagement ? 'checked' : ''}>
                                     <span class="text-sm text-gray-700">Kasutajate haldamine</span>
                                 </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="adjustDays" class="rounded text-blue-600" ${role.permissions.adjustDays ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Päevade muutmine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="saveToExcel" class="rounded text-blue-600" ${role.permissions.saveToExcel ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Excelisse salvestamine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="generatePdf" class="rounded text-blue-600" ${role.permissions.generatePdf ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">PDF genereerimine</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="saveSettings" class="rounded text-blue-600" ${role.permissions.saveSettings ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Seadete salvestamine</span>
+                                </label>
+                                ${isMainAdmin ? `
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="fullAccess" class="rounded text-blue-600" ${role.permissions.fullAccess ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Täielik juurdepääs</span>
+                                </label>
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="roleManagement" class="rounded text-blue-600" ${role.permissions.roleManagement ? 'checked' : ''}>
+                                    <span class="text-sm text-gray-700">Rollide haldamine</span>
+                                </label>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <h5 class="text-sm font-medium text-gray-700">Kasutuse limiidid:</h5>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label for="searchLimit" class="block text-xs text-gray-600">Otsingute arv:</label>
+                                    <input type="number" id="searchLimit" value="${role.limits?.searchLimit ?? -1}"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                        min="-1" placeholder="Piiramatu">
+                                    <p class="text-xs text-gray-500 mt-1">-1 = piiramatu</p>
+                                </div>
+                                <div>
+                                    <label for="firestoreSaveLimit" class="block text-xs text-gray-600">Firestore salvestamised:</label>
+                                    <input type="number" id="firestoreSaveLimit" value="${role.limits?.firestoreSaveLimit ?? -1}"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                        min="-1" placeholder="Piiramatu">
+                                    <p class="text-xs text-gray-500 mt-1">-1 = piiramatu</p>
+                                </div>
+                                <div>
+                                    <label for="pdfGenerationLimit" class="block text-xs text-gray-600">PDF genereerimiste arv:</label>
+                                    <input type="number" id="pdfGenerationLimit" value="${role.limits?.pdfGenerationLimit ?? -1}"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                        min="-1" placeholder="Piiramatu">
+                                    <p class="text-xs text-gray-500 mt-1">-1 = piiramatu</p>
+                                </div>
+                                <div>
+                                    <label for="recentSearchLimit" class="block text-xs text-gray-600">Viimaste otsingute kuvamine:</label>
+                                    <input type="number" id="recentSearchLimit" value="${role.limits?.recentSearchLimit ?? 0}"
+                                        class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                                        min="0" max="20" placeholder="0">
+                                    <p class="text-xs text-gray-500 mt-1">0 = ei kuva, max 20</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1554,6 +1744,10 @@
                     </div>
                 </div>
             `;
+                        } catch (error) {
+                            console.error('Error in editRole:', error);
+                            showNotification('Viga rolli muutmisel!', 'error');
+                        }
                     };
 
                     // Function to save a role
@@ -1561,6 +1755,18 @@
                         try {
                             const name = document.getElementById('roleName').value;
                             const description = document.getElementById('roleDescription').value;
+
+                            // Check if current user is mainAdmin
+                            const currentUser = auth.currentUser;
+                            if (!currentUser) {
+                                showNotification("Pead olema sisse logitud!", "error");
+                                return;
+                            }
+
+                            const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
+                            const currentUserData = currentUserDoc.data();
+                            const isMainAdmin = currentUserData && currentUserData.role === 'mainAdmin';
+
                             const permissions = {
                                 search: document.getElementById('searchPermission').checked,
                                 viewPublicContent: document.getElementById('viewPublicContent').checked,
@@ -1569,16 +1775,33 @@
                                 saveSearches: document.getElementById('saveSearches').checked,
                                 settingsManagement: document.getElementById('settingsManagement').checked,
                                 userManagement: document.getElementById('userManagement').checked,
-                                roleManagement: roles[roleId].permissions.roleManagement,
-                                fullAccess: roles[roleId].permissions.fullAccess,
-                                deleteAdminMenu: roles[roleId].permissions.deleteAdminMenu
+                                roleManagement: isMainAdmin && document.getElementById('roleManagement') ?
+                                    document.getElementById('roleManagement').checked :
+                                    roles[roleId].permissions.roleManagement,
+                                fullAccess: isMainAdmin && document.getElementById('fullAccess') ?
+                                    document.getElementById('fullAccess').checked :
+                                    roles[roleId].permissions.fullAccess,
+                                deleteAdminMenu: roles[roleId].permissions.deleteAdminMenu,
+                                adjustDays: document.getElementById('adjustDays').checked,
+                                saveToExcel: document.getElementById('saveToExcel').checked,
+                                generatePdf: document.getElementById('generatePdf').checked,
+                                saveSettings: document.getElementById('saveSettings').checked
+                            };
+
+                            // Get the usage limits
+                            const limits = {
+                                searchLimit: parseInt(document.getElementById('searchLimit').value) || -1,
+                                firestoreSaveLimit: parseInt(document.getElementById('firestoreSaveLimit').value) || -1,
+                                pdfGenerationLimit: parseInt(document.getElementById('pdfGenerationLimit').value) || -1,
+                                recentSearchLimit: parseInt(document.getElementById('recentSearchLimit').value) || 0
                             };
 
                             roles[roleId] = {
                                 ...roles[roleId],
                                 name,
                                 description,
-                                permissions
+                                permissions,
+                                limits
                             };
 
                             await saveRoles();
@@ -1592,14 +1815,33 @@
 
                     // Function to delete a role
                     window.deleteRole = async function (roleId) {
-                        if (roles[roleId].isSystem) {
-                            showNotification('Süsteemi rolle ei saa kustutada!', 'error');
-                            return;
-                        }
-
-                        if (!confirm('Kas oled kindel, et soovid selle rolli kustutada?')) return;
-
                         try {
+                            // Check if current user is mainAdmin
+                            const currentUser = auth.currentUser;
+                            if (!currentUser) {
+                                showNotification("Pead olema sisse logitud!", "error");
+                                return;
+                            }
+
+                            const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
+                            const currentUserData = currentUserDoc.data();
+                            const isMainAdmin = currentUserData && currentUserData.role === 'mainAdmin';
+
+                            // Only block system role deletion for non-mainAdmin users
+                            if (roles[roleId].isSystem && !isMainAdmin) {
+                                showNotification('Süsteemi rolle saab kustutada ainult Peaadministraator!', 'error');
+                                return;
+                            }
+
+                            // Warn about system role deletion even for mainAdmin
+                            if (roles[roleId].isSystem && isMainAdmin) {
+                                if (!confirm('See on süsteemi roll! Kas oled kindel, et soovid selle kustutada? See võib mõjutada süsteemi tööd!')) {
+                                    return;
+                                }
+                            } else if (!confirm('Kas oled kindel, et soovid selle rolli kustutada?')) {
+                                return;
+                            }
+
                             delete roles[roleId];
                             await saveRoles();
                             showNotification('Roll kustutatud!', 'success');
@@ -1622,43 +1864,153 @@
 
                         rolesContainer.innerHTML = '';
 
-                        Object.entries(roles).forEach(([roleId, role]) => {
-                            const roleElement = document.createElement('div');
-                            roleElement.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200';
-                            roleElement.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-900">${role.name}</h4>
-                            <p class="text-sm text-gray-500">${role.description}</p>
+                        // Check if current user is mainAdmin
+                        const checkMainAdmin = async () => {
+                            try {
+                                const currentUser = auth.currentUser;
+                                if (!currentUser) return false;
+
+                                const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
+                                const currentUserData = currentUserDoc.data();
+                                return currentUserData && currentUserData.role === 'mainAdmin';
+                            } catch (error) {
+                                console.error('Error checking mainAdmin:', error);
+                                return false;
+                            }
+                        };
+
+                        checkMainAdmin().then(isMainAdmin => {
+                            // Add special banner for mainAdmin users
+                            if (isMainAdmin) {
+                                const mainAdminBanner = document.createElement('div');
+                                mainAdminBanner.className = 'bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg shadow-sm mb-4 border-l-4 border-blue-500';
+                                mainAdminBanner.innerHTML = `
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 bg-blue-100 rounded-full p-2">
+                                            <i class="fas fa-shield-alt text-blue-600"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <h3 class="text-sm font-medium text-blue-800">Peaadministraatori õigused</h3>
+                                            <div class="mt-1 text-sm text-blue-700">
+                                                <p>Sul on võimalik muuta ja kustutada süsteemi rolle. Süsteemi rollid on tähistatud rohelise äärisega.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                rolesContainer.appendChild(mainAdminBanner);
+                            }
+
+                            Object.entries(roles).forEach(([roleId, role]) => {
+                                const roleElement = document.createElement('div');
+
+                                // Add special highlight class for system roles that are editable by mainAdmin
+                                if (role.isSystem && isMainAdmin) {
+                                    roleElement.className = 'bg-white p-5 rounded-lg shadow-sm border-2 border-green-300 transition-all duration-300 hover:shadow-md';
+                                } else {
+                                    roleElement.className = 'bg-white p-5 rounded-lg shadow-sm border border-gray-200 transition-all duration-300 hover:shadow-md';
+                                }
+
+                                // Create badge based on role color or default to blue
+                                const roleColor = role.color || 'blue';
+                                const colorClasses = {
+                                    blue: 'bg-blue-100 text-blue-800',
+                                    green: 'bg-green-100 text-green-800',
+                                    purple: 'bg-purple-100 text-purple-800',
+                                    yellow: 'bg-yellow-100 text-yellow-800',
+                                    red: 'bg-red-100 text-red-800'
+                                };
+
+                                const badgeClass = colorClasses[roleColor] || colorClasses.blue;
+
+                                roleElement.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="px-3 py-1 text-sm font-medium rounded-full ${badgeClass}">${role.name}</div>
+                                <p class="text-sm text-gray-500">${role.description || ''}</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                ${role.isSystem ?
+                                        // If system role, show buttons only for mainAdmin
+                                        (isMainAdmin ?
+                                            `<span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full flex items-center">
+                                                <span>Süsteem</span>
+                                                <span class="ml-1 text-xs text-green-600">(muudetav)</span>
+                                             </span>
+                                     <button onclick="editRole('${roleId}')" class="p-1.5 text-gray-600 hover:text-blue-600 bg-gray-100 hover:bg-blue-50 rounded-lg transition-colors">
+                                        <i class="fas fa-edit"></i>
+                                     </button>
+                                     <button onclick="deleteRole('${roleId}')" class="p-1.5 text-gray-600 hover:text-red-600 bg-gray-100 hover:bg-red-50 rounded-lg transition-colors">
+                                        <i class="fas fa-trash"></i>
+                                     </button>` :
+                                            `<span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Süsteem</span>`) :
+                                        // For non-system roles, always show edit/delete buttons
+                                        `<button onclick="editRole('${roleId}')" class="p-1.5 text-gray-600 hover:text-blue-600 bg-gray-100 hover:bg-blue-50 rounded-lg transition-colors">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteRole('${roleId}')" class="p-1.5 text-gray-600 hover:text-red-600 bg-gray-100 hover:bg-red-50 rounded-lg transition-colors">
+                                        <i class="fas fa-trash"></i>
+                                    </button>`
+                                    }
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            ${role.isSystem ? `
-                                <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Süsteem</span>
-                            ` : `
-                                <button onclick="editRole('${roleId}')" class="text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="deleteRole('${roleId}')" class="text-red-600 hover:text-red-800">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            `}
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-700 mb-2 pb-1 border-b border-gray-200">Õigused:</h5>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1">
+                                    ${Object.entries(role.permissions)
+                                        .filter(([key]) => typeof role.permissions[key] === 'boolean')
+                                        .map(([key, value]) => `
+                                        <div class="flex items-center py-1">
+                                            <i class="fas ${value ? 'fa-check text-green-500' : 'fa-times text-red-500'} w-5 mr-2"></i>
+                                            <span class="text-sm text-gray-700">${getPermissionLabel(key)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h5 class="text-sm font-medium text-gray-700 mb-2 pb-1 border-b border-gray-200">Kasutuse limiidid:</h5>
+                                <div class="grid grid-cols-1 gap-y-1">
+                                    ${role.limits ? `
+                                        <div class="flex items-center justify-between py-1">
+                                            <span class="text-sm text-gray-700">Otsingute arv:</span>
+                                            <span class="text-sm font-medium ${role.limits.searchLimit === -1 ? 'text-green-600' : 'text-blue-600'}">
+                                                ${role.limits.searchLimit === -1 ? 'Piiramatu' : role.limits.searchLimit}
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center justify-between py-1">
+                                            <span class="text-sm text-gray-700">Firestore salvestamisi:</span>
+                                            <span class="text-sm font-medium ${role.limits.firestoreSaveLimit === -1 ? 'text-green-600' : 'text-blue-600'}">
+                                                ${role.limits.firestoreSaveLimit === -1 ? 'Piiramatu' : role.limits.firestoreSaveLimit}
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center justify-between py-1">
+                                            <span class="text-sm text-gray-700">PDF genereerimisi:</span>
+                                            <span class="text-sm font-medium ${role.limits.pdfGenerationLimit === -1 ? 'text-green-600' : 'text-blue-600'}">
+                                                ${role.limits.pdfGenerationLimit === -1 ? 'Piiramatu' : role.limits.pdfGenerationLimit}
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center justify-between py-1">
+                                            <span class="text-sm text-gray-700">Viimaste otsingute näitamine:</span>
+                                            <span class="text-sm font-medium ${role.limits.recentSearchLimit === 0 ? 'text-red-600' : 'text-blue-600'}">
+                                                ${role.limits.recentSearchLimit === 0 ? 'Ei näita' : role.limits.recentSearchLimit}
+                                            </span>
+                                        </div>
+                                    ` : `
+                                        <div class="text-sm text-gray-500 italic">Limiidid puuduvad</div>
+                                    `}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mt-4 grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <h5 class="text-sm font-medium text-gray-700">Õigused:</h5>
-                            <ul class="text-sm text-gray-600 space-y-1">
-                                ${Object.entries(role.permissions).map(([key, value]) => `
-                                    <li class="flex items-center">
-                                        <i class="fas ${value ? 'fa-check text-green-500' : 'fa-times text-red-500'} mr-2"></i>
-                                        ${getPermissionLabel(key)}
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    </div>
-                `;
-                            rolesContainer.appendChild(roleElement);
+                    `;
+                                rolesContainer.appendChild(roleElement);
+                            });
+
+                            // Update role statistics
+                            document.getElementById('activeRolesCount').textContent = Object.keys(roles).length;
+                            document.getElementById('totalPermissionsCount').textContent = Object.values(roles).reduce((total, role) => {
+                                return total + Object.values(role.permissions).filter(value => value === true).length;
+                            }, 0);
                         });
                     }
 
@@ -1684,18 +2036,28 @@
                         const newRoleId = 'role_' + Date.now();
                         roles[newRoleId] = {
                             name: 'Uus roll',
-                            description: 'Kirjeldus',
+                            description: 'Kirjeldus puudub',
                             permissions: {
                                 fullAccess: false,
                                 userManagement: false,
                                 settingsManagement: false,
                                 roleManagement: false,
-                                search: false,
-                                viewPublicContent: false,
+                                search: true,
+                                viewPublicContent: true,
                                 viewHiddenContent: false,
-                                viewTimeline: false,
+                                viewTimeline: true,
                                 saveSearches: false,
-                                deleteAdminMenu: false
+                                deleteAdminMenu: false,
+                                adjustDays: false,
+                                saveToExcel: false,
+                                generatePdf: false,
+                                saveSettings: false
+                            },
+                            limits: {
+                                searchLimit: 10,
+                                firestoreSaveLimit: 5,
+                                pdfGenerationLimit: 5,
+                                recentSearchLimit: 5
                             },
                             isSystem: false
                         };
@@ -1838,6 +2200,20 @@
                             rolesContainer.classList.remove("hidden");
                             rolesBackdrop.classList.remove("hidden");
                             document.body.style.overflow = "hidden"; // Prevent scrolling of background
+
+                            // Check if user is mainAdmin and show indicator
+                            const user = auth.currentUser;
+                            if (user) {
+                                getDoc(doc(db, "users", user.uid)).then(userSnap => {
+                                    if (userSnap.exists() && userSnap.data().role === "mainAdmin") {
+                                        const indicator = document.getElementById("mainAdminRolesIndicator");
+                                        if (indicator) {
+                                            indicator.classList.remove("hidden");
+                                        }
+                                    }
+                                });
+                            }
+
                             loadRoles();
                         }
 
@@ -1846,6 +2222,12 @@
                             rolesContainer.classList.add("hidden");
                             rolesBackdrop.classList.add("hidden");
                             document.body.style.overflow = ""; // Restore scrolling
+
+                            // Hide the mainAdmin indicator when closing
+                            const indicator = document.getElementById("mainAdminRolesIndicator");
+                            if (indicator) {
+                                indicator.classList.add("hidden");
+                            }
                         }
 
                         // Toggle roles modal
@@ -2308,15 +2690,25 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <select onchange="updateUserRole('${docSnapshot.id}', this.value)" 
-                                class="text-sm border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                ${userData.role === 'mainAdmin' ? 'disabled' : ''}>
-                                ${Object.entries(roles).map(([roleId, role]) => `
-                                    <option value="${roleId}" ${userData.role === roleId ? 'selected' : ''}>
-                                        ${role.name}
-                                    </option>
-                                `).join('')}
-                            </select>
+                            <div class="relative group">
+                                <select onchange="updateUserRole('${docSnapshot.id}', this.value)" 
+                                    class="text-sm border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                    ${userData.role === 'admin' ? 'bg-blue-50 border-blue-200' : ''} 
+                                    ${userData.role === 'mainAdmin' ? 'bg-purple-50 border-purple-200 font-semibold' : ''}"
+                                    ${userData.role === 'mainAdmin' ? 'disabled' : ''}>
+                                    ${Object.entries(roles).map(([roleId, role]) => `
+                                        <option value="${roleId}" ${userData.role === roleId ? 'selected' : ''}>
+                                            ${role.name} ${roleId === 'admin' || roleId === 'mainAdmin' ? '👑' : ''}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                                ${userData.role === 'admin' || userData.role === 'mainAdmin' ?
+                                        `<div class="absolute left-0 top-full mt-2 hidden group-hover:block z-10 bg-black/70 backdrop-blur-md text-white text-xs p-2 rounded-md shadow-lg whitespace-normal max-w-xs">
+                                    ${userData.role === 'mainAdmin' ?
+                                            'Peaadministraatori rolli ei saa muuta.' :
+                                            'Administraatori rolli saab muuta ainult Peaadministraator.'}
+                                </div>` : ''}
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
@@ -3311,6 +3703,158 @@
                             }
                         });
                     });
+
+                    // Function to check if user has permission and available usage limit for a specific action
+                    async function checkUserLimits(userId, actionType) {
+                        try {
+                            // Get the user document
+                            const userRef = doc(db, "users", userId);
+                            const userSnap = await getDoc(userRef);
+
+                            if (!userSnap.exists()) {
+                                return { allowed: false, reason: 'Kasutajat ei leitud' };
+                            }
+
+                            const userData = userSnap.data();
+                            const userRole = userData.role;
+
+                            // Check if role exists
+                            if (!roles[userRole]) {
+                                return { allowed: false, reason: 'Kasutaja roll on vigane' };
+                            }
+
+                            const roleData = roles[userRole];
+
+                            // If user has full access, allow all actions
+                            if (roleData.permissions.fullAccess) {
+                                return { allowed: true };
+                            }
+
+                            // Check permissions based on action type
+                            let permissionKey, limitKey, usageKey;
+
+                            switch (actionType) {
+                                case 'search':
+                                    permissionKey = 'search';
+                                    limitKey = 'searchLimit';
+                                    usageKey = 'searchCount';
+                                    break;
+                                case 'saveToFirestore':
+                                    permissionKey = 'saveSearches';
+                                    limitKey = 'firestoreSaveLimit';
+                                    usageKey = 'firestoreSaveCount';
+                                    break;
+                                case 'generatePdf':
+                                    permissionKey = 'generatePdf';
+                                    limitKey = 'pdfGenerationLimit';
+                                    usageKey = 'pdfGenerationCount';
+                                    break;
+                                case 'saveToExcel':
+                                    permissionKey = 'saveToExcel';
+                                    usageKey = 'excelSaveCount';
+                                    break;
+                                case 'adjustDays':
+                                    permissionKey = 'adjustDays';
+                                    break;
+                                case 'saveSettings':
+                                    permissionKey = 'saveSettings';
+                                    break;
+                                default:
+                                    return { allowed: false, reason: 'Tundmatu tegevuse tüüp' };
+                            }
+
+                            // Check if user has permission
+                            if (!roleData.permissions[permissionKey]) {
+                                return { allowed: false, reason: `Sul pole "${getPermissionLabel(permissionKey)}" õigust` };
+                            }
+
+                            // If action has a limit, check if user is within limit
+                            if (limitKey && roleData.limits && roleData.limits[limitKey] !== undefined) {
+                                const limit = roleData.limits[limitKey];
+
+                                // -1 means unlimited
+                                if (limit === -1) {
+                                    return { allowed: true };
+                                }
+
+                                // Check user's current usage
+                                const currentUsage = userData[usageKey] || 0;
+
+                                if (currentUsage >= limit) {
+                                    return {
+                                        allowed: false,
+                                        reason: `Oled jõudnud ${getActionLabel(actionType)} limiidini (${limit})`
+                                    };
+                                }
+
+                                // Increment usage counter
+                                await updateDoc(userRef, {
+                                    [usageKey]: currentUsage + 1,
+                                    lastUpdated: new Date()
+                                });
+                            }
+
+                            return { allowed: true };
+                        } catch (error) {
+                            console.error('Error checking user limits:', error);
+                            return { allowed: false, reason: 'Viga kasutaja limiitide kontrollimisel' };
+                        }
+                    }
+
+                    // Function to get action labels for user-friendly messages
+                    function getActionLabel(actionType) {
+                        const labels = {
+                            search: 'otsingute',
+                            saveToFirestore: 'Firestore salvestamiste',
+                            generatePdf: 'PDF genereerimiste',
+                            saveToExcel: 'Excelisse salvestamiste',
+                            adjustDays: 'päevade muutmise',
+                            saveSettings: 'seadete salvestamise'
+                        };
+                        return labels[actionType] || actionType;
+                    }
+
+                    // Example usage:
+                    // Used before performing an action
+                    window.checkActionPermission = async function (actionType) {
+                        const user = auth.currentUser;
+                        if (!user) {
+                            showNotification('Palun logi sisse!', 'error');
+                            return false;
+                        }
+
+                        const result = await checkUserLimits(user.uid, actionType);
+
+                        if (!result.allowed) {
+                            showNotification(result.reason, 'error');
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                    // Function to get recentSearchLimit for a user
+                    window.getRecentSearchLimit = async function () {
+                        const user = auth.currentUser;
+                        if (!user) return 0;
+
+                        try {
+                            const userRef = doc(db, "users", user.uid);
+                            const userSnap = await getDoc(userRef);
+
+                            if (!userSnap.exists()) return 0;
+
+                            const userData = userSnap.data();
+                            const userRole = userData.role;
+
+                            if (!roles[userRole] || !roles[userRole].limits) return 0;
+
+                            return roles[userRole].limits.recentSearchLimit || 0;
+                        } catch (error) {
+                            console.error('Error getting recent search limit:', error);
+                            return 0;
+                        }
+                    }
                 </script>
 </body>
 
