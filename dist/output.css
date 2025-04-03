@@ -309,6 +309,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .left-300 {
   left: calc(var(--spacing) * 300);
 }
+.left-auto {
+  left: auto;
+}
 .isolate {
   isolation: isolate;
 }
@@ -579,6 +582,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .mb-12 {
   margin-bottom: calc(var(--spacing) * 12);
 }
+.-ml-24 {
+  margin-left: calc(var(--spacing) * -24);
+}
 .ml-1 {
   margin-left: calc(var(--spacing) * 1);
 }
@@ -753,6 +759,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .h-2\.5 {
   height: calc(var(--spacing) * 2.5);
 }
+.h-3 {
+  height: calc(var(--spacing) * 3);
+}
 .h-3\.5 {
   height: calc(var(--spacing) * 3.5);
 }
@@ -858,6 +867,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .w-1\/2 {
   width: calc(1/2 * 100%);
 }
+.w-3 {
+  width: calc(var(--spacing) * 3);
+}
 .w-3\.5 {
   width: calc(var(--spacing) * 3.5);
 }
@@ -942,6 +954,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .w-100 {
   width: calc(var(--spacing) * 100);
 }
+.w-\[300px\] {
+  width: 300px;
+}
 .w-\[calc\(100\%-32px\)\] {
   width: calc(100% - 32px);
 }
@@ -971,6 +986,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .max-w-\[80\%\] {
   max-width: 80%;
+}
+.max-w-\[250px\] {
+  max-width: 250px;
 }
 .max-w-full {
   max-width: 100%;
@@ -1164,6 +1182,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .scale-none {
   scale: none;
+}
+.rotate-45 {
+  rotate: 45deg;
 }
 .rotate-180 {
   rotate: 180deg;
@@ -2043,6 +2064,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-black\/70 {
   background-color: color-mix(in oklab, var(--color-black) 70%, transparent);
+}
+.bg-black\/80 {
+  background-color: color-mix(in oklab, var(--color-black) 80%, transparent);
+}
+.bg-black\/90 {
+  background-color: color-mix(in oklab, var(--color-black) 90%, transparent);
 }
 .bg-blue-50 {
   background-color: var(--color-blue-50);
@@ -2957,6 +2984,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .text-black {
   color: var(--color-black);
 }
+.text-blue-300 {
+  color: var(--color-blue-300);
+}
 .text-blue-500 {
   color: var(--color-blue-500);
 }
@@ -3025,6 +3055,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .text-pink-500 {
   color: var(--color-pink-500);
+}
+.text-purple-300 {
+  color: var(--color-purple-300);
 }
 .text-purple-600 {
   color: var(--color-purple-600);
@@ -4897,6 +4930,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     animation: var(--animate-bounce);
   }
 }
+.sm\:left-0 {
+  @media (width >= 40rem) {
+    left: calc(var(--spacing) * 0);
+  }
+}
 .sm\:my-8 {
   @media (width >= 40rem) {
     margin-block: calc(var(--spacing) * 8);
@@ -5437,6 +5475,7 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --color-purple-50: oklch(97.7% 0.014 308.299);
     --color-purple-100: oklch(94.6% 0.033 307.174);
     --color-purple-200: oklch(90.2% 0.063 306.703);
+    --color-purple-300: oklch(82.7% 0.119 306.383);
     --color-purple-500: oklch(62.7% 0.265 303.9);
     --color-purple-600: oklch(55.8% 0.288 302.321);
     --color-purple-700: oklch(49.6% 0.265 301.924);

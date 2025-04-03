@@ -2638,6 +2638,23 @@
                     async function loadUsers(page = 1, searchTerm = '', roleFilter = '', statusFilter = '', verificationFilter = '') {
                         try {
                             console.log("Fetching users from Firestore...");
+
+                            // Check if user is authenticated
+                            if (!auth.currentUser) {
+                                showNotification("Sa ei ole sisse loginud! Palun logi uuesti sisse.", "error");
+                                setTimeout(() => {
+                                    window.location.href = "/auth/login.html";
+                                }, 2000);
+                                return;
+                            }
+
+                            // Force token refresh to ensure permissions are up-to-date
+                            try {
+                                await auth.currentUser.getIdToken(true);
+                            } catch (tokenError) {
+                                console.error("Failed to refresh auth token:", tokenError);
+                            }
+
                             const usersPerPage = 10;
                             const usersRef = collection(db, "users");
                             let queryRef = usersRef;
@@ -2672,6 +2689,18 @@
 
                             userTable.innerHTML = ""; // Clear table before loading
 
+                            // Check if we got any users
+                            if (userDocs.empty) {
+                                const emptyRow = document.createElement("tr");
+                                emptyRow.innerHTML = `
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                        Kasutajaid ei leitud
+                                    </td>
+                                `;
+                                userTable.appendChild(emptyRow);
+                                return;
+                            }
+
                             userDocs.forEach(docSnapshot => {
                                 const userData = docSnapshot.data();
                                 console.log("User Loaded:", userData);
@@ -2703,10 +2732,13 @@
                                     `).join('')}
                                 </select>
                                 ${userData.role === 'admin' || userData.role === 'mainAdmin' ?
-                                        `<div class="absolute left-0 top-full mt-2 hidden group-hover:block z-10 bg-black/70 backdrop-blur-md text-white text-xs p-2 rounded-md shadow-lg whitespace-normal max-w-xs">
-                                    ${userData.role === 'mainAdmin' ?
-                                            'Peaadministraatori rolli ei saa muuta.' :
-                                            'Administraatori rolli saab muuta ainult Peaadministraator.'}
+                                        `<div style="left: -150px; width: 320px;" class="absolute top-full mt-2 hidden group-hover:block z-50 bg-black/90 backdrop-blur-md text-white text-xs p-4 rounded-md shadow-lg whitespace-nowrap border border-gray-700">
+                                    <div class="font-medium mb-1 text-center">Rolli info:</div>
+                                    <div class="text-center">
+                                        ${userData.role === 'mainAdmin' ?
+                                            '<span class="font-semibold text-purple-300">Peaadministraatori</span> rolli ei saa muuta.' :
+                                            '<span class="font-semibold text-blue-300">Administraatori</span> rolli saab muuta ainult Peaadministraator.'}
+                                    </div>
                                 </div>` : ''}
                             </div>
                         </td>
@@ -2716,7 +2748,7 @@
                                         userData.status === 'inactive' ? 'bg-red-100 text-red-800' :
                                             'bg-yellow-100 text-yellow-800'}">
                                 ${userData.status === 'active' ? 'Aktiivne' :
-                                        userData.status === 'inactive' ? 'Mitteaktiivne' : 'Ootsel'}
+                                        userData.status === 'inactive' ? 'Mitteaktiivne' : 'Ootel'}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -2802,7 +2834,29 @@
 
                         } catch (error) {
                             console.error("Error loading users from Firestore:", error);
-                            showNotification("Viga kasutajate laadimisel!", "error");
+
+                            if (error.code === "permission-denied") {
+                                showNotification("Sul pole õigusi kasutajate nimekirja vaatamiseks. Palun logi välja ja uuesti sisse.", "error");
+
+                                // Force token refresh
+                                try {
+                                    await auth.currentUser.getIdToken(true);
+                                    // Try loading again after token refresh
+                                    setTimeout(() => {
+                                        loadUsers(page, searchTerm, roleFilter, statusFilter, verificationFilter);
+                                    }, 1000);
+                                } catch (tokenError) {
+                                    console.error("Failed to refresh token:", tokenError);
+                                    showNotification("Viga õiguste värskendamisel, palun logi uuesti sisse.", "error");
+                                }
+                            } else if (error.code === "unauthenticated") {
+                                showNotification("Sa ei ole enam sisse loginud, palun logi uuesti sisse.", "error");
+                                setTimeout(() => {
+                                    window.location.href = "/auth/login.html";
+                                }, 2000);
+                            } else {
+                                showNotification("Viga kasutajate laadimisel: " + error.message, "error");
+                            }
                         }
                     }
 
@@ -2833,9 +2887,13 @@
                         try {
                             const userRef = doc(db, "users", userId);
                             const userDoc = await getDoc(userRef);
-                            const userData = userDoc.data();
 
-                            // Get current status or default to 'pending' if not set
+                            if (!userDoc.exists()) {
+                                showNotification("Kasutajat ei leitud!", "error");
+                                return;
+                            }
+
+                            const userData = userDoc.data();
                             const currentStatus = userData.status || 'pending';
                             const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
 
@@ -2845,13 +2903,14 @@
                                 lastUpdated: new Date()
                             });
 
-                            // Log the status change with valid data
+                            // Log the status change
                             await addDoc(collection(db, "auditLog"), {
                                 action: "user_status_changed",
                                 userId: userId,
                                 oldStatus: currentStatus,
                                 newStatus: newStatus,
                                 performedBy: auth.currentUser.uid,
+                                performedByEmail: auth.currentUser.email,
                                 timestamp: new Date()
                             });
 
@@ -2859,29 +2918,35 @@
                             loadUsers(); // Refresh user list
                         } catch (error) {
                             console.error("Error toggling user status:", error);
-                            showNotification("Viga kasutaja oleku muutmisel!", "error");
+                            if (error.code === "permission-denied") {
+                                showNotification("Sul ei ole õigusi kasutaja oleku muutmiseks!", "error");
+                            } else {
+                                showNotification("Viga kasutaja oleku muutmisel!", "error");
+                            }
                         }
                     };
 
                     window.approveUser = async (userId) => {
                         try {
-                            const userRef = doc(db, "users", userId);
-                            await updateDoc(userRef, {
-                                approved: true,
-                                status: 'active',
-                                lastUpdated: new Date()
-                            });
+                            await retryOperation(async () => {
+                                const userRef = doc(db, "users", userId);
+                                await updateDoc(userRef, {
+                                    approved: true,
+                                    status: 'active',
+                                    lastUpdated: new Date()
+                                });
 
-                            // Log the approval
-                            await addDoc(collection(db, "auditLog"), {
-                                action: "user_approved",
-                                userId: userId,
-                                performedBy: auth.currentUser.uid,
-                                timestamp: new Date()
-                            });
+                                // Log the approval
+                                await addDoc(collection(db, "auditLog"), {
+                                    action: "user_approved",
+                                    userId: userId,
+                                    performedBy: auth.currentUser.uid,
+                                    timestamp: new Date()
+                                });
 
-                            showNotification("Kasutaja kinnitatud!", "success");
-                            loadUsers(); // Refresh user list
+                                showNotification("Kasutaja kinnitatud!", "success");
+                                loadUsers(); // Refresh user list
+                            });
                         } catch (error) {
                             console.error("Error approving user:", error);
                             showNotification("Viga kasutaja kinnitamisel!", "error");
@@ -2891,14 +2956,44 @@
                     window.deleteUser = async (userId) => {
                         if (!confirm("Kas oled kindel, et soovid selle kasutaja kustutada?")) return;
                         try {
+                            // Get current user's role
+                            const currentUserRef = doc(db, "users", auth.currentUser.uid);
+                            const currentUserDoc = await getDoc(currentUserRef);
+
+                            if (!currentUserDoc.exists()) {
+                                showNotification('Kasutaja andmed ei leitud!', 'error');
+                                return;
+                            }
+
+                            const currentUserData = currentUserDoc.data();
+
+                            // Only main admin can delete users
+                            if (currentUserData.role !== 'mainAdmin') {
+                                showNotification('Sul ei ole õigusi kasutajate kustutamiseks!', 'error');
+                                return;
+                            }
+
+                            // First get user data for audit log
                             const userRef = doc(db, "users", userId);
+                            const userDoc = await getDoc(userRef);
+
+                            if (!userDoc.exists()) {
+                                showNotification("Kasutajat ei leitud!", "error");
+                                return;
+                            }
+
+                            const userData = userDoc.data();
+
+                            // Delete the user document
                             await deleteDoc(userRef);
 
                             // Log the deletion
                             await addDoc(collection(db, "auditLog"), {
                                 action: "user_deleted",
                                 userId: userId,
+                                userEmail: userData.email,
                                 performedBy: auth.currentUser.uid,
+                                performedByEmail: auth.currentUser.email,
                                 timestamp: new Date()
                             });
 
@@ -2906,7 +3001,12 @@
                             loadUsers(); // Refresh user list
                         } catch (error) {
                             console.error("Error deleting user:", error);
-                            showNotification("Viga kasutaja kustutamisel!", "error");
+
+                            if (error.code === "permission-denied") {
+                                showNotification("Sul ei ole õigusi kasutaja kustutamiseks!", "error");
+                            } else {
+                                showNotification("Viga kasutaja kustutamisel: " + error.message, "error");
+                            }
                         }
                     };
 
@@ -3042,17 +3142,43 @@
 
                     // Check if a user already exists with a given email
                     async function checkUserExists(email) {
-                        try {
-                            // Query Firestore for users with the given email
-                            const usersRef = collection(db, "users");
-                            const q = query(usersRef, where("email", "==", email));
-                            const querySnapshot = await getDocs(q);
+                        let retries = 0;
+                        const maxRetries = 3;
+                        const baseDelay = 300;
 
-                            return !querySnapshot.empty;
-                        } catch (error) {
-                            console.error("Error checking if user exists:", error);
-                            return false;
+                        while (retries < maxRetries) {
+                            try {
+                                // Query Firestore for users with the given email
+                                const usersRef = collection(db, "users");
+                                const q = query(usersRef, where("email", "==", email));
+                                const querySnapshot = await getDocs(q);
+
+                                return !querySnapshot.empty;
+                            } catch (error) {
+                                console.error(`Error checking if user exists (attempt ${retries + 1}/${maxRetries}):`, error);
+
+                                // If it's a permission error, we might need to refresh the auth token
+                                if (error.code === "permission-denied" && auth.currentUser) {
+                                    try {
+                                        await auth.currentUser.getIdToken(true); // Force token refresh
+                                    } catch (tokenError) {
+                                        console.error("Failed to refresh auth token:", tokenError);
+                                    }
+                                }
+
+                                // If it's the last retry, return false (assume user doesn't exist)
+                                if (retries === maxRetries - 1) {
+                                    return false;
+                                }
+
+                                // Exponential backoff
+                                const delay = baseDelay * Math.pow(2, retries);
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                retries++;
+                            }
                         }
+
+                        return false;
                     }
 
                     // Handle add user form submission
@@ -3068,6 +3194,12 @@
                             // Check if current user is main admin
                             const currentUserRef = doc(db, "users", auth.currentUser.uid);
                             const currentUserDoc = await getDoc(currentUserRef);
+
+                            if (!currentUserDoc.exists()) {
+                                showNotification("Administraatori profiili ei leitud!", "error");
+                                return;
+                            }
+
                             const currentUserData = currentUserDoc.data();
 
                             if (currentUserData.role !== 'mainAdmin') {
@@ -3101,30 +3233,37 @@
                             const adminUid = adminUser.uid;
                             const adminEmail = adminUser.email;
 
-                            try {
-                                // Create user in Firebase Auth using Admin SDK approach
-                                showNotification("Kasutaja loomine...", "success");
+                            // Show in-progress notification
+                            showNotification("Kasutaja loomine...", "info");
+
+                            // Generate a unique ID for the new user
+                            const userId = generateUniqueId();
+
+                            await retryOperation(async () => {
+                                // Use a batch write to ensure both operations succeed or fail together
+                                const batch = writeBatch(db);
 
                                 // First create the user document in Firestore
-                                const userRef = doc(db, "users", generateUniqueId());
-                                await setDoc(userRef, {
+                                const userRef = doc(db, "users", userId);
+                                batch.set(userRef, {
                                     email: email,
                                     role: role,
                                     approved: approved,
                                     createdAt: new Date(),
                                     lastLogin: null,
                                     status: approved ? 'active' : 'pending',
-                                    uid: userRef.id, // Use the Firestore generated ID
+                                    uid: userId,
                                     emailVerified: false,
                                     lastUpdated: new Date(),
                                     createdBy: adminUid,
                                     createdByEmail: adminEmail
                                 });
 
-                                // Log the user creation in audit log
-                                await addDoc(collection(db, "auditLog"), {
+                                // Add audit log in the same batch for atomicity
+                                const auditLogRef = doc(collection(db, "auditLog"));
+                                batch.set(auditLogRef, {
                                     action: "user_created",
-                                    userId: userRef.id,
+                                    userId: userId,
                                     email: email,
                                     role: role,
                                     approved: approved,
@@ -3133,32 +3272,19 @@
                                     timestamp: new Date()
                                 });
 
-                                showNotification("Kasutaja lisatud edukalt!", "success");
-                                closeAddUserModal();
+                                // Commit both operations together
+                                await batch.commit();
+                            });
 
-                                // Refresh the user list without refreshing the page
-                                setTimeout(() => {
-                                    loadUsers();
-                                }, 1000);
-                            } catch (innerError) {
-                                console.error("Error in user creation process:", innerError);
-                                showNotification("Viga kasutaja lisamisel: " + innerError.message, "error");
-                            }
+                            showNotification("Kasutaja lisatud edukalt!", "success");
+                            closeAddUserModal();
+
+                            // Refresh the user list
+                            loadUsers();
+
                         } catch (error) {
-                            console.error("Error adding user:", error);
-                            let errorMessage = "Viga kasutaja lisamisel!";
-
-                            if (error.code === "auth/email-already-in-use") {
-                                errorMessage = "See e-posti aadress on juba kasutusel!";
-                            } else if (error.code === "auth/invalid-email") {
-                                errorMessage = "Vigane e-posti aadress!";
-                            } else if (error.code === "auth/weak-password") {
-                                errorMessage = "Parool on liiga nõrk!";
-                            } else if (error.message === "Pead olema sisse logitud administraatorina!") {
-                                errorMessage = error.message;
-                            }
-
-                            showNotification(errorMessage, "error");
+                            console.error("Error in user creation process:", error);
+                            showNotification("Viga kasutaja lisamisel: " + error.message, "error");
                         }
                     });
 
@@ -3855,6 +3981,49 @@
                             return 0;
                         }
                     }
+
+                    // Function to refresh authentication token
+                    async function refreshAuthToken() {
+                        if (auth.currentUser) {
+                            try {
+                                await auth.currentUser.getIdToken(true);
+                                return true;
+                            } catch (error) {
+                                console.error("Error refreshing authentication token:", error);
+                                return false;
+                            }
+                        }
+                        return false;
+                    }
+
+                    // Helper function to retry Firebase operations with exponential backoff
+                    async function retryOperation(operation, maxRetries = 3, baseDelay = 300) {
+                        let retries = 0;
+
+                        while (retries < maxRetries) {
+                            try {
+                                return await operation();
+                            } catch (error) {
+                                console.error(`Operation failed (attempt ${retries + 1}/${maxRetries}):`, error);
+
+                                // If it's a permission error, try refreshing the token
+                                if (error.code === "permission-denied") {
+                                    await refreshAuthToken();
+                                }
+
+                                // If it's the last retry, rethrow the error
+                                if (retries === maxRetries - 1) {
+                                    throw error;
+                                }
+
+                                // Exponential backoff
+                                const delay = baseDelay * Math.pow(2, retries);
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                retries++;
+                            }
+                        }
+                    }
+
                 </script>
 </body>
 

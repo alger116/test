@@ -22,11 +22,15 @@ service cloud.firestore {
     // Users collection
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && (
-        request.auth.uid == userId || 
-        (request.resource.data.role == 'mainAdmin' && get(/databases/$(database)/documents/users).count() == 0)
-      );
-      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isMainAdmin();
+    }
+
+    // Audit Log collection
+    match /auditLog/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
       allow delete: if isMainAdmin();
     }
 
