@@ -320,20 +320,11 @@
                         <!-- Backup/Restore -->
                         <div class="mb-6">
                             <h3 class="text-md font-medium text-gray-900 mb-4">Varundamine ja taastamine</h3>
-                            <div class="flex space-x-4">
-                                <button onclick="createBackup()"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center">
-                                    <i class="fas fa-download mr-2"></i>Loo varukoopia
-                                </button>
-                                <button onclick="openRestoreModal()"
-                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
-                                    <i class="fas fa-upload mr-2"></i>Taasta varukoopia
-                                </button>
-                            </div>
+
                         </div>
 
                         <!-- Maintenance Mode -->
-                        <div class="mb-6">
+                        <div class="maintenance-section">
                             <h3 class="text-md font-medium text-gray-900 mb-4">Hooldusrežiim</h3>
                             <div class="flex items-center space-x-4">
                                 <label class="relative inline-flex items-center cursor-pointer">
@@ -352,7 +343,7 @@
 
                         <!-- Email Templates -->
                         <div class="mb-6">
-                            <h3 class="text-md font-medium text-gray-900 mb-4">E-posti mallid</h3>
+                            <h3 class="text-md font-medium text-gray-900 mb-4"></h3>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
@@ -4023,6 +4014,141 @@
                             }
                         }
                     }
+
+                    // Function to toggle maintenance mode
+                    window.toggleMaintenanceMode = async function (enabled) {
+                        try {
+                            if (!auth.currentUser) {
+                                showNotification("Te ei ole sisse logitud!", "error");
+                                return;
+                            }
+
+                            // Get current user's role from Firestore
+                            const userRef = doc(db, "users", auth.currentUser.uid);
+                            const userDoc = await getDoc(userRef);
+
+                            if (!userDoc.exists()) {
+                                showNotification("Kasutaja andmeid ei leitud!", "error");
+                                return;
+                            }
+
+                            const userData = userDoc.data();
+                            const userRole = userData.role;
+
+                            // Check if user has admin permissions
+                            if (!hasAccess(userRole, 'systemSettings')) {
+                                showNotification("Teil puudub õigus hooldusrežiimi muuta!", "error");
+                                return;
+                            }
+
+                            const maintenanceRef = doc(db, "settings", "maintenance");
+                            const message = document.getElementById("maintenanceMessage").value;
+
+                            // Use retryOperation for better reliability
+                            await retryOperation(async () => {
+                                await setDoc(maintenanceRef, {
+                                    enabled: enabled,
+                                    message: message,
+                                    updatedBy: auth.currentUser.uid,
+                                    updatedByEmail: auth.currentUser.email,
+                                    lastUpdated: new Date()
+                                });
+                            });
+
+                            // Log the action
+                            await retryOperation(async () => {
+                                await addDoc(collection(db, "auditLog"), {
+                                    action: enabled ? "maintenance_mode_enabled" : "maintenance_mode_disabled",
+                                    performedBy: auth.currentUser.uid,
+                                    performedByEmail: auth.currentUser.email,
+                                    timestamp: new Date(),
+                                    details: `Maintenance mode ${enabled ? 'enabled' : 'disabled'} with message: ${message}`
+                                });
+                            });
+
+                            showNotification(
+                                enabled ? "Hooldusrežiim on sisse lülitatud" : "Hooldusrežiim on välja lülitatud",
+                                "success"
+                            );
+                        } catch (error) {
+                            console.error("Error toggling maintenance mode:", error);
+                            if (error.code === "permission-denied") {
+                                showNotification("Teil puudub õigus hooldusrežiimi muuta!", "error");
+                            } else {
+                                showNotification("Viga hooldusrežiimi muutmisel!", "error");
+                            }
+                        }
+                    };
+
+                    // Function to load maintenance mode settings
+                    async function loadMaintenanceSettings() {
+                        try {
+                            if (!auth.currentUser) {
+                                console.error("No authenticated user");
+                                return;
+                            }
+
+                            const maintenanceRef = doc(db, "settings", "maintenance");
+                            const docSnap = await getDoc(maintenanceRef);
+
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                const maintenanceToggle = document.getElementById("maintenanceMode");
+                                const maintenanceMessage = document.getElementById("maintenanceMessage");
+
+                                if (maintenanceToggle) {
+                                    maintenanceToggle.checked = data.enabled;
+                                }
+
+                                if (maintenanceMessage) {
+                                    maintenanceMessage.value = data.message || "";
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error loading maintenance settings:", error);
+                            showNotification("Viga hooldusrežiimi seadete laadimisel!", "error");
+                        }
+                    }
+
+                    // Initialize maintenance settings when the page loads
+                    document.addEventListener('DOMContentLoaded', async () => {
+                        try {
+                            // Wait for auth state to be ready
+                            await new Promise((resolve) => {
+                                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                                    unsubscribe();
+                                    resolve(user);
+                                });
+                            });
+
+                            if (!auth.currentUser) {
+                                console.error("No authenticated user");
+                                return;
+                            }
+
+                            // Get current user's role from Firestore
+                            const userRef = doc(db, "users", auth.currentUser.uid);
+                            const userDoc = await getDoc(userRef);
+
+                            if (userDoc.exists()) {
+                                const userData = userDoc.data();
+                                const userRole = userData.role;
+
+                                // Only load maintenance settings if user has system settings access
+                                if (hasAccess(userRole, 'systemSettings')) {
+                                    await loadMaintenanceSettings();
+                                } else {
+                                    // Hide maintenance mode section if user doesn't have access
+                                    const maintenanceSection = document.querySelector('.maintenance-section');
+                                    if (maintenanceSection) {
+                                        maintenanceSection.classList.add('hidden');
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error initializing maintenance settings:", error);
+                        }
+                    });
 
                 </script>
 </body>
