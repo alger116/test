@@ -29,6 +29,7 @@
             </div>
 
             <form @submit.prevent="handleLogin" class="space-y-6">
+                <input type="hidden" name="_csrf" x-model="csrfToken">
                 <div>
                     <label for="username" class="block text-sm font-medium text-gray-700 mb-2">E-post</label>
                     <div class="relative">
@@ -92,6 +93,7 @@
                 },
                 showPassword: false,
                 error: '',
+                csrfToken: '',
 
                 init() {
                     // Check for remembered user
@@ -118,6 +120,14 @@
 
                     if (!this.form.username || !this.form.password) {
                         this.error = 'Palun täida kõik väljad';
+                        return;
+                    }
+
+                    // Validate CSRF token
+                    const sessionId = localStorage.getItem('sessionId');
+                    const storedToken = localStorage.getItem('csrfToken');
+                    if (!sessionId || !storedToken || !window.csrfProtection.validateToken(sessionId, storedToken)) {
+                        this.error = 'Turvaviga. Palun värskendage lehte ja proovige uuesti.';
                         return;
                     }
 

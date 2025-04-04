@@ -8,11 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="../config/config.js"></script>
     <!-- Add Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -232,81 +227,79 @@
 
                     <!-- System Health Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <!-- Server Status -->
-                        <div class="bg-white rounded-lg shadow p-6">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-900">Serveri olek</h3>
-                                <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
-                                    Aktiivne
-                                </span>
-                            </div>
-                            <div class="mt-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-sm text-gray-600">CPU kasutus</span>
-                                    <span id="cpuUsage" class="text-sm font-semibold text-gray-900">0%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div id="cpuBar" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Database Size -->
-                        <div class="bg-white rounded-lg shadow p-6">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-900">Andmebaasi suurus</h3>
-                                <span class="px-2 py-1 text-xs font-semibold text-blue-800 bg-blue-100 rounded-full">
-                                    Normaalne
-                                </span>
-                            </div>
-                            <div class="mt-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-sm text-gray-600">Mälu kasutus</span>
-                                    <span id="memoryUsage" class="text-sm font-semibold text-gray-900">0%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div id="memoryBar" class="bg-green-600 h-2 rounded-full" style="width: 0%"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Active Users -->
-                        <div class="bg-white rounded-lg shadow p-6">
+                        <!-- Active Users Card -->
+                        <div class="bg-white rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-lg font-semibold text-gray-900">Aktiivsed kasutajad</h3>
-                                <span
-                                    class="px-2 py-1 text-xs font-semibold text-purple-800 bg-purple-100 rounded-full">
-                                    Online
-                                </span>
+                                <div class="p-2 bg-blue-100 rounded-full">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                        </path>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="mt-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-sm text-gray-600">Salvestus</span>
-                                    <span id="storageUsage" class="text-sm font-semibold text-gray-900">0%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div id="storageBar" class="bg-yellow-600 h-2 rounded-full" style="width: 0%"></div>
-                                </div>
+                                <span id="activeUsersCount" class="text-3xl font-bold text-gray-900">0</span>
+                                <p class="text-sm text-gray-600 mt-2">Viimase 24h jooksul</p>
                             </div>
                         </div>
 
-                        <!-- API Requests -->
-                        <div class="bg-white rounded-lg shadow p-6">
+                        <!-- PDF Files Card -->
+                        <div class="bg-white rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-900">API päringud</h3>
-                                <span
-                                    class="px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full">
-                                    Normaalne
-                                </span>
+                                <h3 class="text-lg font-semibold text-gray-900">Loodud PDF-id</h3>
+                                <div class="p-2 bg-red-100 rounded-full">
+                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="mt-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-sm text-gray-600">Päringud/min</span>
-                                    <span id="apiRequests" class="text-sm font-semibold text-gray-900">0</span>
+                                <span id="pdfCount" class="text-3xl font-bold text-gray-900">0</span>
+                                <p class="text-sm text-gray-600 mt-2">Kokku loodud</p>
+                            </div>
+                        </div>
+
+                        <!-- Excel Files Card -->
+                        <div class="bg-white rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Loodud Excelid</h3>
+                                <div class="p-2 bg-green-100 rounded-full">
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                        </path>
+                                    </svg>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div id="apiBar" class="bg-indigo-600 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                            <div class="mt-4">
+                                <span id="excelCount" class="text-3xl font-bold text-gray-900">0</span>
+                                <p class="text-sm text-gray-600 mt-2">Kokku loodud</p>
+                            </div>
+                        </div>
+
+                        <!-- Firestore Entries Card -->
+                        <div class="bg-white rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Riigihangete kirjed</h3>
+                                <div class="p-2 bg-purple-100 rounded-full">
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4">
+                                        </path>
+                                    </svg>
                                 </div>
+                            </div>
+                            <div class="mt-4">
+                                <span id="firestoreCount" class="text-3xl font-bold text-gray-900">0</span>
+                                <p class="text-sm text-gray-600 mt-2">Andmebaasi kirjed</p>
                             </div>
                         </div>
                     </div>
@@ -339,6 +332,35 @@
                                     class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Hooldusrežiimi sõnum">
                             </div>
+                        </div>
+
+                        <!-- Session Timeout Settings -->
+                        <div class="session-timeout-section mt-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-md font-medium text-gray-900">Sessiooni Aegumine</h3>
+                                <div id="mainAdminSessionIndicator"
+                                    class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full flex items-center gap-1">
+                                    <i class="fas fa-crown text-yellow-500"></i>
+                                    <span>Ainult Peaadministraatorile</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="sessionTimeoutEnabled" class="sr-only peer" disabled>
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                    </div>
+                                    <span class="ml-3 text-sm font-medium text-gray-900">Sessiooni aegumine</span>
+                                </label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" id="sessionTimeoutMinutes" min="1" max="1440"
+                                        class="w-20 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="30" disabled>
+                                    <span class="text-sm text-gray-600">minutit</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Kasutaja logitakse automaatselt välja pärast määratud
+                                aja möödumist.</p>
                         </div>
 
                         <!-- Email Templates -->
@@ -1104,35 +1126,59 @@
                 </div>
 
                 <script type="module">
-                    // Import Firebase Modules
                     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-                    import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-                    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, addDoc, setDoc, query, where, limit, writeBatch }
-                        from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+                    import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+                    import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp, addDoc, limit, writeBatch } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+                    import { firebaseConfig } from "./firebase-config-generated.js";
 
-                    if (!window.FIREBASE_CONFIG) {
-                        console.error("⚠ Firebase konfiguratsiooni ei leitud! Kontrolli, kas `config.js` on õigesti laaditud.");
-                    } else {
-                        const app = initializeApp(window.FIREBASE_CONFIG);
-                        const auth = getAuth(app);
-                        const db = getFirestore(app);
+                    // Initialize Firebase
+                    const app = initializeApp(firebaseConfig);
+                    const auth = getAuth(app);
+                    const db = getFirestore(app);
 
-                        // Make Firebase functions available globally
-                        window.db = db;
-                        window.collection = collection;
-                        window.getDocs = getDocs;
-                        window.doc = doc;
-                        window.getDoc = getDoc;
-                        window.updateDoc = updateDoc;
-                        window.deleteDoc = deleteDoc;
-                        window.addDoc = addDoc;
-                        window.signOut = signOut;
-                        window.auth = auth;
-                        window.query = query;
-                        window.where = where;
-                        window.limit = limit;
-                        window.writeBatch = writeBatch;
-                    }
+                    // Make Firebase functions available globally
+                    window.db = db;
+                    window.collection = collection;
+                    window.getDocs = getDocs;
+                    window.doc = doc;
+                    window.getDoc = getDoc;
+                    window.updateDoc = updateDoc;
+                    window.deleteDoc = deleteDoc;
+                    window.addDoc = addDoc;
+                    window.setDoc = setDoc;
+                    window.signOut = signOut;
+                    window.auth = auth;
+                    window.query = query;
+                    window.where = where;
+                    window.limit = limit;
+                    window.writeBatch = writeBatch;
+                    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+                    window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+                    window.updatePassword = updatePassword;
+                    window.onAuthStateChanged = onAuthStateChanged;
+
+                    // Store unsubscribe functions
+                    const unsubscribeFunctions = [];
+
+                    // Check authentication on load
+                    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+                        if (!user) {
+                            window.location.href = "../login.html";
+                            return;
+                        }
+                        // Check if user is admin
+                        const userDoc = await getDoc(doc(db, "users", user.uid));
+                        const userData = userDoc.data();
+                        if (!userData?.isAdmin) {
+                            window.location.href = "../index.html";
+                        }
+                    });
+                    unsubscribeFunctions.push(unsubscribeAuth);
+
+                    // Cleanup function to unsubscribe all listeners
+                    window.addEventListener('unload', () => {
+                        unsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+                    });
 
                     // Define default settings
                     const defaultSettings = {
@@ -4150,6 +4196,211 @@
                         }
                     });
 
+                    // Function to update dashboard statistics
+                    async function updateDashboardStats() {
+                        try {
+                            // Get active users count (users who logged in within last 24h)
+                            const yesterday = new Date();
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            const activeUsersSnapshot = await getDocs(
+                                query(collection(db, "users"),
+                                    where("lastLoginTime", ">=", yesterday))
+                            );
+
+                            // Get PDF and Excel counts from procurements collection
+                            const procurementsSnapshot = await getDocs(collection(db, "procurements"));
+                            let pdfCount = 0;
+                            let excelCount = 0;
+
+                            procurementsSnapshot.forEach(doc => {
+                                const data = doc.data();
+                                if (data.generatedFiles) {
+                                    if (data.generatedFiles.pdf) pdfCount++;
+                                    if (data.generatedFiles.excel) excelCount++;
+                                }
+                            });
+
+                            // Update UI
+                            document.getElementById('activeUsersCount').textContent = activeUsersSnapshot.size;
+                            document.getElementById('pdfCount').textContent = pdfCount;
+                            document.getElementById('excelCount').textContent = excelCount;
+                            document.getElementById('firestoreCount').textContent = procurementsSnapshot.size;
+
+                        } catch (error) {
+                            console.error('Error updating dashboard stats:', error);
+                            showNotification('Viga statistika uuendamisel', 'error');
+                        }
+                    }
+
+                    // Update stats when page loads and when update button is clicked
+                    document.addEventListener('DOMContentLoaded', updateDashboardStats);
+                    document.getElementById('updateStatsBtn')?.addEventListener('click', updateDashboardStats);
+
+                    // Session Timeout Management
+                    let sessionTimeoutId = null;
+                    let lastActivity = Date.now();
+                    let resetTimeout;
+
+                    // Check if user is mainAdmin
+                    async function checkMainAdminAccess() {
+                        try {
+                            const userRef = doc(db, "users", auth.currentUser.uid);
+                            const userSnap = await getDoc(userRef);
+
+                            if (userSnap.exists()) {
+                                const userData = userSnap.data();
+                                return userData.role === 'mainAdmin';
+                            }
+                            return false;
+                        } catch (error) {
+                            console.error('Error checking mainAdmin access:', error);
+                            return false;
+                        }
+                    }
+
+                    // Load session timeout settings
+                    async function loadSessionTimeoutSettings() {
+                        try {
+                            const settingsRef = doc(db, "settings", "sessionTimeout");
+                            const docSnap = await getDoc(settingsRef);
+                            const isMainAdmin = await checkMainAdminAccess();
+
+                            // Show/hide mainAdmin indicator
+                            const indicator = document.getElementById('mainAdminSessionIndicator');
+                            if (indicator) {
+                                indicator.classList.toggle('hidden', !isMainAdmin);
+                            }
+
+                            // Enable/disable controls based on role
+                            const timeoutToggle = document.getElementById('sessionTimeoutEnabled');
+                            const timeoutMinutes = document.getElementById('sessionTimeoutMinutes');
+
+                            if (timeoutToggle && timeoutMinutes) {
+                                timeoutToggle.disabled = !isMainAdmin;
+                                timeoutMinutes.disabled = !isMainAdmin;
+                            }
+
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                if (timeoutToggle) timeoutToggle.checked = data.enabled;
+                                if (timeoutMinutes) timeoutMinutes.value = data.timeoutMinutes || 30;
+
+                                if (data.enabled) {
+                                    startSessionTimeout(data.timeoutMinutes);
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error loading session timeout settings:", error);
+                            showNotification("Viga sessiooni aegumise seadete laadimisel!", "error");
+                        }
+                    }
+
+                    // Save session timeout settings
+                    async function toggleSessionTimeout(enabled) {
+                        try {
+                            // Check if user is mainAdmin
+                            const isMainAdmin = await checkMainAdminAccess();
+                            if (!isMainAdmin) {
+                                showNotification("Ainult peaadministraator saab muuta sessiooni aegumise seadeid!", "error");
+                                // Reset the toggle to its previous state
+                                const timeoutToggle = document.getElementById('sessionTimeoutEnabled');
+                                if (timeoutToggle) timeoutToggle.checked = !enabled;
+                                return;
+                            }
+
+                            const timeoutMinutes = parseInt(document.getElementById('sessionTimeoutMinutes').value) || 30;
+                            const settingsRef = doc(db, "settings", "sessionTimeout");
+
+                            await setDoc(settingsRef, {
+                                enabled: enabled,
+                                timeoutMinutes: timeoutMinutes,
+                                updatedBy: auth.currentUser.uid,
+                                updatedAt: serverTimestamp()
+                            });
+
+                            if (enabled) {
+                                startSessionTimeout(timeoutMinutes);
+                            } else {
+                                stopSessionTimeout();
+                            }
+
+                            showNotification("Sessiooni aegumise seaded salvestatud!", "success");
+                        } catch (error) {
+                            console.error("Error saving session timeout settings:", error);
+                            showNotification("Viga sessiooni aegumise seadete salvestamisel!", "error");
+                            // Reset the toggle to its previous state
+                            const timeoutToggle = document.getElementById('sessionTimeoutEnabled');
+                            if (timeoutToggle) timeoutToggle.checked = !enabled;
+                        }
+                    }
+
+                    // Start session timeout
+                    function startSessionTimeout(minutes) {
+                        stopSessionTimeout(); // Clear any existing timeout
+                        const timeoutMs = minutes * 60 * 1000;
+
+                        // Reset timeout on any user activity
+                        resetTimeout = () => {
+                            lastActivity = Date.now();
+                        };
+
+                        // Add activity listeners
+                        document.addEventListener('mousemove', resetTimeout);
+                        document.addEventListener('keypress', resetTimeout);
+                        document.addEventListener('click', resetTimeout);
+                        document.addEventListener('scroll', resetTimeout);
+
+                        // Check for inactivity
+                        sessionTimeoutId = setInterval(() => {
+                            const inactiveTime = Date.now() - lastActivity;
+                            if (inactiveTime >= timeoutMs) {
+                                stopSessionTimeout();
+                                signOut(auth).then(() => {
+                                    showNotification("Sessioon aegus inaktiivsuse tõttu. Palun logi uuesti sisse.", "warning");
+                                    window.location.href = '/auth/login.html';
+                                });
+                            }
+                        }, 1000); // Check every second
+                    }
+
+                    // Stop session timeout
+                    function stopSessionTimeout() {
+                        if (sessionTimeoutId) {
+                            clearInterval(sessionTimeoutId);
+                            sessionTimeoutId = null;
+                        }
+                        // Remove activity listeners
+                        if (resetTimeout) {
+                            document.removeEventListener('mousemove', resetTimeout);
+                            document.removeEventListener('keypress', resetTimeout);
+                            document.removeEventListener('click', resetTimeout);
+                            document.removeEventListener('scroll', resetTimeout);
+                        }
+                    }
+
+                    // Initialize event listeners when the DOM is loaded
+                    document.addEventListener('DOMContentLoaded', () => {
+                        // Load initial settings
+                        loadSessionTimeoutSettings();
+
+                        // Add event listener for the timeout toggle
+                        const timeoutToggle = document.getElementById('sessionTimeoutEnabled');
+                        if (timeoutToggle) {
+                            timeoutToggle.addEventListener('change', (e) => {
+                                toggleSessionTimeout(e.target.checked);
+                            });
+                        }
+
+                        // Add event listener for timeout minutes
+                        const timeoutMinutes = document.getElementById('sessionTimeoutMinutes');
+                        if (timeoutMinutes) {
+                            timeoutMinutes.addEventListener('change', () => {
+                                if (timeoutToggle && timeoutToggle.checked) {
+                                    toggleSessionTimeout(true);
+                                }
+                            });
+                        }
+                    });
                 </script>
 </body>
 

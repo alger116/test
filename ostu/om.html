@@ -225,26 +225,26 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { firebaseConfig } from "../auth/firebase-config-generated.js";
 
-        // Make Firestore functions available globally
-        window.firestoreFunctions = { doc, getDoc, setDoc, arrayUnion, arrayRemove };
-
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCyT8XLIwrmsYgMYalK9I_lp6OfQucBLR0",
-            authDomain: "kalkulaator-9f3d1.firebaseapp.com",
-            projectId: "kalkulaator-9f3d1",
-            storageBucket: "kalkulaator-9f3d1.appspot.com",
-            messagingSenderId: "127234313724",
-            appId: "1:127234313724:web:1f333fb8f3ff2995bcb679",
-            measurementId: "G-91VSY43W50"
-        };
-
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // Make Firebase objects globally available
+        window.auth = auth;
+        window.db = db;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.setDoc = setDoc;
+        window.arrayUnion = arrayUnion;
+        window.arrayRemove = arrayRemove;
 
         // Set persistence to LOCAL
         setPersistence(auth, browserLocalPersistence)
@@ -266,9 +266,8 @@
                     email: user.email
                 };
                 // Load user data from Firestore
-                const { doc, getDoc } = window.firestoreFunctions;
-                const userRef = doc(db, "users", user.uid);
-                const userDoc = await getDoc(userRef);
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
 
                 if (userDoc.exists()) {
                     const data = userDoc.data();
@@ -285,7 +284,7 @@
                 } else {
                     console.log('No user document found, creating new one');
                     // Create new user document
-                    await setDoc(userRef, {
+                    await setDoc(userDocRef, {
                         settings: {},
                         pdfHistory: [],
                         lastUpdated: new Date().toISOString()
@@ -367,7 +366,8 @@
                 }
             } else {
                 // Get user data from Firestore
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
                 const userData = userDoc.data();
 
                 // Update Alpine.js state
@@ -399,10 +399,11 @@
                 const user = userCredential.user;
 
                 // Get or create user document in Firestore
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
                 if (!userDoc.exists()) {
                     // Create new user document
-                    await setDoc(doc(db, 'users', user.uid), {
+                    await setDoc(userDocRef, {
                         email: user.email,
                         isAdmin: user.email.endsWith('@hankest.ee'),
                         createdAt: new Date().toISOString(),
@@ -1060,8 +1061,8 @@
                             // Save PDF to Firestore if user is logged in
                             if (window.currentUser) {
                                 console.log('User is logged in, saving PDF to Firestore');
-                                const { doc, setDoc, getDoc } = window.firestoreFunctions;
-                                const userRef = doc(window.db, "users", window.currentUser.uid);
+                                // Use the functions directly from window object
+                                const userRef = window.doc(window.db, "users", window.currentUser.uid);
 
                                 const pdfEntry = {
                                     id: Date.now().toString(),
@@ -1075,7 +1076,7 @@
                                 console.log('Saving PDF entry:', pdfEntry);
 
                                 // Get current user data
-                                const userDoc = await getDoc(userRef);
+                                const userDoc = await window.getDoc(userRef);
                                 const currentData = userDoc.exists() ? userDoc.data() : {};
                                 const currentPdfHistory = currentData.pdfHistory || [];
 
@@ -1087,7 +1088,7 @@
                                 console.log('Updated PDF history:', updatedPdfHistory);
 
                                 // Update Firestore
-                                await setDoc(userRef, {
+                                await window.setDoc(userRef, {
                                     pdfHistory: updatedPdfHistory,
                                     lastUpdated: new Date().toISOString()
                                 }, { merge: true });

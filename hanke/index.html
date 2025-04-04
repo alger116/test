@@ -15,21 +15,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
     <script src="timeline-init.js"></script>
 
-
-
-
     <script type="module">
-        import { auth, db } from "../auth/firebase-config.js";
-        import {
-            onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword
-        } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import {
-            doc, getDoc, setDoc, updateDoc, arrayRemove, arrayUnion
-        } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayRemove, arrayUnion } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { firebaseConfig } from "../auth/firebase-config-generated.js";
+
+        // Initialize Firebase and get instances
+        const firebaseApp = initializeApp(firebaseConfig);
+        const firebaseAuth = getAuth(firebaseApp);
+        const firebaseDb = getFirestore(firebaseApp);
 
         // Make Firebase objects globally available
-        window.auth = auth;
-        window.db = db;
+        window.auth = firebaseAuth;
+        window.db = firebaseDb;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.setDoc = setDoc;
+        window.updateDoc = updateDoc;
+        window.arrayRemove = arrayRemove;
+        window.arrayUnion = arrayUnion;
 
         // Check authentication state and user role
         onAuthStateChanged(auth, async (user) => {
@@ -50,9 +58,9 @@
                         const settingsButton = document.getElementById('settingsButton');
                         if (settingsButton) {
                             if (userData.role === 'admin' || userData.role === 'mainAdmin') {
-                                settingsButton.classList.remove('hidden') // Show button
+                                settingsButton.classList.remove('hidden');
                             } else {
-                                settingsButton.classList.add('hidden') // Hide button
+                                settingsButton.classList.add('hidden');
                             }
                         }
                     } else {
@@ -66,17 +74,6 @@
                 localStorage.removeItem('currentUser');
             }
         });
-
-        // ✅ Add Firestore and other functions globally
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.signOut = signOut;
-        window.doc = doc;
-        window.getDoc = getDoc;
-        window.setDoc = setDoc;
-        window.updateDoc = updateDoc;
-        window.arrayRemove = arrayRemove;
-        window.arrayUnion = arrayUnion;
 
         // Simple implementation of loadUserSearches that will be used until the full implementation is loaded
         function loadUserSearches() {

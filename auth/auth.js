@@ -9,6 +9,23 @@ import {
   doc,
   getDoc,
 } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import {
+  rateLimit,
+  csrfProtection,
+  sessionManager,
+} from "./security-middleware.js";
+
+// Get client IP (in a real production environment, this would be done server-side)
+const getClientIP = async () => {
+  try {
+    const response = await fetch("https://api.ipify.org?format=json");
+    const data = await response.json();
+    return data.ip;
+  } catch (error) {
+    console.error("Error getting IP:", error);
+    return "unknown";
+  }
+};
 
 // Function to show/hide authentication screen
 async function toggleAuthScreen(user) {
@@ -22,6 +39,14 @@ async function toggleAuthScreen(user) {
         const userData = userDoc.data();
         console.log("📜 Firestore roll:", userData.role);
         window.userRole = userData.role;
+
+        // Create session
+        const sessionId = sessionManager.createSession(user.uid);
+        localStorage.setItem("sessionId", sessionId);
+
+        // Generate CSRF token
+        const csrfToken = csrfProtection.setToken(sessionId);
+        localStorage.setItem("csrfToken", csrfToken);
       } else {
         console.log("No user document found");
       }
@@ -29,50 +54,96 @@ async function toggleAuthScreen(user) {
       console.error("Error fetching user role:", error);
     }
 
-    authContainer.classList.add("hidden"); // Hide login screen
-    mainContent.classList.remove("hidden"); // Show main content
+    authContainer.classList.add("hidden");
+    mainContent.classList.remove("hidden");
     document.getElementById("logoutBtn").classList.remove("hidden");
     console.log(`✅ Kasutaja sisse logitud: ${user.email}`);
   } else {
     window.userRole = null;
-    authContainer.classList.remove("hidden"); // Show login screen
-    mainContent.classList.add("hidden"); // Hide main content
+    // Clear session and CSRF token
+    const sessionId = localStorage.getItem("sessionId");
+    if (sessionId) {
+      sessionManager.clearSession(sessionId);
+      localStorage.removeItem("sessionId");
+      localStorage.removeItem("csrfToken");
+    }
+
+    authContainer.classList.remove("hidden");
+    mainContent.classList.add("hidden");
     document.getElementById("logoutBtn").classList.add("hidden");
     console.log("❌ Kasutaja välja logitud.");
   }
 }
 
-// 🔹 Register User
-function register() {
+// Register User
+async function register() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+
+  // Check rate limit
+  const clientIP = await getClientIP();
+  if (!rateLimit.checkLimit(clientIP)) {
+    alert("❌ Liiga palju katsetusi. Palun proovige hiljem uuesti.");
+    return;
+  }
 
   createUserWithEmailAndPassword(auth, email, password)
     .then(() => alert("✅ Konto loodud!"))
     .catch((error) => alert(`❌ Viga: ${error.message}`));
 }
 
-// 🔹 Log In User
-function login() {
+// Log In User
+async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+
+  // Check rate limit
+  const clientIP = await getClientIP();
+  if (!rateLimit.checkLimit(clientIP)) {
+    alert("❌ Liiga palju katsetusi. Palun proovige hiljem uuesti.");
+    return;
+  }
 
   signInWithEmailAndPassword(auth, email, password)
     .then(() => alert("✅ Sisselogimine õnnestus!"))
     .catch((error) => alert(`❌ Viga: ${error.message}`));
 }
 
-// 🔹 Log Out User
+// Log Out User
 function logout() {
+  const sessionId = localStorage.getItem("sessionId");
+  if (!sessionId || !sessionManager.validateSession(sessionId)) {
+    alert("❌ Sessioon on aegunud. Palun logige uuesti sisse.");
+    return;
+  }
+
   signOut(auth)
-    .then(() => alert("👋 Olete välja logitud!"))
+    .then(() => {
+      sessionManager.clearSession(sessionId);
+      localStorage.removeItem("sessionId");
+      localStorage.removeItem("csrfToken");
+      alert("👋 Olete välja logitud!");
+    })
     .catch((error) => alert(`❌ Viga: ${error.message}`));
 }
 
-// 🔹 Track User Authentication State
+// Track User Authentication State
 onAuthStateChanged(auth, toggleAuthScreen);
 
-// ✅ Attach functions to `window` so they work with event listeners
+// Session refresh interval
+setInterval(() => {
+  const sessionId = localStorage.getItem("sessionId");
+  if (sessionId) {
+    if (!sessionManager.validateSession(sessionId)) {
+      // Session expired, log out user
+      logout();
+    } else {
+      sessionManager.refreshSession(sessionId);
+    }
+  }
+}, 60000); // Check every minute
+
+// Attach functions to `window`
 window.register = register;
 window.login = login;
 window.logout = logout;

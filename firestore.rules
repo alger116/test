@@ -94,5 +94,19 @@ service cloud.firestore {
     match /errorLogs/{logId} {
       allow read, write: if isAdmin();
     }
+
+    // Procurements collection
+    match /procurements/{procurementId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Settings collection
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if (
+        settingId == "maintenance" && isAdmin() ||
+        settingId == "sessionTimeout" && isMainAdmin()
+      );
+    }
   }
 }
