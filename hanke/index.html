@@ -17,72 +17,177 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateEmail, updatePassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayRemove, arrayUnion } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-        import { firebaseConfig } from "../auth/firebase-config-generated.js";
 
-        // Initialize Firebase and get instances
-        const firebaseApp = initializeApp(firebaseConfig);
-        const firebaseAuth = getAuth(firebaseApp);
-        const firebaseDb = getFirestore(firebaseApp);
-
-        // Make Firebase objects globally available
-        window.auth = firebaseAuth;
-        window.db = firebaseDb;
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.signOut = signOut;
-        window.doc = doc;
-        window.getDoc = getDoc;
-        window.setDoc = setDoc;
-        window.updateDoc = updateDoc;
-        window.arrayRemove = arrayRemove;
-        window.arrayUnion = arrayUnion;
-
-        // Check authentication state and user role
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                try {
-                    const userDocRef = doc(db, "users", user.uid);
-                    const userDoc = await getDoc(userDocRef);
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        window.userRole = userData.role;
-
-                        // Update localStorage with current role
-                        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-                        currentUser.role = userData.role;
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-                        // Show or hide the settings button based on the role
-                        const settingsButton = document.getElementById('settingsButton');
-                        if (settingsButton) {
-                            if (userData.role === 'admin' || userData.role === 'mainAdmin') {
-                                settingsButton.classList.remove('hidden');
-                            } else {
-                                settingsButton.classList.add('hidden');
-                            }
-                        }
-                    } else {
-                        console.error("No user document found in Firestore for UID:", user.uid);
-                    }
-                } catch (error) {
-                    console.error("Error fetching user role:", error);
-                }
-            } else {
-                window.userRole = null;
-                localStorage.removeItem('currentUser');
+        // Try to get Firebase config from environment or use fallback
+        const getFirebaseConfig = async () => {
+            try {
+                const module = await import("../auth/firebase-config-generated.js");
+                return module.firebaseConfig;
+            } catch (error) {
+                console.log("Using fallback Firebase configuration");
+                return {
+                    apiKey: window.FIREBASE_API_KEY || "AIzaSyCyT8XLIwrmsYgMYalK9I_lp6OfQucBLR0",
+                    authDomain: window.FIREBASE_AUTH_DOMAIN || "kalkulaator-9f3d1.firebaseapp.com",
+                    projectId: window.FIREBASE_PROJECT_ID || "kalkulaator-9f3d1",
+                    storageBucket: window.FIREBASE_STORAGE_BUCKET || "kalkulaator-9f3d1.firebasestorage.app",
+                    messagingSenderId: window.FIREBASE_MESSAGING_SENDER_ID || "127234313724",
+                    appId: window.FIREBASE_APP_ID || "1:127234313724:web:1f333fb8f3ff2995bcb679",
+                    measurementId: window.FIREBASE_MEASUREMENT_ID || "G-91VSY43W50"
+                };
             }
+        };
+
+        // Helper function to show errors
+        const showError = (message) => {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        };
+
+        // Initialize Firebase and setup auth listeners
+        const initializeFirebase = async () => {
+            try {
+                console.log("Initializing Firebase...");
+                const firebaseConfig = await getFirebaseConfig();
+                console.log("Firebase config loaded");
+
+                const firebaseApp = initializeApp(firebaseConfig);
+                const firebaseAuth = getAuth(firebaseApp);
+                const firebaseDb = getFirestore(firebaseApp);
+                console.log("Firebase initialized successfully");
+
+                // Make Firebase objects globally available
+                window.auth = firebaseAuth;
+                window.db = firebaseDb;
+                window.onAuthStateChanged = onAuthStateChanged;
+                window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+                window.signOut = signOut;
+                window.updateEmail = updateEmail;
+                window.updatePassword = updatePassword;
+                window.doc = doc;
+                window.getDoc = getDoc;
+                window.setDoc = setDoc;
+                window.updateDoc = updateDoc;
+                window.arrayRemove = arrayRemove;
+                window.arrayUnion = arrayUnion;
+
+                // Setup auth state listener
+                const setupAuthListener = () => {
+                    onAuthStateChanged(firebaseAuth, async (user) => {
+                        console.log("Auth state changed:", user ? "User logged in" : "User logged out");
+
+                        // Get UI elements
+                        const userEmailElement = document.getElementById("userEmail");
+                        const loginButton = document.getElementById("loginButton");
+                        const registerButton = document.getElementById("registerButton");
+                        const guestButton = document.getElementById("guestButton");
+                        const logoutButton = document.getElementById("logoutButton");
+                        const settingsButton = document.getElementById("settingsButton");
+                        const showHankedButton = document.getElementById("showSavedSearches");
+                        const hankedSection = document.getElementById("savedSearchesContainer");
+                        const settingsSection = document.getElementById("settingsContainer");
+                        const adminTab = document.getElementById("adminTab");
+                        const protectedSections = document.querySelectorAll('.protected-section');
+                        const userElements = document.querySelectorAll('.user-specific');
+                        const loginElements = document.querySelectorAll('.login-only');
+                        const toggleTimelineButton = document.getElementById("toggleTimelineButton");
+                        const sidebarContainer = document.getElementById("sidebarContainer");
+
+                        if (user) {
+                            try {
+                                console.log("Fetching user role for UID:", user.uid);
+                                const userDocRef = doc(firebaseDb, "users", user.uid);
+                                const userDoc = await getDoc(userDocRef);
+
+                                if (userDoc.exists()) {
+                                    const userData = userDoc.data();
+                                    window.userRole = userData.role;
+                                    console.log("User role:", userData.role);
+
+                                    // Update localStorage
+                                    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                                    currentUser.role = userData.role;
+                                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                                    // Update UI based on role
+                                    if (settingsButton) {
+                                        settingsButton.classList.toggle('hidden', !(userData.role === 'admin' || userData.role === 'mainAdmin'));
+                                    }
+                                    if (adminTab) {
+                                        adminTab.classList.toggle('hidden', userData.role !== 'admin');
+                                    }
+
+                                    // Show user-specific elements
+                                    protectedSections.forEach(section => section.classList.remove('hidden'));
+                                    userElements.forEach(el => el.classList.remove('hidden'));
+                                    loginElements.forEach(el => el.classList.add('hidden'));
+
+                                    // Show menu buttons
+                                    showHankedButton?.classList.remove("hidden");
+                                    settingsButton?.classList.remove("hidden");
+                                    loginButton?.classList.add("hidden");
+                                    registerButton?.classList.add("hidden");
+                                    guestButton?.classList.add("hidden");
+                                    logoutButton?.classList.remove("hidden");
+
+                                } else {
+                                    console.error("No user document found in Firestore for UID:", user.uid);
+                                    showError('Error loading user data. Please try logging in again.');
+                                }
+                            } catch (error) {
+                                console.error("Error fetching user role:", error);
+                                showError('Error loading user data. Please try again later.');
+                            }
+                        } else {
+                            // User is logged out
+                            window.userRole = null;
+                            localStorage.removeItem('currentUser');
+                            console.log("User logged out, cleared role and localStorage");
+
+                            // Hide protected sections
+                            protectedSections.forEach(section => section.classList.add('hidden'));
+                            userElements.forEach(el => el.classList.add('hidden'));
+                            loginElements.forEach(el => el.classList.remove('hidden'));
+
+                            // Update menu buttons
+                            showHankedButton?.classList.add("hidden");
+                            settingsButton?.classList.add("hidden");
+                            adminTab?.classList.add("hidden");
+                            loginButton?.classList.remove("hidden");
+                            registerButton?.classList.remove("hidden");
+                            guestButton?.classList.remove("hidden");
+                            logoutButton?.classList.add("hidden");
+                        }
+
+                        // Dispatch auth state change event
+                        window.dispatchEvent(new CustomEvent('authStateChanged', { detail: { user } }));
+                    });
+                };
+
+                // Wait for DOM to be ready before setting up auth listener
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', setupAuthListener);
+                } else {
+                    setupAuthListener();
+                }
+
+                return { firebaseAuth, firebaseDb };
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showError('Error connecting to the server. Please try again later.');
+                throw error;
+            }
+        };
+
+        // Initialize Firebase when the module loads
+        initializeFirebase().catch(error => {
+            console.error("Failed to initialize Firebase:", error);
+            showError('Failed to initialize application. Please refresh the page.');
         });
-
-        // Simple implementation of loadUserSearches that will be used until the full implementation is loaded
-        function loadUserSearches() {
-            console.log("📥 Laen kasutaja otsingud Firestore'ist...");
-            // The actual implementation will be called later in the document
-            // This is just a placeholder to prevent errors
-        }
-        window.loadUserSearches = loadUserSearches;
-
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -2937,7 +3042,7 @@
             import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
             // ✅ Firebase initsialiseerimine
-            const auth = getAuth();
+
             const db = getFirestore();
 
             document.addEventListener("DOMContentLoaded", () => {
@@ -2950,8 +3055,6 @@
                 const logoutButton = document.getElementById("logoutButton");
                 const settingsButton = document.getElementById("settingsButton");
                 const showHankedButton = document.getElementById("showSavedSearches");
-
-                // ✅ Sections
                 const hankedSection = document.getElementById("savedSearchesContainer");
                 const settingsSection = document.getElementById("settingsContainer");
                 const adminTab = document.getElementById("adminTab");
@@ -2960,73 +3063,25 @@
                 hankedSection?.classList.add("hidden");
                 settingsSection?.classList.add("hidden");
 
-                // ✅ "Hanked" nupp laadib andmed Firestore'ist ja kuvab need
-                showHankedButton?.addEventListener("click", async () => {
-                    console.log("📂 'Hanked' nuppu vajutati, laen Firestore andmed...");
-                    await loadUserSearches();
-                    // ✅ Uuendame ka lokaalseid hankeid tabelis
-                    updateSavedSearchesTable();
-                    hankedSection?.classList.remove("hidden");
-                });
+                // Define utility functions
+                window.showNotification = (message, duration = 3000) => {
+                    const alertBox = document.createElement('div');
+                    alertBox.className = 'fixed top-4 right-4 bg-white text-blue-500 px-4 py-2 rounded-lg shadow-md z-50';
+                    alertBox.textContent = message;
+                    document.body.appendChild(alertBox);
+                    setTimeout(() => {
+                        alertBox.remove();
+                    }, duration);
+                };
 
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        console.log("✅ Kasutaja sisse logitud:", user.email);
-
-                        // ✅ Eemaldame hidden klassi, et kuvada menüünupud
-                        showHankedButton?.classList.remove("hidden");
-                        settingsButton?.classList.remove("hidden");
-
-                        // ✅ Peidame sisselogimisnupud ja kuvame "Logi välja" nupu
-                        loginButton?.classList.add("hidden");
-                        registerButton?.classList.add("hidden");
-                        guestButton?.classList.add("hidden");
-                        logoutButton?.classList.remove("hidden");
-
-                        // ✅ Kontrollime Firestore rolli
-                        const userDoc = await getDoc(doc(db, "users", user.uid));
-                        if (userDoc.exists()) {
-                            const userData = userDoc.data();
-                            console.log("📜 Firestore roll:", userData.role);
-
-                            if (userData.role === "admin") {
-                                adminTab?.classList.remove("hidden");
-                            } else {
-                                adminTab?.classList.add("hidden");
-                            }
-                        }
-                    } else {
-                        console.log("🚫 Kasutaja pole sisse logitud.");
-
-                        // ✅ Peidame "Hanked", "Seaded" ja "Admin" vahelehed
-                        showHankedButton?.classList.add("hidden");
-                        settingsButton?.classList.add("hidden");
-                        adminTab?.classList.add("hidden");
-
-                        // ✅ Kuvame sisselogimisnupud ja peidame "Logi välja" nupu
-                        loginButton?.classList.remove("hidden");
-                        registerButton?.classList.remove("hidden");
-                        guestButton?.classList.remove("hidden");
-                        logoutButton?.classList.add("hidden");
-                    }
-                });
-
-                // 🔥 Logout Button Click Event
-                logoutButton?.addEventListener("click", async () => {
-                    console.log("🔴 Logging out user...");
-                    await signOut(auth);
-                    window.location.href = "../index.html";
-                });
-
-                // ✅ Funktsioon otsingu salvestamiseks Firestore'i
-                const saveSearchToFirestore = async (searchData) => {
-                    const user = auth.currentUser;
+                // ✅ Save search to Firestore
+                window.saveSearchToFirestore = async (searchData) => {
+                    const user = window.auth?.currentUser;
                     if (!user) {
-                        showNotification("Andmete salvestamiseks peab olema sisse logitud!", 3000);
+                        window.showNotification("Andmete salvestamiseks peab olema sisse logitud!", 3000);
                         return;
                     }
 
-                    // Add loading indicator
                     const savingIndicator = document.createElement('div');
                     savingIndicator.id = 'saving-indicator';
                     savingIndicator.className = 'fixed top-4 right-4 bg-white text-blue-500 px-4 py-2 rounded-lg shadow-md z-50';
@@ -3034,107 +3089,79 @@
                     document.body.appendChild(savingIndicator);
 
                     try {
-                        // Add retry logic
                         let retries = 2;
                         let success = false;
 
                         while (retries >= 0 && !success) {
                             try {
-                                await updateDoc(doc(db, "users", user.uid), {
-                                    searches: arrayUnion(searchData)
+                                await window.updateDoc(window.doc(window.db, "users", user.uid), {
+                                    searches: window.arrayUnion(searchData)
                                 });
                                 success = true;
                             } catch (error) {
                                 retries--;
                                 if (retries < 0) throw error;
-                                // Wait before retrying
                                 await new Promise(resolve => setTimeout(resolve, 1000));
                             }
                         }
 
-                        showNotification("✅ Otsing salvestatud edukalt!", 3000);
+                        window.showNotification("✅ Otsing salvestatud edukalt!", 3000);
                         console.log("✅ Otsing salvestatud Firestore'i:", searchData);
                     } catch (error) {
                         console.error("❌ Otsingu salvestamise viga:", error);
-                        showNotification("❌ Otsingu salvestamise viga!", 3000);
+                        window.showNotification("❌ Otsingu salvestamise viga!", 3000);
                     } finally {
-                        // Remove loading indicator
                         if (savingIndicator.parentNode) {
                             savingIndicator.parentNode.removeChild(savingIndicator);
                         }
                     }
                 };
 
-                // ✅ Seome otsingu salvestamise "lisa hange tabelisse" nupuga
-                document.getElementById('procurementForm').addEventListener('submit', async function (event) {
-                    event.preventDefault();
-
-                    const name = document.getElementById('name').value;
-                    const cost = parseFloat(document.getElementById('cost').value);
-                    const procedureType = document.getElementById('procedureType').value;
-                    const contractSigningDate = document.getElementById('contractSigningDate').value;
-
-                    const procurement = new PublicProcurement(name, cost, procedureType, contractSigningDate);
-                    procurement.requestSubmissionDate = procurement.calculateRequestSubmissionDate();
-
-                    // ✅ Värskendame tulemuste kuvamist, kuid EI LISATA HANKED TABELISSE
-                    document.getElementById('result').innerHTML = procurement.generateHTML();
-
-                    // ✅ Progressi ja kestuse uuendamine
-                    setTimeout(() => {
-                        updateTotalDuration();
-                        updateProgressBars();
-                    }, 100);
-
-                    // ✅ Kuvame tulemuste konteineri
-                    document.getElementById('resultContainer').classList.remove('hidden');
-
-                    console.log("✅ Menetlusaeg arvutatud, kuid hange EI LISATUD tabelisse.");
-                });
-                async function loadUserSearches() {
-                    const user = auth.currentUser;
+                // ✅ Load user searches
+                window.loadUserSearches = async () => {
+                    const user = window.auth?.currentUser;
                     if (!user) {
                         console.error("❌ Kasutajat ei leitud, ei saa otsinguid laadida.");
                         return;
                     }
 
                     try {
-                        const userDoc = await getDoc(doc(db, "users", user.uid));
+                        const userDoc = await window.getDoc(window.doc(window.db, "users", user.uid));
                         if (userDoc.exists()) {
                             let searches = userDoc.data().searches || [];
                             console.log("📜 Laetud otsingud Firestore'ist:", searches);
 
-                            // ✅ Kontrollime ja teisendame kuupäevad õigesse formaati
                             searches = searches.map((search, index) => {
                                 if (!search.requestSubmissionDate || search.requestSubmissionDate === "Määramata") {
                                     console.warn(`⚠ Otsingul [${index}] puudub requestSubmissionDate, määrame uue.`);
                                     search.requestSubmissionDate = "Määramata";
                                 } else if (search.requestSubmissionDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                                    // Kui kuupäev on "YYYY-MM-DD", teisendame selle "dd.mm.yyyy"
                                     const [year, month, day] = search.requestSubmissionDate.split("-");
                                     search.requestSubmissionDate = `${day}.${month}.${year}`;
                                 }
                                 return search;
                             });
 
-                            displaySearches(searches);
+                            window.displaySearches(searches);
                         } else {
                             console.log("❌ Kasutaja dokumenti ei leitud Firestore'ist.");
                         }
                     } catch (error) {
                         console.error("❌ Otsingute laadimise viga:", error);
                     }
-                }
-                const deleteSearch = async (index) => {
-                    const user = auth.currentUser;
+                };
+
+                // ✅ Delete search
+                window.deleteSearch = async (index) => {
+                    const user = window.auth?.currentUser;
                     if (!user) {
                         alert("Kustutamiseks peab olema sisse logitud!");
                         return;
                     }
 
                     try {
-                        const userDocRef = doc(db, "users", user.uid);
-                        const userDoc = await getDoc(userDocRef);
+                        const userDocRef = window.doc(window.db, "users", user.uid);
+                        const userDoc = await window.getDoc(userDocRef);
 
                         if (userDoc.exists()) {
                             let searches = userDoc.data().searches || [];
@@ -3145,28 +3172,23 @@
                             }
 
                             const searchToDelete = searches[index];
-
-                            // 🔍 Kontrollime, milline element kustutatakse
                             console.log("🔴 Enne kustutamist:", searches);
                             console.log("🚨 Kustutame:", searchToDelete);
 
-                            // 🔥 Kustutame Firestore'ist ainult selle konkreetse objekti
-                            await updateDoc(userDocRef, {
-                                searches: arrayRemove(searchToDelete),
+                            await window.updateDoc(userDocRef, {
+                                searches: window.arrayRemove(searchToDelete)
                             });
 
                             console.log("✅ Otsing kustutatud Firestore'ist:", searchToDelete);
-
-                            // 🔄 Laadime uuesti andmed, et värskendada tabelit
-                            await loadUserSearches();
+                            await window.loadUserSearches();
                         }
                     } catch (error) {
                         console.error("❌ Firestore'i kustutamise viga:", error);
                     }
                 };
 
-                // ✅ Funktsioon otsingute kuvamiseks tabelis
-                function displaySearches(searches) {
+                // ✅ Display searches
+                window.displaySearches = (searches) => {
                     const container = document.getElementById("savedSearchesTableBody");
                     if (!container) {
                         console.error("❌ Ei leitud tabeli keha: savedSearchesTableBody");
@@ -3174,7 +3196,7 @@
                     }
 
                     console.log("🔎 Kuvan otsingud tabelisse:", searches);
-                    container.innerHTML = ""; // ✅ Puhastame tabeli enne lisamist
+                    container.innerHTML = "";
 
                     if (searches.length === 0) {
                         container.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-gray-500">⚠ Ei leitud salvestatud hankeid.</td></tr>`;
@@ -3183,92 +3205,45 @@
 
                     searches.forEach((search, index) => {
                         container.innerHTML += `
-                                <tr class="border-b even:bg-gray-100 hover:bg-gray-200 transition-all">
-                                    <td class="p-4">${search.name}</td>
-                                    <td class="p-4">${search.procedureType}</td>
-                                    <td class="p-4">${search.cost} €</td>
-                                    <td class="p-4 text-blue-600 font-semibold">${search.requestSubmissionDate}</td>
-                                    <td class="p-4 text-gray-500">${search.contractSigningDate}</td>
-                                    <td class="p-4 text-center">
-                                        <button onclick="editSearch(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition transform hover:scale-105">✏️ Muuda</button>
-                                    </td>
-                                    <td class="p-4 text-center">
-                                        <button onclick="deleteSearch(${index})" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition transform hover:scale-105">❌ Kustuta</button>
-                                    </td>
-                                </tr>
-                            `;
+                            <tr class="border-b even:bg-gray-100 hover:bg-gray-200 transition-all">
+                                <td class="p-4">${search.name}</td>
+                                <td class="p-4">${search.procedureType}</td>
+                                <td class="p-4">${search.cost} €</td>
+                                <td class="p-4 text-blue-600 font-semibold">${search.requestSubmissionDate}</td>
+                                <td class="p-4 text-gray-500">${search.contractSigningDate}</td>
+                                <td class="p-4 text-center">
+                                    <button onclick="editSearch(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition transform hover:scale-105">✏️ Muuda</button>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <button onclick="deleteSearch(${index})" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition transform hover:scale-105">❌ Kustuta</button>
+                                </td>
+                            </tr>
+                        `;
                     });
 
                     console.log("✅ Otsingud lisatud tabelisse!");
                 };
+
+                // Event listeners
+                showHankedButton?.addEventListener("click", async () => {
+                    console.log("📂 'Hanked' nuppu vajutati, laen Firestore andmed...");
+                    await window.loadUserSearches();
+                    updateSavedSearchesTable();
+                    hankedSection?.classList.remove("hidden");
+                });
+
+                logoutButton?.addEventListener("click", async () => {
+                    console.log("🔴 Logging out user...");
+                    if (window.auth) {
+                        await window.signOut(window.auth);
+                        window.location.href = "../index.html";
+                    }
+                });
             });
         </script>
 
-        <script type="module">
 
-            // Listen for authentication state changes
-            onAuthStateChanged(auth, (user) => {
-                const userEmailElement = document.getElementById("userEmail");
-                if (user) {
-                    // User is signed in
-                    userEmailElement.textContent = user.email;
-                    document.getElementById("logoutButton").classList.remove("hidden");
-                    document.getElementById("toggleTimelineButton")?.classList.remove("hidden");
-                    document.getElementById("sidebarContainer")?.classList.remove("hidden");
-                    document.getElementById("userEmail")?.parentElement.classList.remove("hidden");
-                } else {
-                    // No user signed in
-                    userEmailElement.textContent = "Pole sisse logitud";
-                    document.getElementById("logoutButton").classList.add("hidden");
-                    document.getElementById("toggleTimelineButton")?.classList.add("hidden");
-                    document.getElementById("sidebarContainer")?.classList.add("hidden");
-                    document.getElementById("userEmail")?.parentElement.classList.add("hidden");
-                }
-            });
 
-            // Logout function
-            document.getElementById("logoutButton").addEventListener("click", async () => {
-                try {
-                    await signOut(auth);
-                    showToast("Oled edukalt välja logitud!", "success");
-                    setTimeout(() => {
-                        location.reload();
-                    }, 2000); // Give time for the user to see the notification
-                } catch (error) {
-                    showToast("Väljalogimine ebaõnnestus: " + error.message, "error");
-                }
-            });
-
-            // Change email function
-            document.getElementById("changeEmail").addEventListener("click", async () => {
-                const newEmail = prompt("Sisesta uus e-post:");
-                if (newEmail) {
-                    try {
-                        await updateEmail(auth.currentUser, newEmail);
-                        alert("E-post uuendatud! Logi uuesti sisse.");
-                        await signOut(auth);
-                        location.reload();
-                    } catch (error) {
-                        alert("E-posti muutmine ebaõnnestus: " + error.message);
-                    }
-                }
-            });
-
-            // Change password function
-            document.getElementById("changePassword").addEventListener("click", async () => {
-                const newPassword = prompt("Sisesta uus parool:");
-                if (newPassword) {
-                    try {
-                        await updatePassword(auth.currentUser, newPassword);
-                        alert("Parool uuendatud! Logi uuesti sisse.");
-                        await signOut(auth);
-                        location.reload();
-                    } catch (error) {
-                        alert("Parooli muutmine ebaõnnestus: " + error.message);
-                    }
-                }
-            });
-        </script>
 
         <script>
             async function loadSidebar() {
@@ -3348,9 +3323,9 @@
             }
         </style>
 
-        <script type="module">
+        <script>
             // Toast notification function
-            function showToast(message, type = 'success') {
+            window.showToast = function (message, type = 'success') {
                 // Create toast container if it doesn't exist
                 let container = document.querySelector('.toast-container');
                 if (!container) {
@@ -3412,19 +3387,6 @@
                 }, 5000);
             }
 
-            // Listen for authentication state changes
-            onAuthStateChanged(auth, (user) => {
-                const userEmailElement = document.getElementById("userEmail");
-                if (user) {
-                    // User is signed in
-                    userEmailElement.textContent = user.email;
-                    document.getElementById("logoutButton").classList.remove("hidden");
-                } else {
-                    // No user signed in
-                    userEmailElement.textContent = "Pole sisse logitud";
-                    document.getElementById("logoutButton").classList.add("hidden");
-                }
-            });
 
             // Logout function
             document.getElementById("logoutButton").addEventListener("click", async () => {
