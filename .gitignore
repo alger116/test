@@ -3,8 +3,7 @@
 .env.local
 .env.*.local
 
-# Firebase
-auth/firebase-config-generated.js
+
 
 # Node
 node_modules/
