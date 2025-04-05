@@ -119,26 +119,8 @@
             }
         }
 
-        // Initialize Firebase and check maintenance mode
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!window.FIREBASE_CONFIG) {
-                console.error("⚠ Firebase konfiguratsiooni ei leitud!");
-                return;
-            }
 
-            const app = initializeApp(window.FIREBASE_CONFIG);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
 
-            // Check maintenance mode first
-            const isMaintenanceMode = await checkMaintenanceMode();
-            if (isMaintenanceMode) {
-                return; // Stop further initialization if in maintenance mode
-            }
-
-            // Continue with normal login page initialization
-            // ... rest of your existing login page initialization code ...
-        });
     </script>
 </body>
 

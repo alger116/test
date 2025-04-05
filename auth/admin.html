@@ -307,31 +307,19 @@
                 <!-- System Settings Section -->
                 <div class="bg-white rounded-lg shadow mb-6">
                     <div class="px-6 py-4 border-b">
-                        <h2 class="text-lg font-semibold text-gray-800">Süsteemi seaded</h2>
+                        <h2 class="text-lg font-semibold text-gray-800">----</h2>
                     </div>
                     <div class="p-6">
                         <!-- Backup/Restore -->
                         <div class="mb-6">
-                            <h3 class="text-md font-medium text-gray-900 mb-4">Varundamine ja taastamine</h3>
+                            <h3 class="text-md font-medium text-gray-900 mb-4">----</h3>
 
                         </div>
 
                         <!-- Maintenance Mode -->
                         <div class="maintenance-section">
-                            <h3 class="text-md font-medium text-gray-900 mb-4">Hooldusrežiim</h3>
-                            <div class="flex items-center space-x-4">
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="maintenanceMode" class="sr-only peer"
-                                        onchange="toggleMaintenanceMode(this.checked)">
-                                    <div
-                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                    </div>
-                                    <span class="ml-3 text-sm font-medium text-gray-900">Hooldusrežiim</span>
-                                </label>
-                                <input type="text" id="maintenanceMessage"
-                                    class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Hooldusrežiimi sõnum">
-                            </div>
+                            <h3 class="text-md font-medium text-gray-900 mb-4"></h3>
+
                         </div>
 
                         <!-- Session Timeout Settings -->
@@ -3575,8 +3563,8 @@
                                 throw new Error('Insufficient permissions');
                             }
 
-                            const systemRef = doc(db, "system", "maintenance");
-                            const systemDoc = await getDoc(systemRef);
+                            const maintenanceRef = doc(db, "publicSettings", "maintenance");
+                            const systemDoc = await getDoc(maintenanceRef);
 
                             if (!systemDoc.exists()) {
                                 // Only mainAdmin can create initial settings
@@ -3585,7 +3573,7 @@
                                 }
 
                                 // Create initial system settings
-                                await setDoc(systemRef, {
+                                await setDoc(maintenanceRef, {
                                     enabled: false,
                                     message: "Süsteem on hooldusel. Palun proovige hiljem uuesti.",
                                     updatedAt: new Date(),
@@ -4083,7 +4071,7 @@
                                 return;
                             }
 
-                            const maintenanceRef = doc(db, "settings", "maintenance");
+                            const maintenanceRef = doc(db, "publicSettings", "maintenance");
                             const message = document.getElementById("maintenanceMessage").value;
 
                             // Use retryOperation for better reliability
@@ -4122,75 +4110,7 @@
                         }
                     };
 
-                    // Function to load maintenance mode settings
-                    async function loadMaintenanceSettings() {
-                        try {
-                            if (!auth.currentUser) {
-                                console.error("No authenticated user");
-                                return;
-                            }
 
-                            const maintenanceRef = doc(db, "settings", "maintenance");
-                            const docSnap = await getDoc(maintenanceRef);
-
-                            if (docSnap.exists()) {
-                                const data = docSnap.data();
-                                const maintenanceToggle = document.getElementById("maintenanceMode");
-                                const maintenanceMessage = document.getElementById("maintenanceMessage");
-
-                                if (maintenanceToggle) {
-                                    maintenanceToggle.checked = data.enabled;
-                                }
-
-                                if (maintenanceMessage) {
-                                    maintenanceMessage.value = data.message || "";
-                                }
-                            }
-                        } catch (error) {
-                            console.error("Error loading maintenance settings:", error);
-                            showNotification("Viga hooldusrežiimi seadete laadimisel!", "error");
-                        }
-                    }
-
-                    // Initialize maintenance settings when the page loads
-                    document.addEventListener('DOMContentLoaded', async () => {
-                        try {
-                            // Wait for auth state to be ready
-                            await new Promise((resolve) => {
-                                const unsubscribe = onAuthStateChanged(auth, (user) => {
-                                    unsubscribe();
-                                    resolve(user);
-                                });
-                            });
-
-                            if (!auth.currentUser) {
-                                console.error("No authenticated user");
-                                return;
-                            }
-
-                            // Get current user's role from Firestore
-                            const userRef = doc(db, "users", auth.currentUser.uid);
-                            const userDoc = await getDoc(userRef);
-
-                            if (userDoc.exists()) {
-                                const userData = userDoc.data();
-                                const userRole = userData.role;
-
-                                // Only load maintenance settings if user has system settings access
-                                if (hasAccess(userRole, 'systemSettings')) {
-                                    await loadMaintenanceSettings();
-                                } else {
-                                    // Hide maintenance mode section if user doesn't have access
-                                    const maintenanceSection = document.querySelector('.maintenance-section');
-                                    if (maintenanceSection) {
-                                        maintenanceSection.classList.add('hidden');
-                                    }
-                                }
-                            }
-                        } catch (error) {
-                            console.error("Error initializing maintenance settings:", error);
-                        }
-                    });
 
                     // Function to update dashboard statistics
                     async function updateDashboardStats() {

@@ -19,6 +19,12 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'mainAdmin';
     }
 
+    // Public maintenance status - anyone can read, only admins can write
+    match /publicSettings/maintenance {
+      allow read: if true;  // Allow public read access
+      allow write: if isAdmin();
+    }
+
     // Users collection
     match /users/{userId} {
       allow read: if isAuthenticated();
@@ -102,7 +108,10 @@ service cloud.firestore {
 
     // Settings collection
     match /settings/{settingId} {
-      allow read: if isAuthenticated();
+      allow read: if (
+        settingId == "maintenance" ||  // Allow public read for maintenance settings
+        isAuthenticated()  // Require auth for other settings
+      );
       allow write: if (
         settingId == "maintenance" && isAdmin() ||
         settingId == "sessionTimeout" && isMainAdmin()
