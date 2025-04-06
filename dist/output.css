@@ -1076,6 +1076,10 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
 }
+.rounded-b-xl {
+  border-bottom-right-radius: var(--radius-xl);
+  border-bottom-left-radius: var(--radius-xl);
+}
 .border {
   border-style: var(--tw-border-style);
   border-width: 1px;
@@ -3070,6 +3074,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       color: var(--color-gray-700);
+    }
+  }
+}
+.hover\:text-gray-800 {
+  &:hover {
+    @media (hover: hover) {
+      color: var(--color-gray-800);
     }
   }
 }

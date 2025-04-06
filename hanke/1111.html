@@ -1,3 +1,4 @@
+1111
 <!doctype html>
 <html lang="et">
   <head>
@@ -1533,54 +1534,6 @@
           waitingPeriodDays: 14,
         };
 
-        // Load default settings from Firestore
-        async function loadDefaultSettingsFromFirestore() {
-          try {
-            const settingsRef = doc(db, "settings", "defaultSettings");
-            const settingsDoc = await getDoc(settingsRef);
-
-            if (settingsDoc.exists()) {
-              const firestoreSettings = settingsDoc.data();
-              // Update the defaultSettings object with Firestore values
-              Object.assign(defaultSettings, {
-                documentPreparationDays:
-                  firestoreSettings.documentPreparationDays ||
-                  defaultSettings.documentPreparationDays,
-                offerEvaluationDays:
-                  firestoreSettings.offerEvaluationDays ||
-                  defaultSettings.offerEvaluationDays,
-                decisionDays:
-                  firestoreSettings.decisionDays ||
-                  defaultSettings.decisionDays,
-                bidderEvaluationDays:
-                  firestoreSettings.bidderEvaluationDays ||
-                  defaultSettings.bidderEvaluationDays,
-                successfulBidderDays:
-                  firestoreSettings.successfulBidderDays ||
-                  defaultSettings.successfulBidderDays,
-                waitingPeriodDays:
-                  firestoreSettings.waitingPeriodDays ||
-                  defaultSettings.waitingPeriodDays,
-              });
-              console.log(
-                "✅ Default settings loaded from Firestore:",
-                defaultSettings,
-              );
-            } else {
-              console.log(
-                "⚠️ No default settings found in Firestore, using local defaults",
-              );
-            }
-          } catch (error) {
-            console.error("❌ Error loading default settings:", error);
-          }
-        }
-
-        // Load default settings when the page loads
-        document.addEventListener("DOMContentLoaded", async () => {
-          await loadDefaultSettingsFromFirestore();
-        });
-
         const correctPassword = "123";
         let passwordValidUntil = null;
 
@@ -1884,6 +1837,7 @@
             this.cost = cost;
             this.procedureType = procedureType;
             this.contractSigningDate = new Date(contractSigningDate);
+            null;
             this.procedureDuration = this.calculateProcedureDuration();
             this.procedureDetails = this.calculateProcedureDetails();
             this.requestSubmissionDate = this.calculateRequestSubmissionDate();
@@ -2035,7 +1989,7 @@
                                 <button onclick="adjustDays(${index}, 1)" class="adjustDays bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-600 transition transform hover:scale-105">+</button>
                             </div>
                         </div>
-                        <div class="w-full bg-gray-200/20 rounded-full h-4 overflow-hidden mt-1">
+                            <div class="w-full bg-gray-200/20 rounded-full h-4 overflow-hidden mt-1">
                             <div id="progress-${index}" class="progress-bar bg-blue-500 h-4 rounded-full transition-all duration-500" data-progress="0"></div>
                         </div>
                     </li>
@@ -2049,23 +2003,23 @@
                 : "";
 
             return `
-                <div class="result-card p-0 rounded max-w-md rounded-md">
-                    <p><strong>Riigihanke taotluse esitamise kuupäev:</strong> 
-                        <span id="requestSubmissionDate">${formatDate(this.requestSubmissionDate)}</span>
-                    </p>
-                    ${errorMessage}
-                    <p><strong>Nimi:</strong> ${this.name}</p>
-                    <p><strong>Maksumus:</strong> ${this.cost}</p>
-                    <p><strong>Riigihanke menetlusliik:</strong> ${this.procedureType}</p>
-                    <p><strong>Lepingu allkirjastamise kuupäev:</strong> ${formatDate(this.contractSigningDate)}</p>
+                    <div class="result-card p-0 rounded max-w-md rounded-md">
+                        <p><strong>Riigihanke taotluse esitamise kuupäev:</strong> 
+                            <span id="requestSubmissionDate">${formatDate(this.requestSubmissionDate)}</span>
+                        </p>
+                        ${errorMessage}
+                        <p><strong>Nimi:</strong> ${this.name}</p>
+                        <p><strong>Maksumus:</strong> ${this.cost}</p>
+                        <p><strong>Riigihanke menetlusliik:</strong> ${this.procedureType}</p>
+                        <p><strong>Lepingu allkirjastamise kuupäev:</strong> ${formatDate(this.contractSigningDate)}</p>
 
-                    <p><strong>Eeldatav riigihanke menetlusaeg päevades:</strong> <span id="totalDuration">${this.procedureDuration}</span> päeva</p>
+                        <p><strong>Eeldatav riigihanke menetlusaeg päevades:</strong> <span id="totalDuration">${this.procedureDuration}</span> päeva</p>
 
-                    <ul class="list-none p-0">
-                        ${detailsHTML}
-                    </ul>
-                </div>
-            `;
+                        <ul class="list-none p-0">
+                            ${detailsHTML}
+                        </ul>
+                    </div>
+                `;
           }
 
           generateTableRow(index) {
@@ -2111,7 +2065,6 @@
           } else {
             console.error("❌ Element with id totalDuration not found");
           }
-
           // ⏱️ Värskenda sidebar ajajoont ja modaalset ajajoont
           if (typeof initializeTimeline === "function") {
             initializeTimeline(); // uuendab sidebar ajajoone täielikult
