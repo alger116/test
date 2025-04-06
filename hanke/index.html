@@ -1908,12 +1908,12 @@
               duration += procedure.taotlusteAeg + procedure.pakkumusteAeg;
             }
 
-            duration += settings.documentPreparationDays;
-            duration += settings.offerEvaluationDays;
-            duration += settings.decisionDays;
-            duration += settings.bidderEvaluationDays;
-            duration += settings.successfulBidderDays;
-            duration += settings.waitingPeriodDays;
+            duration += defaultSettings.documentPreparationDays;
+            duration += defaultSettings.offerEvaluationDays;
+            duration += defaultSettings.decisionDays;
+            duration += defaultSettings.bidderEvaluationDays;
+            duration += defaultSettings.successfulBidderDays;
+            duration += defaultSettings.waitingPeriodDays;
 
             return duration;
           }
@@ -1939,7 +1939,7 @@
             const details = [
               {
                 step: "RHAD koostamine",
-                days: ` ${settings.documentPreparationDays} päeva`,
+                days: ` ${defaultSettings.documentPreparationDays} päeva`,
               },
               {
                 step: "RH taotluse esitamine",
@@ -1951,21 +1951,24 @@
               },
               {
                 step: "Vastavuse kontroll",
-                days: `${settings.offerEvaluationDays} päeva`,
+                days: `${defaultSettings.offerEvaluationDays} päeva`,
               },
               {
                 step: "Vastavaks ja edukaks tunnistamine",
-                days: `${settings.decisionDays} päeva`,
+                days: `${defaultSettings.decisionDays} päeva`,
               },
               {
                 step: "Kvalifikatsiooni kontroll",
-                days: `${settings.bidderEvaluationDays} päeva`,
+                days: `${defaultSettings.bidderEvaluationDays} päeva`,
               },
               {
                 step: "Kvalifitseermise otsus",
-                days: `${settings.successfulBidderDays} päeva`,
+                days: `${defaultSettings.successfulBidderDays} päeva`,
               },
-              { step: "Ooteaeg", days: `${settings.waitingPeriodDays} päeva` },
+              {
+                step: "Ooteaeg",
+                days: `${defaultSettings.waitingPeriodDays} päeva`,
+              },
             ];
             return details;
           }

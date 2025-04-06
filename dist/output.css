@@ -1187,6 +1187,15 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .border-purple-500 {
   border-color: var(--color-purple-500);
 }
+.border-slate-200 {
+  border-color: var(--color-slate-200);
+}
+.border-slate-300 {
+  border-color: var(--color-slate-300);
+}
+.border-slate-800 {
+  border-color: var(--color-slate-800);
+}
 .border-transparent {
   border-color: transparent;
 }
@@ -1333,6 +1342,15 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-sky-500\/75 {
   background-color: color-mix(in oklab, var(--color-sky-500) 75%, transparent);
+}
+.bg-slate-50 {
+  background-color: var(--color-slate-50);
+}
+.bg-slate-800 {
+  background-color: var(--color-slate-800);
+}
+.bg-slate-900 {
+  background-color: var(--color-slate-900);
 }
 .bg-transparent {
   background-color: transparent;
@@ -1924,6 +1942,24 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .text-red-800 {
   color: var(--color-red-800);
 }
+.text-slate-300 {
+  color: var(--color-slate-300);
+}
+.text-slate-400 {
+  color: var(--color-slate-400);
+}
+.text-slate-600 {
+  color: var(--color-slate-600);
+}
+.text-slate-700 {
+  color: var(--color-slate-700);
+}
+.text-slate-800 {
+  color: var(--color-slate-800);
+}
+.text-slate-900 {
+  color: var(--color-slate-900);
+}
 .text-transparent {
   color: transparent;
 }
@@ -1947,6 +1983,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .text-yellow-500 {
   color: var(--color-yellow-500);
+}
+.text-yellow-600 {
+  color: var(--color-yellow-600);
 }
 .text-yellow-700 {
   color: var(--color-yellow-700);
@@ -2054,6 +2093,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .ring-black {
   --tw-ring-color: var(--color-black);
+}
+.ring-blue-500 {
+  --tw-ring-color: var(--color-blue-500);
 }
 .ring-indigo-500 {
   --tw-ring-color: var(--color-indigo-500);
@@ -2831,6 +2873,20 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.hover\:bg-slate-50 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-slate-50);
+    }
+  }
+}
+.hover\:bg-slate-800 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-slate-800);
+    }
+  }
+}
 .hover\:bg-violet-100 {
   &:hover {
     @media (hover: hover) {
@@ -3288,6 +3344,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --tw-ring-color: var(--color-emerald-500);
   }
 }
+.focus\:ring-gray-500 {
+  &:focus {
+    --tw-ring-color: var(--color-gray-500);
+  }
+}
 .focus\:ring-green-500 {
   &:focus {
     --tw-ring-color: var(--color-green-500);
@@ -3705,6 +3766,14 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --color-purple-600: oklch(55.8% 0.288 302.321);
     --color-purple-700: oklch(49.6% 0.265 301.924);
     --color-purple-800: oklch(43.8% 0.218 303.724);
+    --color-slate-50: oklch(98.4% 0.003 247.858);
+    --color-slate-200: oklch(92.9% 0.013 255.508);
+    --color-slate-300: oklch(86.9% 0.022 252.894);
+    --color-slate-400: oklch(70.4% 0.04 256.788);
+    --color-slate-600: oklch(44.6% 0.043 257.281);
+    --color-slate-700: oklch(37.2% 0.044 257.287);
+    --color-slate-800: oklch(27.9% 0.041 260.031);
+    --color-slate-900: oklch(20.8% 0.042 265.755);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
