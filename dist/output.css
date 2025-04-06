@@ -272,6 +272,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .left-3 {
   left: calc(var(--spacing) * 3);
 }
+.left-8 {
+  left: calc(var(--spacing) * 8);
+}
 .left-300 {
   left: calc(var(--spacing) * 300);
 }
@@ -443,6 +446,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .ml-8 {
   margin-left: calc(var(--spacing) * 8);
 }
+.ml-16 {
+  margin-left: calc(var(--spacing) * 16);
+}
 .ml-auto {
   margin-left: auto;
 }
@@ -598,6 +604,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .w-0 {
   width: calc(var(--spacing) * 0);
+}
+.w-0\.5 {
+  width: calc(var(--spacing) * 0.5);
 }
 .w-1 {
   width: calc(var(--spacing) * 1);
@@ -1369,6 +1378,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .bg-yellow-500 {
   background-color: var(--color-yellow-500);
 }
+.bg-yellow-600 {
+  background-color: var(--color-yellow-600);
+}
 .bg-gradient-to-br {
   --tw-gradient-position: to bottom right in oklab;
   background-image: linear-gradient(var(--tw-gradient-stops));
@@ -1613,6 +1625,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .px-8 {
   padding-inline: calc(var(--spacing) * 8);
+}
+.py-0\.5 {
+  padding-block: calc(var(--spacing) * 0.5);
 }
 .py-1 {
   padding-block: calc(var(--spacing) * 1);
@@ -2886,6 +2901,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       background-color: var(--color-yellow-600);
+    }
+  }
+}
+.hover\:bg-yellow-700 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-yellow-700);
     }
   }
 }

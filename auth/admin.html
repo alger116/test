@@ -307,19 +307,31 @@
                 <!-- System Settings Section -->
                 <div class="bg-white rounded-lg shadow mb-6">
                     <div class="px-6 py-4 border-b">
-                        <h2 class="text-lg font-semibold text-gray-800">----</h2>
+                        <h2 class="text-lg font-semibold text-gray-800">Süsteemi seaded</h2>
                     </div>
                     <div class="p-6">
                         <!-- Backup/Restore -->
                         <div class="mb-6">
-                            <h3 class="text-md font-medium text-gray-900 mb-4">----</h3>
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Varundamine ja taastamine</h3>
 
                         </div>
 
                         <!-- Maintenance Mode -->
                         <div class="maintenance-section">
-                            <h3 class="text-md font-medium text-gray-900 mb-4"></h3>
-
+                            <h3 class="text-md font-medium text-gray-900 mb-4">Hooldusrežiim</h3>
+                            <div class="flex items-center space-x-4">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="maintenanceMode" class="sr-only peer"
+                                        onchange="toggleMaintenanceMode(this.checked)">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                    </div>
+                                    <span class="ml-3 text-sm font-medium text-gray-900">Hooldusrežiim</span>
+                                </label>
+                                <input type="text" id="maintenanceMessage"
+                                    class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Hooldusrežiimi sõnum">
+                            </div>
                         </div>
 
                         <!-- Session Timeout Settings -->
@@ -372,19 +384,18 @@
                                     </button>
                                 </div>
                                 <div class="flex space-x-2">
+                                    <!-- Import Users -->
+                                    <button onclick="openImportModal()"
+                                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
+                                        <i class="fas fa-file-import mr-2"></i>Impordi
+                                    </button>
+
+                                    <!-- Add User -->
+                                    <button id="addUserButton"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center">
+                                        <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
+                                    </button>
                                 </div>
-
-                                <!-- Import Users -->
-                                <button onclick="openImportModal()"
-                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
-                                    <i class="fas fa-file-import mr-2"></i>Impordi
-                                </button>
-
-                                <!-- Add User -->
-                                <button id="addUserButton"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center">
-                                    <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -669,32 +680,7 @@
                             </div>
                         </div>
 
-                        <!-- Settings Section -->
-                        <div class="p-6">
-                            <h2 class="text-2xl font-bold text-gray-900">Seaded</h2>
-                            <form id="settingsForm" class="space-y-6">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="ostumaailmVisibility"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Ostumaailm
-                                            nähtavus</label>
-                                        <input type="checkbox" id="ostumaailmVisibility" class="rounded text-blue-600">
-                                    </div>
-                                    <div>
-                                        <label for="hankemaailmVisibility"
-                                            class="block text-sm font-medium text-gray-700 mb-1">Hankemaailm
-                                            nähtavus</label>
-                                        <input type="checkbox" id="hankemaailmVisibility" class="rounded text-blue-600">
-                                    </div>
-                                </div>
-                                <div class="flex justify-end">
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                        <i class="fas fa-save mr-2"></i>Salvesta
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                      
                     </div>
                 </div>
             </div>
@@ -1031,94 +1017,22 @@
                         </div>
                     </div>
 
-                    window.resetUserPassword = async function (userId) {
-                    try {
-                    // Get user data
-                    const userRef = doc(db, "users", userId);
-                    const userDoc = await getDoc(userRef);
-
-                    if (!userDoc.exists()) {
-                    showNotification("Kasutajat ei leitud!", "error");
-                    return;
-                    }
-
-                    const userData = userDoc.data();
-
-                    // Populate and show the reset password modal
-                    document.getElementById('resetUserId').value = userId;
-                    document.getElementById('resetPasswordModal').classList.remove('hidden');
-                    } catch (error) {
-                    console.error("Error preparing password reset:", error);
-                    showNotification("Viga parooli lähtestamise ettevalmistamisel!", "error");
-                    }
-                    };
-
-                    // Close reset password modal
-                    window.closeResetPasswordModal = function () {
-                    document.getElementById('resetPasswordModal').classList.add('hidden');
-                    document.getElementById('resetPasswordForm').reset();
-                    };
-
-                    // Handle password reset form submission
-                    document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
-                    e.preventDefault();
-
-                    const userId = document.getElementById('resetUserId').value;
-                    const newPassword = document.getElementById('newPassword').value;
-                    const confirmPassword = document.getElementById('confirmPassword').value;
-
-                    // Validate passwords match
-                    if (newPassword !== confirmPassword) {
-                    showNotification("Paroolid ei ühti!", "error");
-                    return;
-                    }
-
-                    // Validate password strength
-                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-                    if (!passwordRegex.test(newPassword)) {
-                    showNotification("Parool peab sisaldama vähemalt 8 tähemärki, üht suurt tähte, üht väikest
-                    tähte, üht numbrit ja üht erimärki!", "error");
-                    return;
-                    }
-
-                    try {
-                    // Get user data for audit log
-                    const userRef = doc(db, "users", userId);
-                    const userDoc = await getDoc(userRef);
-                    const userData = userDoc.data();
-
-                    // Update password in Firestore (in a real system, you'd use Firebase Auth Admin SDK)
-                    await updateDoc(userRef, {
-                    passwordLastReset: new Date(),
-                    passwordResetBy: auth.currentUser.uid,
-                    lastUpdated: new Date()
-                    });
-
-                    // Log the password reset
-                    await addDoc(collection(db, "auditLog"), {
-                    action: "password_reset",
-                    userId: userId,
-                    userEmail: userData.email,
-                    performedBy: auth.currentUser.uid,
-                    performedByEmail: auth.currentUser.email,
-                    timestamp: new Date()
-                    });
-
-                    showNotification("Parool on edukalt lähtestatud!", "success");
-                    closeResetPasswordModal();
-                    } catch (error) {
-                    console.error("Error resetting password:", error);
-                    showNotification("Viga parooli lähtestamisel!", "error");
-                    }
-                    });
+                 
                 </div>
 
                 <script type="module">
                     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-                    import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+                    import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
                     import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp, addDoc, limit, writeBatch } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-                    import { auth, db } from "../auth/firebase-config.js";
+                    import { firebaseConfig } from "./firebase-config-generated.js";
 
+                    // Initialize Firebase
+                    const app = initializeApp(firebaseConfig);
+                    const auth = getAuth(app);
+                    const db = getFirestore(app);
+
+                    // Create a separate auth instance for user creation
+                    const tempAuth = getAuth(initializeApp(firebaseConfig, "temp"));
 
                     // Make Firebase functions available globally
                     window.db = db;
@@ -2324,23 +2238,6 @@
                             }
                         });
 
-                        // Handle settings form submission
-                        document.getElementById('settingsForm').addEventListener('submit', async function (event) {
-                            event.preventDefault();
-
-                            const ostumaailmVisible = document.getElementById('ostumaailmVisibility').checked;
-                            const hankemaailmVisible = document.getElementById('hankemaailmVisibility').checked;
-
-                            // Save settings to Firestore or localStorage
-                            try {
-                                await saveSettings({ ostumaailmVisible, hankemaailmVisible });
-                                showNotification('Seaded salvestatud edukalt!', 'success');
-                            } catch (error) {
-                                console.error('Error saving settings:', error);
-                                showNotification('Viga seadete salvestamisel!', 'error');
-                            }
-                        });
-
                         // Function to save settings
                         async function saveSettings(settings) {
                             // Implement saving logic (e.g., to Firestore or localStorage)
@@ -3111,95 +3008,84 @@
                     };
 
                     // Add User Modal functionality
-                    const addUserButton = document.getElementById("addUserButton");
-                    const addUserContainer = document.getElementById("addUserContainer");
-                    const addUserBackdrop = document.getElementById("addUserBackdrop");
-                    const closeAddUser = document.getElementById("closeAddUser");
-                    const addUserForm = document.getElementById("addUserForm");
-                    const userRoleSelect = document.getElementById("userRole");
+                    try {
+                        const addUserButton = document.getElementById("addUserButton");
+                        const addUserContainer = document.getElementById("addUserContainer");
+                        const addUserBackdrop = document.getElementById("addUserBackdrop");
+                        const closeAddUser = document.getElementById("closeAddUser");
+                        const addUserForm = document.getElementById("addUserForm");
+                        const userRoleSelect = document.getElementById("userRole");
 
-                    // Populate role select with available roles
-                    Object.entries(roles).forEach(([roleId, role]) => {
-                        const option = document.createElement('option');
-                        option.value = roleId;
-                        option.textContent = role.name;
-                        userRoleSelect.appendChild(option);
-                    });
+                        if (!addUserButton || !addUserContainer || !addUserBackdrop || !closeAddUser || !addUserForm || !userRoleSelect) {
+                            console.error("Required elements for Add User modal not found");
+                            throw new Error("Required elements for Add User modal not found");
+                        }
 
-                    // Function to open add user modal
-                    function openAddUserModal() {
-                        addUserContainer.classList.remove("hidden");
-                        addUserBackdrop.classList.remove("hidden");
-                        document.body.style.overflow = "hidden";
+                        // Populate role select with available roles
+                        Object.entries(roles).forEach(([roleId, role]) => {
+                            const option = document.createElement('option');
+                            option.value = roleId;
+                            option.textContent = role.name;
+                            userRoleSelect.appendChild(option);
+                        });
+
+                        // Function to open add user modal
+                        function openAddUserModal() {
+                            console.log("Opening Add User modal");
+                            addUserContainer.classList.remove("hidden");
+                            addUserBackdrop.classList.remove("hidden");
+                            document.body.style.overflow = "hidden";
+                        }
+
+                        // Function to close add user modal
+                        window.closeAddUserModal = function () {
+                            addUserContainer.classList.add("hidden");
+                            addUserBackdrop.classList.add("hidden");
+                            document.body.style.overflow = "";
+                            addUserForm.reset();
+                        };
+
+                        // Add user button click event
+                        addUserButton.addEventListener("click", openAddUserModal);
+
+                        // Close add user modal when clicking the close button
+                        closeAddUser.addEventListener("click", closeAddUserModal);
+
+                        // Close add user modal when clicking outside
+                        addUserBackdrop.addEventListener("click", (e) => {
+                            if (e.target === addUserBackdrop) {
+                                closeAddUserModal();
+                            }
+                        });
+
+                        // Close add user modal when pressing Escape key
+                        document.addEventListener("keydown", (e) => {
+                            if (e.key === "Escape" && !addUserContainer.classList.contains("hidden")) {
+                                closeAddUserModal();
+                            }
+                        });
+                    } catch (error) {
+                        console.error("Error initializing Add User modal:", error);
                     }
-
-                    // Function to close add user modal
-                    window.closeAddUserModal = function () {
-                        addUserContainer.classList.add("hidden");
-                        addUserBackdrop.classList.add("hidden");
-                        document.body.style.overflow = "";
-                        addUserForm.reset();
-                    };
-
-                    // Add user button click event
-                    addUserButton.addEventListener("click", openAddUserModal);
-
-                    // Close add user modal when clicking the close button
-                    closeAddUser.addEventListener("click", closeAddUserModal);
-
-                    // Close add user modal when clicking outside
-                    addUserBackdrop.addEventListener("click", (e) => {
-                        if (e.target === addUserBackdrop) {
-                            closeAddUserModal();
-                        }
-                    });
-
-                    // Close add user modal when pressing Escape key
-                    document.addEventListener("keydown", (e) => {
-                        if (e.key === "Escape" && !addUserContainer.classList.contains("hidden")) {
-                            closeAddUserModal();
-                        }
-                    });
 
                     // Check if a user already exists with a given email
                     async function checkUserExists(email) {
-                        let retries = 0;
-                        const maxRetries = 3;
-                        const baseDelay = 300;
-
-                        while (retries < maxRetries) {
-                            try {
-                                // Query Firestore for users with the given email
-                                const usersRef = collection(db, "users");
-                                const q = query(usersRef, where("email", "==", email));
-                                const querySnapshot = await getDocs(q);
-
-                                return !querySnapshot.empty;
-                            } catch (error) {
-                                console.error(`Error checking if user exists (attempt ${retries + 1}/${maxRetries}):`, error);
-
-                                // If it's a permission error, we might need to refresh the auth token
-                                if (error.code === "permission-denied" && auth.currentUser) {
-                                    try {
-                                        await auth.currentUser.getIdToken(true); // Force token refresh
-                                    } catch (tokenError) {
-                                        console.error("Failed to refresh auth token:", tokenError);
-                                    }
-                                }
-
-                                // If it's the last retry, return false (assume user doesn't exist)
-                                if (retries === maxRetries - 1) {
-                                    return false;
-                                }
-
-                                // Exponential backoff
-                                const delay = baseDelay * Math.pow(2, retries);
-                                await new Promise(resolve => setTimeout(resolve, delay));
-                                retries++;
+                        try {
+                            // First check Firebase Auth
+                            const methods = await fetchSignInMethodsForEmail(auth, email);
+                            if (methods.length > 0) {
+                                return true;
                             }
-                        }
 
-                        return false;
+                            // Then check Firestore
+                            const usersRef = collection(db, "users");
+                            const q = query(usersRef, where("email", "==", email));
+                            const querySnapshot = await getDocs(q);
+                            return !querySnapshot.empty;
+                        } catch (error) {
+                            console.error("Error checking if user exists:", error);
+                            return false;
+                        }
                     }
 
                     // Handle add user form submission
@@ -3212,100 +3098,62 @@
                         const approved = document.getElementById("userApproved").checked;
 
                         try {
-                            // Check if current user is main admin
-                            const currentUserRef = doc(db, "users", auth.currentUser.uid);
-                            const currentUserDoc = await getDoc(currentUserRef);
-
-                            if (!currentUserDoc.exists()) {
-                                showNotification("Administraatori profiili ei leitud!", "error");
-                                return;
-                            }
-
-                            const currentUserData = currentUserDoc.data();
-
-                            if (currentUserData.role !== 'mainAdmin') {
-                                showNotification("Sul ei ole õigusi kasutajate lisamiseks!", "error");
-                                return;
-                            }
-
-                            // Validate email format
-                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                            if (!emailRegex.test(email)) {
-                                showNotification("Vigane e-posti aadress!", "error");
-                                return;
-                            }
-
-                            // Check if user already exists
-                            const userExists = await checkUserExists(email);
-                            if (userExists) {
-                                showNotification("See e-posti aadress on juba kasutusel!", "error");
-                                return;
-                            }
-
-                            // Validate password strength
-                            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-                            if (!passwordRegex.test(password)) {
-                                showNotification("Parool peab sisaldama vähemalt 8 tähemärki, üht suurt tähte, üht väikest tähte, üht numbrit ja üht erimärki!", "error");
-                                return;
-                            }
-
-                            // Store current admin's authentication info
-                            const adminUser = auth.currentUser;
-                            const adminUid = adminUser.uid;
-                            const adminEmail = adminUser.email;
-
                             // Show in-progress notification
                             showNotification("Kasutaja loomine...", "info");
 
-                            // Generate a unique ID for the new user
-                            const userId = generateUniqueId();
+                            // Create the user using the temporary auth instance
+                            const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
+                            const firebaseUser = userCredential.user;
 
-                            await retryOperation(async () => {
-                                // Use a batch write to ensure both operations succeed or fail together
-                                const batch = writeBatch(db);
-
-                                // First create the user document in Firestore
-                                const userRef = doc(db, "users", userId);
-                                batch.set(userRef, {
-                                    email: email,
-                                    role: role,
-                                    approved: approved,
-                                    createdAt: new Date(),
-                                    lastLogin: null,
-                                    status: approved ? 'active' : 'pending',
-                                    uid: userId,
-                                    emailVerified: false,
-                                    lastUpdated: new Date(),
-                                    createdBy: adminUid,
-                                    createdByEmail: adminEmail
-                                });
-
-                                // Add audit log in the same batch for atomicity
-                                const auditLogRef = doc(collection(db, "auditLog"));
-                                batch.set(auditLogRef, {
-                                    action: "user_created",
-                                    userId: userId,
-                                    email: email,
-                                    role: role,
-                                    approved: approved,
-                                    performedBy: adminUid,
-                                    performedByEmail: adminEmail,
-                                    timestamp: new Date()
-                                });
-
-                                // Commit both operations together
-                                await batch.commit();
+                            // Create the user document in Firestore
+                            const userRef = doc(db, "users", firebaseUser.uid);
+                            await setDoc(userRef, {
+                                email: email,
+                                role: role,
+                                approved: approved,
+                                createdAt: new Date(),
+                                lastLogin: null,
+                                status: approved ? 'active' : 'pending',
+                                uid: firebaseUser.uid,
+                                emailVerified: false,
+                                lastUpdated: new Date(),
+                                createdBy: auth.currentUser.uid,
+                                createdByEmail: auth.currentUser.email
                             });
+
+                            // Add audit log
+                            await addDoc(collection(db, "auditLog"), {
+                                action: "user_created",
+                                userId: firebaseUser.uid,
+                                email: email,
+                                role: role,
+                                approved: approved,
+                                performedBy: auth.currentUser.uid,
+                                performedByEmail: auth.currentUser.email,
+                                timestamp: new Date()
+                            });
+
+                            // Sign out from the temporary auth instance
+                            await signOut(tempAuth);
 
                             showNotification("Kasutaja lisatud edukalt!", "success");
                             closeAddUserModal();
 
                             // Refresh the user list
                             loadUsers();
-
                         } catch (error) {
                             console.error("Error in user creation process:", error);
-                            showNotification("Viga kasutaja lisamisel: " + error.message, "error");
+                            let errorMessage = "Viga kasutaja loomisel!";
+
+                            if (error.code === "auth/email-already-in-use") {
+                                errorMessage = "See e-posti aadress on juba kasutusel!";
+                            } else if (error.code === "auth/invalid-email") {
+                                errorMessage = "Vigane e-posti aadress!";
+                            } else if (error.code === "auth/weak-password") {
+                                errorMessage = "Parool on liiga nõrk!";
+                            }
+
+                            showNotification(errorMessage, "error");
                         }
                     });
 
@@ -3563,8 +3411,8 @@
                                 throw new Error('Insufficient permissions');
                             }
 
-                            const maintenanceRef = doc(db, "publicSettings", "maintenance");
-                            const systemDoc = await getDoc(maintenanceRef);
+                            const systemRef = doc(db, "system", "maintenance");
+                            const systemDoc = await getDoc(systemRef);
 
                             if (!systemDoc.exists()) {
                                 // Only mainAdmin can create initial settings
@@ -3573,7 +3421,7 @@
                                 }
 
                                 // Create initial system settings
-                                await setDoc(maintenanceRef, {
+                                await setDoc(systemRef, {
                                     enabled: false,
                                     message: "Süsteem on hooldusel. Palun proovige hiljem uuesti.",
                                     updatedAt: new Date(),
@@ -3603,31 +3451,27 @@
                     onAuthStateChanged(auth, (user) => {
                         if (user) {
                             console.log('User is signed in:', user.email);
-                            // Store admin password if it's the main admin
-                            if (user.email === "viljarpartel@gmail.com") {
-                                const adminPassword = localStorage.getItem('mainAdminPassword');
-                                if (!adminPassword) {
-                                    // Prompt for password only if not stored
-                                    const password = prompt("Palun sisesta administraatori parool:");
-                                    if (password) {
-                                        localStorage.setItem('mainAdminPassword', password);
-                                    }
-                                }
-                            }
+                            // Initialize the page
+                            initializePage();
                         } else {
                             console.log('User is signed out');
-                            // Try to sign in with stored credentials if available
-                            const mainAdminPassword = localStorage.getItem('mainAdminPassword');
-                            if (mainAdminPassword) {
-                                signInWithEmailAndPassword(auth, "viljarpartel@gmail.com", mainAdminPassword)
-                                    .catch((error) => {
-                                        console.error("Auto-login failed:", error);
-                                        localStorage.removeItem('mainAdminPassword'); // Clear invalid credentials
-                                        showNotification("Palun logi uuesti sisse", "error");
-                                    });
-                            }
+                            // Redirect to login page
+                            window.location.href = '/auth/login.html';
                         }
                     });
+
+                    // Function to initialize the page
+                    async function initializePage() {
+                        try {
+                            // Load initial settings
+                            await loadSessionTimeoutSettings();
+                            await loadMaintenanceSettings();
+                            await updateDashboardStats();
+                        } catch (error) {
+                            console.error("Error initializing page:", error);
+                            showNotification("Viga lehe initsialiseerimisel", "error");
+                        }
+                    }
 
                     // Function to check if user is authenticated
                     function isAuthenticated() {
@@ -4071,8 +3915,9 @@
                                 return;
                             }
 
-                            const maintenanceRef = doc(db, "publicSettings", "maintenance");
-                            const message = document.getElementById("maintenanceMessage").value;
+                            const maintenanceRef = doc(db, "settings", "maintenance");
+                            const messageInput = document.getElementById("maintenanceMessage");
+                            const message = messageInput ? messageInput.value : "";
 
                             // Use retryOperation for better reliability
                             await retryOperation(async () => {
@@ -4110,7 +3955,75 @@
                         }
                     };
 
+                    // Function to load maintenance mode settings
+                    async function loadMaintenanceSettings() {
+                        try {
+                            if (!auth.currentUser) {
+                                console.error("No authenticated user");
+                                return;
+                            }
 
+                            const maintenanceRef = doc(db, "settings", "maintenance");
+                            const docSnap = await getDoc(maintenanceRef);
+
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                const maintenanceToggle = document.getElementById("maintenanceMode");
+                                const maintenanceMessage = document.getElementById("maintenanceMessage");
+
+                                if (maintenanceToggle) {
+                                    maintenanceToggle.checked = data.enabled;
+                                }
+
+                                if (maintenanceMessage) {
+                                    maintenanceMessage.value = data.message || "";
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error loading maintenance settings:", error);
+                            showNotification("Viga hooldusrežiimi seadete laadimisel!", "error");
+                        }
+                    }
+
+                    // Initialize maintenance settings when the page loads
+                    document.addEventListener('DOMContentLoaded', async () => {
+                        try {
+                            // Wait for auth state to be ready
+                            await new Promise((resolve) => {
+                                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                                    unsubscribe();
+                                    resolve(user);
+                                });
+                            });
+
+                            if (!auth.currentUser) {
+                                console.error("No authenticated user");
+                                return;
+                            }
+
+                            // Get current user's role from Firestore
+                            const userRef = doc(db, "users", auth.currentUser.uid);
+                            const userDoc = await getDoc(userRef);
+
+                            if (userDoc.exists()) {
+                                const userData = userDoc.data();
+                                const userRole = userData.role;
+
+                                // Only load maintenance settings if user has system settings access
+                                if (hasAccess(userRole, 'systemSettings')) {
+                                    await loadMaintenanceSettings();
+                                } else {
+                                    // Hide maintenance mode section if user doesn't have access
+                                    const maintenanceSection = document.querySelector('.maintenance-section');
+                                    if (maintenanceSection) {
+                                        maintenanceSection.classList.add('hidden');
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error initializing maintenance settings:", error);
+                        }
+                    });
 
                     // Function to update dashboard statistics
                     async function updateDashboardStats() {
@@ -4316,6 +4229,189 @@
                                 }
                             });
                         }
+
+                        // Initialize Add User button and modal
+                        const addUserButton = document.getElementById("addUserButton");
+                        const addUserContainer = document.getElementById("addUserContainer");
+                        const addUserBackdrop = document.getElementById("addUserBackdrop");
+                        const closeAddUser = document.getElementById("closeAddUser");
+                        const addUserForm = document.getElementById("addUserForm");
+
+                        if (addUserButton) {
+                            addUserButton.addEventListener("click", openAddUserModal);
+                        }
+
+                        if (closeAddUser) {
+                            closeAddUser.addEventListener("click", closeAddUserModal);
+                        }
+
+                        if (addUserBackdrop) {
+                            addUserBackdrop.addEventListener("click", (e) => {
+                                if (e.target === addUserBackdrop) {
+                                    closeAddUserModal();
+                                }
+                            });
+                        }
+
+                        // Close add user modal when pressing Escape key
+                        document.addEventListener("keydown", (e) => {
+                            if (e.key === "Escape" && !addUserContainer.classList.contains("hidden")) {
+                                closeAddUserModal();
+                            }
+                        });
+                    });
+
+                    // Add User Modal functions
+                    function openAddUserModal() {
+                        const addUserBackdrop = document.getElementById("addUserBackdrop");
+                        const addUserContainer = document.getElementById("addUserContainer");
+                        
+                        if (addUserBackdrop && addUserContainer) {
+                            addUserBackdrop.classList.remove("hidden");
+                            addUserContainer.classList.remove("hidden");
+                            document.body.style.overflow = "hidden";
+                        }
+                    }
+
+                    function closeAddUserModal() {
+                        const addUserBackdrop = document.getElementById("addUserBackdrop");
+                        const addUserContainer = document.getElementById("addUserContainer");
+                        
+                        if (addUserBackdrop && addUserContainer) {
+                            addUserBackdrop.classList.remove("hidden");
+                            addUserContainer.classList.add("hidden");
+                            document.body.style.overflow = "";
+                        }
+                    }
+
+                    // Function to save default settings
+                    async function saveDefaultSettings() {
+                        try {
+                            // Check if user is authenticated
+                            if (!auth.currentUser) {
+                                showNotification('Palun logi sisse!', 'error');
+                                return;
+                            }
+
+                            // Check if user has admin permissions
+                            const userRef = doc(db, "users", auth.currentUser.uid);
+                            const userDoc = await getDoc(userRef);
+                            
+                            if (!userDoc.exists()) {
+                                showNotification('Kasutaja dokumenti ei leitud!', 'error');
+                                return;
+                            }
+
+                            const userData = userDoc.data();
+                            if (!hasAccess(userData.role, 'saveSettings')) {
+                                showNotification('Teil puudub õigus seadeid muuta!', 'error');
+                                return;
+                            }
+
+                            // Get form values
+                            const settingsData = {
+                                documentPreparationDays: parseInt(document.getElementById("documentPreparationDays").value) || 30,
+                                offerEvaluationDays: parseInt(document.getElementById("offerEvaluationDays").value) || 30,
+                                decisionDays: parseInt(document.getElementById("decisionDays").value) || 30,
+                                bidderEvaluationDays: parseInt(document.getElementById("bidderEvaluationDays").value) || 30,
+                                successfulBidderDays: parseInt(document.getElementById("successfulBidderDays").value) || 30,
+                                waitingPeriodDays: parseInt(document.getElementById("waitingPeriodDays").value) || 10,
+                                updatedBy: auth.currentUser.uid,
+                                updatedAt: serverTimestamp()
+                            };
+
+                            // Save to Firestore
+                            const settingsRef = doc(db, "settings", "defaultSettings");
+                            await setDoc(settingsRef, settingsData);
+
+                            // Also save to localStorage for immediate access
+                            localStorage.setItem('defaultSettings', JSON.stringify(settingsData));
+
+                            showNotification('Seaded salvestatud edukalt!', 'success');
+                        } catch (error) {
+                            console.error('Error saving default settings:', error);
+                            showNotification('Viga seadete salvestamisel!', 'error');
+                        }
+                    }
+
+                    // Function to load default settings
+                    async function loadDefaultSettings() {
+                        try {
+                            // Check if user is authenticated
+                            if (!auth.currentUser) {
+                                showNotification('Palun logi sisse!', 'error');
+                                return;
+                            }
+
+                            // Check if user has admin permissions
+                            const userRef = doc(db, "users", auth.currentUser.uid);
+                            const userDoc = await getDoc(userRef);
+                            
+                            if (!userDoc.exists()) {
+                                showNotification('Kasutaja dokumenti ei leitud!', 'error');
+                                return;
+                            }
+
+                            const userData = userDoc.data();
+                            if (!hasAccess(userData.role, 'saveSettings')) {
+                                showNotification('Teil puudub õigus seadeid muuta!', 'error');
+                                return;
+                            }
+
+                            // Load settings from Firestore
+                            const settingsRef = doc(db, "settings", "defaultSettings");
+                            const docSnap = await getDoc(settingsRef);
+                            
+                            if (docSnap.exists()) {
+                                const settingsData = docSnap.data();
+                                // Update form fields with Firestore data
+                                document.getElementById("documentPreparationDays").value = settingsData.documentPreparationDays;
+                                document.getElementById("offerEvaluationDays").value = settingsData.offerEvaluationDays;
+                                document.getElementById("decisionDays").value = settingsData.decisionDays;
+                                document.getElementById("bidderEvaluationDays").value = settingsData.bidderEvaluationDays;
+                                document.getElementById("successfulBidderDays").value = settingsData.successfulBidderDays;
+                                document.getElementById("waitingPeriodDays").value = settingsData.waitingPeriodDays;
+                            } else {
+                                // Initialize with default settings if no settings exist
+                                const defaultSettings = {
+                                    documentPreparationDays: 30,
+                                    offerEvaluationDays: 30,
+                                    decisionDays: 30,
+                                    bidderEvaluationDays: 30,
+                                    successfulBidderDays: 30,
+                                    waitingPeriodDays: 10
+                                };
+
+                                // Save default settings to Firestore
+                                await setDoc(settingsRef, {
+                                    ...defaultSettings,
+                                    updatedBy: auth.currentUser.uid,
+                                    updatedAt: serverTimestamp()
+                                });
+
+                                // Update form fields with default values
+                                document.getElementById("documentPreparationDays").value = defaultSettings.documentPreparationDays;
+                                document.getElementById("offerEvaluationDays").value = defaultSettings.offerEvaluationDays;
+                                document.getElementById("decisionDays").value = defaultSettings.decisionDays;
+                                document.getElementById("bidderEvaluationDays").value = defaultSettings.bidderEvaluationDays;
+                                document.getElementById("successfulBidderDays").value = defaultSettings.successfulBidderDays;
+                                document.getElementById("waitingPeriodDays").value = defaultSettings.waitingPeriodDays;
+                            }
+                        } catch (error) {
+                            console.error('Error loading default settings:', error);
+                            showNotification('Viga seadete laadimisel!', 'error');
+                        }
+                    }
+
+                    // Add event listener for settings form submission
+                    document.getElementById("settingsForm")?.addEventListener("submit", async function(event) {
+                        event.preventDefault();
+                        await saveDefaultSettings();
+                    });
+
+                    // Load default settings when settings modal is opened
+                    document.getElementById("settingsButton")?.addEventListener("click", async function() {
+                        await loadDefaultSettings();
                     });
                 </script>
 </body>

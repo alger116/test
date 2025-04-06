@@ -108,13 +108,10 @@ service cloud.firestore {
 
     // Settings collection
     match /settings/{settingId} {
-      allow read: if (
-        settingId == "maintenance" ||  // Allow public read for maintenance settings
-        isAuthenticated()  // Require auth for other settings
-      );
+      allow read: if isAuthenticated();  // Any authenticated user can read settings
       allow write: if (
-        settingId == "maintenance" && isAdmin() ||
-        settingId == "sessionTimeout" && isMainAdmin()
+        (settingId == "maintenance" || settingId == "procurement") && isAdmin() ||  // Both admin and mainAdmin can write these
+        settingId == "sessionTimeout" && isMainAdmin()  // Only mainAdmin can write session timeout
       );
     }
   }

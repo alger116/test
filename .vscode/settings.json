@@ -18,5 +18,8 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnPaste": true,
   "editor.formatOnSave": true,
-  "git.ignoreLimitWarning": true
+  "git.ignoreLimitWarning": true,
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
