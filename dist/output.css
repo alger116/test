@@ -206,8 +206,14 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .top-0\.5 {
   top: calc(var(--spacing) * 0.5);
 }
+.top-1 {
+  top: calc(var(--spacing) * 1);
+}
 .top-1\/2 {
   top: calc(1/2 * 100%);
+}
+.top-1\/4 {
+  top: calc(1/4 * 100%);
 }
 .top-2 {
   top: calc(var(--spacing) * 2);
@@ -271,9 +277,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .left-3 {
   left: calc(var(--spacing) * 3);
-}
-.left-8 {
-  left: calc(var(--spacing) * 8);
 }
 .left-300 {
   left: calc(var(--spacing) * 300);
@@ -446,9 +449,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .ml-8 {
   margin-left: calc(var(--spacing) * 8);
 }
-.ml-16 {
-  margin-left: calc(var(--spacing) * 16);
-}
 .ml-auto {
   margin-left: auto;
 }
@@ -604,9 +604,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .w-0 {
   width: calc(var(--spacing) * 0);
-}
-.w-0\.5 {
-  width: calc(var(--spacing) * 0.5);
 }
 .w-1 {
   width: calc(var(--spacing) * 1);
@@ -1076,10 +1073,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
 }
-.rounded-b-xl {
-  border-bottom-right-radius: var(--radius-xl);
-  border-bottom-left-radius: var(--radius-xl);
-}
 .border {
   border-style: var(--tw-border-style);
   border-width: 1px;
@@ -1187,15 +1180,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .border-purple-500 {
   border-color: var(--color-purple-500);
 }
-.border-slate-200 {
-  border-color: var(--color-slate-200);
-}
-.border-slate-300 {
-  border-color: var(--color-slate-300);
-}
-.border-slate-800 {
-  border-color: var(--color-slate-800);
-}
 .border-transparent {
   border-color: transparent;
 }
@@ -1219,6 +1203,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-black\/30 {
   background-color: color-mix(in oklab, var(--color-black) 30%, transparent);
+}
+.bg-black\/40 {
+  background-color: color-mix(in oklab, var(--color-black) 40%, transparent);
+}
+.bg-black\/50 {
+  background-color: color-mix(in oklab, var(--color-black) 50%, transparent);
 }
 .bg-black\/70 {
   background-color: color-mix(in oklab, var(--color-black) 70%, transparent);
@@ -1343,15 +1333,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .bg-sky-500\/75 {
   background-color: color-mix(in oklab, var(--color-sky-500) 75%, transparent);
 }
-.bg-slate-50 {
-  background-color: var(--color-slate-50);
-}
-.bg-slate-800 {
-  background-color: var(--color-slate-800);
-}
-.bg-slate-900 {
-  background-color: var(--color-slate-900);
-}
 .bg-transparent {
   background-color: transparent;
 }
@@ -1399,9 +1380,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-yellow-500 {
   background-color: var(--color-yellow-500);
-}
-.bg-yellow-600 {
-  background-color: var(--color-yellow-600);
 }
 .bg-gradient-to-br {
   --tw-gradient-position: to bottom right in oklab;
@@ -1647,9 +1625,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .px-8 {
   padding-inline: calc(var(--spacing) * 8);
-}
-.py-0\.5 {
-  padding-block: calc(var(--spacing) * 0.5);
 }
 .py-1 {
   padding-block: calc(var(--spacing) * 1);
@@ -1942,24 +1917,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .text-red-800 {
   color: var(--color-red-800);
 }
-.text-slate-300 {
-  color: var(--color-slate-300);
-}
-.text-slate-400 {
-  color: var(--color-slate-400);
-}
-.text-slate-600 {
-  color: var(--color-slate-600);
-}
-.text-slate-700 {
-  color: var(--color-slate-700);
-}
-.text-slate-800 {
-  color: var(--color-slate-800);
-}
-.text-slate-900 {
-  color: var(--color-slate-900);
-}
 .text-transparent {
   color: transparent;
 }
@@ -1983,9 +1940,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .text-yellow-500 {
   color: var(--color-yellow-500);
-}
-.text-yellow-600 {
-  color: var(--color-yellow-600);
 }
 .text-yellow-700 {
   color: var(--color-yellow-700);
@@ -2093,9 +2047,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .ring-black {
   --tw-ring-color: var(--color-black);
-}
-.ring-blue-500 {
-  --tw-ring-color: var(--color-blue-500);
 }
 .ring-indigo-500 {
   --tw-ring-color: var(--color-indigo-500);
@@ -2873,20 +2824,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
-.hover\:bg-slate-50 {
-  &:hover {
-    @media (hover: hover) {
-      background-color: var(--color-slate-50);
-    }
-  }
-}
-.hover\:bg-slate-800 {
-  &:hover {
-    @media (hover: hover) {
-      background-color: var(--color-slate-800);
-    }
-  }
-}
 .hover\:bg-violet-100 {
   &:hover {
     @media (hover: hover) {
@@ -2961,13 +2898,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       background-color: var(--color-yellow-600);
-    }
-  }
-}
-.hover\:bg-yellow-700 {
-  &:hover {
-    @media (hover: hover) {
-      background-color: var(--color-yellow-700);
     }
   }
 }
@@ -3130,13 +3060,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       color: var(--color-gray-700);
-    }
-  }
-}
-.hover\:text-gray-800 {
-  &:hover {
-    @media (hover: hover) {
-      color: var(--color-gray-800);
     }
   }
 }
@@ -3342,11 +3265,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .focus\:ring-emerald-500 {
   &:focus {
     --tw-ring-color: var(--color-emerald-500);
-  }
-}
-.focus\:ring-gray-500 {
-  &:focus {
-    --tw-ring-color: var(--color-gray-500);
   }
 }
 .focus\:ring-green-500 {
@@ -3766,14 +3684,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --color-purple-600: oklch(55.8% 0.288 302.321);
     --color-purple-700: oklch(49.6% 0.265 301.924);
     --color-purple-800: oklch(43.8% 0.218 303.724);
-    --color-slate-50: oklch(98.4% 0.003 247.858);
-    --color-slate-200: oklch(92.9% 0.013 255.508);
-    --color-slate-300: oklch(86.9% 0.022 252.894);
-    --color-slate-400: oklch(70.4% 0.04 256.788);
-    --color-slate-600: oklch(44.6% 0.043 257.281);
-    --color-slate-700: oklch(37.2% 0.044 257.287);
-    --color-slate-800: oklch(27.9% 0.041 260.031);
-    --color-slate-900: oklch(20.8% 0.042 265.755);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
