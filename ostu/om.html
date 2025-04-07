@@ -2572,44 +2572,73 @@
         }
 
         // Show preview
-        previewBtn.onclick = () => {
+        const handlePreview = () => {
           const element = document
             .getElementById("dynamicTable")
             .cloneNode(true);
           const title = document.getElementById("tableTitle").value;
           previewContent.innerHTML = `<h2 class="text-xl font-bold mb-4">${title}</h2>`;
           previewContent.appendChild(element);
+
+          // Ensure the modal is visible and the background is not black
           previewModal.classList.remove("hidden");
+          document.body.classList.remove("overflow-hidden"); // Ensure body scroll is enabled
         };
 
-        // Save to Firestore
-        saveTable.onclick = async () => {
-          if (!auth.currentUser) {
-            alert("Palun logi sisse, et tabelit salvestada");
-            return;
-          }
+        previewBtn.onclick = handlePreview;
 
+        saveTable.onclick = () => {
           const tableData = {
             title: document.getElementById("tableTitle").value,
             headers: [...document.querySelectorAll("#tableHead th")].map((th) =>
               th.textContent.replace("❌", "").trim(),
             ),
-            rows: [...document.querySelectorAll("#tableBody tr")].map((row) =>
-              [...row.querySelectorAll("td:not(.delete-row)")].map((td) =>
-                td.textContent.trim(),
-              ),
-            ),
-            createdAt: new Date(),
-            userId: auth.currentUser.uid,
+            rows: [...document.querySelectorAll("#tableBody tr")]
+              .map((row) =>
+                [...row.querySelectorAll("td:not(.delete-row)")].map((td) =>
+                  td.textContent.trim(),
+                ),
+              )
+              .filter((row) => row.length > 0), // Filter out empty rows
           };
 
-          try {
-            await addDoc(collection(db, "tables"), tableData);
-            alert("Tabel salvestatud edukalt!");
-          } catch (error) {
-            console.error("Error saving table:", error);
-            alert("Viga tabeli salvestamisel");
-          }
+          // Save table data in local storage
+          localStorage.setItem("userTable", JSON.stringify(tableData));
+          const showAlert = (message) => {
+            const alertBox = document.createElement("div");
+            alertBox.className =
+              "fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg transition-opacity duration-300";
+            alertBox.textContent = message;
+            document.body.appendChild(alertBox);
+
+            setTimeout(() => {
+              alertBox.classList.add("opacity-0");
+              setTimeout(() => alertBox.remove(), 300);
+            }, 3000);
+          };
+
+          showAlert("Tabel salvestatud edukalt!");
+
+          // Set a timer to delete the table data after 10 minutes
+          setTimeout(
+            () => {
+              localStorage.removeItem("userTable");
+              alert("Tabel on automaatselt kustutatud 10 minuti pärast.");
+            },
+            10 * 60 * 1000,
+          ); // 10 minutes in milliseconds
+        };
+
+        const tableData = {
+          title: document.getElementById("tableTitle").value,
+          headers: [...document.querySelectorAll("#tableHead th")].map((th) =>
+            th.textContent.replace("❌", "").trim(),
+          ),
+          rows: [...document.querySelectorAll("#tableBody tr")].map((row) =>
+            [...row.querySelectorAll("td:not(.delete-row)")].map((td) =>
+              td.textContent.trim(),
+            ),
+          ),
         };
 
         // Initialize delete buttons
@@ -2676,6 +2705,35 @@
           });
 
           const ws = XLSX.utils.aoa_to_sheet(data);
+          // Set the column widths for better visibility
+          const colWidths = headers.map(() => ({ wch: 20 })); // Adjust width as needed
+          ws["!cols"] = colWidths;
+
+          // Add cell styles for better appearance
+          const range = XLSX.utils.decode_range(ws["!ref"]);
+          for (let row = range.s.r; row <= range.e.r; row++) {
+            for (let col = range.s.c; col <= range.e.c; col++) {
+              const cell = ws[XLSX.utils.encode_cell({ r: row, c: col })];
+              if (cell) {
+                cell.s = {
+                  fill: {
+                    fgColor: { rgb: "FFFFFF" }, // White background
+                  },
+                  font: {
+                    name: "Arial",
+                    sz: 12,
+                    color: { rgb: "000000" }, // Black text
+                    bold: row === 0, // Bold for header row
+                  },
+                  alignment: {
+                    horizontal: "center",
+                    vertical: "center",
+                  },
+                };
+              }
+            }
+          }
+
           XLSX.utils.book_append_sheet(wb, ws, "Tabel");
           XLSX.writeFile(wb, "tabel.xlsx");
         };
@@ -2865,7 +2923,7 @@
                 id="openTableModal"
                 class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all"
               >
-                📊 Loo tabel
+                <i class="fas fa-table mr-2"></i> Loo tabel
               </button>
             </div>
           </div>
@@ -3830,9 +3888,7 @@
       <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
-          <h2 class="text-3xl font-bold text-gray-900">
-            📊 Esildise koostamine
-          </h2>
+          <h2 class="text-3xl font-bold text-gray-900">Esildise koostamine</h2>
           <button
             id="closeTableModal"
             class="text-gray-500 hover:text-red-600 transition"
