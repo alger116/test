@@ -206,9 +206,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .top-0\.5 {
   top: calc(var(--spacing) * 0.5);
 }
-.top-1 {
-  top: calc(var(--spacing) * 1);
-}
 .top-1\/2 {
   top: calc(1/2 * 100%);
 }
@@ -1206,9 +1203,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-black\/40 {
   background-color: color-mix(in oklab, var(--color-black) 40%, transparent);
-}
-.bg-black\/50 {
-  background-color: color-mix(in oklab, var(--color-black) 50%, transparent);
 }
 .bg-black\/70 {
   background-color: color-mix(in oklab, var(--color-black) 70%, transparent);
