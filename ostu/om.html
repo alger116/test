@@ -1218,7 +1218,7 @@
 
                       // Add bullet point with custom styling
                       doc.setFillColor(79, 70, 229);
-                      doc.circle(22, yPos + 2, 1.5, "F");
+
                       doc.text(optLines, 25, yPos);
 
                       // Calculate total height needed for this option
@@ -1362,12 +1362,17 @@
                 // Create a deep clone of the form data to avoid reference issues
                 const formToSave = JSON.parse(JSON.stringify(this.form));
 
+                // Validate the form data
+                if (!formToSave || typeof formToSave !== "object") {
+                  throw new Error("Invalid form data structure");
+                }
+
                 const payload = {
                   form: formToSave,
                   timestamp: Date.now(),
                   version: "1.4",
                   lastModified: new Date().toISOString(),
-                  files: this.files.length > 0 ? this.files : [],
+                  files: this.files && this.files.length > 0 ? this.files : [],
                 };
 
                 // Save to localStorage
@@ -2360,6 +2365,11 @@
                   throw new Error("No data provided to copy");
                 }
 
+                // Add defensive programming
+                if (!pdf.formData) {
+                  throw new Error("PDF data is missing formData");
+                }
+
                 // Log the PDF data structure for debugging
                 console.log("PDF data structure:", pdf);
 
@@ -2385,16 +2395,21 @@
                 }
 
                 // Update form with saved data
-                this.form.name = formData.name || "";
-                this.form.intro = formData.intro || "";
+                if (formData) {
+                  this.form.name = formData.name || "";
+                  this.form.intro = formData.intro || "";
 
-                // Copy all standard fields
-                if (formData.fields && typeof formData.fields === "object") {
-                  Object.keys(formData.fields).forEach((key) => {
-                    if (this.form.fields[key] !== undefined) {
-                      this.form.fields[key] = formData.fields[key] || "";
-                    }
-                  });
+                  // Copy all standard fields
+                  if (formData.fields && typeof formData.fields === "object") {
+                    Object.keys(formData.fields).forEach((key) => {
+                      if (
+                        this.form.fields &&
+                        this.form.fields[key] !== undefined
+                      ) {
+                        this.form.fields[key] = formData.fields[key] || "";
+                      }
+                    });
+                  }
                 }
 
                 // Copy sections
@@ -2430,6 +2445,49 @@
                   "Viga andmete kopeerimisel: " + error.message,
                   "error",
                 );
+              }
+            },
+
+            previewPdf(pdf) {
+              try {
+                if (!pdf || !pdf.pdfData) {
+                  throw new Error("No PDF data available");
+                }
+
+                // Create a blob URL for the PDF
+                const byteCharacters = atob(pdf.pdfData.split(",")[1]);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                  byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: "application/pdf" });
+                const url = URL.createObjectURL(blob);
+
+                this.previewPdfUrl = url;
+                this.previewPdfName = pdf.name;
+
+                // Show the modal
+                const modal = document.getElementById("pdfPreviewModal");
+                modal.classList.remove("hidden");
+              } catch (error) {
+                console.error("Error previewing PDF:", error);
+                this.showToast(
+                  "Viga PDF-i eelvaate kuvamisel: " + error.message,
+                  "error",
+                );
+              }
+            },
+
+            closePdfPreview() {
+              const modal = document.getElementById("pdfPreviewModal");
+              modal.classList.add("hidden");
+
+              // Clean up the blob URL
+              if (this.previewPdfUrl) {
+                URL.revokeObjectURL(this.previewPdfUrl);
+                this.previewPdfUrl = null;
+                this.previewPdfName = null;
               }
             },
           };
@@ -2810,15 +2868,6 @@
               >
                 📊 Loo tabel
               </button>
-
-              <a
-                href="users.html"
-                class="hidden flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all"
-                x-show="isAdmin"
-              >
-                <i class="fas fa-users"></i>
-                <span>Kasutajad</span>
-              </a>
             </div>
           </div>
           <div class="flex items-center space-x-4">
@@ -2913,10 +2962,10 @@
 
               <div
                 x-show="isOpen"
-                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter="transition ease-out duration-50"
                 x-transition:enter-start="opacity-0 transform -translate-y-2"
                 x-transition:enter-end="opacity-100 transform translate-y-0"
-                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave="transition ease-in duration-50"
                 x-transition:leave-start="opacity-100 transform translate-y-0"
                 x-transition:leave-end="opacity-0 transform -translate-y-2"
               >
@@ -2940,7 +2989,7 @@
                   >
                   <textarea
                     x-model="form.intro"
-                    class="w-full border rounded-xl px-4 py-3 h-28 shadow-sm"
+                    class="w-full border rounded-xl px-4 py-3 h-40 shadow-sm"
                   ></textarea>
                 </div>
               </div>
@@ -4088,18 +4137,18 @@
                               <span>Laadi alla</span>
                             </button>
                             <button
-                              @click="window.open(pdf.pdfData, '_blank')"
+                              @click="previewPdf(pdf)"
                               class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm hover:shadow-md"
                             >
                               <i class="fas fa-eye mr-2"></i>
                               <span>Vaata</span>
                             </button>
                             <button
-                              @click="copyToTender(pdf)"
+                              @click="sendPdfToOutlook(pdf.pdfData, pdf.name + '.pdf')"
                               class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 shadow-sm hover:shadow-md"
                             >
-                              <i class="fas fa-copy mr-2"></i>
-                              <span>Kanna kutsele</span>
+                              <i class="fas fa-envelope mr-2"></i>
+                              <span>Saada e-mailiga</span>
                             </button>
                           </div>
                         </div>
@@ -4258,6 +4307,42 @@
         </button>
       </div>
       <div id="previewContent" class="overflow-x-auto"></div>
+    </div>
+  </div>
+
+  <!-- PDF Preview Modal -->
+  <div
+    id="pdfPreviewModal"
+    class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50"
+  >
+    <div
+      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-6xl h-[80vh] p-6"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200 h-full flex flex-col"
+      >
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+          <h2
+            class="text-2xl font-bold text-gray-900"
+            x-text="previewPdfName"
+          ></h2>
+          <button
+            @click="closePdfPreview"
+            class="text-gray-500 hover:text-red-600 transition p-2"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <!-- PDF Preview -->
+        <div class="flex-1 overflow-hidden">
+          <iframe
+            :src="previewPdfUrl"
+            class="w-full h-full border-0"
+            title="PDF Preview"
+          ></iframe>
+        </div>
+      </div>
     </div>
   </div>
 </html>
