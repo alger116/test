@@ -2,125 +2,83 @@
 <html lang="et">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Sisselogimine</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        #login-container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-
-        #login-container h2 {
-            margin-top: 0;
-            text-align: center;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            box-sizing: border-box;
-        }
-
-        .login-button {
-            width: 100%;
-            padding: 10px;
-            background-color: #28a745;
-            border: none;
-            color: white;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .login-button:hover {
-            background-color: #218838;
-        }
-
-        #error-message {
-            color: red;
-            text-align: center;
-            display: none;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-    <div id="login-container">
-        <h2>Sisselogimine</h2>
-        <input type="text" id="username" class="input-field" placeholder="Kasutajanimi">
-        <input type="password" id="password" class="input-field" placeholder="Parool">
-        <button class="login-button" onclick="checkLogin()">Logi sisse</button>
-        <p id="error-message">Vale kasutajanimi või parool!</p>
+<body class="bg-gradient-to-br from-gray-100 to-green-100 min-h-screen flex items-center justify-center">
+
+    <div id="login-container" class="w-full max-w-md p-8   space-y-6 animate-fade-in ">
+
+        <div class="text-center">
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-1"></h2>
+            <p class="text-sm text-gray-500"></p>
+        </div>
+
+        <div class="space-y-4">
+            <input type="text" id="username" placeholder="Kasutajanimi"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+            <input type="password" id="password" placeholder="Parool"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+        </div>
+
+        <div class="flex justify-between items-center text-sm text-gray-600">
+            <label class="flex items-center gap-2">
+                <input type="checkbox" id="rememberMe" class="checkbox checkbox-sm accent-emerald-500" />
+                <span>Mäleta mind</span>
+            </label>
+        </div>
+
+        <button onclick="checkLogin()"
+            class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 w-full rounded-lg transition duration-300">
+            Logi sisse
+        </button>
+
+        <p id="error-message" class="text-red-500 text-center hidden">Vale kasutajanimi või parool!</p>
     </div>
 
     <script>
-        function checkLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('error-message');
+        const VALID_USERNAME = 'kalku';
+        const VALID_PASSWORD = 'laator';
 
-            if (username === 'kalku' && password === 'laator') {
-                // Salvestame sisselogimise staatuse
-                sessionStorage.setItem('loggedIn', 'true');
-                // Suuname kasutaja edasi tegelikule lehele
-                window.location.href = 'index.html';
-            } else {
-                errorMessage.style.display = 'block';
+        window.onload = () => {
+            const remembered = localStorage.getItem('rememberMe') === 'true';
+            const rememberedUser = localStorage.getItem('rememberedUser');
+
+            if (remembered && rememberedUser) {
+                document.getElementById('username').value = rememberedUser;
+                document.getElementById('rememberMe').checked = true;
             }
-        }
 
-        // Kontrollime, kas kasutaja on juba sisselogitud
-        window.onload = function () {
             if (sessionStorage.getItem('loggedIn') === 'true') {
                 window.location.href = 'index.html';
             }
-        }
+        };
 
-        // Check maintenance mode before showing login form
-        async function checkMaintenanceMode() {
-            try {
-                const maintenanceRef = doc(db, "settings", "maintenance");
-                const docSnap = await getDoc(maintenanceRef);
+        function checkLogin() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorMessage = document.getElementById('error-message');
 
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.enabled) {
-                        // Show maintenance message
-                        const loginContainer = document.getElementById("login-container");
-                        loginContainer.innerHTML = `
-                            <div class="text-center p-8">
-                                <div class="text-4xl mb-4">🔧</div>
-                                <h2 class="text-2xl font-bold text-gray-900 mb-2">Hooldusrežiim</h2>
-                                <p class="text-gray-600">${data.message || 'Süsteem on hetkel hooldusel. Palun proovige hiljem uuesti.'}</p>
-                            </div>
-                        `;
-                        return true;
-                    }
+            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                sessionStorage.setItem('loggedIn', 'true');
+
+                if (rememberMe) {
+                    localStorage.setItem('rememberMe', 'true');
+                    localStorage.setItem('rememberedUser', username);
+                } else {
+                    localStorage.removeItem('rememberMe');
+                    localStorage.removeItem('rememberedUser');
                 }
-                return false;
-            } catch (error) {
-                console.error("Error checking maintenance mode:", error);
-                return false;
+
+                window.location.href = 'index.html';
+            } else {
+                errorMessage.classList.remove('hidden');
             }
         }
-
-
-
     </script>
 </body>
 
