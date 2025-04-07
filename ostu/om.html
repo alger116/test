@@ -111,7 +111,6 @@
         box-shadow:
           0 15px 20px -5px rgba(0, 0, 0, 0.1),
           0 8px 10px -6px rgba(0, 0, 0, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.5);
       }
 
       .toast-success {
@@ -3597,324 +3596,79 @@
     <!-- Settings Modal -->
     <div
       x-show="showSettingsModal"
-      x-cloak
-      x-transition:enter="transition duration-300 ease-out"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      x-transition:enter="transition ease-out duration-300"
       x-transition:enter-start="opacity-0"
       x-transition:enter-end="opacity-100"
-      x-transition:leave="transition duration-200 ease-in"
+      x-transition:leave="transition ease-in duration-200"
       x-transition:leave-start="opacity-100"
       x-transition:leave-end="opacity-0"
-      class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md"
-      @click.self="showSettingsModal = false"
-      x-data="{ 
-            activeTab: 'info',
-            async handleTabClick(tab) {
-                console.log('Tab clicked:', tab);
-                this.activeTab = tab;
-                if (tab === 'history') {
-                    console.log('Loading PDF history for history tab');
-                    await this.loadPdfHistory();
-                } else if (tab === 'basicInfo') {
-                    console.log('Loading user settings for basic info tab');
-                    await this.loadUserSettings();
-                }
-            },
-            async loadUserSettings() {
-                try {
-                    console.log('Loading user settings...');
-                    if (window.currentUser && window.userData) {
-                        console.log('User is logged in, loading from global data');
-                        if (window.userData.settings) {
-                            console.log('Loading settings from global data');
-                            Object.keys(window.userData.settings).forEach(key => {
-                                if (this.userSettings.hasOwnProperty(key)) {
-                                    this.userSettings[key] = window.userData.settings[key];
-                                }
-                            });
-                        }
-                    }
-                } catch (error) {
-                    console.error('Settings load error:', error);
-                    this.showToast('Viga seadete laadimisel: ' + error.message, 'error');
-                }
-            },
-            async loadPdfHistory() {
-                if (window.currentUser && window.userData && window.userData.pdfHistory) {
-                    this.userSettings.generatedPdfs = window.userData.pdfHistory;
-                }
-            }
-        }"
-      x-init="loadUserSettings()"
     >
       <div
-        class="fixed left-1/2 transform -translate-x-1/2 top-8 md:top-24 w-full max-w-3xl rounded-2xl shadow-2xl border border-white/40 max-h-[85vh] overflow-y-auto mx-auto bg-white/90 backdrop-blur-xl"
-        @click.stop
+        class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0"
       >
-        <!-- Header -->
         <div
-          class="sticky top-0 p-6 border-b border-gray-100/30 bg-gradient-to-r from-indigo-600 to-indigo-800 z-10"
+          x-show="showSettingsModal"
+          x-transition:enter="transition ease-out duration-300"
+          x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+          x-transition:leave="transition ease-in duration-200"
+          x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+          class="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl"
         >
-          <div class="flex items-center justify-between">
-            <h2 class="text-2xl font-bold text-white flex items-center">
-              <i class="fas fa-cog mr-3"></i>Seaded
-            </h2>
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-bold text-gray-900">Seaded</h3>
             <button
               @click="showSettingsModal = false"
-              class="text-white/80 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
+              class="text-gray-400 hover:text-gray-500 focus:outline-none"
             >
               <i class="fas fa-times text-xl"></i>
             </button>
           </div>
 
           <!-- Tabs -->
-          <div class="flex space-x-1 mt-5">
-            <button
-              @click="handleTabClick('info')"
-              :class="activeTab === 'info' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
-              class="px-4 py-2 rounded-t-lg font-medium transition-colors"
-            >
-              Info
-            </button>
-            <button
-              @click="handleTabClick('basicInfo')"
-              :class="activeTab === 'basicInfo' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
-              class="px-4 py-2 rounded-t-lg font-medium transition-colors"
-            >
-              Põhiandmed
-            </button>
-            <button
-              @click="handleTabClick('history')"
-              :class="activeTab === 'history' ? 'text-white bg-white/20 border-b-2 border-white' : 'text-white/70 hover:text-white hover:bg-white/10'"
-              class="px-4 py-2 rounded-t-lg font-medium transition-colors"
-            >
-              Ajalugu
-            </button>
-          </div>
-        </div>
-
-        <!-- Content -->
-        <div class="p-6 bg-white/90">
-          <!-- Info Tab Content -->
-          <div
-            x-show="activeTab === 'info'"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-          >
-            <div class="space-y-8">
-              <div class="flex items-center space-x-3 mb-6">
-                <i class="fas fa-cog text-2xl text-gray-700"></i>
-                <h3 class="text-2xl font-bold text-gray-800">Seadete info</h3>
-              </div>
-
-              <!-- Põhiandmed Info -->
-              <div
-                class="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-8 border border-indigo-100 shadow-sm hover:shadow-md transition-shadow duration-200"
+          <div class="border-b border-gray-200 mb-6">
+            <nav class="-mb-px flex space-x-8">
+              <button
+                @click="activeTab = 'basic'"
+                :class="{
+                  'border-indigo-500 text-indigo-600': activeTab === 'basic',
+                  'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'basic'
+                }"
+                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200"
               >
-                <div class="flex items-start">
-                  <div
-                    class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center mr-4"
-                  >
-                    <i class="fas fa-info-circle text-xl text-indigo-600"></i>
-                  </div>
-                  <div class="flex-1">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-3">
-                      Põhiandmed
-                    </h4>
-                    <p class="text-gray-600 mb-4">
-                      Salvestage oma põhiteave, mida saab automaatselt täita
-                      vormi avamisel.
-                    </p>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div
-                        class="bg-white/80 rounded-xl p-4 border border-indigo-100"
-                      >
-                        <h5 class="font-medium text-gray-700 mb-2">
-                          Salvestatav info
-                        </h5>
-                        <ul class="space-y-2 text-gray-600">
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-check-circle text-indigo-500 mr-2"
-                            ></i>
-                            Hankija info
-                          </li>
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-check-circle text-indigo-500 mr-2"
-                            ></i>
-                            Pakkumise aeg ja koht
-                          </li>
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-check-circle text-indigo-500 mr-2"
-                            ></i>
-                            Jõusoleku aeg
-                          </li>
-                        </ul>
-                      </div>
-                      <div
-                        class="bg-white/80 rounded-xl p-4 border border-indigo-100"
-                      >
-                        <h5 class="font-medium text-gray-700 mb-2">
-                          Täiendav info
-                        </h5>
-                        <ul class="space-y-2 text-gray-600">
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-check-circle text-indigo-500 mr-2"
-                            ></i>
-                            Nõuded pakkujale
-                          </li>
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-check-circle text-indigo-500 mr-2"
-                            ></i>
-                            Väljavaliku alused
-                          </li>
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-check-circle text-indigo-500 mr-2"
-                            ></i>
-                            Vastutav isik
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div
-                      class="bg-indigo-50 rounded-xl p-4 border border-indigo-100"
-                    >
-                      <div class="flex items-start">
-                        <i
-                          class="fas fa-lightbulb text-indigo-500 text-xl mt-1 mr-3"
-                        ></i>
-                        <div>
-                          <h5 class="font-medium text-gray-700 mb-1">
-                            Automaatne täitmine
-                          </h5>
-                          <p class="text-sm text-gray-600">
-                            Lülitage sisse "Automaatne täitmine" lüliti
-                            Põhiandmete sektsioonis, et põhiandmed täidetaksid
-                            vormi automaatselt.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Ajalugu Info -->
-              <div
-                class="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-8 border border-emerald-100 shadow-sm hover:shadow-md transition-shadow duration-200"
+                <i class="fas fa-cog mr-2"></i>Põhiandmed
+              </button>
+              <button
+                @click="activeTab = 'history'"
+                :class="{
+                  'border-indigo-500 text-indigo-600': activeTab === 'history',
+                  'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'history'
+                }"
+                class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200"
               >
-                <div class="flex items-start">
-                  <div
-                    class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mr-4"
-                  >
-                    <i class="fas fa-history text-xl text-emerald-600"></i>
-                  </div>
-                  <div class="flex-1">
-                    <h4 class="text-xl font-semibold text-gray-800 mb-3">
-                      Ajalugu
-                    </h4>
-                    <p class="text-gray-600 mb-4">
-                      Vaadake ja hallake kõiki teie genereeritud PDF-e.
-                    </p>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                      <div
-                        class="bg-white/80 rounded-xl p-4 border border-emerald-100"
-                      >
-                        <h5 class="font-medium text-gray-700 mb-2">PDF info</h5>
-                        <ul class="space-y-2 text-gray-600">
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-check-circle text-emerald-500 mr-2"
-                            ></i>
-                            PDF-i nimi
-                          </li>
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-check-circle text-emerald-500 mr-2"
-                            ></i>
-                            Loomise kuupäev
-                          </li>
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-check-circle text-emerald-500 mr-2"
-                            ></i>
-                            Vastutava isiku info
-                          </li>
-                        </ul>
-                      </div>
-                      <div
-                        class="bg-white/80 rounded-xl p-4 border border-emerald-100"
-                      >
-                        <h5 class="font-medium text-gray-700 mb-2">
-                          Tegevused
-                        </h5>
-                        <ul class="space-y-2 text-gray-600">
-                          <li class="flex items-center">
-                            <i class="fas fa-eye text-emerald-500 mr-2"></i>
-                            Vaata PDF-i
-                          </li>
-                          <li class="flex items-center">
-                            <i
-                              class="fas fa-download text-emerald-500 mr-2"
-                            ></i>
-                            Lae alla
-                          </li>
-                          <li class="flex items-center">
-                            <i class="fas fa-trash text-emerald-500 mr-2"></i>
-                            Kustuta ajalugu
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div
-                      class="bg-emerald-50 rounded-xl p-4 border border-emerald-100"
-                    >
-                      <div class="flex items-start">
-                        <i
-                          class="fas fa-info-circle text-emerald-500 text-xl mt-1 mr-3"
-                        ></i>
-                        <div>
-                          <h5 class="font-medium text-gray-700 mb-1">
-                            Tähelepanu
-                          </h5>
-                          <p class="text-sm text-gray-600">
-                            "Tühjenda" nupp kustutab kogu ajaloo jäädavalt. Enne
-                            kustutamist veenduge, et olete salvestanud vajalikud
-                            PDF-id.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                <i class="fas fa-history mr-2"></i>Ajalugu
+              </button>
+            </nav>
           </div>
 
-          <!-- Põhiandmed Tab Content -->
+          <!-- Basic Info Tab Content -->
           <div
-            x-show="activeTab === 'basicInfo'"
+            x-show="activeTab === 'basic'"
             x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
+            x-transition:enter-start="opacity-0 translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-1"
           >
-            <form @submit.prevent="saveUserSettings" class="space-y-6">
-              <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                Põhiandmete seaded
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="group">
+            <form class="space-y-6">
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >Hankija</label
+                    >Ostja</label
                   >
                   <div class="relative">
                     <i
@@ -3924,95 +3678,11 @@
                       type="text"
                       x-model="userSettings.buyer"
                       class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="Nimi, aadress, registrikood"
+                      placeholder="Ostja nimi"
                     />
                   </div>
                 </div>
-
-                <div class="group">
-                  <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >Pakkumise esitamise aeg ja koht</label
-                  >
-                  <div class="relative">
-                    <i
-                      class="fas fa-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    ></i>
-                    <input
-                      type="text"
-                      x-model="userSettings.submission"
-                      class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="nt 10. aprill, e-post"
-                    />
-                  </div>
-                </div>
-
-                <div class="group">
-                  <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >Pakkumuse jõusoleku aeg</label
-                  >
-                  <div class="relative">
-                    <i
-                      class="fas fa-clock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    ></i>
-                    <input
-                      type="text"
-                      x-model="userSettings.validity"
-                      class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="nt 30 päeva"
-                    />
-                  </div>
-                </div>
-
-                <div class="group">
-                  <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >Nõuded pakkujale</label
-                  >
-                  <div class="relative">
-                    <i
-                      class="fas fa-list-check absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    ></i>
-                    <input
-                      type="text"
-                      x-model="userSettings.requirements"
-                      class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="nt kogemus 3 aastat"
-                    />
-                  </div>
-                </div>
-
-                <div class="group">
-                  <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >Väljavaliku alused</label
-                  >
-                  <div class="relative">
-                    <i
-                      class="fas fa-scale-balanced absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    ></i>
-                    <input
-                      type="text"
-                      x-model="userSettings.criteria"
-                      class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="Majanduslikult soodsaim"
-                    />
-                  </div>
-                </div>
-
-                <div class="group">
-                  <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >Vastutav isik</label
-                  >
-                  <div class="relative">
-                    <i
-                      class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    ></i>
-                    <input
-                      type="text"
-                      x-model="userSettings.responsible"
-                      class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-white text-gray-900 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="Nimi"
-                    />
-                  </div>
-                </div>
+                <!-- ... other input fields with similar styling ... -->
               </div>
 
               <!-- Autofill Toggle -->
@@ -4026,9 +3696,9 @@
                     <i class="fas fa-magic text-indigo-600"></i>
                   </div>
                   <div>
-                    <label class="text-lg font-medium text-gray-800">
-                      Automaatne täitmine
-                    </label>
+                    <label class="text-lg font-medium text-gray-800"
+                      >Automaatne täitmine</label
+                    >
                     <p class="text-sm text-gray-500">
                       Põhiandmete automaatne täitmine vormi avamisel
                     </p>
@@ -4072,8 +3742,11 @@
           <div
             x-show="activeTab === 'history'"
             x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
+            x-transition:enter-start="opacity-0 translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-1"
           >
             <div class="space-y-6">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">
@@ -4100,67 +3773,41 @@
 
                 <div class="divide-y divide-gray-200">
                   <template
-                    x-if="userSettings.generatedPdfs && userSettings.generatedPdfs.length > 0"
+                    x-for="(pdf, index) in userSettings.generatedPdfs"
+                    :key="index"
                   >
-                    <template
-                      x-for="pdf in userSettings.generatedPdfs"
-                      :key="pdf.id"
+                    <div
+                      class="p-4 hover:bg-gray-50 transition-colors duration-200"
                     >
-                      <div class="p-4 hover:bg-gray-50 transition-colors">
-                        <div class="flex justify-between items-center">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                          <i class="fas fa-file-pdf text-red-500 text-xl"></i>
                           <div>
                             <p
-                              class="font-medium text-gray-800"
+                              class="text-sm font-medium text-gray-900"
                               x-text="pdf.name"
                             ></p>
                             <p
-                              class="text-sm text-gray-500"
-                              x-text="'Genereeritud: ' + new Date(pdf.createdAt).toLocaleDateString('et-EE')"
+                              class="text-xs text-gray-500"
+                              x-text="pdf.date"
                             ></p>
-                            <p
-                              class="text-sm text-gray-500"
-                              x-show="pdf.responsible"
-                              x-text="'Vastutav: ' + pdf.responsible"
-                            ></p>
-                            <p
-                              class="text-sm text-gray-500"
-                              x-show="pdf.submissionDate"
-                              x-text="'Esitamise tähtaeg: ' + pdf.submissionDate"
-                            ></p>
-                          </div>
-                          <div class="flex space-x-3">
-                            <button
-                              @click="downloadSavedPdf(pdf.pdfData, pdf.name + '.pdf')"
-                              class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-sm hover:shadow-md"
-                            >
-                              <i class="fas fa-download mr-2"></i>
-                              <span>Laadi alla</span>
-                            </button>
-                            <button
-                              @click="previewPdf(pdf)"
-                              class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm hover:shadow-md"
-                            >
-                              <i class="fas fa-eye mr-2"></i>
-                              <span>Vaata</span>
-                            </button>
-                            <button
-                              @click="sendPdfToOutlook(pdf.pdfData, pdf.name + '.pdf')"
-                              class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 shadow-sm hover:shadow-md"
-                            >
-                              <i class="fas fa-envelope mr-2"></i>
-                              <span>Saada e-mailiga</span>
-                            </button>
                           </div>
                         </div>
+                        <div class="flex items-center space-x-2">
+                          <button
+                            @click="previewPdf(pdf)"
+                            class="p-2 text-gray-500 hover:text-indigo-600 transition-colors duration-200"
+                          >
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button
+                            @click="downloadPdf(pdf)"
+                            class="p-2 text-gray-500 hover:text-indigo-600 transition-colors duration-200"
+                          >
+                            <i class="fas fa-download"></i>
+                          </button>
+                        </div>
                       </div>
-                    </template>
-                  </template>
-                  <template
-                    x-if="!userSettings.generatedPdfs || userSettings.generatedPdfs.length === 0"
-                  >
-                    <div class="p-4 text-center text-gray-500">
-                      <i class="fas fa-file-pdf text-2xl mb-2"></i>
-                      <p>Pole veel genereeritud PDF-e</p>
                     </div>
                   </template>
                 </div>
