@@ -1345,36 +1345,21 @@
             }
           },
 
+          debouncedSave() {
+            if (this.saveTimeout) {
+              clearTimeout(this.saveTimeout);
+            }
+            this.saveTimeout = setTimeout(() => {
+              this.saveToStorage();
+            }, 2000);
+          },
+
           saveToStorage() {
             try {
-              // Create a deep clone of the form data to avoid reference issues
-              const formToSave = JSON.parse(JSON.stringify(this.form));
-
-              // Validate the form data
-              if (!formToSave || typeof formToSave !== "object") {
-                throw new Error("Invalid form data structure");
-              }
-
-              const payload = {
-                form: formToSave,
-                timestamp: Date.now(),
-                version: "1.4",
-                lastModified: new Date().toISOString(),
-                files: this.files && this.files.length > 0 ? this.files : [],
-              };
-
-              // Save to localStorage
-              localStorage.setItem("OM_DRAFT", JSON.stringify(payload));
-              console.log("Form data saved successfully:", formToSave);
-              this.showToast("Salvestatud!", "success");
-              return true;
+              localStorage.setItem('OM_DRAFT', JSON.stringify(this.form));
+              console.log('Form saved to localStorage');
             } catch (error) {
-              console.error("Failed to save to storage:", error);
-              this.showToast(
-                "Salvestamine ebaõnnestus: " + error.message,
-                "error",
-              );
-              return false;
+              console.error('Error saving to localStorage:', error);
             }
           },
 
@@ -1672,212 +1657,193 @@
           },
 
           resetForm() {
-            if (
-              confirm(
-                "Kas oled kindel, et soovid kõik andmed kustutada? Seda tegevust ei saa tagasi võtta.",
-              )
-            ) {
-              // Reset to default form structure
-              this.form = {
-                name: "",
-                intro:
-                  "(Lisa hankija nimi) teeb Teile ettepaneku esitada pakkumus (Lisa ostetava eseme/teenuse nimi ja kirjeldus) ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on (täpsusta kas lepingu sõlmimine või tellimuse tegemine)",
-                fields: { ...defaultFields },
-                sections: [
-                  {
-                    title: "1. Üldised tingimused",
-                    enabled: true,
-                    open: false,
-                    options: [
-                      {
-                        text: "Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.",
-                        checked: false,
-                      },
-                      {
-                        text: "Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.",
-                        checked: false,
-                      },
-                      {
-                        text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".',
-                        checked: false,
-                      },
-                      {
-                        text: "Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg). Enne hankelepingu sõlmimist kontrollib hankija pakkujal maksuvõla puudumist. Kui pakkujal esineb maksuvõlg, siis teavitab hankija sellest pakkujat ja annab pakkujale kaks tööpäeva maksuvõla tasumiseks või täies ulatuses ajatamiseks. Hankija võib anda ka pikema tähtaja maksuvõla tasumiseks või täies ulatuses ajatamiseks. Kui hankija poolt antud tähtaja jooksul pakkuja maksuvõlga ei tasu või täies ulatuses ei ajata, siis kõrvaldab hankija pakkuja ostumenetluselt. ",
-                        checked: false,
-                      },
-                      {
-                        text: "Arve maksetähtaeg peab olema vähemalt 21 päeva.",
-                        checked: true,
-                      },
-                    ],
-                  },
-                  {
-                    title: "2. Ostumenetluse tehniline kirjeldus",
-                    enabled: true,
-                    open: false,
-                    options: [
-                      {
-                        text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.',
-                        checked: false,
-                        editable: true,
-                      },
-                    ],
-                  },
-                  {
-                    title: "3. Nõuded pakkumusele",
-                    enabled: true,
-                    open: false,
-                    options: [
-                      {
-                        text: "Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.",
-                        checked: false,
-                      },
-                      {
-                        text: "Hilinenud pakkumusi hankija vastu ei võta.",
-                        checked: false,
-                      },
-                      {
-                        text: "Pakkumus peab sisaldama pakkumuse maksumust vastavalt lisale 1.",
-                        checked: false,
-                      },
-                      {
-                        text: "Pakkumus peab sisaldama pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.",
-                        checked: false,
-                      },
-                      {
-                        text: "Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.",
-                        checked: false,
-                      },
-                      {
-                        text: "Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.",
-                        checked: false,
-                      },
-                      {
-                        text: "Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist. Ärisaladusena ei või märkida pakkumuse maksumust (sh osamaksumusi kui need on hindamise aluseks) (RHS § 46 1 ). Kui põhjendust pakkumuses ei sisaldu, siis eeldab hankija, et ärisaladus puudub. Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.",
-                        checked: false,
-                      },
-                    ],
-                  },
-                  {
-                    title:
-                      "4. Pakkumuste kontroll, hindamine ja eduka pakkumuse valik",
-                    enabled: true,
-                    open: false,
-                    options: [
-                      {
-                        text: "Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele. Juhul, kui pakkumus ei vasta kutses esitatud tingimustele, lükkab hankija pakkumuse tagasi.",
-                        checked: false,
-                      },
-                      {
-                        text: "Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.",
-                        checked: false,
-                      },
-                      {
-                        text: "Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel. Juhul, kui esitatud maksumused on võrdsed, korraldab hankija eduka pakkumuse väljaselgitamiseks liisuheitmise, võimaldades võrdse pakkumuse esitanud pakkujatel liisuheitmise juures viibida.",
-                        checked: false,
-                      },
-                      {
-                        text: "Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi, ei allkirjasta hankija antud tähtaja jooksul hankelepingut või ei asu nõustumuse andmisega sõlmitud hankelepingut pakkujast tulenevatel põhjustel hankija määratud aja jooksul täitma, hindab hankija kõiki ülejäänud pakkumusi uuesti ja tunnistab edukaks pakkumuse, mis on vastavaks tunnistatud pakkumustest majanduslikult soodsaim.",
-                        checked: false,
-                      },
-                      {
-                        text: "Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama ja võib tunnistada edukaks esialgsel hindamisel leitud järjestuselt teise pakkumuse juhul, kui edukaks tunnistatud pakkumuse äralangemine ei saa mõjutada ülejäänud pakkumuste omavahelist järjestust.",
-                        checked: false,
-                      },
-                    ],
-                  },
-                  {
-                    title: "5. Läbirääkimiste pidamine",
-                    enabled: true,
-                    open: false,
-                    options: [
-                      {
-                        text: "Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu, maksumuse ning ostukutsest sätestatud tingimuste üle.",
-                        checked: false,
-                      },
-                      {
-                        text: "Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja. Iga pakkujaga peetakse läbirääkimisi eraldi. Läbirääkimisi võib pidada kirjalikku taasesitamist võimaldavas vormis (nt e-kiri) või suuliselt. Suuliselt peetud läbirääkimised protokollitakse. Läbirääkimised on konfidentsiaalsed. Hankija tagab läbirääkimiste käigus pakkujate võrdse kohtlemise.",
-                        checked: false,
-                      },
-                      {
-                        text: "Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse, mis esitatakse läbirääkimistel kokku lepitud tähtajaks.",
-                        checked: false,
-                      },
-                      {
-                        text: "Hankija ei ole kohustatud läbirääkimisi pidama.",
-                        checked: false,
-                      },
-                    ],
-                  },
-                  {
-                    title:
-                      "6. Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine",
-                    enabled: true,
-                    open: false,
-                    options: [
-                      {
-                        text: "Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata igal ajal enne lepingu sõlmimist või tellimuse tegemist, kui esitatud pakkumuste maksumused ületavad eeldatavat maksumust. Hankija teavitab pakkujaid kõigi pakkumuste tagasilükkamisest.",
-                        checked: false,
-                      },
-                      {
-                        text: "Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta või kui ostumenetluse läbiviimise aluseks olevad tingimused on oluliselt muutunud ja seetõttu osutub ostumenetluse esemeks oleva asja või teenuse tellimine mittevajalikuks, saadab hankija pakkujatele sellekohase teavituse.",
-                        checked: false,
-                      },
-                      {
-                        text: "Hankija võib ostumenetluse kehtetuks tunnistada, kui hankija tuvastab peale pakkumuste esitamise tähtpäeva, et on teinud ostumenetluse kutses vea, mida ei ole võimalik enam antud etapis seaduspäraselt parandada.",
-                        checked: false,
-                      },
-                    ],
-                  },
-                  {
-                    title: "7. Lisad",
-                    enabled: true,
-                    open: false,
-                    options: [
-                      { text: "Lisa 1. ", checked: false, editable: true },
-                    ],
-                  },
-                ],
-              };
+            this.showResetConfirmModal = true;
+          },
 
-              // Clear files
-              this.files = [];
-
-              // Remove from local storage
-              localStorage.removeItem("OM_DRAFT");
-
-              // First show a regular toast that always works
-              this.showToast("Vorm on tühjendatud ✅", "success");
-
-              // Also try the action toast
-              this.showActionToast(
-                "Vorm on tühjendatud",
-                "clear",
-                5000,
-                "",
-                () => {
-                  this.showToast("Andmeid ei saa taastada", "info");
+          handleResetConfirm() {
+            // Reset to default form structure
+            this.form = {
+              name: "",
+              intro:
+                "(Lisa hankija nimi) teeb Teile ettepaneku esitada pakkumus (Lisa ostetava eseme/teenuse nimi ja kirjeldus) ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on (täpsusta kas lepingu sõlmimine või tellimuse tegemine)",
+              fields: { ...defaultFields },
+              sections: [
+                {
+                  title: "1. Üldised tingimused",
+                  enabled: true,
+                  open: false,
+                  options: [
+                    {
+                      text: "Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.",
+                      checked: false,
+                    },
+                    {
+                      text: "Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.",
+                      checked: false,
+                    },
+                    {
+                      text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".',
+                      checked: false,
+                    },
+                    {
+                      text: "Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg). Enne hankelepingu sõlmimist kontrollib hankija pakkujal maksuvõla puudumist. Kui pakkujal esineb maksuvõlg, siis teavitab hankija sellest pakkujat ja annab pakkujale kaks tööpäeva maksuvõla tasumiseks või täies ulatuses ajatamiseks. Hankija võib anda ka pikema tähtaja maksuvõla tasumiseks või täies ulatuses ajatamiseks. Kui hankija poolt antud tähtaja jooksul pakkuja maksuvõlga ei tasu või täies ulatuses ei ajata, siis kõrvaldab hankija pakkuja ostumenetluselt. ",
+                      checked: false,
+                    },
+                    {
+                      text: "Arve maksetähtaeg peab olema vähemalt 21 päeva.",
+                      checked: true,
+                    },
+                  ],
                 },
-              );
-            }
-          },
+                {
+                  title: "2. Ostumenetluse tehniline kirjeldus",
+                  enabled: true,
+                  open: false,
+                  options: [
+                    {
+                      text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.',
+                      checked: false,
+                      editable: true,
+                    },
+                  ],
+                },
+                {
+                  title: "3. Nõuded pakkumusele",
+                  enabled: true,
+                  open: false,
+                  options: [
+                    {
+                      text: "Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.",
+                      checked: false,
+                    },
+                    {
+                      text: "Hilinenud pakkumusi hankija vastu ei võta.",
+                      checked: false,
+                    },
+                    {
+                      text: "Pakkumus peab sisaldama pakkumuse maksumust vastavalt lisale 1.",
+                      checked: false,
+                    },
+                    {
+                      text: "Pakkumus peab sisaldama pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.",
+                      checked: false,
+                    },
+                    {
+                      text: "Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.",
+                      checked: false,
+                    },
+                    {
+                      text: "Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.",
+                      checked: false,
+                    },
+                    {
+                      text: "Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist. Ärisaladusena ei või märkida pakkumuse maksumust (sh osamaksumusi kui need on hindamise aluseks) (RHS § 46 1 ). Kui põhjendust pakkumuses ei sisaldu, siis eeldab hankija, et ärisaladus puudub. Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.",
+                      checked: false,
+                    },
+                  ],
+                },
+                {
+                  title:
+                    "4. Pakkumuste kontroll, hindamine ja eduka pakkumuse valik",
+                  enabled: true,
+                  open: false,
+                  options: [
+                    {
+                      text: "Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele. Juhul, kui pakkumus ei vasta kutses esitatud tingimustele, lükkab hankija pakkumuse tagasi.",
+                      checked: false,
+                    },
+                    {
+                      text: "Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.",
+                      checked: false,
+                    },
+                    {
+                      text: "Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel. Juhul, kui esitatud maksumused on võrdsed, korraldab hankija eduka pakkumuse väljaselgitamiseks liisuheitmise, võimaldades võrdse pakkumuse esitanud pakkujatel liisuheitmise juures viibida.",
+                      checked: false,
+                    },
+                    {
+                      text: "Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi, ei allkirjasta hankija antud tähtaja jooksul hankelepingut või ei asu nõustumuse andmisega sõlmitud hankelepingut pakkujast tulenevatel põhjustel hankija määratud aja jooksul täitma, hindab hankija kõiki ülejäänud pakkumusi uuesti ja tunnistab edukaks pakkumuse, mis on vastavaks tunnistatud pakkumustest majanduslikult soodsaim.",
+                      checked: false,
+                    },
+                    {
+                      text: "Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama ja võib tunnistada edukaks esialgsel hindamisel leitud järjestuselt teise pakkumuse juhul, kui edukaks tunnistatud pakkumuse äralangemine ei saa mõjutada ülejäänud pakkumuste omavahelist järjestust.",
+                      checked: false,
+                    },
+                  ],
+                },
+                {
+                  title: "5. Läbirääkimiste pidamine",
+                  enabled: true,
+                  open: false,
+                  options: [
+                    {
+                      text: "Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu, maksumuse ning ostukutsest sätestatud tingimuste üle.",
+                      checked: false,
+                    },
+                    {
+                      text: "Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja. Iga pakkujaga peetakse läbirääkimisi eraldi. Läbirääkimisi võib pidada kirjalikku taasesitamist võimaldavas vormis (nt e-kiri) või suuliselt. Suuliselt peetud läbirääkimised protokollitakse. Läbirääkimised on konfidentsiaalsed. Hankija tagab läbirääkimiste käigus pakkujate võrdse kohtlemise.",
+                      checked: false,
+                    },
+                    {
+                      text: "Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse, mis esitatakse läbirääkimistel kokku lepitud tähtajaks.",
+                      checked: false,
+                    },
+                    {
+                      text: "Hankija ei ole kohustatud läbirääkimisi pidama.",
+                      checked: false,
+                    },
+                  ],
+                },
+                {
+                  title:
+                    "6. Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine",
+                  enabled: true,
+                  open: false,
+                  options: [
+                    {
+                      text: "Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata igal ajal enne lepingu sõlmimist või tellimuse tegemist, kui esitatud pakkumuste maksumused ületavad eeldatavat maksumust. Hankija teavitab pakkujaid kõigi pakkumuste tagasilükkamisest.",
+                      checked: false,
+                    },
+                    {
+                      text: "Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta või kui ostumenetluse läbiviimise aluseks olevad tingimused on oluliselt muutunud ja seetõttu osutub ostumenetluse esemeks oleva asja või teenuse tellimine mittevajalikuks, saadab hankija pakkujatele sellekohase teavituse.",
+                      checked: false,
+                    },
+                    {
+                      text: "Hankija võib ostumenetluse kehtetuks tunnistada, kui hankija tuvastab peale pakkumuste esitamise tähtpäeva, et on teinud ostumenetluse kutses vea, mida ei ole võimalik enam antud etapis seaduspäraselt parandada.",
+                      checked: false,
+                    },
+                  ],
+                },
+                {
+                  title: "7. Lisad",
+                  enabled: true,
+                  open: false,
+                  options: [
+                    { text: "Lisa 1. ", checked: false, editable: true },
+                  ],
+                },
+              ],
+            };
 
-          removeSection(index) {
-            if (
-              confirm(
-                "Kas olete kindel, et soovite selle kustutada?",
-              )
-            ) {
-              this.form.sections.splice(index, 1);
-              this.showToast("Kustutatud", "success");
-            }
-          },
+            // Clear files
+            this.files = [];
 
-          debouncedSave() {
-            clearTimeout(this.saveTimeout);
-            this.saveTimeout = setTimeout(() => {
-              this.saveToStorage();
-            }, 2000);
+            // Remove from local storage
+            localStorage.removeItem("OM_DRAFT");
+
+            // Close modal
+            this.showResetConfirmModal = false;
+
+            // Show success messages
+            this.showToast("Vorm on tühjendatud ✅", "success");
+            this.showActionToast(
+              "Vorm on tühjendatud",
+              "clear",
+              5000,
+              "",
+              () => {
+                this.showToast("Andmeid ei saa taastada", "info");
+              }
+            );
           },
 
           addOption(sectionIndex) {
@@ -3118,7 +3084,7 @@
               <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
                 <i class="fas fa-file-pdf text-white text-sm"></i>
               </div>
-              <span class="relative">Loo PDF</span>
+              <span class="relative">Kutse PDF</span>
             </button>
 
             <button @click="manualSave" x-show="currentUser"
@@ -3142,7 +3108,7 @@
                   class="fas fa-trash-alt text-white text-sm group-hover:rotate-12 transition-transform duration-300"></i>
               </div>
               <span class="relative">
-                <span class="inline-block group-hover:-translate-y-px transition-transform duration-300">Tühjenda</span>
+                <span class="inline-block group-hover:-translate-y-px transition-transform duration-300">Kustuta</span>
                 <span class="block h-0.5 w-0 group-hover:w-full bg-white transition-all duration-300 mt-0.5"></span>
               </span>
             </button>
@@ -3877,5 +3843,48 @@
 </div>
 
 <!-- Update your Alpine.js data and methods -->
+
+<!-- Reset Form Confirmation Modal -->
+<div x-show="showResetConfirmModal" x-cloak x-transition:enter="transition duration-300 ease-out"
+  x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+  x-transition:leave="transition duration-200 ease-in" x-transition:leave-start="opacity-100"
+  x-transition:leave-end="opacity-0"
+  class="fixed inset-0 z-50 overflow-y-auto bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
+
+  <div class="relative w-full max-w-md rounded-2xl shadow-2xl border border-white/40 bg-white" @click.stop
+    x-transition:enter="transition duration-300 ease-out" x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center p-6 border-b border-gray-100">
+      <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-red-800">
+        Kinnita kustutamine
+      </h2>
+      <button @click="showResetConfirmModal = false"
+        class="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6">
+      <p class="text-gray-700 mb-6">
+        Kas oled kindel, et soovid kõik andmed kustutada? Seda tegevust ei saa tagasi võtta.
+      </p>
+
+      <!-- Actions -->
+      <div class="flex space-x-3">
+        <button @click="showResetConfirmModal = false"
+          class="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300">
+          Tühista
+        </button>
+        <button @click="handleResetConfirm()"
+          class="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl hover:shadow-lg hover:shadow-red-500/30 transform hover:-translate-y-0.5 transition-all duration-300">
+          Kustuta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </html>
