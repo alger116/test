@@ -1002,7 +1002,7 @@
                 <script type="module">
                     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
                     import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-                    import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp, addDoc, limit, writeBatch } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+                    import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove, Timestamp, onSnapshot, serverTimestamp, addDoc, limit, writeBatch } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
                     import { firebaseConfig } from "./firebase-config-generated.js";
 
                     // Initialize Firebase
@@ -3519,42 +3519,7 @@
                         }
                     }
 
-                    // Password Reset Modal
-                    const resetPasswordModal = document.createElement('div');
-                    resetPasswordModal.id = 'resetPasswordModal';
-                    resetPasswordModal.className = 'hidden fixed inset-0 z-50 overflow-y-auto';
-                    resetPasswordModal.innerHTML = `
-            <div class="flex items-center justify-center min-h-screen">
-                <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"></div>
-                <div class="relative bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                    <h2 class="text-xl font-bold mb-4">Lähtesta kasutaja parool</h2>
-                    <form id="resetPasswordForm" class="space-y-4">
-                        <input type="hidden" id="resetUserId">
-                        <div>
-                            <label for="newPassword" class="block text-sm font-medium text-gray-700">Uus parool</label>
-                            <input type="password" id="newPassword" required 
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <p class="text-xs text-gray-500 mt-1">Parool peab sisaldama vähemalt 8 tähemärki, üht suurtähte, üht väiketähte, üht numbrit ja üht erimärki.</p>
-                        </div>
-                        <div>
-                            <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Kinnita parool</label>
-                            <input type="password" id="confirmPassword" required 
-                                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        </div>
-                        <div class="flex justify-end space-x-2 mt-6">
-                            <button type="button" onclick="closeResetPasswordModal()" 
-                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                                Tühista
-                            </button>
-                            <button type="submit" 
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                Lähtesta parool
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        `;
+
                     document.body.appendChild(resetPasswordModal);
 
                     // Function to reset a user's password
@@ -4391,6 +4356,90 @@
                     // Load default settings when settings modal is opened
                     document.getElementById("settingsButton")?.addEventListener("click", async function () {
                         await loadDefaultSettings();
+                    });
+
+
+
+
+
+                    // Initialize counters
+                    const counters = {
+                        activeUsers: document.getElementById('activeUsersCount'),
+                        pdfs: document.getElementById('pdfCount'),
+                        excels: document.getElementById('excelCount'),
+                        firestore: document.getElementById('firestoreCount')
+                    };
+
+                    // Function to update statistics
+                    async function updateStatistics() {
+                        try {
+                            // Get all users
+                            const usersSnapshot = await getDocs(collection(db, 'users'));
+
+                            let totalPdfs = 0;
+                            let totalSearches = 0;
+                            const totalUsers = usersSnapshot.size;
+
+                            // Process each user
+                            usersSnapshot.forEach(doc => {
+                                const userData = doc.data();
+                                if (userData.pdfHistory && Array.isArray(userData.pdfHistory)) {
+                                    totalPdfs += userData.pdfHistory.length;
+                                }
+                                if (userData.searches && Array.isArray(userData.searches)) {
+                                    totalSearches += userData.searches.length;
+                                }
+                            });
+
+                            // Update UI
+                            counters.activeUsers.textContent = totalUsers;
+                            counters.pdfs.textContent = totalPdfs;
+                            counters.excels.textContent = totalSearches;
+                            counters.firestore.textContent = totalUsers;
+
+                            console.log('Statistics updated successfully:', {
+                                users: totalUsers,
+                                pdfs: totalPdfs,
+                                searches: totalSearches
+                            });
+
+                        } catch (error) {
+                            console.error('Error updating statistics:', error);
+                            Object.values(counters).forEach(counter => {
+                                counter.textContent = 'Error';
+                            });
+                        }
+                    }
+
+                    // Update statistics when user is authenticated
+                    auth.onAuthStateChanged(async (user) => {
+                        if (user) {
+                            try {
+                                // Check if user is admin
+                                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                                const userData = userDoc.data();
+
+                                if (userData && (userData.role === 'admin' || userData.role === 'mainAdmin')) {
+                                    // Initial update
+                                    await updateStatistics();
+
+                                    // Set up periodic updates
+                                    setInterval(updateStatistics, 30000); // Update every 30 seconds
+                                } else {
+                                    console.warn('User does not have admin privileges');
+                                    Object.values(counters).forEach(counter => {
+                                        counter.textContent = 'N/A';
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Error checking user role:', error);
+                            }
+                        } else {
+                            // Reset counters if user is not logged in
+                            Object.values(counters).forEach(counter => {
+                                counter.textContent = '0';
+                            })
+                        }
                     });
                 </script>
 </body>
