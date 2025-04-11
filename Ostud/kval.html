@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riigihangete Kvaliteedihindamise Süsteem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        }
+
+        .criteria-card {
+            transition: all 0.3s ease;
+        }
+
+        .criteria-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .subcriteria-item {
+            transition: all 0.2s ease;
+        }
+
+        .subcriteria-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .collapse-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .collapse-content.open {
+            max-height: 1000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 0.5rem;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            transition: all 0.3s ease;
+        }
+
+        .modal-enter-from,
+        .modal-leave-to {
+            opacity: 0;
+        }
+
+        .modal-enter-from .modal-content,
+        .modal-leave-to .modal-content {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen pb-20">
+        <!-- Header -->
+        <header class="gradient-bg text-white shadow-lg">
+            <div class="container mx-auto px-4 py-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold">Riigihangete Kvaliteedihindamise Süsteem</h1>
+                    <div class="flex space-x-4">
+                        <div class="dropdown relative">
+                            <button
+                                class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Ekspordi
+                            </button>
+                            <div class="dropdown-content">
+                                <a @click="generateExcel"
+                                    class="text-gray-700 block px-4 py-2 hover:bg-gray-100 cursor-pointer">Excelina</a>
+                                <a @click="generatePDF"
+                                    class="text-gray-700 block px-4 py-2 hover:bg-gray-100 cursor-pointer">PDF-na</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8">
+            <!-- Project Info -->
+            <section class="mb-8 bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Hanke andmed</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Hanke nimi</label>
+                        <input v-model="projectInfo.name" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Pakkumise number</label>
+                        <input v-model="projectInfo.offerNumber" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kuupäev</label>
+                        <input v-model="projectInfo.date" type="date"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pakkuja</label>
+                    <input v-model="projectInfo.supplier" type="text"
+                        class="w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Collapsible description field -->
+                <div class="mt-6">
+                    <button @click="toggleDescription" class="flex items-center text-blue-600 hover:text-blue-800">
+                        <span>Lähteülesande kirjeldus</span>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 ml-1 transform transition-transform duration-300"
+                            :class="{ 'rotate-180': showDescription }" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <div class="collapse-content mt-2" :class="{ 'open': showDescription }">
+                        <textarea v-model="projectInfo.description" rows="4"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Sisesta lähteülesande täielik kirjeldus..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Generate summary button -->
+                <div class="mt-4">
+                    <button @click="generateSummary"
+                        class="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                            <path fill-rule="evenodd"
+                                d="M4 8a6 6 0 1112 0v5a3 3 0 01-3 3H7a3 3 0 01-3-3V8zm6 7c1.657 0 3-1.343 3-3V8a3 3 0 00-6 0v4a3 3 0 003 3z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Genereeri lühikirjeldus
+                    </button>
+                </div>
+            </section>
+
+            <!-- Criteria Section -->
+            <section class="mb-12 bg-white rounded-xl shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-800">Kvaliteedikriteeriumid</h2>
+                    <button @click="addMainCriteria"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Lisa põhikriteerium
+                    </button>
+                </div>
+
+                <div class="space-y-6">
+                    <div v-for="(mainCriteria, mainIndex) in criteria" :key="mainIndex"
+                        class="criteria-card border border-gray-200 rounded-lg p-5">
+                        <div class="flex justify-between items-start mb-4 cursor-pointer"
+                            @click="toggleMainCriteria(mainIndex)">
+                            <div class="flex items-center space-x-4 w-full">
+                                <h3 class="text-xl font-medium text-gray-800">Põhikriteerium {{mainIndex+1}}</h3>
+                                <button @click.stop="removeMainCriteria(mainIndex)"
+                                    class="text-red-500 hover:text-red-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-5 w-5 ml-auto transform transition-transform duration-300"
+                                    :class="{ 'rotate-180': mainCriteria.isExpanded }" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div v-if="mainCriteria.isExpanded">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nimetus</label>
+                                    <input v-model="mainCriteria.name" type="text"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Maksimaalne punktide
+                                        arv</label>
+                                    <input v-model.number="mainCriteria.maxPoints" type="number" min="1"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <div class="flex items-end">
+                                    <button @click="addSubCriteria(mainIndex)"
+                                        class="bg-green-600 text-white px-3 py-2 rounded-md font-medium hover:bg-green-700 transition flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                        Lisa alakriteerium
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Subcriteria List -->
+                            <div v-if="mainCriteria.subCriteria.length > 0" class="mt-4">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Alakriteerium</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Punktid</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Täidetud</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr v-for="(subCriteria, subIndex) in mainCriteria.subCriteria"
+                                                :key="subIndex" class="subcriteria-item">
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <input v-model="subCriteria.name" type="text"
+                                                        class="w-full px-2 py-1 border border-gray-300 rounded">
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <input v-model.number="subCriteria.points" type="number" min="0"
+                                                        :max="mainCriteria.maxPoints - mainCriteria.subCriteria.reduce((sum, sc, i) => i !== subIndex ? sum + (sc.points || 0) : sum, 0)"
+                                                        class="w-20 px-2 py-1 border border-gray-300 rounded">
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <input v-model="subCriteria.fulfilled" type="checkbox"
+                                                        class="h-5 w-5 text-blue-600 rounded">
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <button @click="removeSubCriteria(mainIndex, subIndex)"
+                                                        class="text-red-600 hover:text-red-900">
+                                                        Kustuta
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="mt-4 flex justify-between items-center">
+                                    <div class="text-sm text-gray-500">
+                                        Alakriteeriumite punktid kokku: {{ mainCriteria.subCriteria.reduce((sum, sc) =>
+                                        sum + (sc.points || 0), 0) }} / {{ mainCriteria.maxPoints }}
+                                    </div>
+                                    <div v-if="mainCriteria.subCriteria.reduce((sum, sc) => sum + (sc.points || 0), 0) > mainCriteria.maxPoints"
+                                        class="text-sm text-red-600">
+                                        Ületab põhikriteeriumi maksimumpunktide arvu!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Total for main criteria -->
+                            <div v-if="mainCriteria.subCriteria.length > 0" class="mt-4 p-3 bg-blue-50 rounded-md">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium">Kokku saadud punktid:</span>
+                                    <span class="font-bold text-blue-800">
+                                        {{ calculateMainCriteriaPoints(mainIndex) }} / {{ mainCriteria.maxPoints }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div v-if="criteria.length === 0" class="text-center py-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3 class="mt-2 text-lg font-medium text-gray-900">Põhikriteeriumid puuduvad</h3>
+                        <p class="mt-1 text-gray-500">Lisa esimene põhikriteerium, et alustada hindamist</p>
+                        <button @click="addMainCriteria"
+                            class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Lisa põhikriteerium
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary Section -->
+            <section v-if="criteria.length > 0" class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Hindamise kokkuvõte</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">Põhikriteeriumide tulemused</h3>
+                        <ul class="space-y-3">
+                            <li v-for="(mainCriteria, index) in criteria" :key="index"
+                                class="border-b border-gray-200 pb-2">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ mainCriteria.name }}</span>
+                                    <span class="font-medium">{{ calculateMainCriteriaPoints(index) }} / {{
+                                        mainCriteria.maxPoints }} punkti</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                    <div class="bg-blue-600 h-2.5 rounded-full"
+                                        :style="{ width: (calculateMainCriteriaPoints(index) / mainCriteria.maxPoints * 100) + '%' }">
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-medium text-blue-800 mb-2">Kogu punktisumma</h3>
+                        <div class="text-center py-4">
+                            <span class="text-4xl font-bold text-blue-800">{{ calculateTotalPoints() }}</span>
+                            <span class="text-xl text-gray-600"> / {{ calculateMaxTotalPoints() }} punkti</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-blue-600 h-2.5 rounded-full"
+                                :style="{ width: (calculateTotalPoints() / calculateMaxTotalPoints() * 100) + '%' }">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Summary Modal -->
+        <div v-if="showSummaryModal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 modal"
+            @click.self="showSummaryModal = false">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto modal-content">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Lühikirjeldus</h3>
+                        <button @click="showSummaryModal = false" class="text-gray-500 hover:text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="prose max-w-none mb-6">
+                        <p v-html="formattedSummary"></p>
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <button @click="copySummary"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                                <path
+                                    d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                            </svg>
+                            Kopeeri
+                        </button>
+                        <button @click="showSummaryModal = false"
+                            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition">
+                            Sulge
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        const app = Vue.createApp({
+            data() {
+                return {
+                    showDescription: false,
+                    showSummaryModal: false,
+                    generatedSummary: '',
+                    projectInfo: {
+                        name: '',
+                        offerNumber: '',
+                        date: new Date().toISOString().split('T')[0],
+                        supplier: '',
+                        description: ''
+                    },
+                    criteria: []
+                }
+            },
+            computed: {
+                formattedSummary() {
+                    return this.generatedSummary.replace(/\n/g, '<br>');
+                }
+            },
+            created() {
+                this.loadFromLocalStorage();
+            },
+            methods: {
+                toggleMainCriteria(index) {
+                    this.criteria[index].isExpanded = !this.criteria[index].isExpanded;
+                },
+                generateSummary() {
+                    if (this.criteria.length === 0) {
+                        this.showNotification('Lisa esmalt vähemalt üks põhikriteerium!');
+                        return;
+                    }
+
+                    let summary = `Hanke "${this.projectInfo.name}" kvaliteedikriteeriumid:\n\n`;
+
+                    this.criteria.forEach((mainCriteria, index) => {
+                        summary += `${index + 1}. ${mainCriteria.name} (maksimaalselt ${mainCriteria.maxPoints} punkti):\n`;
+
+                        if (mainCriteria.subCriteria.length > 0) {
+                            mainCriteria.subCriteria.forEach(subCriteria => {
+                                summary += `   - ${subCriteria.name} (${subCriteria.points} punkti)\n`;
+                            });
+                        } else {
+                            summary += `   - Konkreetsed nõuded puuduvad\n`;
+                        }
+
+                        summary += `\nHankija ootused selle kriteeriumi osas: ${mainCriteria.name.toLowerCase()} peab vastama järgmistele põhinõuetele...\n\n`;
+                    });
+
+                    summary += `Kokkuvõtteks ootab hankija pakkujalt kõrget kvaliteeti, mis vastab ülalkirjeldatud kriteeriumitele. Hindamisel lähtutakse pakkumuse vastavusest nõuetele, tehnilisele tasemele ja pakutavale väärtusele.`;
+
+                    this.generatedSummary = summary;
+                    this.showSummaryModal = true;
+                },
+                copySummary() {
+                    navigator.clipboard.writeText(this.generatedSummary)
+                        .then(() => {
+                            this.showNotification('Lühikirjeldus kopeeritud!');
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy: ', err);
+                            this.showNotification('Kopeerimine ebaõnnestus!');
+                        });
+                },
+                toggleDescription() {
+                    this.showDescription = !this.showDescription;
+                },
+                addMainCriteria() {
+                    this.criteria.push({
+                        name: '',
+                        maxPoints: 10,
+                        subCriteria: [],
+                        isExpanded: true
+                    });
+                },
+                removeMainCriteria(index) {
+                    this.criteria.splice(index, 1);
+                },
+                addSubCriteria(mainIndex) {
+                    if (this.criteria[mainIndex].subCriteria.length < 15) {
+                        this.criteria[mainIndex].subCriteria.push({
+                            name: '',
+                            points: 0,
+                            fulfilled: false
+                        });
+                        this.criteria[mainIndex].isExpanded = true;
+                    }
+                },
+                removeSubCriteria(mainIndex, subIndex) {
+                    this.criteria[mainIndex].subCriteria.splice(subIndex, 1);
+                },
+                calculateMainCriteriaPoints(mainIndex) {
+                    const mainCriteria = this.criteria[mainIndex];
+                    return mainCriteria.subCriteria
+                        .filter(sc => sc.fulfilled)
+                        .reduce((sum, sc) => sum + (sc.points || 0), 0);
+                },
+                calculateTotalPoints() {
+                    return this.criteria.reduce((total, _, index) => {
+                        return total + this.calculateMainCriteriaPoints(index);
+                    }, 0).toFixed(1);
+                },
+                calculateMaxTotalPoints() {
+                    return this.criteria.reduce((total, mc) => total + mc.maxPoints, 0);
+                },
+                generateExcel() {
+                    // Prepare data for Excel
+                    const excelData = [
+                        ['Hanke nimi:', this.projectInfo.name],
+                        ['Pakkumise number:', this.projectInfo.offerNumber],
+                        ['Kuupäev:', this.projectInfo.date],
+                        ['Pakkuja:', this.projectInfo.supplier],
+                        [],
+                        ['Lähteülesande kirjeldus:', this.projectInfo.description],
+                        [],
+                        ['Hindamistulemused'],
+                        []
+                    ];
+
+                    // Add criteria headers
+                    excelData.push(['Põhikriteerium', 'Alakriteerium', 'Punktid', 'Täidetud', 'Saadud punktid']);
+
+                    // Add criteria data
+                    this.criteria.forEach(mainCriteria => {
+                        mainCriteria.subCriteria.forEach((subCriteria, subIndex) => {
+                            excelData.push([
+                                subIndex === 0 ? mainCriteria.name : '',
+                                subCriteria.name,
+                                subCriteria.points,
+                                subCriteria.fulfilled ? 'Jah' : 'Ei',
+                                subCriteria.fulfilled ? subCriteria.points : 0
+                            ]);
+                        });
+
+                        // Add main criteria summary
+                        excelData.push([
+                            '',
+                            'Kokku:',
+                            '',
+                            '',
+                            this.calculateMainCriteriaPoints(this.criteria.indexOf(mainCriteria)) + '/' + mainCriteria.maxPoints
+                        ]);
+
+                        // Add empty row between criteria
+                        excelData.push([]);
+                    });
+
+                    // Add total summary
+                    excelData.push([
+                        '',
+                        'Kogu punktisumma:',
+                        '',
+                        '',
+                        this.calculateTotalPoints() + '/' + this.calculateMaxTotalPoints()
+                    ]);
+
+                    // Create workbook
+                    const wb = XLSX.utils.book_new();
+                    const ws = XLSX.utils.aoa_to_sheet(excelData);
+                    XLSX.utils.book_append_sheet(wb, ws, "Hindamistulemused");
+
+                    // Export to Excel
+                    XLSX.writeFile(wb, `Hindamistulemused_${this.projectInfo.name.replace(/[^a-z0-9]/gi, '_')}.xlsx`);
+
+                    this.showNotification('Exceli fail edukalt genereeritud!');
+                },
+                async generatePDF() {
+                    // Create a new PDF
+                    const doc = new jsPDF();
+
+                    // Add title
+                    doc.setFontSize(18);
+                    doc.text(`Hankehindamise tulemused: ${this.projectInfo.name}`, 14, 20);
+
+                    // Add basic info
+                    doc.setFontSize(10);
+                    doc.text(`Pakkumise number: ${this.projectInfo.offerNumber}`, 14, 30);
+                    doc.text(`Kuupäev: ${this.projectInfo.date}`, 14, 35);
+                    doc.text(`Pakkuja: ${this.projectInfo.supplier}`, 14, 40);
+
+                    // Add description
+                    doc.setFontSize(12);
+                    doc.text('Lähteülesande kirjeldus:', 14, 50);
+
+                    const descriptionLines = doc.splitTextToSize(this.projectInfo.description, 180);
+                    doc.setFontSize(10);
+                    doc.text(descriptionLines, 14, 55);
+
+                    // Add criteria and evaluation results
+                    let yPos = 70;
+
+                    // Add criteria headers
+                    doc.setFontSize(12);
+                    doc.text('Hindamistulemused', 14, yPos);
+                    yPos += 10;
+
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Põhikriteerium', 14, yPos);
+                    doc.text('Alakriteerium', 60, yPos);
+                    doc.text('Punktid', 120, yPos);
+                    doc.text('Täidetud', 150, yPos);
+                    doc.text('Saadud punktid', 170, yPos);
+                    yPos += 7;
+
+                    doc.setFont(undefined, 'normal');
+                    this.criteria.forEach(mainCriteria => {
+                        const mainCriteriaIndex = this.criteria.indexOf(mainCriteria);
+
+                        mainCriteria.subCriteria.forEach((subCriteria, subIndex) => {
+                            if (yPos > 270) {
+                                doc.addPage();
+                                yPos = 20;
+                            }
+
+                            doc.text(subIndex === 0 ? mainCriteria.name : '', 14, yPos);
+                            doc.text(subCriteria.name, 60, yPos);
+                            doc.text(subCriteria.points.toString(), 120, yPos);
+                            doc.text(subCriteria.fulfilled ? 'Jah' : 'Ei', 150, yPos);
+                            doc.text(subCriteria.fulfilled ? subCriteria.points.toString() : '0', 170, yPos);
+                            yPos += 7;
+                        });
+
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+
+                        // Add main criteria summary
+                        doc.setFont(undefined, 'bold');
+                        doc.text('Kokku:', 60, yPos);
+                        doc.text(this.calculateMainCriteriaPoints(mainCriteriaIndex) + '/' + mainCriteria.maxPoints, 170, yPos);
+                        yPos += 10;
+                        doc.setFont(undefined, 'normal');
+                    });
+
+                    // Add total summary
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Kogu punktisumma:', 60, yPos);
+                    doc.text(this.calculateTotalPoints() + '/' + this.calculateMaxTotalPoints(), 170, yPos);
+
+                    // Save the PDF
+                    doc.save(`Hindamistulemused_${this.projectInfo.name.replace(/\s+/g, '_')}.pdf`);
+
+                    this.showNotification('PDF dokument edukalt genereeritud!');
+                },
+                showNotification(message) {
+                    // Create notification element
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center';
+                    notification.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        ${message}
+                    `;
+
+                    document.body.appendChild(notification);
+
+                    // Remove after 3 seconds
+                    setTimeout(() => {
+                        notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 300);
+                    }, 3000);
+                },
+                saveToLocalStorage() {
+                    const data = {
+                        projectInfo: this.projectInfo,
+                        criteria: this.criteria
+                    };
+                    localStorage.setItem('hankeHindamineUus', JSON.stringify(data));
+                },
+                loadFromLocalStorage() {
+                    const savedData = localStorage.getItem('hankeHindamineUus');
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        this.projectInfo = data.projectInfo || {
+                            name: '',
+                            offerNumber: '',
+                            date: new Date().toISOString().split('T')[0],
+                            supplier: '',
+                            description: ''
+                        };
+                        this.criteria = (data.criteria || []).map(criterion => ({
+                            ...criterion,
+                            isExpanded: criterion.isExpanded !== undefined ? criterion.isExpanded : true
+                        }));
+                    }
+                }
+            },
+            watch: {
+                projectInfo: {
+                    deep: true,
+                    handler() {
+                        this.saveToLocalStorage();
+                    }
+                },
+                criteria: {
+                    deep: true,
+                    handler() {
+                        this.saveToLocalStorage();
+                    }
+                }
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Log</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+
+<body>
+    <div class="p-6">
+        <div class="flex justify-between items-center flex-col-4 mb-4">
+            <h2 class="text-2xl font-bold text-gray-900">Audit Log</h2>
+            <div class="flex gap-4">
+                <a href="../auth/admin.html" class="text-gray-500 hover:text-gray-700 items-center">
+                    <i class="fas fa-arrow-left"></i> Tagasi
+                </a>
+                <!-- Filter Dropdown -->
+                <select id="auditLogFilter"
+                    class="block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">Kõik tegevused</option>
+                    <option value="user_created">Kasutaja loomine</option>
+                    <option value="user_updated">Kasutaja muutmine</option>
+                    <option value="user_deleted">Kasutaja kustutamine</option>
+                    <option value="login_success">Edukas sisselogimine</option>
+                    <option value="login_failed">Ebaõnnestunud sisselogimine</option>
+                    <option value="password_reset">Parooli lähtestamine</option>
+                    <option value="role_changed">Rolli muutmine</option>
+                    <option value="settings_updated">Seadete muutmine</option>
+                </select>
+
+                <!-- Time Range Dropdown -->
+                <select id="auditLogTimeRange"
+                    class="block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">Kõik aeg</option>
+                    <option value="24h">Viimased 24 tundi</option>
+                    <option value="7d">Viimased 7 päeva</option>
+                    <option value="30d">Viimased 30 päeva</option>
+                    <option value="all">Kõik aeg</option>
+                </select>
+
+                <!-- Refresh Button -->
+                <button id="refreshAuditLog"
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Värskenda
+                </button>
+            </div>
+        </div>
+
+        <!-- Existing table structure -->
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Kuupäev</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tegevus</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Kasutaja</th>
+                </tr>
+            </thead>
+            <tbody id="auditLogTable" class="bg-white divide-y divide-gray-200">
+                <!-- Audit logs will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getFirestore, collection, query, orderBy, getDocs, addDoc, serverTimestamp, where, Timestamp, limit } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { firebaseConfig } from "./firebase-config-generated.js";  // Import the config
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const auditLogActions = [
+            { value: 'user_created', label: 'Kasutaja loomine' },
+            { value: 'user_updated', label: 'Kasutaja muutmine' },
+            { value: 'user_deleted', label: 'Kasutaja kustutamine' },
+            { value: 'login_success', label: 'Edukas sisselogimine' },
+            { value: 'login_failed', label: 'Ebaõnnestunud sisselogimine' },
+            { value: 'password_reset', label: 'Parooli lähtestamine' },
+            { value: 'role_changed', label: 'Rolli muutmine' },
+            { value: 'settings_updated', label: 'Seadete muutmine' },
+        ]
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return 'N/A'
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
+            return date.toLocaleDateString('et-EE', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            })
+        }
+
+        function getActionDescription(action) {
+            const actionEntry = auditLogActions.find(item => item.value === action)
+            return actionEntry ? actionEntry.label : action
+        }
+
+        // Function to load and display audit logs
+        async function loadAuditLogs() {
+            const auditLogTable = document.getElementById('auditLogTable');
+            const actionFilter = document.getElementById('auditLogFilter').value;
+            const timeFilter = document.getElementById('auditLogTimeRange').value;
+
+            if (!auditLogTable) return;
+
+            try {
+                setAuditLogLoading(true);
+                auditLogTable.innerHTML = '';
+
+                // Debug log
+                console.log('Starting query with filters:', { actionFilter, timeFilter });
+
+                // Create base query
+                const auditLogsRef = collection(db, 'auditLog');
+                let constraints = [orderBy('timestamp', 'desc')];
+
+                // Add action filter
+                if (actionFilter !== 'all') {
+                    console.log('Adding action filter:', actionFilter);
+                    constraints.push(where('action', '==', actionFilter));
+                }
+
+                // Add time filter
+                if (timeFilter !== 'all') {
+                    const now = new Date();
+                    let startDate = new Date();
+
+                    switch (timeFilter) {
+                        case '24h':
+                            startDate.setHours(now.getHours() - 24);
+                            break;
+                        case '7d':
+                            startDate.setDate(now.getDate() - 7);
+                            break;
+                        case '30d':
+                            startDate.setDate(now.getDate() - 30);
+                            break;
+                    }
+
+                    console.log('Adding time filter, start date:', startDate);
+                    constraints.push(where('timestamp', '>=', Timestamp.fromDate(startDate)));
+                }
+
+                // Apply all constraints to query
+                const q = query(auditLogsRef, ...constraints);
+                console.log('Executing query with constraints');
+
+                const querySnapshot = await getDocs(q);
+                console.log('Query returned:', querySnapshot.size, 'documents');
+
+                if (querySnapshot.empty) {
+                    auditLogTable.innerHTML = `
+                        <tr>
+                            <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                                Ei leitud ühtegi kirjet
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    console.log('Document data:', data);
+
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+
+                    const timestamp = data.timestamp?.toDate ? data.timestamp.toDate() : new Date(data.timestamp);
+                    const actionLabel = getActionDescription(data.action);
+
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${formatTimestamp(timestamp)}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${actionLabel || 'N/A'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${data.performedByEmail || data.userEmail || 'N/A'}
+                        </td>
+                    `;
+
+                    auditLogTable.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Detailed error:', error);
+                auditLogTable.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 text-center text-red-500">
+                            Viga audit logide laadimisel: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            } finally {
+                setAuditLogLoading(false);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAuditLogs();
+
+            // Add filter change handlers
+            document.getElementById('auditLogFilter')?.addEventListener('change', loadAuditLogs);
+            document.getElementById('auditLogTimeRange')?.addEventListener('change', loadAuditLogs);
+            document.getElementById('refreshAuditLog')?.addEventListener('click', loadAuditLogs);
+
+            // Auto-refresh every minute
+            setInterval(loadAuditLogs, 60000);
+        });
+
+        // Add loading state indicator
+        function setAuditLogLoading(isLoading) {
+            const table = document.getElementById('auditLogTable');
+            if (!table) return;
+
+            if (isLoading) {
+                table.innerHTML = `
+                        <tr>
+                            <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+                                <i class="fas fa-circle-notch fa-spin mr-2"></i>
+                                Laadin...
+                            </td>
+                        </tr>
+                    `;
+            }
+        }
+
+        async function addAuditLogEntry(action, additionalData = {}) {
+            try {
+                const currentUser = auth.currentUser
+                if (!currentUser) {
+                    console.error('No user authenticated')
+                    return
+                }
+
+                const logEntry = {
+                    action,
+                    timestamp: serverTimestamp(),
+                    performedBy: currentUser.uid,
+                    performedByEmail: currentUser.email,
+                    ...additionalData
+                }
+
+                await addDoc(collection(db, 'auditLog'), logEntry)
+
+                await loadAuditLogs()
+            } catch (error) {
+                console.error('Error adding audit log entry:', error)
+                showNotification('Viga audit logi kirje lisamisel', 'error')
+            }
+        }
+    </script>
