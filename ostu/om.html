@@ -811,54 +811,35 @@
 
           async loadPdfHistory() {
             try {
-              console.log("Loading PDF history in Alpine...");
+              console.log('Loading PDF history...');
               if (window.currentUser) {
-                console.log("Current user in Alpine:", window.currentUser);
-                const { doc, getDoc } = window.firestoreFunctions;
-                const userRef = doc(
-                  window.db,
-                  "users",
-                  window.currentUser.uid,
-                );
-                console.log("User reference:", userRef);
-
-                const userDoc = await getDoc(userRef);
-                console.log("User document exists:", userDoc.exists());
-
-                if (userDoc.exists()) {
-                  const data = userDoc.data();
-                  console.log("Full user data:", data);
-
-                  if (data.pdfHistory && Array.isArray(data.pdfHistory)) {
-                    console.log("PDF History array:", data.pdfHistory);
-                    this.userSettings.generatedPdfs = data.pdfHistory;
-                    // Update global state
-                    window.userData = {
-                      ...window.userData,
-                      pdfHistory: data.pdfHistory,
-                    };
-                    console.log(
-                      "Updated userSettings.generatedPdfs:",
-                      this.userSettings.generatedPdfs,
-                    );
-                  } else {
-                    console.log("No PDF history array found in data");
-                    this.userSettings.generatedPdfs = [];
-                  }
+                if (window.userData && window.userData.pdfHistory) {
+                  console.log('Loading PDF history from global data');
+                  this.userSettings.generatedPdfs = window.userData.pdfHistory;
                 } else {
-                  console.log("No user document found");
-                  this.userSettings.generatedPdfs = [];
+                  // Fetch from Firestore if not in global data
+                  const userRef = doc(window.db, "users", window.currentUser.uid);
+                  const userDoc = await getDoc(userRef);
+                  if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    if (data.pdfHistory) {
+                      this.userSettings.generatedPdfs = data.pdfHistory;
+                      // Update global state
+                      window.userData = {
+                        ...window.userData,
+                        pdfHistory: data.pdfHistory
+                      };
+                    } else {
+                      this.userSettings.generatedPdfs = [];
+                    }
+                  }
                 }
               } else {
-                console.log("No current user found");
                 this.userSettings.generatedPdfs = [];
               }
             } catch (error) {
-              console.error("Error loading PDF history:", error);
-              this.showToast(
-                "Viga PDF ajaloo laadimisel: " + error.message,
-                "error",
-              );
+              console.error('Error loading PDF history:', error);
+              this.showToast('Viga PDF ajaloo laadimisel: ' + error.message, 'error');
               this.userSettings.generatedPdfs = [];
             }
           },
@@ -1909,7 +1890,6 @@
                 text: `Lisa ${optionCount}. `,
                 checked: false,
                 editable: true,
-                isEditing: true,
               };
             } else if (sectionIndex === 0) {
               // Üldised tingimused section
@@ -2146,15 +2126,19 @@
           },
 
           // Update the tab click handler
-          handleTabClick(tab) {
-            console.log("Tab clicked:", tab);
+          async handleTabClick(tab) {
+            console.log('Tab clicked:', tab);
             this.activeTab = tab;
-            if (tab === "history") {
-              console.log("Loading PDF history for history tab");
-              this.loadPdfHistory();
-            } else if (tab === "basicInfo") {
-              console.log("Loading user settings for basic info tab");
-              this.loadUserSettings();
+            if (tab === 'history') {
+              console.log('Loading PDF history for history tab');
+              await this.loadPdfHistory();
+              // Force Alpine to re-render the history tab content
+              this.$nextTick(() => {
+                this.$refs.historyContent.innerHTML = this.$refs.historyContent.innerHTML;
+              });
+            } else if (tab === 'basicInfo') {
+              console.log('Loading user settings for basic info tab');
+              await this.loadUserSettings();
             }
           },
 
@@ -3148,11 +3132,7 @@
               <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
                 <i class="fas fa-file-pdf text-white text-sm"></i>
               </div>
-              <span class="relative">
-                <span class="inline-block group-hover:-translate-y-px transition-transform duration-300">Kutse
-                  PDF</span>
-                <span class="block h-0.5 w-0 group-hover:w-full bg-white transition-all duration-300 mt-0.5"></span>
-              </span>
+              <span class="relative">Kutse PDF</span>
             </button>
 
             <button @click="manualSave" x-show="currentUser"
@@ -3163,10 +3143,9 @@
               <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
                 <i class="fas fa-save text-white text-sm"></i>
               </div>
-              <span class="relative">
-                <span class="inline-block group-hover:-translate-y-px transition-transform duration-300">Salvesta</span>
-                <span class="block h-0.5 w-0 group-hover:w-full bg-white transition-all duration-300 mt-0.5"></span>
-              </span>
+              <span class="relative"></span>
+              <span class="inline-block group-hover:-translate-y-px transition-transform duration-300">Salvesta</span>
+              <span class="block h-0.5 w-0 group-hover:w-full bg-white transition-all duration-300 mt-0.5"></span>
             </button>
 
             <button @click="resetForm" x-show="currentUser"
@@ -3642,114 +3621,116 @@
                 </div>
               </div>
             </div>
+          </form>
+          <!-- Autofill Toggle -->
+          <div
+            class="flex items-center justify-between p-5 bg-indigo-50 rounded-xl mt-6 border border-indigo-100 shadow-sm">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                <i class="fas fa-magic text-indigo-600"></i>
+              </div>
+              <div>
+                <label class="text-lg font-medium text-gray-800">
+                  Automaatne täitmine
+                </label>
+                <p class="text-sm text-gray-500">
+                  Põhiandmete automaatne täitmine vormi avamisel
+                </p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" x-model="userSettings.autofillEnabled" class="sr-only peer" />
+              <div
+                class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600">
+              </div>
+            </label>
+          </div>
 
-            <!-- Autofill Toggle -->
-            <div
-              class="flex items-center justify-between p-5 bg-indigo-50 rounded-xl mt-6 border border-indigo-100 shadow-sm">
-              <div class="flex items-center">
-                <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
-                  <i class="fas fa-magic text-indigo-600"></i>
-                </div>
-                <div>
-                  <label class="text-lg font-medium text-gray-800">
-                    Automaatne täitmine
-                  </label>
-                  <p class="text-sm text-gray-500">
-                    Põhiandmete automaatne täitmine vormi avamisel
-                  </p>
+          <div class="flex flex-col-4 gap-2 mt-8 pt-6 border-t border-gray-200">
+            <button type="button" @click="showSettingsModal = false"
+              class="px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-sm hover:shadow">Tühista</button>
+            <button type="button" @click="saveUserSettings()"
+              class="px-5 py-3 text-sm font-medium text-white bg-blue-500 border border-transparent rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-sm hover:shadow-md"><i
+                class="fas fa-save mr-2"></i> Salvesta seaded</button>
+            <button @click="restoreDraftFromFirestore"
+              class="px-5 py-3 text-sm font-medium text-white bg-green-500 border border-transparent rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all shadow-sm hover:shadow-md"><i
+                class="fas fa-undo mr-2"></i> Taasta salvestatud vorm</button>
+          </div>
+        </div>
+        <!-- History Tab Content -->
+        <div x-show="activeTab === 'history'" x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+          <div class="space-y-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+              Ajalugu ja tehtud PDF-id
+            </h3>
+
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                  <h4 class="font-medium text-gray-700">
+                    Viimased genereeritud PDF-id
+                  </h4>
+                  <button @click="clearPdfHistory()"
+                    class="group flex items-center space-x-1 text-red-600 hover:text-red-800 text-sm font-medium bg-white/50 hover:bg-white/80 transition-all duration-200 px-3 py-1.5 rounded-lg shadow-sm hover:shadow-md">
+                    <i class="fas fa-trash-alt mr-1 group-hover:rotate-12 transition-transform duration-300"></i>
+                    <span class="relative">Tühjenda</span>
+                  </button>
                 </div>
               </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" x-model="userSettings.autofillEnabled" class="sr-only peer" />
-                <div
-                  class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600">
-                </div>
-              </label>
-            </div>
 
-            <div class="flex flex-col-4 gap-2 mt-8 pt-6 border-t border-gray-200">
-              <button type="button" @click="showSettingsModal = false"
-                class="px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-sm hover:shadow">Tühista</button>
-              <button type="button" @click="saveUserSettings()"
-                class="px-5 py-3 text-sm font-medium text-white bg-blue-500 border border-transparent rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-sm hover:shadow-md"><i
-                  class="fas fa-save mr-2"></i> Salvesta seaded</button>
-              <button @click="restoreDraftFromFirestore"
-                class="px-5 py-3 text-sm font-medium text-white bg-green-500 border border-transparent rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all shadow-sm hover:shadow-md"><i
-                  class="fas fa-undo mr-2"></i> Taasta salvestatud vorm</button>
-
-            </div>
-
-            <!-- History Tab Content -->
-            <div x-show="activeTab === 'history'" x-transition:enter="transition ease-out duration-200"
-              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-              <div class="space-y-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                  Ajalugu ja tehtud PDF-id
-                </h3>
-
-                <div class="border border-gray-200 rounded-xl overflow-hidden">
-                  <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                    <div class="flex justify-between items-center">
-                      <h4 class="font-medium text-gray-700">
-                        Viimased genereeritud PDF-id
-                      </h4>
-                      <button @click="clearPdfHistory()"
-                        class="group flex items-center space-x-1 text-red-600 hover:text-red-800 text-sm font-medium bg-white/50 hover:bg-white/80 transition-all duration-200 px-3 py-1.5 rounded-lg shadow-sm hover:shadow-md">
-                        <i class="fas fa-trash-alt mr-1 group-hover:rotate-12 transition-transform duration-300"></i>
-                        <span class="relative">Tühjenda</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="divide-y divide-gray-200">
-                    <template x-if="userSettings.generatedPdfs && userSettings.generatedPdfs.length > 0">
-                      <template x-for="pdf in userSettings.generatedPdfs" :key="pdf.id">
-                        <div class="p-4 hover:bg-gray-50 transition-colors">
-                          <div class="flex justify-between items-center">
-                            <div>
-                              <p class="font-medium text-gray-800" x-text="pdf.name"></p>
-                              <p class="text-sm text-gray-500"
-                                x-text="'Genereeritud: ' + new Date(pdf.createdAt).toLocaleDateString('et-EE')"></p>
-                              <p class="text-sm text-gray-500" x-show="pdf.responsible"
-                                x-text="'Vastutav: ' + pdf.responsible"></p>
-                              <p class="text-sm text-gray-500" x-show="pdf.submissionDate"
-                                x-text="'Esitamise tähtaeg: ' + pdf.submissionDate"></p>
-                            </div>
-                            <div class="flex space-x-3">
-                              <button @click="downloadSavedPdf(pdf.pdfData, pdf.name + '.pdf')"
-                                class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-sm hover:shadow-md">
-                                <i class="fas fa-download mr-2"></i>
-                                <span>Laadi alla</span>
-                              </button>
-                              <button @click="previewPdf(pdf)"
-                                class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm hover:shadow-md">
-                                <i class="fas fa-eye mr-2"></i>
-                                <span>Vaata</span>
-                              </button>
-                              <button @click="sendPdfToOutlook(pdf.pdfData, pdf.name + '.pdf')"
-                                class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 shadow-sm hover:shadow-md">
-                                <i class="fas fa-envelope mr-2"></i>
-                                <span>Saada e-mailiga</span>
-                              </button>
-                            </div>
-                          </div>
+              <div class="divide-y divide-gray-200">
+                <template x-if="userSettings.generatedPdfs && userSettings.generatedPdfs.length > 0">
+                  <template x-for="pdf in userSettings.generatedPdfs" :key="pdf.id">
+                    <div class="p-4 hover:bg-gray-50 transition-colors">
+                      <div class="flex justify-between items-center">
+                        <div>
+                          <p class="font-medium text-gray-800" x-text="pdf.name"></p>
+                          <p class="text-sm text-gray-500"
+                            x-text="'Genereeritud: ' + new Date(pdf.createdAt).toLocaleDateString('et-EE')"></p>
+                          <p class="text-sm text-gray-500" x-show="pdf.responsible"
+                            x-text="'Vastutav: ' + pdf.responsible"></p>
+                          <p class="text-sm text-gray-500" x-show="pdf.submissionDate"
+                            x-text="'Esitamise tähtaeg: ' + pdf.submissionDate"></p>
                         </div>
-                      </template>
-                    </template>
-                    <template x-if="!userSettings.generatedPdfs || userSettings.generatedPdfs.length === 0">
-                      <div class="p-4 text-center text-gray-500">
-                        <i class="fas fa-file-pdf text-2xl mb-2"></i>
-                        <p>Pole veel genereeritud PDF-e</p>
+                        <div class="flex space-x-3">
+                          <button @click="downloadSavedPdf(pdf.pdfData, pdf.name + '.pdf')"
+                            class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-sm hover:shadow-md">
+                            <i class="fas fa-download mr-2"></i>
+                            <span>Laadi alla</span>
+                          </button>
+                          <button @click="previewPdf(pdf)"
+                            class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm hover:shadow-md">
+                            <i class="fas fa-eye mr-2"></i>
+                            <span>Vaata</span>
+                          </button>
+                          <button @click="sendPdfToOutlook(pdf.pdfData, pdf.name + '.pdf')"
+                            class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 shadow-sm hover:shadow-md">
+                            <i class="fas fa-envelope mr-2"></i>
+                            <span>Saada e-mailiga</span>
+                          </button>
+                        </div>
                       </div>
-                    </template>
+                    </div>
+                  </template>
+                </template>
+                <template x-if="!userSettings.generatedPdfs || userSettings.generatedPdfs.length === 0">
+                  <div class="p-4 text-center text-gray-500">
+                    <i class="fas fa-file-pdf text-2xl mb-2"></i>
+                    <p>Pole veel genereeritud PDF-e</p>
                   </div>
-                </div>
+                </template>
               </div>
             </div>
+          </div>
         </div>
       </div>
     </div>
+  </div>
+  </div>
 </body>
+
+
 
 <!-- Tabeli modal -->
 <div id="tableModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50">
