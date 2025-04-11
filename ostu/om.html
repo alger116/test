@@ -863,7 +863,24 @@
             }
           },
 
+          async restoreDraftFromFirestore() {
+            if (!window.currentUser) return;
 
+            try {
+              const userRef = doc(window.db, "users", window.currentUser.uid);
+              const userDoc = await getDoc(userRef);
+              const data = userDoc.data();
+              if (data?.draft) {
+                this.form = data.draft;
+                this.showToast("Vorm taastatud Firestore'ist", "success");
+              } else {
+                this.showToast("Vormi mustandit ei leitud", "error");
+              }
+            } catch (error) {
+              console.error("Error restoring draft:", error);
+              this.showToast("Viga mustandi taastamisel: " + error.message, "error");
+            }
+          },
 
           async loadUserSettings() {
             try {
@@ -1385,6 +1402,7 @@
             }
             this.saveTimeout = setTimeout(() => {
               this.saveToStorage();
+              this.saveToFirestoreDraft();
             }, 2000);
           },
 
@@ -1445,7 +1463,7 @@
                 );
                 localStorage.removeItem("OM_DRAFT");
                 this.showToast(
-                  "Vana versiooni andmed, algandmed laetud",
+
                   "info",
                 );
                 return false;
@@ -3121,7 +3139,7 @@
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex flex-wrap gap-5 mt-8">
+          <div class="flex flex-nowrap gap-5 mt-4">
             <button @click="generatePDF" x-show="currentUser"
               class="relative overflow-hidden group flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1">
               <div
@@ -3130,7 +3148,11 @@
               <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
                 <i class="fas fa-file-pdf text-white text-sm"></i>
               </div>
-              <span class="relative">Kutse PDF</span>
+              <span class="relative">
+                <span class="inline-block group-hover:-translate-y-px transition-transform duration-300">Kutse
+                  PDF</span>
+                <span class="block h-0.5 w-0 group-hover:w-full bg-white transition-all duration-300 mt-0.5"></span>
+              </span>
             </button>
 
             <button @click="manualSave" x-show="currentUser"
@@ -3141,7 +3163,10 @@
               <div class="w-7 h-7 flex items-center justify-center bg-white/20 rounded-full relative">
                 <i class="fas fa-save text-white text-sm"></i>
               </div>
-              <span class="relative">Salvesta</span>
+              <span class="relative">
+                <span class="inline-block group-hover:-translate-y-px transition-transform duration-300">Salvesta</span>
+                <span class="block h-0.5 w-0 group-hover:w-full bg-white transition-all duration-300 mt-0.5"></span>
+              </span>
             </button>
 
             <button @click="resetForm" x-show="currentUser"
@@ -3642,90 +3667,88 @@
               </label>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
+            <div class="flex flex-col-4 gap-2 mt-8 pt-6 border-t border-gray-200">
               <button type="button" @click="showSettingsModal = false"
-                class="px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-sm hover:shadow">
-                Tühista
-              </button>
+                class="px-5 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-sm hover:shadow">Tühista</button>
               <button type="button" @click="saveUserSettings()"
-                class="px-5 py-3 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-indigo-700 border border-transparent rounded-xl hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-sm hover:shadow-md">
-                <i class="fas fa-save mr-2"></i> Salvesta seaded
-              </button>
+                class="px-5 py-3 text-sm font-medium text-white bg-blue-500 border border-transparent rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-sm hover:shadow-md"><i
+                  class="fas fa-save mr-2"></i> Salvesta seaded</button>
+              <button @click="restoreDraftFromFirestore"
+                class="px-5 py-3 text-sm font-medium text-white bg-green-500 border border-transparent rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all shadow-sm hover:shadow-md"><i
+                  class="fas fa-undo mr-2"></i> Taasta salvestatud vorm</button>
+
             </div>
-          </form>
-        </div>
 
-        <!-- History Tab Content -->
-        <div x-show="activeTab === 'history'" x-transition:enter="transition ease-out duration-200"
-          x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-          <div class="space-y-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">
-              Ajalugu ja tehtud PDF-id
-            </h3>
+            <!-- History Tab Content -->
+            <div x-show="activeTab === 'history'" x-transition:enter="transition ease-out duration-200"
+              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+              <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                  Ajalugu ja tehtud PDF-id
+                </h3>
 
-            <div class="border border-gray-200 rounded-xl overflow-hidden">
-              <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                <div class="flex justify-between items-center">
-                  <h4 class="font-medium text-gray-700">
-                    Viimased genereeritud PDF-id
-                  </h4>
-                  <button @click="clearPdfHistory()"
-                    class="group flex items-center space-x-1 text-red-600 hover:text-red-800 text-sm font-medium bg-white/50 hover:bg-white/80 transition-all duration-200 px-3 py-1.5 rounded-lg shadow-sm hover:shadow-md">
-                    <i class="fas fa-trash-alt mr-1 group-hover:rotate-12 transition-transform duration-300"></i>
-                    <span class="relative">Tühjenda</span>
-                  </button>
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                  <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                      <h4 class="font-medium text-gray-700">
+                        Viimased genereeritud PDF-id
+                      </h4>
+                      <button @click="clearPdfHistory()"
+                        class="group flex items-center space-x-1 text-red-600 hover:text-red-800 text-sm font-medium bg-white/50 hover:bg-white/80 transition-all duration-200 px-3 py-1.5 rounded-lg shadow-sm hover:shadow-md">
+                        <i class="fas fa-trash-alt mr-1 group-hover:rotate-12 transition-transform duration-300"></i>
+                        <span class="relative">Tühjenda</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="divide-y divide-gray-200">
+                    <template x-if="userSettings.generatedPdfs && userSettings.generatedPdfs.length > 0">
+                      <template x-for="pdf in userSettings.generatedPdfs" :key="pdf.id">
+                        <div class="p-4 hover:bg-gray-50 transition-colors">
+                          <div class="flex justify-between items-center">
+                            <div>
+                              <p class="font-medium text-gray-800" x-text="pdf.name"></p>
+                              <p class="text-sm text-gray-500"
+                                x-text="'Genereeritud: ' + new Date(pdf.createdAt).toLocaleDateString('et-EE')"></p>
+                              <p class="text-sm text-gray-500" x-show="pdf.responsible"
+                                x-text="'Vastutav: ' + pdf.responsible"></p>
+                              <p class="text-sm text-gray-500" x-show="pdf.submissionDate"
+                                x-text="'Esitamise tähtaeg: ' + pdf.submissionDate"></p>
+                            </div>
+                            <div class="flex space-x-3">
+                              <button @click="downloadSavedPdf(pdf.pdfData, pdf.name + '.pdf')"
+                                class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-sm hover:shadow-md">
+                                <i class="fas fa-download mr-2"></i>
+                                <span>Laadi alla</span>
+                              </button>
+                              <button @click="previewPdf(pdf)"
+                                class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm hover:shadow-md">
+                                <i class="fas fa-eye mr-2"></i>
+                                <span>Vaata</span>
+                              </button>
+                              <button @click="sendPdfToOutlook(pdf.pdfData, pdf.name + '.pdf')"
+                                class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 shadow-sm hover:shadow-md">
+                                <i class="fas fa-envelope mr-2"></i>
+                                <span>Saada e-mailiga</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                    </template>
+                    <template x-if="!userSettings.generatedPdfs || userSettings.generatedPdfs.length === 0">
+                      <div class="p-4 text-center text-gray-500">
+                        <i class="fas fa-file-pdf text-2xl mb-2"></i>
+                        <p>Pole veel genereeritud PDF-e</p>
+                      </div>
+                    </template>
+                  </div>
                 </div>
               </div>
-
-              <div class="divide-y divide-gray-200">
-                <template x-if="userSettings.generatedPdfs && userSettings.generatedPdfs.length > 0">
-                  <template x-for="pdf in userSettings.generatedPdfs" :key="pdf.id">
-                    <div class="p-4 hover:bg-gray-50 transition-colors">
-                      <div class="flex justify-between items-center">
-                        <div>
-                          <p class="font-medium text-gray-800" x-text="pdf.name"></p>
-                          <p class="text-sm text-gray-500"
-                            x-text="'Genereeritud: ' + new Date(pdf.createdAt).toLocaleDateString('et-EE')"></p>
-                          <p class="text-sm text-gray-500" x-show="pdf.responsible"
-                            x-text="'Vastutav: ' + pdf.responsible"></p>
-                          <p class="text-sm text-gray-500" x-show="pdf.submissionDate"
-                            x-text="'Esitamise tähtaeg: ' + pdf.submissionDate"></p>
-                        </div>
-                        <div class="flex space-x-3">
-                          <button @click="downloadSavedPdf(pdf.pdfData, pdf.name + '.pdf')"
-                            class="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-sm hover:shadow-md">
-                            <i class="fas fa-download mr-2"></i>
-                            <span>Laadi alla</span>
-                          </button>
-                          <button @click="previewPdf(pdf)"
-                            class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-sm hover:shadow-md">
-                            <i class="fas fa-eye mr-2"></i>
-                            <span>Vaata</span>
-                          </button>
-                          <button @click="sendPdfToOutlook(pdf.pdfData, pdf.name + '.pdf')"
-                            class="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 shadow-sm hover:shadow-md">
-                            <i class="fas fa-envelope mr-2"></i>
-                            <span>Saada e-mailiga</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </template>
-                </template>
-                <template x-if="!userSettings.generatedPdfs || userSettings.generatedPdfs.length === 0">
-                  <div class="p-4 text-center text-gray-500">
-                    <i class="fas fa-file-pdf text-2xl mb-2"></i>
-                    <p>Pole veel genereeritud PDF-e</p>
-                  </div>
-                </template>
-              </div>
             </div>
-          </div>
         </div>
       </div>
     </div>
-  </div>
 </body>
 
 <!-- Tabeli modal -->
