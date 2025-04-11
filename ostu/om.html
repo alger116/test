@@ -702,7 +702,6 @@
 
           async init() {
             console.log("Initializing Alpine.js component...");
-            // Check localStorage availability
             this.checkLocalStorage();
 
             // Check for remembered user
@@ -744,6 +743,32 @@
             // Load data from storage initially
             this.loadFromStorage();
 
+            // Wait until user is fully loaded (onAuthStateChanged)
+            const waitForAuth = () => {
+              return new Promise((resolve) => {
+                const check = setInterval(() => {
+                  if (window.currentUser) {
+                    clearInterval(check);
+                    resolve();
+                  }
+                }, 100);
+              });
+            };
+
+            await waitForAuth();
+
+            // Lae seaded Firestore'ist
+            await this.loadUserSettings();
+
+            // Rakenda autofill, kui lubatud
+            if (this.userSettings.autofillEnabled) {
+              this.$nextTick(() => {
+                console.log("Applying autofill after auth and nextTick...");
+                this.applyAutofill();
+              });
+            }
+
+
             // Set up manual watcher for form changes
             this.setupFormWatcher();
 
@@ -753,6 +778,8 @@
                 this.showError = false;
               }
             }, 5000);
+
+
 
             // Load user settings and PDF history
             await this.loadUserSettings();
@@ -836,6 +863,8 @@
             }
           },
 
+
+
           async loadUserSettings() {
             try {
               console.log("Loading user settings...");
@@ -852,17 +881,22 @@
                   const userData = userDoc.data();
                   console.log("Loaded user data:", userData);
 
-                  // Initialize userSettings with default values if they don't exist
+                  const settings = userData.settings || {}; // <== FIRESTORE salvestab seaded siin!
+
                   this.userSettings = {
-                    buyer: userData.buyer || "",
-                    submission: userData.submission || "",
-                    validity: userData.validity || "",
-                    requirements: userData.requirements || "",
-                    criteria: userData.criteria || "",
-                    responsible: userData.responsible || "",
-                    autofillEnabled: userData.autofillEnabled || false,
-                    generatedPdfs: userData.generatedPdfs || [],
+                    buyer: settings.buyer || "",
+                    submission: settings.submission || "",
+                    validity: settings.validity || "",
+                    requirements: settings.requirements || "",
+                    criteria: settings.criteria || "",
+                    responsible: settings.responsible || "",
+                    autofillEnabled: settings.autofillEnabled || false,
+                    generatedPdfs: userData.pdfHistory || [],
                   };
+
+                  if (this.userSettings.autofillEnabled) {
+                    this.applyAutofill();
+                  }
 
                   console.log("Updated userSettings:", this.userSettings);
                 } else {
@@ -2003,6 +2037,18 @@
                 "Viga PDF allalaadimisel: " + error.message,
                 "error",
               );
+            }
+          },
+
+          async saveToFirestoreDraft() {
+            if (!window.currentUser) return;
+
+            try {
+              const userRef = doc(window.db, "users", window.currentUser.uid);
+              await setDoc(userRef, { draft: this.form }, { merge: true });
+              console.log("Form draft saved to Firestore");
+            } catch (error) {
+              console.error("Error saving draft to Firestore:", error);
             }
           },
 
