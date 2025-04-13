@@ -8,6 +8,26 @@
     <!-- Kasuta samu stiile ja Alpine.js nagu admin.html-s -->
     <link href="../dist/output.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            padding: 16px;
+        }
+    </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
@@ -73,221 +93,516 @@
 </head>
 
 <body class="bg-gray-100" x-data="formManager()">
-    <div class="max-w-4xl mx-auto p-6">
-        <h1 class="text-3xl font-bold mb-6">Ostumenetluse Vormi Haldus</h1>
+    <div class="max-w-6xl mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6">Ostumenetluse tingimuste haldamine</h1>
 
-        <!-- Firebase Permissions Alert -->
-        <div x-show="showPermissionsAlert" class="mb-6 p-4 bg-red-100 text-red-800 rounded shadow">
-            <h2 class="text-xl font-semibold mb-2">Firestore õiguste probleem</h2>
-            <p class="mb-2">Teil puuduvad piisavad õigused andmebaasile juurdepääsuks. See on tõenäoliselt Firebase'i
-                turvareeglite probleem.</p>
-            <div x-show="window.currentUser">
-                <p class="mb-1">Kasutaja info:</p>
-                <ul class="mb-4 ml-4 list-disc">
-                    <li>Email: <span x-text="window.currentUser?.email || 'Pole teada'"></span></li>
-                    <li>Roll: <span x-text="window.userData?.role || 'Pole teada'"></span></li>
-                    <li>Admin: <span x-text="window.userData?.isAdmin || 'false'"></span></li>
-                </ul>
-                <p class="mb-2 font-semibold">Probleem:</p>
-                <p class="mb-4">Firestore'i reeglid nõuavad, et teie roll oleks täpselt 'mainAdmin', mitte 'mainAdmin'
-                    (väiketähed/suurtähed on olulised). Palun veenduge, et kasutaja andmed Firestore'is on õiged.</p>
-            </div>
-            <p class="mb-2">Proovitakse pääseda ligi järgmistele kollektsioonidele:</p>
-            <ul class="mb-4 ml-4 list-disc">
-                <template x-for="(status, collection) in collectionStatus">
-                    <li>
-                        <span x-text="collection"></span>:
-                        <span x-text="status ? 'Ligipääs olemas ✓' : 'Ligipääs puudub ✗'"
-                            :class="status ? 'text-green-600 font-bold' : 'text-red-600 font-bold'"></span>
-                    </li>
-                </template>
-            </ul>
-            <p class="mb-4">Veenduge, et olete sisse logitud administraatori kontoga ja teie Firestore'i turvareeglid
-                lubavad juurdepääsu järgmistele kollektsioonidele.</p>
-
-            <button @click="testCollectionAccess()" class="px-4 py-2 bg-blue-600 text-white rounded mr-2">Testi
-                kollektsioone</button>
-            <button @click="showPermissionsAlert = false" class="px-4 py-2 bg-red-600 text-white rounded">Sule
-                teade</button>
-        </div>
-
-        <!-- Standard Fields Section -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Standardväljad</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <template x-for="(field, index) in standardFields" :key="index">
-                    <div class="p-4 bg-white rounded shadow">
-                        <div class="flex justify-between items-center mb-2">
-                            <input type="text" class="text-lg font-semibold border p-1 flex-grow" x-model="field.label"
-                                placeholder="Välja pealkiri">
-                            <input type="text" class="border p-1 flex-grow ml-2" x-model="field.placeholder"
-                                placeholder="Placeholder tekst">
-                            <button class="text-red-500 ml-4" @click="removeStandardField(index)">Kustuta</button>
-                        </div>
-                    </div>
-                </template>
-                <button class="mt-2 px-4 py-2 bg-green-500 text-white rounded" @click="addStandardField()">Lisa uus
-                    standardväli</button>
-                <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded" @click="handleCreateDefaultFormDocument"
-                    aria-label="Loo Firestore dokument" tabindex="0" @keydown.enter="handleCreateDefaultFormDocument">
-                    Loo Firestore dokument
-                </button>
-            </div>
-        </div>
-
-        <!-- Form Sections -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Vormi peatükid</h2>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Sissejuhatus</label>
-                <textarea class="w-full border p-2 rounded" x-model="form.intro" rows="3"></textarea>
-            </div>
-            <template x-for="(section, index) in form.sections" :key="index">
-                <div class="mb-4 p-4 bg-white rounded shadow">
-                    <div class="flex justify-between items-center mb-2">
-                        <input type="text" class="text-xl font-semibold border p-1 flex-grow" x-model="section.title"
-                            placeholder="Peatüki pealkiri">
-                        <div class="flex items-center ml-4">
-                            <label class="mr-2">Aktiivne</label>
-                            <input type="checkbox" class="mr-4" x-model="section.enabled">
-                            <button class="text-red-500" @click="removeSection(index)">Kustuta</button>
-                        </div>
-                    </div>
-                    <div>
-                        <template x-for="(option, oIndex) in section.options" :key="oIndex">
-                            <div class="flex items-center mb-2">
-                                <input type="text" class="border p-1 flex-grow" x-model="option.text"
-                                    placeholder="Valiku tekst">
-                                <input type="checkbox" class="ml-2" x-model="option.checked">
-                                <div class="ml-2">
-                                    <label class="mr-2">Muudetav</label>
-                                    <input type="checkbox" class="mr-2" x-model="option.editable">
-                                </div>
-                                <button class="ml-2 text-red-500" @click="removeOption(index, oIndex)">Kustuta</button>
-                            </div>
-                        </template>
-                        <button class="mt-2 text-blue-500" @click="addOption(index)">Lisa valik</button>
-                    </div>
-                </div>
-            </template>
-            <button class="mt-4 px-4 py-2 bg-green-500 text-white rounded" @click="addSection()">Lisa uus
-                peatükk</button>
-        </div>
-
-        <!-- Form Presets Section -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Vormimallid</h2>
-            <p class="text-gray-600 mb-4">
-                Siin saate salvestada erinevaid vormimalle, mida kasutajad saavad kasutada oma vormide loomiseks.
-                Mallid muudavad ainult vormi sektsioone ja sissejuhatuse teksti, kuid jätavad kasutaja väljad
-                puutumatuks.
-            </p>
-
-            <!-- Vormimalli loomise vorm -->
-            <div class="mb-6 p-4 bg-white rounded shadow"
-                x-data="{ showForm: false, presetName: '', presetDescription: '' }">
-                <button @click="showForm = !showForm"
-                    class="mb-4 flex items-center gap-2 text-blue-600 hover:text-blue-800">
-                    <i class="fas" :class="showForm ? 'fa-chevron-down' : 'fa-plus-circle'"></i>
-                    <span x-text="showForm ? 'Peida vorm' : 'Loo uus vormimall'"></span>
-                </button>
-
-                <div x-show="showForm" x-transition>
+        <!-- Main Content and Sidebar Layout -->
+        <div class="grid-layout">
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Form Sections -->
+                <div class="mb-8 bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-2xl font-semibold mb-4">Vormi peatükid</h2>
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Vormimalli nimi</label>
-                        <input type="text" x-model="presetName" class="w-full border p-2 rounded"
-                            placeholder="Sisesta vormimalli nimi...">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sissejuhatus</label>
+                        <textarea class="w-full border p-2 rounded" x-model="form.intro" rows="3"></textarea>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Vormimalli kirjeldus</label>
-                        <textarea x-model="presetDescription" class="w-full border p-2 rounded" rows="2"
-                            placeholder="Sisesta vormimalli lühikirjeldus..."></textarea>
-                    </div>
-                    <button
-                        @click="saveFormPreset(presetName, presetDescription); presetName = ''; presetDescription = ''; showForm = false;"
-                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Salvesta vormimall
-                    </button>
-                </div>
-            </div>
 
-            <!-- Vormimallide nimekiri -->
-            <div x-data="{ 
-                presets: [], 
-                isLoading: false,
-                loadPresets() {
-                    if (!window.collection || !window.db || !window.getDocs) {
-                        console.error('Firebase functions not initialized yet');
-                        setTimeout(() => this.loadPresets(), 1000);
-                        return;
-                    }
-                    
-                    this.isLoading = true;
-                    window.getDocs(window.collection(window.db, 'formPresets'))
-                        .then(snapshot => {
-                            const presets = [];
-                            snapshot.forEach(doc => {
-                                const data = doc.data();
-                                presets.push({
-                                    id: doc.id,
-                                    name: data.name || 'Nimetu mall',
-                                    description: data.description || '',
-                                    createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : null,
-                                    createdBy: data.createdBy || 'Admin'
-                                });
-                            });
-                            this.presets = presets;
-                        })
-                        .catch(error => {
-                            console.error('Error loading presets:', error);
-                            alert('Vormimallide laadimine ebaõnnestus: ' + error.message);
-                        })
-                        .finally(() => {
-                            this.isLoading = false;
-                        });
-                }
-            }" x-init="setTimeout(() => loadPresets(), 1500)">
-                <div x-show="isLoading" class="text-center py-4">
-                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500">
-                    </div>
-                    <p class="mt-2 text-gray-600">Laen vormimalle...</p>
-                </div>
-
-                <div x-show="!isLoading && presets.length === 0" class="p-4 bg-gray-100 text-center rounded">
-                    <p class="text-gray-600">Ühtegi vormimalli pole veel loodud</p>
-                </div>
-
-                <div x-show="!isLoading && presets.length > 0" class="space-y-4">
-                    <template x-for="preset in presets" :key="preset.id">
-                        <div class="p-4 bg-white rounded shadow">
-                            <div class="flex justify-between">
-                                <div>
-                                    <h3 class="text-lg font-semibold" x-text="preset.name"></h3>
-                                    <p class="text-gray-600 text-sm mt-1" x-text="preset.description"></p>
-                                    <div class="mt-2 flex gap-4 text-sm text-gray-500">
-                                        <span x-text="'Loodud: ' + (preset.createdAt || 'Teadmata')"></span>
-                                        <span x-text="'Autor: ' + (preset.createdBy || 'Admin')"></span>
+                    <!-- Enhanced Sections List with Accordion Style -->
+                    <div class="space-y-4">
+                        <template x-for="(section, index) in form.sections" :key="index">
+                            <div class="bg-white rounded-lg shadow overflow-hidden">
+                                <!-- Section Header -->
+                                <div class="flex items-center justify-between p-4 bg-gray-50 border-b cursor-pointer"
+                                    @click="section.isOpen = section.isOpen === undefined ? true : !section.isOpen">
+                                    <div class="flex-1">
+                                        <div class="flex items-center">
+                                            <input type="text"
+                                                class="text-xl font-semibold border-none bg-transparent w-full focus:ring-2 focus:ring-blue-500"
+                                                x-model="section.title" placeholder="Peatüki pealkiri" @click.stop>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <span class="mr-2 text-sm text-gray-600">Aktiivne</span>
+                                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600"
+                                                x-model="section.enabled" @click.stop>
+                                        </label>
+                                        <button @click.stop="removeSection(index)"
+                                            class="text-red-500 hover:text-red-700 p-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            @click.stop="section.isOpen = section.isOpen === undefined ? true : !section.isOpen">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                class="h-6 w-6 transition-transform duration-200"
+                                                :class="section.isOpen ? 'transform rotate-180' : ''" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
                                     </div>
                                 </div>
-                                <div class="flex items-start">
-                                    <button @click="deleteFormPreset(preset.id)"
-                                        class="text-red-500 hover:text-red-700 p-1 rounded">
-                                        <i class="fas fa-trash"></i>
+
+                                <!-- Section Content -->
+                                <div class="p-4 bg-white" x-show="section.isOpen" x-transition>
+                                    <!-- Options List -->
+                                    <div class="space-y-3">
+                                        <template x-for="(option, oIndex) in section.options" :key="oIndex">
+                                            <div class="border rounded-md p-3 hover:bg-gray-50">
+                                                <div class="flex flex-col space-y-2">
+                                                    <div class="flex-1">
+                                                        <textarea class="w-full border rounded p-2 text-sm"
+                                                            x-model="option.text" rows="3"
+                                                            placeholder="Valiku tekst"></textarea>
+                                                    </div>
+                                                    <div class="flex items-center justify-between mt-2">
+                                                        <div class="flex items-center space-x-4">
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <span class="mr-2 text-sm text-gray-600">Vaikimisi
+                                                                    valitud</span>
+                                                                <input type="checkbox"
+                                                                    class="form-checkbox h-4 w-4 text-blue-600"
+                                                                    x-model="option.checked">
+                                                            </label>
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <span class="mr-2 text-sm text-gray-600">Muudetav</span>
+                                                                <input type="checkbox"
+                                                                    class="form-checkbox h-4 w-4 text-blue-600"
+                                                                    x-model="option.editable">
+                                                            </label>
+                                                        </div>
+                                                        <button @click="removeOption(index, oIndex)"
+                                                            class="text-red-500 hover:text-red-700 p-1">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <!-- Add Option Button -->
+                                        <button @click="addOption(index)"
+                                            class="w-full py-2 px-4 border border-dashed border-blue-500 rounded-md text-blue-600 hover:bg-blue-50 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4v16m8-8H4" />
+                                            </svg>
+                                            Lisa uus tingimus
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Add Section Button -->
+                        <button @click="addSection()"
+                            class="w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center justify-center transition-colors duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            Lisa uus peatükk
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Presets Section -->
+                <div class="mb-8 bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-2xl font-semibold mb-4">Vormimallid</h2>
+                    <p class="text-gray-600 mb-4">
+                        Siin saate salvestada erinevaid vormimalle, mida kasutajad saavad kasutada oma vormide
+                        loomiseks.
+                        Mallid muudavad ainult vormi sektsioone ja sissejuhatuse teksti, kuid jätavad kasutaja väljad
+                        puutumatuks.
+                    </p>
+
+                    <!-- Preset Manager -->
+                    <div class="mb-6" x-data="{ 
+                            showForm: false, 
+                            presetName: '', 
+                            presetDescription: '',
+                            selectedSections: {
+                                includeIntro: false,
+                                sectionOptions: {}
+                            },
+                            viewMode: 'list',  // 'list' or 'create'
+                            selectedPreset: null,
+                            
+                            // Initialize the data structure
+                            initializeSelectedSections() {
+                                if (typeof this.selectedSections !== 'object') {
+                                    this.selectedSections = {};
+                                }
+                                if (!this.selectedSections.sectionOptions) {
+                                    this.selectedSections.sectionOptions = {};
+                                }
+                            }
+                        }" x-init="initializeSelectedSections()">
+
+                        <!-- View Selector -->
+                        <div class="flex space-x-2 mb-4">
+                            <button @click="viewMode = 'list'; selectedPreset = null"
+                                class="py-2 px-4 rounded-md text-center transition-colors duration-200"
+                                :class="viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'">
+                                Mallide nimekiri
+                            </button>
+                            <button @click="viewMode = 'create'; showForm = true"
+                                class="py-2 px-4 rounded-md text-center transition-colors duration-200"
+                                :class="viewMode === 'create' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'">
+                                Lisa uus mall
+                            </button>
+                        </div>
+
+                        <!-- Create/Edit Form -->
+                        <div x-show="viewMode === 'create'" class="bg-white rounded-lg shadow-md overflow-hidden"
+                            x-transition>
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-xl font-semibold mb-4">Uue vormimalli loomine</h3>
+
+                                <!-- Basic Info -->
+                                <div class="space-y-4 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Vormimalli nimi
+                                            *</label>
+                                        <input type="text" x-model="presetName" class="w-full border p-3 rounded-md"
+                                            placeholder="Sisesta vormimalli nimi...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Vormimalli
+                                            kirjeldus</label>
+                                        <textarea x-model="presetDescription" class="w-full border p-3 rounded-md"
+                                            rows="2" placeholder="Sisesta vormimalli lühikirjeldus..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Section Selection -->
+                                <div class="mb-6">
+                                    <h4 class="text-lg font-medium mb-3">Vali vormimalli sisu</h4>
+                                    <p class="text-gray-600 mb-3">Vali, millised sektsioonid ja tingimused lisatakse
+                                        sellesse
+                                        vormimalli:</p>
+
+                                    <div class="border rounded-md divide-y">
+                                        <!-- Intro Selection -->
+                                        <div class="p-4">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600"
+                                                    x-model="selectedSections.includeIntro">
+                                                <span class="ml-2 text-gray-700 font-medium">Kasuta sissejuhatust</span>
+                                            </label>
+                                            <p class="mt-2 text-sm text-gray-600"
+                                                x-show="selectedSections.includeIntro">
+                                                Lisatakse praegune sissejuhatuse tekst
+                                            </p>
+                                        </div>
+
+                                        <!-- Sections Selection -->
+                                        <template x-for="(section, index) in form.sections" :key="index">
+                                            <div class="p-4 hover:bg-gray-50 border-b">
+                                                <div class="flex items-start">
+                                                    <div>
+                                                        <input type="checkbox"
+                                                            class="form-checkbox h-5 w-5 text-blue-600 mt-1"
+                                                            x-model="selectedSections[index]" @change="
+                                                                initializeSelectedSections();
+                                                                if(selectedSections[index]) {
+                                                                    if(!selectedSections.sectionOptions[index]) {
+                                                                        selectedSections.sectionOptions[index] = {};
+                                                                    }
+                                                                } else {
+                                                                    delete selectedSections.sectionOptions[index];
+                                                                }
+                                                            ">
+                                                    </div>
+                                                    <div class="ml-3 flex-1">
+                                                        <p class="font-medium" x-text="section.title"></p>
+                                                        <p class="text-sm text-gray-600 mt-1"
+                                                            x-show="selectedSections[index]">
+                                                            <span x-text="section.options.length"></span> tingimust
+                                                        </p>
+
+                                                        <!-- Individual Option Selection (visible when section is selected) -->
+                                                        <div x-show="selectedSections[index]"
+                                                            class="mt-3 ml-1 pl-3 border-l-2 border-blue-200"
+                                                            x-init="if(!selectedSections.sectionOptions[index]) selectedSections.sectionOptions[index] = {}">
+                                                            <p class="text-sm font-medium text-gray-700 mb-2">Vali
+                                                                tingimused,
+                                                                mida soovid lisada:</p>
+                                                            <div class="space-y-2">
+                                                                <template x-for="(option, optIndex) in section.options"
+                                                                    :key="optIndex">
+                                                                    <div class="flex items-start">
+                                                                        <input type="checkbox"
+                                                                            class="form-checkbox h-4 w-4 text-blue-500 mt-1"
+                                                                            @click="if(!selectedSections.sectionOptions[index]) selectedSections.sectionOptions[index] = {}; selectedSections.sectionOptions[index][optIndex] = !selectedSections.sectionOptions[index][optIndex]"
+                                                                            :checked="selectedSections.sectionOptions[index] && selectedSections.sectionOptions[index][optIndex]">
+                                                                        <div class="ml-2 flex-1">
+                                                                            <p class="text-sm text-gray-800 line-clamp-2"
+                                                                                x-text="option.text.length > 80 ? option.text.substring(0, 80) + '...' : option.text">
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                            <div class="mt-2 flex justify-end space-x-2">
+                                                                <button @click="selectAllOptionsInSection(index)"
+                                                                    class="text-xs text-blue-600 hover:text-blue-800 py-1 px-2">
+                                                                    Vali kõik
+                                                                </button>
+                                                                <button @click="deselectAllOptionsInSection(index)"
+                                                                    class="text-xs text-gray-600 hover:text-gray-800 py-1 px-2">
+                                                                    Tühista valik
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex justify-end space-x-3">
+                                    <button @click="viewMode = 'list'; showForm = false"
+                                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+                                        Tühista
+                                    </button>
+                                    <button
+                                        @click="saveFormPresetWithContent(presetName, presetDescription, selectedSections)"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                        Salvesta vormimall
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </template>
+
+                        <!-- Preset List -->
+                        <div x-show="viewMode === 'list'" x-transition>
+                            <div x-data="{ 
+                                presets: [], 
+                                isLoading: false,
+                                loadPresets() {
+                                    if (!window.collection || !window.db || !window.getDocs) {
+                                        console.error('Firebase functions not initialized yet');
+                                        setTimeout(() => this.loadPresets(), 1000);
+                                        return;
+                                    }
+                                    
+                                    this.isLoading = true;
+                                    window.getDocs(window.collection(window.db, 'formPresets'))
+                                        .then(snapshot => {
+                                            const presets = [];
+                                            snapshot.forEach(doc => {
+                                                const data = doc.data();
+                                                presets.push({
+                                                    id: doc.id,
+                                                    name: data.name || 'Nimetu mall',
+                                                    description: data.description || '',
+                                                    createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : null,
+                                                    createdBy: data.createdBy || 'Admin',
+                                                    hasContent: data.form && (data.form.sections || data.form.intro)
+                                                });
+                                            });
+                                            this.presets = presets;
+                                        })
+                                        .catch(error => {
+                                            console.error('Error loading presets:', error);
+                                            alert('Vormimallide laadimine ebaõnnestus: ' + error.message);
+                                        })
+                                        .finally(() => {
+                                            this.isLoading = false;
+                                        });
+                                }
+                            }" x-init="setTimeout(() => loadPresets(), 1500)">
+                                <div x-show="isLoading" class="text-center py-4">
+                                    <div
+                                        class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500">
+                                    </div>
+                                    <p class="mt-2 text-gray-600">Laen vormimalle...</p>
+                                </div>
+
+                                <div x-show="!isLoading && presets.length === 0"
+                                    class="p-4 bg-gray-100 text-center rounded">
+                                    <p class="text-gray-600">Ühtegi vormimalli pole veel loodud</p>
+                                </div>
+
+                                <div x-show="!isLoading && presets.length > 0" class="space-y-4">
+                                    <template x-for="preset in presets" :key="preset.id">
+                                        <div
+                                            class="p-5 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <h3 class="text-lg font-semibold" x-text="preset.name"></h3>
+                                                    <p class="text-gray-600 text-sm mt-1"
+                                                        x-text="preset.description || 'Kirjeldus puudub'"></p>
+                                                    <div class="mt-2 flex gap-4 text-sm text-gray-500">
+                                                        <span
+                                                            x-text="'Loodud: ' + (preset.createdAt || 'Teadmata')"></span>
+                                                        <span x-text="'Autor: ' + (preset.createdBy || 'Admin')"></span>
+                                                    </div>
+                                                    <div class="mt-3" x-show="preset.hasContent">
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            Sisaldab vormingu sisu
+                                                        </span>
+                                                    </div>
+                                                    <div class="mt-3" x-show="!preset.hasContent">
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            Puudub vormingu sisu
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-start space-x-2">
+                                                    <button @click="applyPreset(preset.id)"
+                                                        class="text-blue-600 hover:text-blue-800 p-1 rounded">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </button>
+                                                    <button @click="editPreset(preset.id)"
+                                                        class="text-gray-600 hover:text-gray-800 p-1 rounded">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                    </button>
+                                                    <button @click="deleteFormPreset(preset.id)"
+                                                        class="text-red-500 hover:text-red-700 p-1 rounded">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save and Backup Buttons -->
+                <div class="mt-6 flex space-x-4">
+                    <button class="px-6 py-3 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition flex-grow"
+                        @click="saveChanges()">
+                        Salvesta muudatused
+                    </button>
+                    <button class="px-6 py-3 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition flex-grow"
+                        @click="backupSettings()">
+                        Tee varundus
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Save and Backup Buttons -->
-        <div class="mt-6">
-            <button class="px-4 py-2 bg-indigo-600 text-white rounded" @click="saveChanges()">Salvesta
-                muudatused</button>
-            <button class="ml-4 px-4 py-2 bg-yellow-500 text-white rounded" @click="backupSettings()">Tee
-                varundus</button>
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <h2 class="text-xl font-semibold mb-4">Tööriistad</h2>
+
+                <!-- Standard Fields Section -->
+                <div class="mb-6">
+                    <h3 class="font-medium text-gray-800 mb-3">Standardväljad</h3>
+                    <p class="text-sm text-gray-600 mb-3">
+                        Standardväljad on põhiväljad, mida kõik kasutajad näevad vormil. Neid näidatakse enne vormi
+                        sektsioone.
+                    </p>
+
+                    <div class="space-y-3 mb-4">
+                        <template x-for="(field, index) in standardFields" :key="index">
+                            <div class="p-3 bg-gray-50 rounded border">
+                                <div class="flex justify-between items-center mb-2">
+                                    <input type="text" class="text-sm font-medium border p-1 w-full"
+                                        x-model="field.label" placeholder="Välja pealkiri">
+                                </div>
+                                <input type="text" class="text-sm border p-1 w-full" x-model="field.placeholder"
+                                    placeholder="Placeholder tekst">
+                                <button class="mt-2 text-xs text-red-500 hover:text-red-700"
+                                    @click="removeStandardField(index)">
+                                    Kustuta väli
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+
+                    <button
+                        class="w-full mb-2 px-4 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition"
+                        @click="addStandardField()">
+                        Lisa uus standardväli
+                    </button>
+                </div>
+
+                <div class="border-t border-gray-200 my-4 pt-4">
+                    <h3 class="font-medium text-gray-800 mb-3">Andmebaasi toimingud</h3>
+                    <p class="text-sm text-gray-600 mb-3">
+                        Firestore dokumendi loomine salvestab praeguse vormi konfiguratsiooni andmebaasi.
+                    </p>
+                    <button class="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition"
+                        @click="handleCreateDefaultFormDocument" aria-label="Loo Firestore dokument" tabindex="0"
+                        @keydown.enter="handleCreateDefaultFormDocument">
+                        Loo Firestore dokument
+                    </button>
+                </div>
+
+                <!-- Firestore permissions section -->
+                <div class="border-t border-gray-200 my-4 pt-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-medium text-gray-800">Firestore õigused</h3>
+                        <span x-show="window.currentUser"
+                            :class="Object.values(collectionStatus).every(s => s) ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
+                            class="px-2 py-1 text-xs rounded-full">
+                            <span
+                                x-text="Object.values(collectionStatus).every(s => s) ? 'Õigused olemas' : 'Õigused puudulikud'"></span>
+                        </span>
+                    </div>
+
+                    <div x-show="window.currentUser" class="mb-3">
+                        <p class="text-sm text-gray-600 mb-2">Kasutaja: <span class="font-medium"
+                                x-text="window.currentUser?.email || 'Pole teada'"></span></p>
+                        <p class="text-sm text-gray-600">Roll: <span class="font-medium"
+                                x-text="window.userData?.role || 'Pole teada'"></span></p>
+                    </div>
+
+                    <div x-show="Object.keys(collectionStatus).length > 0" class="bg-gray-50 p-3 rounded border mb-3">
+                        <p class="text-sm font-medium text-gray-700 mb-2">Kollektsioonide juurdepääs:</p>
+                        <ul class="space-y-1">
+                            <template x-for="(status, collection) in collectionStatus">
+                                <li class="flex justify-between text-sm">
+                                    <span x-text="collection"></span>
+                                    <span :class="status ? 'text-green-600' : 'text-red-500'"
+                                        x-text="status ? '✓' : '✗'"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+
+                    <button @click="testCollectionAccess()"
+                        class="w-full px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition">
+                        Kontrolli õigusi
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -301,7 +616,6 @@
                     fields: {},
                     sections: []
                 },
-                showPermissionsAlert: false,
                 currentUser: null,
                 collectionStatus: {
                     'formSettings': false,
@@ -316,6 +630,11 @@
                         this.loadSettings();
                         this.initializeDefaultData();
 
+                        // Kontrolli õigusi pärast andmete laadimist
+                        setTimeout(() => {
+                            this.testCollectionAccess();
+                        }, 2000);
+
                         // Kui kasutaja on sisselogitud, testida õigusi automaatselt
                         if (window.currentUser && window.userData && (window.userData.isAdmin === 'true' || window.userData.role === 'mainAdmin')) {
                             this.testCollectionAccess();
@@ -328,7 +647,6 @@
                         return;
                     }
 
-                    this.showPermissionsAlert = true;
                     console.log("Kasutajaandmed:", window.userData);
 
                     // Kontrolli täpset kasutajarolli
@@ -536,13 +854,11 @@
                                     })
                                     .catch(error => {
                                         console.error("Error initializing default form data:", error);
-                                        this.showPermissionsAlert = true;
                                     });
                             }
                         })
                         .catch(error => {
                             console.error("Error checking form settings:", error);
-                            this.showPermissionsAlert = true;
                         });
                 },
                 loadSettings() {
@@ -566,7 +882,6 @@
                         })
                         .catch(error => {
                             console.error("Vormi seadete laadimine ebaõnnestus:", error);
-                            this.showPermissionsAlert = true;
                         });
                 },
                 saveChanges() {
@@ -654,7 +969,6 @@
                         alert("Dokumendi loomine ebaõnnestus: Teil pole vajalikke õigusi. Teie praegune roll: " +
                             (window.userData ? window.userData.role : "tundmatu") +
                             ". Vajalik roll: mainAdmin");
-                        this.showPermissionsAlert = true;
                         return;
                     }
 
@@ -691,12 +1005,10 @@
                                 })
                                 .catch((error) => {
                                     console.error("Vormi loomisel tekkis viga: ", error);
-                                    this.showPermissionsAlert = true;
                                 });
                         })
                         .catch((error) => {
                             console.error("Õiguste kontroll ebaõnnestus: ", error);
-                            this.showPermissionsAlert = true;
                         });
                 },
                 // Vormimalli salvestamine
@@ -734,7 +1046,7 @@
                             alert("Vormimall on edukalt salvestatud!");
                             // Uuendame mallide nimekirja
                             try {
-                                const presetsComponent = document.querySelector('[x-data*="presets"]').__x.$data;
+                                const presetsComponent = document.querySelector('[x-data*="presets"]')?.__x?.$data;
                                 if (presetsComponent && typeof presetsComponent.loadPresets === 'function') {
                                     presetsComponent.loadPresets();
                                 } else {
@@ -774,7 +1086,7 @@
                             alert("Vormimall on edukalt kustutatud!");
                             // Uuendame mallide nimekirja
                             try {
-                                const presetsComponent = document.querySelector('[x-data*="presets"]').__x.$data;
+                                const presetsComponent = document.querySelector('[x-data*="presets"]')?.__x?.$data;
                                 if (presetsComponent && typeof presetsComponent.loadPresets === 'function') {
                                     presetsComponent.loadPresets();
                                 } else {
@@ -790,6 +1102,244 @@
                             console.error("Vormimalli kustutamine ebaõnnestus:", error);
                             alert("Vormimalli kustutamine ebaõnnestus: " + error.message);
                         });
+                },
+                saveFormPresetWithContent(name, description, selectedSections) {
+                    // First make sure the selectedSections object is properly structured
+                    this.initializeSelectedSections();
+
+                    if (!name || name.trim() === '') {
+                        alert("Palun sisestage vormimalli nimi");
+                        return;
+                    }
+
+                    if (!window.auth.currentUser) {
+                        alert("Vormimalli salvestamiseks peate olema sisse logitud administraatorina");
+                        return;
+                    }
+
+                    if (!window.userData || window.userData.role !== 'mainAdmin') {
+                        alert("Vormimalli salvestamine õnnestub ainult peaadministraatoril");
+                        return;
+                    }
+
+                    console.log("Saving with selections:", JSON.stringify(selectedSections));
+
+                    // Valime välja ainult valitud sektsioonid ja nende valitud tingimused
+                    const filteredSections = [];
+                    this.form.sections.forEach((section, index) => {
+                        if (selectedSections[index]) {
+                            // Create a copy of the section
+                            const newSection = { ...section };
+
+                            // Make sure options is initialized
+                            newSection.options = newSection.options || [];
+
+                            // Only include selected options if they exist
+                            if (selectedSections.sectionOptions &&
+                                selectedSections.sectionOptions[index]) {
+                                const optionSelections = selectedSections.sectionOptions[index];
+
+                                // If at least one option is explicitly selected
+                                if (Object.values(optionSelections).some(v => v === true)) {
+                                    // Filter options based on selection
+                                    newSection.options = section.options
+                                        .filter((_, optIndex) => optionSelections[optIndex] === true)
+                                        .map(option => ({ ...option }));
+                                }
+                            }
+
+                            // Only add if there are options or we want empty sections too
+                            if (newSection.options.length > 0) {
+                                filteredSections.push(newSection);
+                            }
+                        }
+                    });
+
+                    // Loome malli objekti
+                    const preset = {
+                        name: name.trim(),
+                        description: description || '',
+                        form: {
+                            intro: selectedSections.includeIntro ? this.form.intro : '',
+                            sections: filteredSections
+                        },
+                        createdBy: window.auth.currentUser.email,
+                        createdAt: window.serverTimestamp()
+                    };
+
+                    console.log("Saving preset with content:", preset);
+
+                    // Salvestame Firestore'i
+                    window.addDoc(window.collection(window.db, "formPresets"), preset)
+                        .then(() => {
+                            alert("Vormimall on edukalt salvestatud!");
+                            // Uuendame mallide nimekirja
+                            try {
+                                const presetsComponent = document.querySelector('[x-data*="presets"]')?.__x?.$data;
+                                if (presetsComponent && typeof presetsComponent.loadPresets === 'function') {
+                                    presetsComponent.loadPresets();
+                                } else {
+                                    console.warn("Vormimallide komponenti ei leitud või loadPresets funktsioon puudub");
+                                    setTimeout(() => window.location.reload(), 1000);
+                                }
+                                // Reset view mode
+                                this.viewMode = 'list';
+                                this.presetName = '';
+                                this.presetDescription = '';
+                                this.selectedSections = {
+                                    includeIntro: false,
+                                    sectionOptions: {}
+                                };
+                            } catch (err) {
+                                console.error("Vormimallide uuendamisel tekkis viga:", err);
+                                setTimeout(() => window.location.reload(), 1000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Vormimalli salvestamine ebaõnnestus:", error);
+                            alert("Vormimalli salvestamine ebaõnnestus: " + error.message);
+                        });
+                },
+                applyPreset(presetId) {
+                    if (!confirm("Kas soovite rakendada selle vormimalli? See asendab praeguse vormi sisu.")) {
+                        return;
+                    }
+
+                    window.getDoc(window.doc(window.db, "formPresets", presetId))
+                        .then(doc => {
+                            if (doc.exists()) {
+                                const presetData = doc.data();
+                                if (presetData.form) {
+                                    // Apply intro if it exists
+                                    if (presetData.form.intro) {
+                                        this.form.intro = presetData.form.intro;
+                                    }
+
+                                    // Apply sections if they exist
+                                    if (presetData.form.sections && Array.isArray(presetData.form.sections)) {
+                                        // Keep a copy of original sections for reference
+                                        const originalSections = [...this.form.sections];
+
+                                        // Apply new sections, ensuring they have isOpen property
+                                        this.form.sections = presetData.form.sections.map(section => ({
+                                            ...section,
+                                            isOpen: false // Default closed state
+                                        }));
+
+                                        alert("Vormimall on rakendatud!");
+                                    } else {
+                                        alert("Vormimallil puuduvad sektsioonid!");
+                                    }
+                                } else {
+                                    alert("Vormimallil puudub vormi sisu!");
+                                }
+                            } else {
+                                alert("Vormimalli ei leitud!");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Vormimalli rakendamisel tekkis viga:", error);
+                            alert("Vormimalli rakendamine ebaõnnestus: " + error.message);
+                        });
+                },
+                editPreset(presetId) {
+                    // Load preset data
+                    window.getDoc(window.doc(window.db, "formPresets", presetId))
+                        .then(doc => {
+                            if (doc.exists()) {
+                                const presetData = doc.data();
+
+                                // Switch to edit view
+                                this.viewMode = 'create';
+                                this.selectedPreset = presetId;
+                                this.presetName = presetData.name || '';
+                                this.presetDescription = presetData.description || '';
+
+                                // Initialize section selection
+                                this.selectedSections = {
+                                    includeIntro: !!presetData.form?.intro,
+                                    sectionOptions: {}
+                                };
+
+                                // Map selected sections and their options
+                                if (presetData.form?.sections && Array.isArray(presetData.form.sections)) {
+                                    // Create a map of sections by title for easy lookup
+                                    const presetSectionMap = {};
+                                    presetData.form.sections.forEach(presetSection => {
+                                        presetSectionMap[presetSection.title] = presetSection;
+                                    });
+
+                                    // Check each section in the current form
+                                    this.form.sections.forEach((section, index) => {
+                                        // If this section title exists in the preset
+                                        if (presetSectionMap[section.title]) {
+                                            // Mark this section as selected
+                                            this.selectedSections[index] = true;
+
+                                            // Initialize options container for this section
+                                            this.selectedSections.sectionOptions[index] = {};
+
+                                            // Get the matching preset section
+                                            const matchingPresetSection = presetSectionMap[section.title];
+
+                                            // Create a map of preset options by text for easy lookup
+                                            const presetOptionTexts = new Set(
+                                                matchingPresetSection.options.map(opt => opt.text)
+                                            );
+
+                                            // Mark options that exist in the preset as selected
+                                            section.options.forEach((option, optIndex) => {
+                                                this.selectedSections.sectionOptions[index][optIndex] =
+                                                    presetOptionTexts.has(option.text);
+                                            });
+                                        }
+                                    });
+                                }
+
+                                alert("Vormimalli redigeerimine on avatud. Tehke vajalikud muudatused ja salvestage.");
+                            } else {
+                                alert("Vormimalli ei leitud!");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Vormimalli laadimise viga:", error);
+                            alert("Vormimalli laadimise viga: " + error.message);
+                        });
+                },
+                selectAllOptionsInSection(sectionIndex) {
+                    // Make sure the section is marked as selected
+                    this.selectedSections[sectionIndex] = true;
+
+                    // Initialize options container if needed
+                    if (!this.selectedSections.sectionOptions) {
+                        this.selectedSections.sectionOptions = {};
+                    }
+
+                    if (!this.selectedSections.sectionOptions[sectionIndex]) {
+                        this.selectedSections.sectionOptions[sectionIndex] = {};
+                    }
+
+                    // Select all options in this section
+                    this.form.sections[sectionIndex].options.forEach((_, optIndex) => {
+                        this.selectedSections.sectionOptions[sectionIndex][optIndex] = true;
+                    });
+                },
+                deselectAllOptionsInSection(sectionIndex) {
+                    // Make sure the sectionOptions container exists
+                    if (!this.selectedSections.sectionOptions) {
+                        this.selectedSections.sectionOptions = {};
+                        return;
+                    }
+
+                    if (!this.selectedSections.sectionOptions[sectionIndex]) {
+                        this.selectedSections.sectionOptions[sectionIndex] = {};
+                        return;
+                    }
+
+                    // Deselect all options in this section
+                    this.form.sections[sectionIndex].options.forEach((_, optIndex) => {
+                        this.selectedSections.sectionOptions[sectionIndex][optIndex] = false;
+                    });
                 }
             }
         }
