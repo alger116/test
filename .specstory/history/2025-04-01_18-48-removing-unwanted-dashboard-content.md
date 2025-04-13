@@ -641,11 +641,410 @@ The error is occurring because the code is trying to initialize charts, but the 
 
 ---
 
-Cancelled
+
+
+---
+
+I'll try a different approach with more specific edits:
+
+---
+
+Read file: auth/admin.html
+
+---
+
+Let me get a bit more context about the document structure:
+
+---
+
+Read file: auth/admin.html
+
+---
+
+Read file: auth/admin.html
+
+---
+
+Let me try a different approach with a more specific location for edits:
+
+---
+
+```diff
+          localStorage.clear(); // Clear localStorage at the start
+  
+-         // Initialize charts
+-         let userActivityChart = null;
+-         let documentCreationChart = null;
+-         let systemResourcesChart = null;
+-         let errorRateChart = null;
+- 
+-         function initializeCharts() {
+-             // User Activity Chart
+-             const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+-             userActivityChart = new Chart(userActivityCtx, {
+-                 type: 'line',
+-                 data: {
+-                     labels: [],
+-                     datasets: [{
+-                         label: 'Kasutajate tegevus',
+-                         data: [],
+-                         borderColor: 'rgb(75, 192, 192)',
+-                         tension: 0.1
+-                     }]
+-                 },
+-                 options: {
+-                     responsive: true,
+-                     maintainAspectRatio: false
+-                 }
+-             });
+- 
+-             // Document Creation Chart
+-             const documentCreationCtx = document.getElementById('documentCreationChart').getContext('2d');
+-             documentCreationChart = new Chart(documentCreationCtx, {
+-                 type: 'bar',
+-                 data: {
+-                     labels: [],
+-                     datasets: [{
+-                         label: 'Dokumendid',
+-                         data: [],
+-                         backgroundColor: 'rgba(54, 162, 235, 0.5)'
+-                     }]
+-                 },
+-                 options: {
+-                     responsive: true,
+-                     maintainAspectRatio: false
+-                 }
+-             });
+- 
+-             // System Resources Chart
+-             const systemResourcesCtx = document.getElementById('systemResourcesChart').getContext('2d');
+-             systemResourcesChart = new Chart(systemResourcesCtx, {
+-                 type: 'doughnut',
+-                 data: {
+-                     labels: ['CPU', 'Mälu', 'Kettaruum'],
+-                     datasets: [{
+-                         data: [0, 0, 0],
+-                         backgroundColor: [
+-                             'rgba(255, 99, 132, 0.5)',
+-                             'rgba(54, 162, 235, 0.5)',
+-                             'rgba(255, 206, 86, 0.5)'
+-                         ]
+-                     }]
+-                 },
+-                 options: {
+-                     responsive: true,
+-                     maintainAspectRatio: false
+-                 }
+-             });
+- 
+-             // Error Rate Chart
+-             const errorRateCtx = document.getElementById('errorRateChart').getContext('2d');
+-             errorRateChart = new Chart(errorRateCtx, {
+-                 type: 'line',
+-                 data: {
+-                     labels: [],
+-                     datasets: [{
+-                         label: 'Vigade sagedus',
+-                         data: [],
+-                         borderColor: 'rgb(255, 99, 132)',
+-                         tension: 0.1
+-                     }]
+-                 },
+-                 options: {
+-                     responsive: true,
+-                     maintainAspectRatio: false
+-                 }
+-             });
+-         }
+- 
+-         // Update dashboard data
+-         async function updateDashboardData() {
++         // Initialize DOM content
++         document.addEventListener('DOMContentLoaded', function() {
++             firebase.auth().onAuthStateChanged(async function(user) {
+                  try {
+-                 const endDate = new Date();
+-                 const startDate = new Date();
+-                 startDate.setDate(startDate.getDate() - 30); // Last 30 days
+- 
+-                 // Fetch all data in parallel
+-                 const [userActivity, documentCreation, systemResources, errorRate] = await Promise.all([
+-                     fetchUserActivity(startDate, endDate),
+-                     fetchDocumentCreation(startDate, endDate),
+-                     fetchSystemResources(),
+-                     fetchErrorRate(startDate, endDate)
+-                 ]);
+- 
+-                 // Update charts with new data
+-                 updateUserActivityChart(userActivity);
+-                 updateDocumentCreationChart(documentCreation);
+-                 updateSystemResourcesChart(systemResources);
+-                 updateErrorRateChart(errorRate);
+- 
+-                 // Update system health cards
+-                 updateSystemHealthCards(systemResources);
++                     await checkAuthAndRedirect(user);
++                     await loadUsers();
++                     setupEventListeners();
++                     initializeSystemSettings();
+                  } catch (error) {
+-                 console.error("Error updating dashboard:", error);
+-                 showNotification("Viga andmete uuendamisel!", "error");
+-             }
+-         }
+- 
+-         // Export dashboard data
+-         async function exportDashboardData() {
+-             try {
+-                 const startDate = document.getElementById('dateRangeStart').value;
+-                 const endDate = document.getElementById('dateRangeEnd').value;
+- 
+-                 // Fetch all data
+-                 const data = await fetchAllDashboardData(startDate, endDate);
+- 
+-                 // Convert to CSV
+-                 const csv = convertToCSV(data);
+- 
+-                 // Create and download file
+-                 const blob = new Blob([csv], { type: 'text/csv' });
+-                 const url = window.URL.createObjectURL(blob);
+-                 const a = document.createElement('a');
+-                 a.href = url;
+-                 a.download = `dashboard-data-${startDate}-${endDate}.csv`;
+-                 a.click();
+-                 window.URL.revokeObjectURL(url);
+- 
+-                 showNotification('Dashboard andmed eksporditud!', 'success');
+-             } catch (error) {
+-                 console.error('Error exporting dashboard data:', error);
+-                 showNotification('Viga dashboard andmete ekspordil!', 'error');
++                     console.error('Error in auth state changed:', error);
++                     showNotification('Autentimise viga!', 'error');
+                  }
+-         }
+- 
+-         // Initialize charts when the page loads
+-         document.addEventListener('DOMContentLoaded', () => {
+-             initializeCharts();
+-             updateDashboardData(); // Initial data load
++             });
+          });
+  
+```
+
+---
+
+Now let's check if there are any other dashboard-related functions that need to be removed:
+
+---
+
+<details>
+            <summary>Grep search for "update.*Chart|fetchUser|fetchDocument|fetchSystem|fetchError|fetchAll.*Dashboard|system.*Health" • **10** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/viljarpartel/Desktop/test/vendor/bundle/ruby/3.4.0/gems/rouge-3.30.0/lib/rouge/lexers/lasso/keywords.rb` | L13 | `⟪ 705 characters skipped ⟫ecurity", "_admin_servicepath", "_admin_updateconnector", "_admin_updatedatabase", "_admin_updatefield", "_admin_updategroup", "_admin_updatehost", "_admin_updatetable", "_admin_updateuser", "_chartfx_activation_string", "_chartfx_getchalle` |
+| `file:///Users/viljarpartel/Desktop/test/vendor/bundle/ruby/3.4.0/gems/rouge-3.30.0/lib/rouge/lexers/mathematica/keywords.rb` | L12 | `⟪ 4141 characters skipped ⟫entedSymmetricPolynomial", "AllowVersionUpdate", "Arrays", "Authentication", "AllTrue", "Arrow", "AuthenticationDialog", "Alphabet", "Arrowheads", "AutoAction", "AlphabeticOrder", "ASATriangle", "Autocomplete", "AlphabeticSort", "Ask", "Aut` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_16-33-admin-panel-organization-and-functionality.md` | L181 | `-                     <!-- System Health Cards -->` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-16-reorganizing-the-admin-panel-layout.md` | L225 | `<!-- System Health Cards -->` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-16-reorganizing-the-admin-panel-layout.md` | L857 | `- Overview tab: Shows system health cards and recent activity` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-16-reorganizing-the-admin-panel-layout.md` | L875 | `- Monitor system health and analytics` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_19-41-admin-page-simplification-request.md` | L298 | `The admin page should now be cleaner and less crowded. The remaining sections include the system health cards and system settings. Is there anything else you'd like me to help you with?` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L44 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2799 | `function updateUserActivityChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L45 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2827 | `function updateDocumentCreationChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L46 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2856 | `function updateSystemResourcesChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L47 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2887 | `function updateErrorRateChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L48 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2915 | `function updateSystemHealthCards(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L65 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2799 | `function updateUserActivityChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L66 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2827 | `function updateDocumentCreationChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L67 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2856 | `function updateSystemResourcesChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L68 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2887 | `function updateErrorRateChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L69 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2915 | `function updateSystemHealthCards(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L2729 | `+         // Simulated system health stats` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L2730 | `+         updateSystemHealthCards(generateMockSystemData());` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3077 | `+                 // Update charts with real data` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3078 | `+                 updateUserActivityChart(usersData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3079 | `+                 updateDocumentCreationChart(documentsData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3088 | `+                 updateUserActivityChart(mockData.userData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3089 | `+                 updateDocumentCreationChart(mockData.documentsData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3097 | `+             updateUserActivityChart(mockData.userData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3098 | `+             updateDocumentCreationChart(mockData.documentsData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3103 | `+         updateSystemResourcesChart(mockSystemData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3104 | `+         updateErrorRateChart(mockSystemData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3411 | `+  * Update user activity chart` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3414 | `+ function updateUserActivityChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3424 | `+  * Update document creation chart` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3427 | `+ function updateDocumentCreationChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3437 | `+  * Update system resources chart` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3440 | `+ function updateSystemResourcesChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3451 | `+  * Update error rate chart` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3454 | `+ function updateErrorRateChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3463 | `+  * Update system health cards` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3464 | `+  * @param {Object} data - System health data` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3466 | `+ function updateSystemHealthCards(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L4422 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2749 | `async function fetchUserActivity(startDate, endDate) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L4423 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2765 | `async function fetchDocumentCreation(startDate, endDate) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L4424 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2775 | `async function fetchSystemResources() {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L4522 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2749 | `async function fetchUserActivity(startDate, endDate) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L4523 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2765 | `async function fetchDocumentCreation(startDate, endDate) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L4524 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2775 | `async function fetchSystemResources() {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L91 | `⟪ 140 characters skipped ⟫`I notice there's an error because the `fetchUserActivity` function is missing. Let me add the missing function and related dashboard data fetching functions:` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L209 | `⟪ 120 characters skipped ⟫` | L13 | `⟪ 858 characters skipped ⟫in_updatetable", "_admin_updateuser", "_chartfx_activation_string", "_chartfx_getchallengestring", "_chop_args", "_chop_mimes", "_client_addr_old", "_client_address_old", "_client_ip_old", "_database_nam` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L270 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2520 | `// Update charts with new data` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L271 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2521 | `updateUserActivityChart(userActivity);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L272 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2522 | `updateDocumentCreationChart(documentCreation);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L273 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2523 | `updateSystemResourcesChart(systemResources);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L274 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2524 | `updateErrorRateChart(errorRate);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L277 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2799 | `function updateUserActivityChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L282 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2827 | `function updateDocumentCreationChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L287 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2856 | `function updateSystemResourcesChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L292 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2887 | `function updateErrorRateChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L342 | `-                     <!-- System Health Cards -->` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L485 | `<summary>Grep search for "function.*Dashboard|updateDashboard|exportDashboard|initializeCharts|Chart" • **17** files</summary>` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L521 | `⟪ 120 characters skipped ⟫` | L13 | `⟪ 858 characters skipped ⟫in_updatetable", "_admin_updateuser", "_chartfx_activation_string", "_chartfx_getchallengestring", "_chop_args", "_chop_mimes", "_client_addr_old", "_client_address_old", "_client_ip_old", "_database_nam` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L571 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2372 | `// Update charts with new data` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L572 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2373 | `updateUserActivityChart(userActivity);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L573 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2374 | `updateDocumentCreationChart(documentCreation);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L574 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2375 | `updateSystemResourcesChart(systemResources);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L575 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2376 | `updateErrorRateChart(errorRate);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L580 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2651 | `function updateUserActivityChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L585 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2679 | `function updateDocumentCreationChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L590 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2708 | `function updateSystemResourcesChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L595 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2739 | `function updateErrorRateChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2468 | `async function fetchUserActivity(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2484 | `async function fetchDocumentCreation(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2494 | `async function fetchSystemResources() {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2508 | `async function fetchErrorRate(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2518 | `function updateUserActivityChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2546 | `function updateDocumentCreationChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2575 | `function updateSystemResourcesChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2606 | `function updateErrorRateChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2634 | `function updateSystemHealthCards(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L33 | `- Include system health metrics (server status, database size, etc.)` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L54 | `- Add system health monitoring` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L123 | `const activityData = await fetchUserActivity(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L124 | `updateCharts(activityData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L175 | `First, let's add the Dashboard Analytics and System Health Monitoring:` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L207 | `+                     <!-- System Health Cards -->` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L444 | `+                 const activityData = await fetchUserActivity(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L445 | `+                 const documentData = await fetchDocumentCreation(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L446 | `+                 const systemData = await fetchSystemResources();` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L447 | `+                 const errorData = await fetchErrorRates(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L449 | `+                 // Update charts` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L450 | `+                 updateCharts(activityData, documentData, systemData, errorData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L452 | `+                 // Update system health cards` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L453 | `+                 updateSystemHealthCards(systemData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L469 | `+                 const data = await fetchAllDashboardData(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L959 | `admin.html:2462 Error updating dashboard: ReferenceError: fetchUserActivity is not defined` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L967 | `I notice there's an error because the `fetchUserActivity` function is missing. Let me add the missing function and related dashboard data fetching functions:` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L982 | `-                 const activityData = await fetchUserActivity(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L983 | `-                 const documentData = await fetchDocumentCreation(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L984 | `-                 const systemData = await fetchSystemResources();` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L985 | `-                 const errorData = await fetchErrorRates(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L988 | `+                     fetchUserActivity(startDate, endDate),` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L989 | `+                     fetchDocumentCreation(startDate, endDate),` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2468 | `async function fetchUserActivity(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2484 | `async function fetchDocumentCreation(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2494 | `async function fetchSystemResources() {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2508 | `async function fetchErrorRate(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2518 | `function updateUserActivityChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2546 | `function updateDocumentCreationChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2575 | `function updateSystemResourcesChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2606 | `function updateErrorRateChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2634 | `function updateSystemHealthCards(data) {` |
+
+</details>
+
+---
+
+Let me remove these additional dashboard-related functions:
 
 ---
 
 
+
+---
+
+Let's try a different approach by first checking the current structure of the file after our previous edit:
+
+---
+
+<details>
+            <summary>Grep search for "updateUserActivityChart|fetchUserActivity" • **7** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L123 | `const activityData = await fetchUserActivity(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L444 | `+                 const activityData = await fetchUserActivity(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L959 | `admin.html:2462 Error updating dashboard: ReferenceError: fetchUserActivity is not defined` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L967 | `I notice there's an error because the `fetchUserActivity` function is missing. Let me add the missing function and related dashboard data fetching functions:` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L982 | `-                 const activityData = await fetchUserActivity(startDate, endDate);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L988 | `+                     fetchUserActivity(startDate, endDate),` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L997 | `+                 updateUserActivityChart(userActivity);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L1018 | `+         async function fetchUserActivity(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L1080 | `+         function updateUserActivityChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L1195 | `- `fetchUserActivity`: Gets active users count for a date range` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L1201 | `- `updateUserActivityChart`: Line chart for user activity` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L1240 | `at updateUserActivityChart (admin.html:2751:42)` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-26-admin-html-analysis-and-improvement-suggestions.md` | L1305 | `function updateUserActivityChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L91 | `⟪ 140 characters skipped ⟫`I notice there's an error because the `fetchUserActivity` function is missing. Let me add the missing function and related dashboard data fetching functions:` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L271 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2521 | `updateUserActivityChart(userActivity);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L277 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2799 | `function updateUserActivityChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L572 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2373 | `updateUserActivityChart(userActivity);` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-48-removing-unwanted-dashboard-content.md` | L580 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2651 | `function updateUserActivityChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L44 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2799 | `function updateUserActivityChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L65 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2799 | `function updateUserActivityChart(data) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3078 | `+                 updateUserActivityChart(usersData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3088 | `+                 updateUserActivityChart(mockData.userData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3097 | `+             updateUserActivityChart(mockData.userData);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L3414 | `+ function updateUserActivityChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L4422 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2749 | `async function fetchUserActivity(startDate, endDate) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_17-35-organizing-admin-panel-functions.md` | L4522 | `| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2749 | `async function fetchUserActivity(startDate, endDate) {` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_16-44-admin-panel-reorganization-and-role-management.md` | L1822 | `-                     fetchUserActivity(startDate, endDate),` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_16-44-admin-panel-reorganization-and-role-management.md` | L1829 | `-                 updateUserActivityChart(userActivity);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_16-44-admin-panel-reorganization-and-role-management.md` | L2109 | `-         async function fetchUserActivity(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_16-44-admin-panel-reorganization-and-role-management.md` | L2159 | `-         function updateUserActivityChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_16-44-admin-panel-reorganization-and-role-management.md` | L2891 | `+             fetchUserActivity();` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_16-44-admin-panel-reorganization-and-role-management.md` | L2918 | `+         async function fetchUserActivity() {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_16-44-admin-panel-reorganization-and-role-management.md` | L3086 | `at fetchUserActivity (admin.html:1282:17)` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_16-44-admin-panel-reorganization-and-role-management.md` | L3089 | `fetchUserActivity @ admin.html:1287` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-11-admin-panel-refactoring-guidelines.md` | L4228 | `-                     fetchUserActivity(startDate, endDate),` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-11-admin-panel-refactoring-guidelines.md` | L4235 | `-                 updateUserActivityChart(userActivity);` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-11-admin-panel-refactoring-guidelines.md` | L4463 | `-         async function fetchUserActivity(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_18-11-admin-panel-refactoring-guidelines.md` | L4513 | `-         function updateUserActivityChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2468 | `async function fetchUserActivity(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2518 | `function updateUserActivityChart(data) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2468 | `async function fetchUserActivity(startDate, endDate) {` |
+| `file:///Users/viljarpartel/Desktop/test/auth/admin.html` | L2518 | `function updateUserActivityChart(data) {` |
+
+</details>
+
+---
+
+Let me check where these functions are located in the file:
+
+---
+
+Read file: auth/admin.html
+
+---
+
+
+
+---
+
+Let me try a different approach - performing a direct edit on the file using line numbers:
+
+---
+
+```bash
+sed -i '' '2468,2668d' auth/admin.html
+```
+
+```
+viljarpartel@Mac test % 
+
+```
 
 ---
 

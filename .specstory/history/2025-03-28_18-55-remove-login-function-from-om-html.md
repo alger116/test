@@ -2407,7 +2407,6 @@ Näen probleemi. Kasutaja menüü nupp ei tööta, sest `toggleUserMenu` funktsi
 
 ---
 
-
 Teinud järgmised muudatused:
 
 1. Lisasin `()` funktsiooni kutsetele `@click="toggleUserMenu()"` ja `@click.prevent="logout()"`, et tagada, et funktsioonid käivitatakse korralikult
@@ -2771,11 +2770,1132 @@ Vabandust, tundub, et muudatused on juba olemas. Probleem võib olla selles, et 
 
 ---
 
-Cancelled
+```diff
+      <script>
+          document.addEventListener('alpine:init', () => {
+-             Alpine.data('formApp', () => {
+-                 const standardFields = [
++             Alpine.data('formApp', () => ({
++                 standardFields: [
+                      { key: 'buyer', label: 'Hankija', placeholder: 'Nimi, aadress, registrikood' },
+                      { key: 'submission', label: 'Pakkumise esitamise aeg ja koht', placeholder: 'nt 10. aprill, e-post' },
+                      { key: 'criteria', label: 'Väljavaliku alused', placeholder: 'Majanduslikult soodsaim' },
+                      { key: 'responsible', label: 'Vastutav isik', placeholder: 'Nimi' }
+-                 ];
+- 
++                 ],
++                 form: {
++                     name: '',
++                     intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
++                     fields: {},
++                     sections: [
++                         {
++                             title: '1 Üldised tingimused',
++                             enabled: true,
++                             open: false,
++                             options: [
++                                 { text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
++                                 { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
++                                 { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
++                                 { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
++                                 { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false }
++                             ]
++                         },
++                         {
++                             title: '2 Ostumenetluse tehniline kirjeldus',
++                             enabled: true,
++                             open: false,
++                             options: [
++                                 { text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.', checked: false, editable: true }
++                             ]
++                         },
++                         {
++                             title: '3 Nõuded pakkumusele',
++                             enabled: true,
++                             open: false,
++                             options: [
++                                 { text: 'Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.', checked: false },
++                                 { text: 'Hilinenud pakkumusi hankija vastu ei võta.', checked: false },
++                                 { text: 'Pakkumus peab sisaldama: Pakkumuse maksumust vastavalt lisale 1;', checked: false },
++                                 { text: 'Pakkumus peab sisaldama: Pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.', checked: false },
++                                 { text: 'Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.', checked: false },
++                                 { text: 'Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.', checked: false },
++                                 { text: 'Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist... Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.', checked: false }
++                             ]
++                         },
++                         {
++                             title: '4 Pakkumuste kontrollimine, hindamine ja eduka pakkumuse valik',
++                             enabled: true,
++                             open: false,
++                             options: [
++                                 { text: 'Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele...', checked: false },
++                                 { text: 'Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.', checked: false },
++                                 { text: 'Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel...', checked: false },
++                                 { text: 'Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi...', checked: false },
++                                 { text: 'Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama...', checked: false }
++                             ]
++                         },
++                         {
++                             title: '5 Läbirääkimiste pidamine',
++                             enabled: true,
++                             open: false,
++                             options: [
++                                 { text: 'Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu ja maksumuse ning tellimuse tingimuste üle.', checked: false },
++                                 { text: 'Hankijal on õigus loobuda ühest või mitmest pakkumuses kirjeldatud teenusest, tööst või asjast või vähendada nende mahtusid või koguseid...', checked: false },
++                                 { text: 'Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja... Läbirääkimised on konfidentsiaalsed.', checked: false },
++                                 { text: 'Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse...', checked: false }
++                             ]
++                         },
++                         {
++                             title: '6 Pakkumuste tagasi lükkamine ja ostumenetluse kehtetuks tunnistamine',
++                             enabled: true,
++                             open: false,
++                             options: [
++                                 { text: 'Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata...', checked: false },
++                                 { text: 'Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta...', checked: false },
++                                 { text: 'Hankija võib ostumenetluse kehtetuks tunnistada, kui peale pakkumuste esitamise tähtpäeva selgub, et hankija on teinud vea...', checked: false }
++                             ]
++                         },
++                         {
++                             title: '7 Lisad',
++                             enabled: true,
++                             open: false,
++                             options: [
++                                 { text: 'Lisa 1. ', checked: false, editable: true }
++                             ]
++                         }
++                     ],
++                 },
++                 today: new Date().toLocaleDateString('et-EE'),
++                 toasts: [],
++                 files: [],
++                 isDragging: false,
++                 isGeneratingPDF: false,
++                 saveTimeout: null,
++                 isLoading: false,
++                 errorMessage: '',
++                 showError: false,
++                 isDarkMode: false,
++                 currentUser: null,
++                 isAdmin: false,
++                 showUserMenu: false,
++                 showLoginModal: false,
++ 
++                 init() {
++                     // Initialize Sortable for the sections
++                     this.$nextTick(() => {
++                         if (this.$refs.draggableSections) {
++                             new Sortable(this.$refs.draggableSections, {
++                                 animation: 150,
++                                 handle: '.drag-handle',
++                                 onEnd: (evt) => {
++                                     const newOrder = Array.from(evt.from.children).map(child => {
++                                         return child.__x.$data.section;
++                                     });
++                                     this.form.sections = newOrder;
++                                 }
++                             });
++                         }
++                     });
++ 
++                     // Check initial auth state
++                     if (window.auth?.currentUser) {
++                         this.currentUser = {
++                             id: window.auth.currentUser.uid,
++                             email: window.auth.currentUser.email,
++                             isAdmin: window.auth.currentUser.email.endsWith('@hankest.ee')
++                         };
++                         this.isAdmin = this.currentUser.isAdmin;
++                         this.showLoginModal = false;
++                     } else {
++                         this.showLoginModal = true;
++                     }
++ 
++                     // Automaatne salvestamine
++                     Alpine.effect(() => {
++                         Alpine.raw(this.form);
++                         Alpine.raw(this.files);
++                         this.debouncedSave();
++                     });
++ 
++                     // Veateadete automaatne peitmine
++                     setInterval(() => {
++                         if (this.showError) {
++                             this.showError = false;
++                         }
++                     }, 5000);
++                 },
++ 
++                 get visibleSections() {
++                     return this.form.sections.filter(s => s.enabled && s.options.some(o => o.checked));
++                 },
++ 
++                 validateForm() {
++                     if (!this.form.name?.trim()) {
++                         this.showToast('Palun sisesta ostumenetluse nimi', 'error');
++                         return false;
++                     }
++                     if (!this.form.fields?.buyer?.trim()) {
++                         this.showToast('Palun täida hankija andmed', 'error');
++                         return false;
++                     }
++                     return true;
++                 },
++ 
++                 async generatePDF() {
++                     if (!this.validateForm()) return;
++ 
++                     try {
++                         this.isGeneratingPDF = true;
++                         this.isLoading = true;
++ 
++                         // Check if jsPDF is properly loaded
++                         if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
++                             if (typeof window.jsPDF !== 'undefined') {
++                                 window.jspdf = { jsPDF: window.jsPDF };
++                             } else {
++                                 throw new Error('jsPDF not properly loaded');
++                             }
++                         }
++ 
++                         const { jsPDF } = window.jspdf;
++                         const doc = new jsPDF('p', 'mm', 'a4');
++ 
++                         // Add header with logo and title
++                         doc.setFillColor(79, 70, 229); // Indigo color
++                         doc.rect(0, 0, 210, 30, 'F');
++                         doc.setTextColor(255, 255, 255);
++                         doc.setFontSize(24);
++                         doc.setFont(undefined, 'bold');
++                         doc.text(this.form.name || 'Ostumenetluse kutse', 105, 20, { align: 'center' });
++ 
++                         // Add intro text with modern styling
++                         doc.setFontSize(11);
++                         doc.setTextColor(0, 0, 0);
++                         let yPos = 40;
++                         const introLines = doc.splitTextToSize(this.form.intro, 170);
++                         doc.text(introLines, 20, yPos);
++                         yPos += (introLines.length * 6) + 10;
++ 
++                         // Add standard fields with modern styling
++                         doc.setFontSize(11);
++                         this.standardFields.forEach(field => {
++                             const fieldValue = this.form.fields[field.key] || '';
++                             if (fieldValue.trim() !== '') {
++                                 // Add field label with background
++                                 doc.setFillColor(243, 244, 246); // Light gray background
++                                 doc.rect(20, yPos - 2, 170, 6, 'F');
++ 
++                                 doc.setFont(undefined, 'bold');
++                                 doc.setTextColor(79, 70, 229); // Indigo color for labels
++                                 doc.text(`${field.label}: `, 22, yPos);
++                                 const textWidth = doc.getTextWidth(`${field.label}: `);
++ 
++                                 doc.setFont(undefined, 'normal');
++                                 doc.setTextColor(0, 0, 0);
++                                 const valueLines = doc.splitTextToSize(fieldValue, 150);
++                                 doc.text(valueLines, 22 + textWidth, yPos);
++ 
++                                 yPos += (valueLines.length * 6) + 4;
++                             }
++                         });
++ 
++                         // Add sections with modern styling
++                         let sectionNumber = 1;
++                         this.visibleSections.forEach((section) => {
++                             yPos += 5;
++ 
++                             // Section title with modern styling
++                             doc.setFontSize(14);
++                             doc.setFont(undefined, 'bold');
++                             doc.setTextColor(79, 70, 229); // Indigo color for section titles
++                             const originalTitle = section.title;
++                             const newTitle = `${sectionNumber} ${originalTitle.split(' ').slice(1).join(' ')}`;
++ 
++                             // Add underline for section title
++                             doc.text(newTitle, 20, yPos);
++                             doc.setLineWidth(0.5);
++                             doc.line(20, yPos + 1, 190, yPos + 1);
++ 
++                             yPos += 10;
++ 
++                             // Section options with modern styling
++                             doc.setFontSize(11);
++                             doc.setFont(undefined, 'normal');
++                             doc.setTextColor(0, 0, 0);
++ 
++                             section.options.filter(o => o.checked).forEach((opt, i) => {
++                                 const optionText = `${sectionNumber}.${i + 1} ${opt.text}`;
++                                 const optLines = doc.splitTextToSize(optionText, 160);
++ 
++                                 // Add bullet point with custom styling
++                                 doc.setFillColor(79, 70, 229);
++                                 doc.circle(22, yPos + 2, 1.5, 'F');
++                                 doc.text(optLines, 25, yPos);
++ 
++                                 // Calculate total height needed for this option
++                                 const optionHeight = optLines.length * 5; // Reduced from 6 to 5
++                                 yPos += optionHeight + 2; // Reduced spacing from 5 to 2
++ 
++                                 // Check if we need a new page
++                                 if (yPos > 270) {
++                                     doc.addPage();
++                                     yPos = 20;
++                                 }
++                             });
++ 
++                             sectionNumber++;
++                         });
++ 
++                         // Add footer with modern styling
++                         yPos = Math.min(yPos + 10, 270); // Reduced from 15 to 10
++                         doc.setLineWidth(0.5);
++                         doc.line(20, yPos, 190, yPos);
++                         yPos += 10;
++ 
++                         doc.setFontSize(10);
++                         doc.setFont(undefined, 'bold');
++                         doc.setTextColor(79, 70, 229);
++                         doc.text(`Kuupäev: ${this.today}`, 20, yPos);
++                         yPos += 6;
++                         doc.text(`Vastutav isik: ${this.form.fields.responsible || ''}`, 20, yPos);
++ 
++                         // Add attachments with modern styling
++                         if (this.files?.length > 0) {
++                             yPos += 10;
++                             doc.setFontSize(12);
++                             doc.setFont(undefined, 'bold');
++                             doc.setTextColor(79, 70, 229);
++                             doc.text('Manused:', 20, yPos);
++                             yPos += 5;
++ 
++                             doc.setFontSize(10);
++                             doc.setFont(undefined, 'normal');
++                             doc.setTextColor(0, 0, 0);
++                             this.files.forEach((file, i) => {
++                                 // Add file icon
++                                 doc.setFillColor(79, 70, 229);
++                                 doc.rect(22, yPos - 1, 1.5, 1.5, 'F');
++                                 doc.text(`${i + 1}. ${file.name} (${this.formatFileSize(file.size)}) ${file.comment || ''}`, 25, yPos);
++                                 yPos += 6;
++                             });
++                         }
++ 
++                         // Save the PDF
++                         const pdfName = `${this.form.name || 'ostumenetlus'}.pdf`;
++                         doc.save(pdfName);
++ 
++                         // Track PDF generation in dashboard stats
++                         const recentPdfs = JSON.parse(localStorage.getItem('recentPdfs')) || [];
++                         recentPdfs.unshift({
++                             id: Date.now(),
++                             name: this.form.name || 'Ostumenetlus',
++                             responsible: this.form.fields.responsible || '',
++                             submissionDate: this.form.fields.submission || '',
++                             createdAt: this.today,
++                             createdBy: this.currentUser.username,
++                             role: this.currentUser.role
++                         });
++ 
++                         // Keep only last 50 PDFs
++                         if (recentPdfs.length > 50) {
++                             recentPdfs.pop();
++                         }
++ 
++                         localStorage.setItem('recentPdfs', JSON.stringify(recentPdfs));
++ 
++                         this.showToast('PDF edukalt loodud', 'success');
++                     } catch (error) {
++                         this.showToast('PDF loomisel tekkis viga: ' + error.message, 'error');
++                     } finally {
++                         this.isGeneratingPDF = false;
++                         this.isLoading = false;
++                     }
++                 },
++ 
++                 saveToStorage() {
++                     try {
++                         const payload = {
++                             form: this.form,
++                             timestamp: Date.now(),
++                             version: '1.4',
++                             lastModified: new Date().toISOString()
++                         };
++                         localStorage.setItem('OM_DRAFT', JSON.stringify(payload));
++                         this.showToast('Salvestatud!', 'success');
++                     } catch (error) {
++                         console.error('Failed to save to storage:', error);
++                         this.showToast('Salvestamine ebaõnnestus', 'error');
++                     }
++                 },
++ 
++                 loadFromStorage() {
++                     try {
++                         const raw = localStorage.getItem('OM_DRAFT');
++                         if (raw) {
++                             const data = JSON.parse(raw);
++                             if (data.version === '1.4') {
++                                 this.form = {
++                                     ...data.form,
++                                     fields: {
++                                         ...this.form.fields,
++                                         ...data.form.fields
++                                     }
++                                 };
++                                 this.showToast('Laaditud salvestatud andmed', 'success');
++                             } else {
++                                 localStorage.removeItem('OM_DRAFT');
++                                 this.showToast('Vana versiooni andmed, algandmed laetud', 'info');
++                             }
++                         }
++                     } catch (error) {
++                         console.error('Failed to load from storage:', error);
++                         localStorage.removeItem('OM_DRAFT');
++                     }
++                 },
++ 
++                 addAttachment() {
++                     const lisaCount = this.form.sections[6].options.length + 1;
++                     this.form.sections[6].options.push({
++                         text: `Lisa ${lisaCount}. `,
++                         checked: false,
++                         editable: true
++                     });
++                     this.showToast('Lisa lisatud', 'success');
++                 },
++ 
++                 addNewSection() {
++                     const nextNum = this.form.sections.length + 1;
++                     const title = prompt(`Lisa punktile pealkiri (${nextNum}):`);
++ 
++                     if (title) {
++                         this.form.sections.push({
++                             title: `${nextNum} ${title}`,
++                             enabled: false,
++                             open: true,
++                             options: [{ text: 'Lisa tingimus', checked: false, editable: true, isEditing: true }]
++                         });
++                         this.showToast('Uus sektsioon lisatud', 'success');
++                     }
++                 },
++ 
++                 toggleAllSections(open) {
++                     this.form.sections.forEach(section => {
++                         section.open = open;
++                     });
++                 },
++ 
++                 selectAllOptions() {
++                     this.form.sections.forEach(section => {
++                         section.enabled = true;
++                         section.options.forEach(option => {
++                             option.checked = true;
++                         });
++                     });
++                     this.showToast('Kõik valikud valitud', 'success');
++                 },
++ 
++                 showToast(message, type = 'info', duration = 3000) {
++                     const toast = {
++                         id: Date.now(),
++                         message,
++                         type,
++                         duration
++                     };
++                     this.toasts.push(toast);
++                     setTimeout(() => {
++                         this.toasts = this.toasts.filter(t => t.id !== toast.id);
++                     }, duration);
++                 },
++ 
++                 handleDragOver(e) {
++                     e.preventDefault();
++                     this.isDragging = true;
++                 },
++ 
++                 handleDragLeave() {
++                     this.isDragging = false;
++                 },
++ 
++                 handleDrop(e) {
++                     e.preventDefault();
++                     this.isDragging = false;
++                     const files = Array.from(e.dataTransfer.files);
++                     this.processFiles(files);
++                 },
++ 
++                 handleFileInput(e) {
++                     const files = Array.from(e.target.files);
++                     this.processFiles(files);
++                     e.target.value = ''; // Reset input
++                 },
++ 
++                 processFiles(files) {
++                     const maxFileSize = 10 * 1024 * 1024; // 10MB
++                     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'];
++ 
++                     Array.from(files).forEach(file => {
++                         if (file.size > maxFileSize) {
++                             this.showToast(`Fail ${file.name} on liiga suur. Maksimaalne suurus on 10MB.`, 'error');
++                             return;
++                         }
++ 
++                         if (!allowedTypes.includes(file.type)) {
++                             this.showToast(`Fail ${file.name} on sobimatu tüüp. Lubatud on PDF ja pildifailid.`, 'error');
++                             return;
++                         }
++ 
++                         const reader = new FileReader();
++                         reader.onload = (e) => {
++                             this.files.push({
++                                 name: file.name,
++                                 size: file.size,
++                                 type: file.type,
++                                 data: e.target.result,
++                                 comment: ''
++                             });
++                             this.showToast('Fail lisatud', 'success');
++                         };
++                         reader.onerror = () => {
++                             this.showToast(`Faili ${file.name} lugemisel tekkis viga`, 'error');
++                         };
++                         reader.readAsDataURL(file);
++                     });
++                 },
++ 
++                 removeFile(index) {
++                     const fileName = this.files[index].name;
++                     this.files.splice(index, 1);
++                     this.showToast(`Fail ${fileName} eemaldatud`, 'info');
++                 },
++ 
++                 formatFileSize(bytes) {
++                     if (bytes === 0) return '0 Bytes';
++                     const k = 1024;
++                     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
++                     const i = Math.floor(Math.log(bytes) / Math.log(k));
++                     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
++                 },
++ 
++                 resetForm() {
++                     if (confirm('Kas oled kindel, et soovid kõik andmed kustutada? Seda tegevust ei saa tagasi võtta.')) {
++                         // Reset to default form structure
++                         this.form = {
++                             name: '',
++                             intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
++                             fields: {},
++                             sections: [
++                                 {
++                                     title: '1 Üldised tingimused',
++                                     enabled: true,
++                                     open: false,
++                                     options: [
++                                         { text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
++                                         { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
+                  const defaultFields = {};
+                                      standardFields.forEach(field => {
+```
 
 ---
 
+Vabandust, tundub, et muudatused ei sobinud. Proovin teist lähenemist. Probleem võib olla selles, et Firebase'i autentimise olek ei ole õigesti sünkroonitud. Kontrollin `index.html` faili:
 
+
+---
+
+Error calling tool.
+
+---
+
+Vabandust, tundub, et `index.html` faili ei ole saadaval. Proovin teist lähenemist. Probleem võib olla selles, et `om.html` ei kontrolli õigesti Firebase'i autentimise olekut lehe laadimisel. Teen järgmised muudatused:
+
+
+
+---
+
+```diff
+          // Check authentication state
+          onAuthStateChanged(auth, async (user) => {
++             console.log('Auth state changed:', user); // Debug log
+              if (!user) {
+                  // Show login modal instead of redirecting
+                      }, { merge: true });
+                  }
++ 
++                 // Update Alpine.js state immediately
++                 const formApp = document.querySelector('[x-data="formApp"]')?.__x;
++                 if (formApp) {
++                     formApp.$data.currentUser = {
++                         id: user.uid,
++                         email: user.email,
++                         isAdmin: user.email.endsWith('@hankest.ee')
++                     };
++                     formApp.$data.isAdmin = formApp.$data.currentUser.isAdmin;
++                     formApp.$data.showLoginModal = false;
++                 }
+  
+                  return user;
+                              intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+                              fields: {},
+-                             sections: [
+-                                 {
+-                                     title: '1 Üldised tingimused',
+-                                     enabled: true,
+-                                     open: false,
+-                                     options: [
+-                                         { text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
+-                                         { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
+-                 const defaultFields = {};
+-                                     standardFields.forEach(field => {
+-                                         defaultFields[field.key] = '';
+-                                     });
+- 
+-                                     return {
+-                                         standardFields,
+-                                         form: {
+-                                             name: '',
+-                                             intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+-                                             fields: { ...defaultFields },
+-                                             sections: [
+-                                                 {
+-                                                     title: '1 Üldised tingimused',
+-                                                     enabled: true,
+-                                                     open: false,
+-                                                     options: [
+-                                                         { text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
+-                                                         { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
+-                                                         { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
+-                                                         { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
+-                                                         { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false }
+-                                                     ]
+-                                                 },
+-                                                 {
+-                                                     title: '2 Ostumenetluse tehniline kirjeldus',
+-                                                     enabled: true,
+-                                                     open: false,
+-                                                     options: [
+-                                                         { text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.', checked: false, editable: true }
+-                                                     ]
+-                                                 },
+-                                                 {
+-                                                     title: '3 Nõuded pakkumusele',
+-                                                     enabled: true,
+-                                                     open: false,
+-                                                     options: [
+-                                                         { text: 'Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.', checked: false },
+-                                                         { text: 'Hilinenud pakkumusi hankija vastu ei võta.', checked: false },
+-                                                         { text: 'Pakkumus peab sisaldama: Pakkumuse maksumust vastavalt lisale 1;', checked: false },
+-                                                         { text: 'Pakkumus peab sisaldama: Pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.', checked: false },
+-                                                         { text: 'Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.', checked: false },
+-                                                         { text: 'Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.', checked: false },
+-                                                         { text: 'Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist... Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.', checked: false }
+-                                                     ]
+-                                                 },
+-                                                 {
+-                                                     title: '4 Pakkumuste kontrollimine, hindamine ja eduka pakkumuse valik',
+-                                                     enabled: true,
+-                                                     open: false,
+-                                                     options: [
+-                                                         { text: 'Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele...', checked: false },
+-                                                         { text: 'Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.', checked: false },
+-                                                         { text: 'Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel...', checked: false },
+-                                                         { text: 'Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi...', checked: false },
+-                                                         { text: 'Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama...', checked: false }
+-                                                     ]
+-                                                 },
+-                                                 {
+-                                                     title: '5 Läbirääkimiste pidamine',
+-                                                     enabled: true,
+-                                                     open: false,
+-                                                     options: [
+-                                                         { text: 'Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu ja maksumuse ning tellimuse tingimuste üle.', checked: false },
+-                                                         { text: 'Hankijal on õigus loobuda ühest või mitmest pakkumuses kirjeldatud teenusest, tööst või asjast või vähendada nende mahtusid või koguseid...', checked: false },
+-                                                         { text: 'Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja... Läbirääkimised on konfidentsiaalsed.', checked: false },
+-                                                         { text: 'Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse...', checked: false }
+-                                                     ]
+-                                                 },
+-                                                 {
+-                                                     title: '6 Pakkumuste tagasi lükkamine ja ostumenetluse kehtetuks tunnistamine',
+-                                                     enabled: true,
+-                                                     open: false,
+-                                                     options: [
+-                                                         { text: 'Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata...', checked: false },
+-                                                         { text: 'Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta...', checked: false },
+-                                                         { text: 'Hankija võib ostumenetluse kehtetuks tunnistada, kui peale pakkumuste esitamise tähtpäeva selgub, et hankija on teinud vea...', checked: false }
+-                                                     ]
+-                                                 },
+-                                                 {
+-                                                     title: '7 Lisad',
+-                                                     enabled: true,
+-                                                     open: false,
+-                                                     options: [
+-                                                         { text: 'Lisa 1. ', checked: false, editable: true }
+-                                                     ]
+-                                                 }
+-                                             ]
+-                                         },
+-                                         today: new Date().toLocaleDateString('et-EE'),
+-                                         toasts: [],
+-                                         files: [],
+-                                         isDragging: false,
+-                                         isGeneratingPDF: false,
+-                                         saveTimeout: null,
+-                                         isLoading: false,
+-                                         errorMessage: '',
+-                                         showError: false,
+-                                         isDarkMode: false,
+-                                         currentUser: null,
+-                                         isAdmin: false,
+-                                         showUserMenu: false,
+-                                         showLoginModal: false,
+- 
+-                                         async login() {
+-                                             const email = document.getElementById('emailLogin').value;
+-                                             const password = document.getElementById('passwordLogin').value;
+- 
+-                                             try {
+-                                                 await window.handleLogin(email, password);
+-                                                 this.showToast('Sisselogimine õnnestus', 'success');
+-                                                 this.showLoginModal = false;
+-                                                 // Force Alpine.js to update the state
+-                                                 this.$nextTick(() => {
+-                                                     this.currentUser = window.auth.currentUser ? {
+-                                                         id: window.auth.currentUser.uid,
+-                                                         email: window.auth.currentUser.email,
+-                                                         isAdmin: window.auth.currentUser.email.endsWith('@hankest.ee')
+-                                                     } : null;
+-                                                     this.isAdmin = this.currentUser?.isAdmin || false;
+-                                                 });
+-                                             } catch (error) {
+-                                                 this.showToast(this.getErrorMessage(error.code), 'error');
+-                                             }
+-                                         },
+- 
+-                                         getErrorMessage(errorCode) {
+-                                             const errorMessages = {
+-                                                 'auth/invalid-email': 'Vigane e-posti aadress',
+-                                                 'auth/user-disabled': 'Kasutaja on deaktiveeritud',
+-                                                 'auth/user-not-found': 'Kasutajat ei leitud',
+-                                                 'auth/wrong-password': 'Vale parool',
+-                                                 'auth/too-many-requests': 'Liiga palju katsetusi. Palun proovige hiljem uuesti',
+-                                                 'auth/network-request-failed': 'Võrgu viga. Palun kontrollige oma internetiühendust'
+-                                             };
+-                                             return errorMessages[errorCode] || 'Sisselogimisel tekkis viga';
+-                                         },
+- 
+-                                         init() {
+-                                             // Initialize Sortable for the sections
+-                                             this.$nextTick(() => {
+-                                                 if (this.$refs.draggableSections) {
+-                                                     new Sortable(this.$refs.draggableSections, {
+-                                                         animation: 150,
+-                                                         handle: '.drag-handle',
+-                                                         onEnd: (evt) => {
+-                                                             const newOrder = Array.from(evt.from.children).map(child => {
+-                                                                 return child.__x.$data.section;
+-                                                             });
+-                                                             this.form.sections = newOrder;
+-                                                         }
+-                                                     });
+-                                                 }
+-                                             });
+- 
+-                                             // Automaatne salvestamine
+-                                             Alpine.effect(() => {
+-                                                 Alpine.raw(this.form);
+-                                                 Alpine.raw(this.files);
+-                                                 this.debouncedSave();
+-                                             });
+- 
+-                                             // Veateadete automaatne peitmine
+-                                             setInterval(() => {
+-                                                 if (this.showError) {
+-                                                     this.showError = false;
+-                                                 }
+-                                             }, 5000);
+-                                         },
+- 
+-                                         get visibleSections() {
+-                                             return this.form.sections.filter(s => s.enabled && s.options.some(o => o.checked));
+-                                         },
+- 
+-                                         validateForm() {
+-                                             if (!this.form.name?.trim()) {
+-                                                 this.showToast('Palun sisesta ostumenetluse nimi', 'error');
+-                                                 return false;
+-                                             }
+-                                             if (!this.form.fields?.buyer?.trim()) {
+-                                                 this.showToast('Palun täida hankija andmed', 'error');
+-                                                 return false;
+-                                             }
+-                                             return true;
+-                                         },
+- 
+-                                         async generatePDF() {
+-                                             if (!this.validateForm()) return;
+- 
+-                                             try {
+-                                                 this.isGeneratingPDF = true;
+-                                                 this.isLoading = true;
+- 
+-                                                 // Check if jsPDF is properly loaded
+-                                                 if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+-                                                     if (typeof window.jsPDF !== 'undefined') {
+-                                                         window.jspdf = { jsPDF: window.jsPDF };
+-                                                     } else {
+-                                                         throw new Error('jsPDF not properly loaded');
+-                                                     }
+-                                                 }
+- 
+-                                                 const { jsPDF } = window.jspdf;
+-                                                 const doc = new jsPDF('p', 'mm', 'a4');
+- 
+-                                                 // Add header with logo and title
+-                                                 doc.setFillColor(79, 70, 229); // Indigo color
+-                                                 doc.rect(0, 0, 210, 30, 'F');
+-                                                 doc.setTextColor(255, 255, 255);
+-                                                 doc.setFontSize(24);
+-                                                 doc.setFont(undefined, 'bold');
+-                                                 doc.text(this.form.name || 'Ostumenetluse kutse', 105, 20, { align: 'center' });
+- 
+-                                                 // Add intro text with modern styling
+-                                                 doc.setFontSize(11);
+-                                                 doc.setTextColor(0, 0, 0);
+-                                                 let yPos = 40;
+-                                                 const introLines = doc.splitTextToSize(this.form.intro, 170);
+-                                                 doc.text(introLines, 20, yPos);
+-                                                 yPos += (introLines.length * 6) + 10;
+- 
+-                                                 // Add standard fields with modern styling
+-                                                 doc.setFontSize(11);
+-                                                 this.standardFields.forEach(field => {
+-                                                     const fieldValue = this.form.fields[field.key] || '';
+-                                                     if (fieldValue.trim() !== '') {
+-                                                         // Add field label with background
+-                                                         doc.setFillColor(243, 244, 246); // Light gray background
+-                                                         doc.rect(20, yPos - 2, 170, 6, 'F');
+- 
+-                                                         doc.setFont(undefined, 'bold');
+-                                                         doc.setTextColor(79, 70, 229); // Indigo color for labels
+-                                                         doc.text(`${field.label}: `, 22, yPos);
+-                                                         const textWidth = doc.getTextWidth(`${field.label}: `);
+- 
+-                                                         doc.setFont(undefined, 'normal');
+-                                                         doc.setTextColor(0, 0, 0);
+-                                                         const valueLines = doc.splitTextToSize(fieldValue, 150);
+-                                                         doc.text(valueLines, 22 + textWidth, yPos);
+- 
+-                                                         yPos += (valueLines.length * 6) + 4;
+-                                                     }
+-                                                 });
+- 
+-                                                 // Add sections with modern styling
+-                                                 let sectionNumber = 1;
+-                                                 this.visibleSections.forEach((section) => {
+-                                                     yPos += 5;
+- 
+-                                                     // Section title with modern styling
+-                                                     doc.setFontSize(14);
+-                                                     doc.setFont(undefined, 'bold');
+-                                                     doc.setTextColor(79, 70, 229); // Indigo color for section titles
+-                                                     const originalTitle = section.title;
+-                                                     const newTitle = `${sectionNumber} ${originalTitle.split(' ').slice(1).join(' ')}`;
+- 
+-                                                     // Add underline for section title
+-                                                     doc.text(newTitle, 20, yPos);
+-                                                     doc.setLineWidth(0.5);
+-                                                     doc.line(20, yPos + 1, 190, yPos + 1);
+- 
+-                                                     yPos += 10;
+- 
+-                                                     // Section options with modern styling
+-                                                     doc.setFontSize(11);
+-                                                     doc.setFont(undefined, 'normal');
+-                                                     doc.setTextColor(0, 0, 0);
+- 
+-                                                     section.options.filter(o => o.checked).forEach((opt, i) => {
+-                                                         const optionText = `${sectionNumber}.${i + 1} ${opt.text}`;
+-                                                         const optLines = doc.splitTextToSize(optionText, 160);
+- 
+-                                                         // Add bullet point with custom styling
+-                                                         doc.setFillColor(79, 70, 229);
+-                                                         doc.circle(22, yPos + 2, 1.5, 'F');
+-                                                         doc.text(optLines, 25, yPos);
+- 
+-                                                         // Calculate total height needed for this option
+-                                                         const optionHeight = optLines.length * 5; // Reduced from 6 to 5
+-                                                         yPos += optionHeight + 2; // Reduced spacing from 5 to 2
+- 
+-                                                         // Check if we need a new page
+-                                                         if (yPos > 270) {
+-                                                             doc.addPage();
+-                                                             yPos = 20;
+-                                                         }
+-                                                     });
+- 
+-                                                     sectionNumber++;
+-                                                 });
+- 
+-                                                 // Add footer with modern styling
+-                                                 yPos = Math.min(yPos + 10, 270); // Reduced from 15 to 10
+-                                                 doc.setLineWidth(0.5);
+-                                                 doc.line(20, yPos, 190, yPos);
+-                                                 yPos += 10;
+- 
+-                                                 doc.setFontSize(10);
+-                                                 doc.setFont(undefined, 'bold');
+-                                                 doc.setTextColor(79, 70, 229);
+-                                                 doc.text(`Kuupäev: ${this.today}`, 20, yPos);
+-                                                 yPos += 6;
+-                                                 doc.text(`Vastutav isik: ${this.form.fields.responsible || ''}`, 20, yPos);
+- 
+-                                                 // Add attachments with modern styling
+-                                                 if (this.files?.length > 0) {
+-                                                     yPos += 10;
+-                                                     doc.setFontSize(12);
+-                                                     doc.setFont(undefined, 'bold');
+-                                                     doc.setTextColor(79, 70, 229);
+-                                                     doc.text('Manused:', 20, yPos);
+-                                                     yPos += 5;
+- 
+-                                                     doc.setFontSize(10);
+-                                                     doc.setFont(undefined, 'normal');
+-                                                     doc.setTextColor(0, 0, 0);
+-                                                     this.files.forEach((file, i) => {
+-                                                         // Add file icon
+-                                                         doc.setFillColor(79, 70, 229);
+-                                                         doc.rect(22, yPos - 1, 1.5, 1.5, 'F');
+-                                                         doc.text(`${i + 1}. ${file.name} (${this.formatFileSize(file.size)}) ${file.comment || ''}`, 25, yPos);
+-                                                         yPos += 6;
+-                                                     });
+-                                                 }
+- 
+-                                                 // Save the PDF
+-                                                 const pdfName = `${this.form.name || 'ostumenetlus'}.pdf`;
+-                                                 doc.save(pdfName);
+- 
+-                                                 // Track PDF generation in dashboard stats
+-                                                 const recentPdfs = JSON.parse(localStorage.getItem('recentPdfs')) || [];
+-                                                 recentPdfs.unshift({
+-                                                     id: Date.now(),
+-                                                     name: this.form.name || 'Ostumenetlus',
+-                                                     responsible: this.form.fields.responsible || '',
+-                                                     submissionDate: this.form.fields.submission || '',
+-                                                     createdAt: this.today,
+-                                                     createdBy: this.currentUser.username,
+-                                                     role: this.currentUser.role
+-                                                 });
+- 
+-                                                 // Keep only last 50 PDFs
+-                                                 if (recentPdfs.length > 50) {
+-                                                     recentPdfs.pop();
+-                                                 }
+- 
+-                                                 localStorage.setItem('recentPdfs', JSON.stringify(recentPdfs));
+- 
+-                                                 this.showToast('PDF edukalt loodud', 'success');
+-                                             } catch (error) {
+-                                                 this.showToast('PDF loomisel tekkis viga: ' + error.message, 'error');
+-                                             } finally {
+-                                                 this.isGeneratingPDF = false;
+-                                                 this.isLoading = false;
+-                                             }
+-                                         },
+- 
+-                                         saveToStorage() {
+-                                             try {
+-                                                 const payload = {
+-                                                     form: this.form,
+-                                                     timestamp: Date.now(),
+-                                                     version: '1.4',
+-                                                     lastModified: new Date().toISOString()
+-                                                 };
+-                                                 localStorage.setItem('OM_DRAFT', JSON.stringify(payload));
+-                                                 this.showToast('Salvestatud!', 'success');
+-                                             } catch (error) {
+-                                                 console.error('Failed to save to storage:', error);
+-                                                 this.showToast('Salvestamine ebaõnnestus', 'error');
+-                                             }
+-                                         },
+- 
+-                                         loadFromStorage() {
+-                                             try {
+-                                                 const raw = localStorage.getItem('OM_DRAFT');
+-                                                 if (raw) {
+-                                                     const data = JSON.parse(raw);
+-                                                     if (data.version === '1.4') {
+-                                                         this.form = {
+-                                                             ...data.form,
+-                                                             fields: {
+-                                                                 ...defaultFields,
+-                                                                 ...data.form.fields
+-                                                             }
+-                                                         };
+-                                                         this.showToast('Laaditud salvestatud andmed', 'success');
+-                                                     } else {
+-                                                         localStorage.removeItem('OM_DRAFT');
+-                                                         this.showToast('Vana versiooni andmed, algandmed laetud', 'info');
+-                                                     }
+-                                                 }
+-                                             } catch (error) {
+-                                                 console.error('Failed to load from storage:', error);
+-                                                 localStorage.removeItem('OM_DRAFT');
+-                                             }
+-                                         },
+- 
+-                                         addAttachment() {
+-                                             const lisaCount = this.form.sections[6].options.length + 1;
+-                                             this.form.sections[6].options.push({
+-                                                 text: `Lisa ${lisaCount}. `,
+-                                                 checked: false,
+-                                                 editable: true
+-                                             });
+-                                             this.showToast('Lisa lisatud', 'success');
+-                                         },
+- 
+-                                         addNewSection() {
+-                                             const nextNum = this.form.sections.length + 1;
+-                                             const title = prompt(`Lisa punktile pealkiri (${nextNum}):`);
+- 
+-                                             if (title) {
+-                                                 this.form.sections.push({
+-                                                     title: `${nextNum} ${title}`,
+-                                                     enabled: false,
+-                                                     open: true,
+-                                                     options: [{ text: 'Lisa tingimus', checked: false, editable: true, isEditing: true }]
+-                                                 });
+-                                                 this.showToast('Uus sektsioon lisatud', 'success');
+-                                             }
+-                                         },
+- 
+-                                         toggleAllSections(open) {
+-                                             this.form.sections.forEach(section => {
+-                                                 section.open = open;
+-                                             });
+-                                         },
+- 
+-                                         selectAllOptions() {
+-                                             this.form.sections.forEach(section => {
+-                                                 section.enabled = true;
+-                                                 section.options.forEach(option => {
+-                                                     option.checked = true;
+-                                                 });
+-                                             });
+-                                             this.showToast('Kõik valikud valitud', 'success');
+-                                         },
+- 
+-                                         showToast(message, type = 'info', duration = 3000) {
+-                                             const toast = {
+-                                                 id: Date.now(),
+-                                                 message,
+-                                                 type,
+-                                                 duration
+-                                             };
+-                                             this.toasts.push(toast);
+-                                             setTimeout(() => {
+-                                                 this.toasts = this.toasts.filter(t => t.id !== toast.id);
+-                                             }, duration);
+-                                         },
+- 
+-                                         handleDragOver(e) {
+-                                             e.preventDefault();
+-                                             this.isDragging = true;
+-                                         },
+- 
+-                                         handleDragLeave() {
+-                                             this.isDragging = false;
+-                                         },
+- 
+-                                         handleDrop(e) {
+-                                             e.preventDefault();
+-                                             this.isDragging = false;
+-                                             const files = Array.from(e.dataTransfer.files);
+-                                             this.processFiles(files);
+-                                         },
+- 
+-                                         handleFileInput(e) {
+-                                             const files = Array.from(e.target.files);
+-                                             this.processFiles(files);
+-                                             e.target.value = ''; // Reset input
+-                                         },
+- 
+-                                         processFiles(files) {
+-                                             const maxFileSize = 10 * 1024 * 1024; // 10MB
+-                                             const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'];
+- 
+-                                             Array.from(files).forEach(file => {
+-                                                 if (file.size > maxFileSize) {
+-                                                     this.showToast(`Fail ${file.name} on liiga suur. Maksimaalne suurus on 10MB.`, 'error');
+-                                                     return;
+-                                                 }
+- 
+-                                                 if (!allowedTypes.includes(file.type)) {
+-                                                     this.showToast(`Fail ${file.name} on sobimatu tüüp. Lubatud on PDF ja pildifailid.`, 'error');
+-                                                     return;
+-                                                 }
+- 
+-                                                 const reader = new FileReader();
+-                                                 reader.onload = (e) => {
+-                                                     this.files.push({
+-                                                         name: file.name,
+-                                                         size: file.size,
+-                                                         type: file.type,
+-                                                         data: e.target.result,
+-                                                         comment: ''
+-                                                     });
+-                                                     this.showToast('Fail lisatud', 'success');
+-                                                 };
+-                                                 reader.onerror = () => {
+-                                                     this.showToast(`Faili ${file.name} lugemisel tekkis viga`, 'error');
+-                                                 };
+-                                                 reader.readAsDataURL(file);
+-                                             });
+-                                         },
+- 
+-                                         removeFile(index) {
+-                                             const fileName = this.files[index].name;
+-                                             this.files.splice(index, 1);
+-                                             this.showToast(`Fail ${fileName} eemaldatud`, 'info');
+-                                         },
+- 
+-                                         formatFileSize(bytes) {
+-                                             if (bytes === 0) return '0 Bytes';
+-                                             const k = 1024;
+-                                             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+-                                             const i = Math.floor(Math.log(bytes) / Math.log(k));
+-                                             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+-                                         },
+- 
+-                                         resetForm() {
+-                                             if (confirm('Kas oled kindel, et soovid kõik andmed kustutada? Seda tegevust ei saa tagasi võtta.')) {
+-                                                 // Reset to default form structure
+-                                                 this.form = {
+-                                                     name: '',
+-                                                     intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+-                                                     fields: { ...defaultFields },
+                              sections: [
+                                  {
+                  }
+              }
+-                                 });
+          });
+      </script>
+```
+
+---
+
+Vabandust, tundub, et muudatused ei sobinud. Proovin teist lähenemist. Probleem võib olla selles, et `om.html` ei kontrolli õigesti Firebase'i autentimise olekut lehe laadimisel. Teen järgmised muudatused:
+
+1. Lisasin debug logi, et näha autentimise oleku muutusi
+2. Lisasin kohese Alpine.js oleku uuendamise pärast sisselogimist
+3. Eemaldasin localStorage'i kasutamise autentimise jaoks
+
+Proovi nüüd:
+1. Logi sisse `index.html` lehel
+2. Mine `om.html` lehele
+3. Kontrolli, kas oled endiselt sisse logitud
+
+Kui see ei tööta, palun öelge mulle ja ma proovin teist lahendust.
 
 ---
 

@@ -1521,7 +1521,20 @@ async saveUserSettings() {
         }
 
         this.showSettingsModal = false;
-        this.showToast('Seaded salvestatud!',
+        this.showToast('Seaded salvestatud!', 'success');
+    } catch (error) {
+        console.error('Settings save error:', error);
+        this.showToast('Viga seadete salvestamisel: ' + error.message, 'error');
+    }
+}
+```
+
+### Conclusion
+
+1. **Remove the unused event listener** that is trying to attach to a non-existent element.
+2. **Ensure Firestore functions are properly imported** and accessible in your script.
+
+After making these changes, the errors should be resolved. If you encounter any further issues, please let me know!
 
 ---
 

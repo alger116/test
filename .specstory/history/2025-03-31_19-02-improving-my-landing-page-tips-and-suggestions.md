@@ -521,7 +521,58 @@ Looking at the screenshot, I can see that the navigation buttons still don't loo
 
 ---
 
-I notice the changes weren't complete. Let me try again
+I notice the changes weren't complete. Let me try again with a more specific edit:
+
+---
+
+```diff
+                  <div class="flex items-center space-x-6">
+                      <a href="om.html" class="text-xl font-bold bg-clip-text text-transparent bg-black">
+- 
+                      </a>
+-                     <div class="hidden md:flex md:space-x-6">
+-                         <a href="om.html" class="nav-link flex items-center space-x-2">
++                     <div class="hidden md:flex md:space-x-4">
++                         <a href="om.html"
++                             class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+                              <i class="fas fa-file-alt"></i>
+                              <span>Kutse koostamine</span>
+                          </a>
+-                         <a href="../index.html" class="nav-link flex items-center space-x-2">
++                         <a href="../index.html"
++                             class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+                              <i class="fas fa-home"></i>
+                              <span>Avalehele</span>
+                          </a>
+-                         <a href="users.html" class="hidden nav-link flex items-center space-x-2" x-show="isAdmin">
++                         <a href="users.html"
++                             class="hidden flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all"
++                             x-show="isAdmin">
+                              <i class="fas fa-users"></i>
+                              <span>Kasutajad</span>
+                  <div class="flex items-center space-x-4">
+                      <button @click="isDarkMode = !isDarkMode"
+-                         class="p-2 rounded-full text-gray-800 bg-white/30 hover:bg-white/50 hover:text-indigo-600 transition-all">
++                         class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+                          <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+                      </button>
+```
+
+---
+
+I've updated all the navigation buttons to have exactly the same styling:
+1. Removed the `nav-link` class and applied styles directly
+2. Made all buttons have:
+   - `flex items-center space-x-2` for consistent icon/text spacing
+   - `text-gray-800` for text color
+   - `hover:text-indigo-600` for hover text color
+   - `bg-white/30` for semi-transparent white background
+   - `hover:bg-white/50` for hover background
+   - `px-4 py-2` for consistent padding
+   - `rounded-full` for rounded corners
+   - `transition-all` for smooth transitions
+
+Now all buttons including "Kutse koostamine", "Avalehele", "Kasutajad", dark mode toggle, "Seaded", and the login button should have the exact same visual appearance and hover effects. They should all look like rounded pills with a semi-transparent white background that becomes more opaque on hover.
 
 ---
 

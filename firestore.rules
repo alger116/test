@@ -167,8 +167,97 @@ service cloud.firestore {
       allow read, list: if isAuthenticated(request.auth.uid) && 
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'mainAdmin']    }
   }
+    match /databases/{database}/documents {
+    // Abifunktsioonid
+    function isMainAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'mainadmin';
+    }
+    
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['mainadmin', 'admin'];
+    }
+
+    // Põhiväljad
+    match /omStandardFields/{fieldId} {
+      allow read: if true;  // Kõik võivad lugeda
+      allow write: if isMainAdmin();  // Ainult mainadmin võib muuta
+    }
+
+    // Peatükid
+    match /omSections/{sectionId} {
+      allow read: if true;
+      allow write: if isMainAdmin();
+      
+      match /options/{optionId} {
+        allow read: if true;
+        allow write: if isMainAdmin();
+      }
+    }
+
+    // Näidistingimused
+    match /omTemplates/{templateId} {
+      allow read: if request.auth != null && 
+                 resource.data.accessRoles.hasAny(get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles);
+      allow write: if isMainAdmin();
+    }
+
+    // Ajalugu
+    match /omHistory/{historyId} {
+      allow read: if isAdmin();
+      allow write: if isMainAdmin();
+    }
+
+    // Varundused
+    match /omBackups/{backupId} {
+      allow read: if isMainAdmin();
+      allow write: if isMainAdmin();
+    }
+  }
   
+  // FIELD SETTINGS
+    match /fieldSettings/{docId} {
+       allow read: if isMainAdmin();
+      allow write: if isMainAdmin();
+    }
+
+    // BACKUP & LOGID
+    match /fieldSettingsBackup/{docId} {
+         allow read: if isMainAdmin();
+      allow write: if isMainAdmin();
+    }
+
+    match /fieldSettingsLogs/{docId} {
+        allow read: if isMainAdmin();
+      allow write: if isMainAdmin();
+    }
+    
+  
+    match /formSettings/{document=**} {
+      allow read: if true;
+      allow write: if isMainAdmin();
+    }
+
+   
+    match /formSettingsBackup/{document=**} {
+      allow read: if true;
+      allow write: if isMainAdmin();
+    }
+
+   
+    match /formSettingsLogs/{document=**} {
+      allow read: if true;
+      allow write: if isMainAdmin();
+    }
+
+    // KASUTAJA ANDMED
+    match /users/{userId} {
+          allow read: if isMainAdmin();
+      allow write: if isMainAdmin();
+    }
+    
+  }
+
+    
   
   }
  }
-}

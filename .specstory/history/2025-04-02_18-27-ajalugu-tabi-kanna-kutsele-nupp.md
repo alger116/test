@@ -367,11 +367,70 @@ Ah, I see the issue now. The error occurs because we're trying to parse the PDF 
 
 ---
 
-Cancelled
+```diff
+                                      name: fileName,
+                                      pdfData: wordData,
++                                     formData: JSON.stringify({
++                                         name: this.form.name,
++                                         intro: this.form.intro,
++                                         fields: this.form.fields,
++                                         sections: this.form.sections,
++                                         attachments: this.form.attachments
++                                     }),
+                                      createdAt: new Date().toISOString(),
+                                      responsible: this.form.fields.responsible,
+                      async copyToTender(pdf) {
+                          try {
+-                             // Parse the PDF data to get the form state
+-                             const pdfData = JSON.parse(pdf.pdfData);
++                             // Parse the form data from the saved data
++                             const formData = JSON.parse(pdf.formData);
+                              
+                              // Update all form fields
+-                             this.form.name = pdfData.name || '';
+-                             this.form.intro = pdfData.intro || '';
++                             this.form.name = formData.name || '';
++                             this.form.intro = formData.intro || '';
+                              
+                              // Copy all standard fields
+-                             Object.keys(pdfData.fields || {}).forEach(key => {
++                             Object.keys(formData.fields || {}).forEach(key => {
+                                  if (this.form.fields[key] !== undefined) {
+-                                     this.form.fields[key] = pdfData.fields[key];
++                                     this.form.fields[key] = formData.fields[key];
+                                  }
+                              });
+                              
+                              // Copy all sections and their options
+-                             if (pdfData.sections && Array.isArray(pdfData.sections)) {
+-                                 this.form.sections = pdfData.sections.map(section => ({
++                             if (formData.sections && Array.isArray(formData.sections)) {
++                                 this.form.sections = formData.sections.map(section => ({
+                                      ...section,
+                                      options: section.options.map(option => ({
+                              
+                              // Copy attachments if they exist
+-                             if (pdfData.attachments && Array.isArray(pdfData.attachments)) {
+-                                 this.form.attachments = pdfData.attachments;
++                             if (formData.attachments && Array.isArray(formData.attachments)) {
++                                 this.form.attachments = formData.attachments;
+                              }
+                              
+```
 
 ---
 
+I've made two important changes to fix the issue:
 
+1. When saving to history, we now store both the PDF data and the form data separately:
+   - `pdfData`: The URL to the PDF file
+   - `formData`: A JSON string containing all the form fields, sections, and attachments
+
+2. In the `copyToTender` function, we now parse the `formData` instead of trying to parse the `pdfData`. This fixes the JSON parsing error because we're now working with the actual form data that was saved.
+
+The error occurred because we were trying to parse the PDF data URL as JSON, which isn't valid JSON. Now we're properly storing and retrieving the form data separately from the PDF data.
+
+This should now work correctly when you click the "Kanna kutsele" button. Let me know if you encounter any other issues!
 
 ---
 

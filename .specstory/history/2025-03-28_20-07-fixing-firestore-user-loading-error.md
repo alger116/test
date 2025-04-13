@@ -629,7 +629,6 @@ I'll modify the code to allow you (as the main admin) to change other admins' ro
 
 ---
 
-
 Now I'll update the `updateUserRole` function to add additional security checks and logging:
 
 
@@ -878,7 +877,6 @@ However, there's one more thing we need to do. We need to store the main admin p
 ```
 
 ---
-
 
 Now the system will:
 1. Only allow the main admin to add new users
@@ -1513,7 +1511,99 @@ admin.html:1094 ❌ rolesButton or rolesContainer not found in the DOM!
 
 _**Assistant**_
 
+I notice that the error occurs because we're trying to add event listeners to elements that don't exist in the DOM. Let me fix this by updating the sidebar navigation to properly handle the roles section.
 
+I'll modify the admin.html file to fix this issue:
+
+
+---
+
+```diff
+                      <a href="#"
+                          class="flex items-center px-4 py-2 text-gray-700 hover:bg-indigo-50 rounded-lg transition-colors"
+-                         onclick="showSection('roles')">
++                         onclick="openRoles()">
+                          <i class="fas fa-user-shield mr-3"></i>
+                          <span>Rollid</span>
+                      <a href="#"
+                          class="flex items-center px-4 py-2 text-gray-700 hover:bg-indigo-50 rounded-lg transition-colors"
+-                         onclick="showSection('settings')">
++                         onclick="openSettings()">
+                          <i class="fas fa-cog mr-3"></i>
+                          <span>Seaded</span>
+              }
+          });
++ 
++         // Function to show different sections
++         function showSection(section) {
++             // Hide all sections first
++             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
++             
++             // Show the selected section
++             const selectedSection = document.getElementById(section + 'Section');
++             if (selectedSection) {
++                 selectedSection.classList.remove('hidden');
++             }
++         }
++ 
++         // Function to open roles modal
++         function openRoles() {
++             const rolesContainer = document.getElementById("rolesContainer");
++             const rolesBackdrop = document.getElementById("rolesBackdrop");
++             
++             if (rolesContainer && rolesBackdrop) {
++                 rolesContainer.classList.remove("hidden");
++                 rolesBackdrop.classList.remove("hidden");
++                 document.body.style.overflow = "hidden";
++                 loadRoles();
++             } else {
++                 console.error("Roles modal elements not found");
++             }
++         }
++ 
++         // Function to open settings modal
++         function openSettings() {
++             const settingsContainer = document.getElementById("settingsContainer");
++             const settingsBackdrop = document.getElementById("settingsBackdrop");
++             
++             if (settingsContainer && settingsBackdrop) {
++                 settingsContainer.classList.remove("hidden");
++                 settingsBackdrop.classList.remove("hidden");
++                 document.body.style.overflow = "hidden";
++                 loadSettings();
++                 loadProcedureTypes();
++             } else {
++                 console.error("Settings modal elements not found");
++             }
++         }
+      </script>
+  </body>
+```
+
+---
+
+I've made the following changes to fix the error:
+
+1. Updated the sidebar navigation links to use direct function calls instead of the `showSection` function for roles and settings:
+   - Changed `onclick="showSection('roles')"` to `onclick="openRoles()"`
+   - Changed `onclick="showSection('settings')"` to `onclick="openSettings()"`
+
+2. Added new functions to handle the modals:
+   - `openRoles()`: Opens the roles modal and loads the roles data
+   - `openSettings()`: Opens the settings modal and loads the settings data
+
+3. Added proper error handling to check if the modal elements exist before trying to show them
+
+4. Added a generic `showSection()` function for other sections that might need it
+
+These changes should resolve the error you're seeing because:
+1. We're no longer relying on the `rolesButton` element that doesn't exist
+2. We're directly calling the modal opening functions from the sidebar links
+3. We've added proper error checking to prevent console errors if elements aren't found
+
+The roles and settings functionality should now work properly when clicking the sidebar links. The modals will open and load their respective content when clicked.
+
+Would you like me to make any additional adjustments to the navigation or modal functionality?
 
 ---
 

@@ -466,11 +466,194 @@ First, I'll add a new section for user activity settings in the settings section
 
 ---
 
-Cancelled
+```diff
+                          </table>
+                      </div>
++                 </div>
++ 
++                 <div class="bg-white shadow rounded-lg p-6 mb-6">
++                     <h2 class="text-xl font-semibold mb-4">Kasutaja tegevuste seaded</h2>
++                     <div class="space-y-4">
++                         <div class="flex items-center justify-between">
++                             <label class="text-sm font-medium text-gray-700">Aktiivsuse jälgimine</label>
++                             <div class="relative inline-block w-12 mr-2 align-middle select-none">
++                                 <input type="checkbox" id="activityTracking" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
++                                 <label for="activityTracking" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
++                             </div>
++                         </div>
++                         <div class="flex items-center justify-between">
++                             <label class="text-sm font-medium text-gray-700">Tegevuste ajalugu</label>
++                             <div class="relative inline-block w-12 mr-2 align-middle select-none">
++                                 <input type="checkbox" id="activityHistory" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
++                                 <label for="activityHistory" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
++                             </div>
++                         </div>
++                         <div class="flex items-center justify-between">
++                             <label class="text-sm font-medium text-gray-700">Tegevuste teavitused</label>
++                             <div class="relative inline-block w-12 mr-2 align-middle select-none">
++                                 <input type="checkbox" id="activityNotifications" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
++                                 <label for="activityNotifications" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
++                             </div>
++                         </div>
++                         <div class="flex items-center justify-between">
++                             <label class="text-sm font-medium text-gray-700">Tegevuste eksport</label>
++                             <div class="relative inline-block w-12 mr-2 align-middle select-none">
++                                 <input type="checkbox" id="activityExport" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
++                                 <label for="activityExport" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
++                             </div>
++                         </div>
++                     </div>
++                 </div>
+              </main>
+          </div>
+              }
+          }
++ 
++         // Initialize activity settings
++         async function initializeActivitySettings() {
++             try {
++                 if (!auth.currentUser) {
++                     throw new Error('User not authenticated');
++                 }
++ 
++                 const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
++                 if (!userDoc.exists()) {
++                     throw new Error('User document not found');
++                 }
++ 
++                 const userData = userDoc.data();
++                 const isMainAdmin = userData.role === 'mainAdmin';
++                 const isAdmin = userData.role === 'admin';
++ 
++                 if (!isMainAdmin && !isAdmin) {
++                     throw new Error('Insufficient permissions');
++                 }
++ 
++                 const settingsRef = doc(db, "settings", "activity");
++                 const settingsDoc = await getDoc(settingsRef);
++ 
++                 if (!settingsDoc.exists()) {
++                     if (!isMainAdmin) {
++                         throw new Error('Only main admin can create activity settings');
++                     }
++ 
++                     await setDoc(settingsRef, {
++                         activityTracking: true,
++                         activityHistory: true,
++                         activityNotifications: true,
++                         activityExport: true,
++                         updatedAt: new Date(),
++                         updatedBy: auth.currentUser.uid,
++                         updatedByEmail: auth.currentUser.email
++                     });
++                 } else {
++                     const data = settingsDoc.data();
++                     document.getElementById('activityTracking').checked = data.activityTracking;
++                     document.getElementById('activityHistory').checked = data.activityHistory;
++                     document.getElementById('activityNotifications').checked = data.activityNotifications;
++                     document.getElementById('activityExport').checked = data.activityExport;
++                 }
++             } catch (error) {
++                 console.error('Error initializing activity settings:', error);
++                 if (error.message === 'User not authenticated') {
++                     showNotification('Palun logige sisse!', 'error');
++                 } else if (error.message === 'User document not found') {
++                     showNotification('Kasutaja dokumenti ei leitud!', 'error');
++                 } else if (error.message === 'Insufficient permissions') {
++                     showNotification('Teil puuduvad õigused tegevuste seadete juurdepääsuks!', 'error');
++                 } else {
++                     showNotification('Viga tegevuste seadete laadimisel!', 'error');
++                 }
++             }
++         }
++ 
++         // Save activity settings
++         async function saveActivitySettings() {
++             try {
++                 if (!auth.currentUser) {
++                     throw new Error('User not authenticated');
++                 }
++ 
++                 const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
++                 if (!userDoc.exists()) {
++                     throw new Error('User document not found');
++                 }
++ 
++                 const userData = userDoc.data();
++                 const isMainAdmin = userData.role === 'mainAdmin';
++                 const isAdmin = userData.role === 'admin';
++ 
++                 if (!isMainAdmin && !isAdmin) {
++                     throw new Error('Insufficient permissions');
++                 }
++ 
++                 const settingsRef = doc(db, "settings", "activity");
++                 await updateDoc(settingsRef, {
++                     activityTracking: document.getElementById('activityTracking').checked,
++                     activityHistory: document.getElementById('activityHistory').checked,
++                     activityNotifications: document.getElementById('activityNotifications').checked,
++                     activityExport: document.getElementById('activityExport').checked,
++                     updatedAt: new Date(),
++                     updatedBy: auth.currentUser.uid,
++                     updatedByEmail: auth.currentUser.email
++                 });
++ 
++                 showNotification('Tegevuste seaded salvestatud!', 'success');
++             } catch (error) {
++                 console.error('Error saving activity settings:', error);
++                 if (error.message === 'User not authenticated') {
++                     showNotification('Palun logige sisse!', 'error');
++                 } else if (error.message === 'User document not found') {
++                     showNotification('Kasutaja dokumenti ei leitud!', 'error');
++                 } else if (error.message === 'Insufficient permissions') {
++                     showNotification('Teil puuduvad õigused tegevuste seadete salvestamiseks!', 'error');
++                 } else {
++                     showNotification('Viga tegevuste seadete salvestamisel!', 'error');
++                 }
++             }
++         }
++ 
++         // Add event listeners for activity settings
++         document.addEventListener('DOMContentLoaded', () => {
++             initializeActivitySettings();
++ 
++             // Add change event listeners for activity settings
++             document.getElementById('activityTracking').addEventListener('change', saveActivitySettings);
++             document.getElementById('activityHistory').addEventListener('change', saveActivitySettings);
++             document.getElementById('activityNotifications').addEventListener('change', saveActivitySettings);
++             document.getElementById('activityExport').addEventListener('change', saveActivitySettings);
++         });
+      </script>
+  </body>
+  
++ </html>
+  </html>
+```
 
 ---
 
+I've added a new section for user activity settings to the admin dashboard. Here's what I've implemented:
 
+1. Added a new section with four activity-related settings:
+   - Activity Tracking (Aktiivsuse jälgimine)
+   - Activity History (Tegevuste ajalugu)
+   - Activity Notifications (Tegevuste teavitused)
+   - Activity Export (Tegevuste eksport)
+
+2. Added JavaScript functions to handle these settings:
+   - `initializeActivitySettings()`: Loads the current activity settings from Firestore
+   - `saveActivitySettings()`: Saves changes to activity settings in Firestore
+   - Added event listeners to automatically save settings when toggles are changed
+
+3. The settings are stored in Firestore under the "settings" collection with a document ID of "activity"
+
+4. Added proper error handling and user feedback through notifications
+
+5. Implemented permission checks to ensure only mainAdmin and admin users can access and modify these settings
+
+The settings are now properly positioned in the admin dashboard and will be saved to Firestore whenever they are changed. The UI is consistent with the existing design, using the same styling and toggle switches.
+
+Would you like me to make any adjustments to this implementation?
 
 ---
 

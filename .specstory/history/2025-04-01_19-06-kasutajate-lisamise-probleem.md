@@ -460,7 +460,19 @@ admin.html:1307 Uncaught ReferenceError: Cannot access 'auth' before initializat
 
 _**Assistant**_
 
+Ah, näen probleemi - me üritame kasutada Firebase'i konfiguratsiooni ja auth objekti enne, kui need on defineeritud. Parandame selle, liigutades Firebase'i initsialiseerimise koodi faili algusesse ja lisame puuduva firebaseConfig objekti:
 
+---
+
+
+
+---
+
+Vabandust, tundub et mudel ei suutnud muudatusi teha. Proovime uuesti, aga seekord väiksema muudatusega:
+
+---
+
+Cancelled
 
 ---
 

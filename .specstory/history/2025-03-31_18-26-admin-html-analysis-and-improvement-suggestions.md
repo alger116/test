@@ -2640,11 +2640,102 @@ Ah, I understand now. If you're already a mainAdmin, we don't need to create a n
 
 ---
 
-Cancelled
+```diff
+              document.getElementById('apiBar').style.width = `${Math.min(apiRequests, 100)}%`;
+          }
++ 
++         // Initialize system settings
++         async function initializeSystemSettings() {
++             try {
++                 // First check if user is authenticated
++                 if (!auth.currentUser) {
++                     throw new Error('User not authenticated');
++                 }
++ 
++                 // Get user's role from Firestore
++                 const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
++                 
++                 if (!userDoc.exists()) {
++                     throw new Error('User document not found');
++                 }
++ 
++                 const userData = userDoc.data();
++                 const isMainAdmin = userData.role === 'mainAdmin';
++                 const isAdmin = userData.role === 'admin';
++ 
++                 // Only proceed if user is mainAdmin or admin
++                 if (!isMainAdmin && !isAdmin) {
++                     throw new Error('Insufficient permissions');
++                 }
++ 
++                 const systemRef = doc(db, "system", "maintenance");
++                 const systemDoc = await getDoc(systemRef);
++                 
++                 if (!systemDoc.exists()) {
++                     // Only mainAdmin can create initial settings
++                     if (!isMainAdmin) {
++                         throw new Error('Only main admin can create system settings');
++                     }
++ 
++                     // Create initial system settings
++                     await setDoc(systemRef, {
++                         enabled: false,
++                         message: "Süsteem on hooldusel. Palun proovige hiljem uuesti.",
++                         updatedAt: new Date(),
++                         updatedBy: auth.currentUser.uid,
++                         updatedByEmail: auth.currentUser.email
++                     });
++                 } else {
++                     const data = systemDoc.data();
++                     document.getElementById('maintenanceMode').checked = data.enabled;
++                     document.getElementById('maintenanceMessage').value = data.message || '';
++                 }
++             } catch (error) {
++                 console.error('Error initializing system settings:', error);
++                 if (error.message === 'User not authenticated') {
++                     showNotification('Palun logige sisse!', 'error');
++                 } else if (error.message === 'User document not found') {
++                     showNotification('Kasutaja dokumenti ei leitud!', 'error');
++                 } else if (error.message === 'Insufficient permissions') {
++                     showNotification('Teil puuduvad õigused süsteemi seadete juurdepääsuks!', 'error');
++                 } else {
++                     showNotification('Viga süsteemi seadete laadimisel!', 'error');
++                 }
++             }
++         }
+      </script>
+  </body>
+```
 
 ---
 
+I've simplified the code to:
 
+1. **Remove First User Logic**:
+   - Removed all the first user detection and creation code
+   - Now assumes the user document exists
+
+2. **Better Error Handling**:
+   - Added specific error for when user document is not found
+   - Added Estonian error message for user document not found
+   - Maintains existing error messages for other cases
+
+3. **Simplified Flow**:
+   - Checks if user is authenticated
+   - Verifies user document exists
+   - Checks user's role
+   - Proceeds with system settings initialization
+
+The error should now be resolved. The system will:
+1. Check your existing role
+2. Allow access if you're mainAdmin or admin
+3. Show appropriate error messages if something goes wrong
+
+Would you like me to:
+1. Add more detailed error logging?
+2. Add role verification for other admin features?
+3. Implement role-based UI elements?
+4. Add audit logging for system changes?
 
 ---
 

@@ -525,11 +525,143 @@ I found the dark mode button and related code in `ostu/om.html`. Let me remove i
 
 ---
 
-Cancelled
+```diff
+  </head>
+  
+- <body class="backdrop-blur-2xl min-h-screen flex flex-col" x-data="formApp" x-cloak :class="{'dark': isDarkMode}">
++ <body class="backdrop-blur-2xl min-h-screen flex flex-col" x-data="formApp" x-cloak>
+      <!-- Login Modal -->
+      <div x-show="showLoginModal" x-cloak x-transition:enter="transition duration-300 ease-out"
+                  </div>
+                  <div class="flex items-center space-x-4">
++                     <div class="flex items-center space-x-4">
++                         <button @click="handleLogout" class="text-white hover:text-white/80 transition-colors">
++                             <i class="fas fa-sign-out-alt"></i>
++                         </button>
++                     </div>
+                      <button @click="isDarkMode = !isDarkMode"
+                          class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+```
+
+---
+
+Let me try again with a more specific edit:
+
 
 ---
 
 
+
+---
+
+Let me try one more time with a more precise edit:
+
+
+
+---
+
+
+
+---
+
+I apologize for the difficulty. Let me try to read the file first to get the exact context:
+
+
+---
+
+Read file: ostu/om.html
+
+---
+
+Now I can make a more precise edit:
+
+
+---
+
+
+
+---
+
+I apologize for the difficulty with the edit. Let me try one final time with the exact lines to remove:
+
+
+---
+
+```diff
+                              <i class="fas fa-sign-out-alt"></i>
+                          </button>
++ 
++                         <!-- Settings Button -->
++                         <button @click="showSettings = true"
++                             class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
++                             <i class="fas fa-cog"></i>
++                         </button>
+                      </div>
+                      <button @click="isDarkMode = !isDarkMode"
+                          class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+                          <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+                      </button>
+- 
+-                     <!-- Settings Button -->
+-                     <button @click="showSettingsModal = true" x-show="currentUser"
+-                         class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+-                         <i class="fas fa-cog"></i>
+-                         <span class="hidden md:inline">Seaded</span>
+-                     </button>
+  
+                      <div class="relative">
+```
+
+---
+
+Let me try one final time to remove the dark mode button and its state:
+
+
+---
+
+```diff
+                              <i class="fas fa-cog"></i>
+                          </button>
+-                     </div>
+-                     <button @click="isDarkMode = !isDarkMode"
+-                         class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
+-                         <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+-                     </button>
+  
+                          <div class="relative">
+                              <div x-show="showUserMenu && currentUser" @click.away="showUserMenu = false"
+                                  x-transition:enter="transition ease-out duration-200"
+-                             x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
++                                 x-transition:enter-start="opacity-0 scale-95"
++                                 x-transition:enter-end="opacity-100 scale-100" <div class="relative">
++                                 <button @click="currentUser ? toggleUserMenu() : showLoginModal = true"
++                                     class="flex items-center space-x-2 text-gray-800 hover:text-indigo-600 bg-white/30 hover:bg-white/50 px-4 py-2 rounded-full transition-all">
++                                     <i class="fas fa-user-circle"></i>
++                                     <span x-text="currentUser ? currentUser.email?.split('@')[0] : 'Logi sisse'"
++                                         class="hidden md:inline"></span>
++                                     <i class="fas fa-chevron-down text-xs ml-1"></i>
++                                 </button>
++                                 <div x-show="showUserMenu && currentUser" @click.away="showUserMenu = false"
++                                     x-transition:enter="transition ease-out duration-200"
++                                     x-transition:enter-start="opacity-0 scale-95"
++                                     x-transition:enter-end="opacity-100 scale-100"
+                                      x-transition:leave="transition ease-in duration-150"
+-                             x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
++                                     x-transition:leave-start="opacity-100 scale-100"
++                                     x-transition:leave-end="opacity-0 scale-95"
+                                      class="absolute right-0 mt-2 w-48 rounded-xl shadow-xl glassmorphism ring-1 ring-black ring-opacity-5 z-50 border border-white/20">
+                                      <div class="py-1">
+```
+
+---
+
+Now let me remove the dark mode state from the Alpine.js data:
+
+
+
+---
+
+Cancelled
 
 ---
 

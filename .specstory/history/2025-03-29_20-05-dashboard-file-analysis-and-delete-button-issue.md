@@ -388,7 +388,104 @@ gr	@	cdn.min.js:5
 
 _**Assistant**_
 
+Ah, nüüd on selge probleem! Firebase pole korralikult initsialiseeritud. Peame lisama Firebase'i CDN-id ja initsialiseerima Firebase'i enne Alpine.js-i.
 
+Teeme järgmised muudatused:
+
+---
+
+```diff
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Dashboard - OM Dashboard</title>
++     
++     <!-- Firebase SDK -->
++     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
++     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
++     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
++     
++     <!-- Initialize Firebase -->
++     <script src="../config/config.js"></script>
++     <script>
++         // Initialize Firebase with your config
++         if (!window.FIREBASE_CONFIG) {
++             console.error("Firebase configuration not found!");
++         } else {
++             firebase.initializeApp(window.FIREBASE_CONFIG);
++         }
++     </script>
++ 
++     <!-- Alpine.js -->
+      <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
++     
++     <!-- Other styles -->
+      <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+```
+
+---
+
+Nüüd muudame ka init funktsiooni, et see kasutaks Firebase'i õigesti:
+
+---
+
+```diff
+  
+                  init() {
++                     // Check if Firebase is initialized
++                     if (!firebase.apps.length) {
++                         console.error('Firebase not initialized');
++                         return;
++                     }
++ 
+                      // Check authentication
+                      const user = JSON.parse(localStorage.getItem('currentUser'));
+                      }
+  
+-                     // Initialize Firebase
+-                     const auth = firebase.auth();
++                     // Get Firestore instance
+                      const db = firebase.firestore();
+                      
+                              if (doc.exists) {
+                                  const userData = doc.data();
++                                 console.log('Firestore user data:', userData); // Debug log
++                                 
+                                  // Update localStorage with current role
+                                  const updatedUser = {
+                                      ...user,
+-                                     role: userData.role
++                                     role: userData.role || 'user'
+                                  };
+                                  localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+```
+
+---
+
+Nüüd peaksid tegema järgmist:
+
+1. Kontrolli, et sul on olemas `config/config.js` fail, mis sisaldab Firebase'i konfiguratsiooni. See peaks välja nägema umbes nii:
+```javascript
+window.FIREBASE_CONFIG = {
+    apiKey: "sinu-api-key",
+    authDomain: "sinu-project.firebaseapp.com",
+    projectId: "sinu-project-id",
+    storageBucket: "sinu-project.appspot.com",
+    messagingSenderId: "sinu-messaging-id",
+    appId: "sinu-app-id"
+};
+```
+
+2. Logi välja ja uuesti sisse
+
+3. Kontrolli brauseri konsooli (F12 -> Console), seal peaksid nägema:
+   - Firebase'i initsialiseerimise staatust
+   - Firestore'ist loetud kasutaja andmeid
+   - Kasutaja rolli ja admin staatust
+
+Kui näed endiselt vigu, palun jaga:
+1. Kas näed Firebase'i initsialiseerimise vigu?
+2. Kas `config.js` fail on õiges kohas ja sisaldab õiget konfiguratsiooni?
+3. Mis vigu täpselt konsoolis näed?
 
 ---
 

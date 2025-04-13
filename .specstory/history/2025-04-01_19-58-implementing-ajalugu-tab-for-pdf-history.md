@@ -3646,11 +3646,2646 @@ We need to choose one approach. Since we're using the Firebase compat version in
 
 ---
 
-Cancelled
+```diff
+          // Initialize Firebase with config from config.js
+          firebase.initializeApp(window.FIREBASE_CONFIG);
++ 
++         // Check authentication state and user role
++         firebase.auth().onAuthStateChanged(async (user) => {
++             if (user) {
++                 try {
++                     const userDocRef = firebase.firestore().doc("users", user.uid);
++                     const userDoc = await userDocRef.get();
++                     if (userDoc.exists()) {
++                         const userData = userDoc.data();
++                         window.userRole = userData.role;
++ 
++                         // Update localStorage with current role
++                         const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
++                         currentUser.role = userData.role;
++                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
++                     } else {
++                         console.error("No user document found in Firestore for UID:", user.uid);
++                     }
++                 } catch (error) {
++                     console.error("Error fetching user role:", error);
++                 }
++             } else {
++                 window.userRole = null;
++                 localStorage.removeItem('currentUser');
++             }
++         });
+      </script>
+  
+```
+
+---
+
+Now let me remove the module imports since we're using the compat version:
+
 
 ---
 
 
+
+---
+
+I apologize for the confusion. Let me try a more targeted edit to remove just the module imports:
+
+
+
+---
+
+```diff
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+-     <script type="module">
+-         import { auth, db } from "../auth/firebase-config.js";
++     <style>
++         :root {
++             --primary-color: #6366F1;
++             --primary-hover: #4F46E5;
++             --success-color: #10B981;
++ 
++             <script type="module">import {
++                 auth,
++                 db
++             }
++ 
++             from "../auth/firebase-config.js";
++ 
+              import {
+-             onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword
+-         } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
++                 onAuthStateChanged,
++                 signInWithEmailAndPassword,
++                 signOut,
++                 createUserWithEmailAndPassword
++             }
++ 
++             from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
++ 
+              import {
+-             doc, getDoc, setDoc, updateDoc, arrayRemove, arrayUnion
+-         } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
++                 doc,
++                 getDoc,
++                 setDoc,
++                 updateDoc,
++                 arrayRemove,
++                 arrayUnion
++             }
++ 
++             from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  
+              // Make Firebase objects globally available
+-         window.auth = auth;
+-         window.db = db;
++             window.auth=auth;
++             window.db=db;
+  
+              // Check authentication state and user role
+-         onAuthStateChanged(auth, async (user) => {
++             onAuthStateChanged(auth, async (user)=> {
+                      if (user) {
+                          try {
+-                     const userDocRef = doc(db, "users", user.uid);
+-                     const userDoc = await getDoc(userDocRef);
++                             const userDocRef=doc(db, "users", user.uid);
++                             const userDoc=await getDoc(userDocRef);
++ 
+                              if (userDoc.exists()) {
+-                         const userData = userDoc.data();
+-                         window.userRole = userData.role;
++                                 const userData=userDoc.data();
++                                 window.userRole=userData.role;
+  
+                                  // Update localStorage with current role
+-                         const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+-                         currentUser.role = userData.role;
++                                 const currentUser=JSON.parse(localStorage.getItem('currentUser') || '{}');
++                                 currentUser.role=userData.role;
+                                  localStorage.setItem('currentUser', JSON.stringify(currentUser));
+-                     } else {
++                             }
++ 
++                             else {
+                                  console.error("No user document found in Firestore for UID:", user.uid);
+                              }
+-                 } catch (error) {
++                         }
++ 
++                         catch (error) {
+                              console.error("Error fetching user role:", error);
+                          }
+-             } else {
+-                 window.userRole = null;
++                     }
++ 
++                     else {
++                         window.userRole=null;
+                          localStorage.removeItem('currentUser');
+                      }
+                  });
+  
+              // Add Firestore and other functions globally
+-         window.onAuthStateChanged = onAuthStateChanged;
+-         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+-         window.signOut = signOut;
+-         window.doc = doc;
+-         window.getDoc = getDoc;
+-         window.setDoc = setDoc;
+-         window.updateDoc = updateDoc;
+-         window.arrayRemove = arrayRemove;
+-         window.arrayUnion = arrayUnion;
++             window.onAuthStateChanged=onAuthStateChanged;
++             window.signInWithEmailAndPassword=signInWithEmailAndPassword;
++             window.signOut=signOut;
++             window.doc=doc;
++             window.getDoc=getDoc;
++             window.setDoc=setDoc;
++             window.updateDoc=updateDoc;
++             window.arrayRemove=arrayRemove;
++             window.arrayUnion=arrayUnion;
+  
+              // Make Firestore functions available globally
+-         window.firestoreFunctions = {
+-             doc, getDoc, setDoc, addDoc, deleteDoc, getDocs,
+-             query, orderBy, limit, where, serverTimestamp, collection
+-         };
++             window.firestoreFunctions= {
++                 doc,
++                 getDoc,
++                 setDoc,
++                 addDoc,
++                 deleteDoc,
++                 getDocs,
++                 query,
++                 orderBy,
++                 limit,
++                 where,
++                 serverTimestamp,
++                 collection
++             }
++ 
++             ;
+  
+              // Firebase Configuration
+-         const firebaseConfig = {
++             const firebaseConfig= {
+                  apiKey: "AIzaSyCyT8XLIwrmsYgMYalK9I_lp6OfQucBLR0",
+                      authDomain: "kalkulaator-9f3d1.firebaseapp.com",
+                      appId: "1:127234313724:web:1f333fb8f3ff2995bcb679",
+                      measurementId: "G-91VSY43W50"
+-         };
++             }
++ 
++             ;
+  
+-         const app = initializeApp(firebaseConfig);
+-         const auth = getAuth(app);
+-         const db = getFirestore(app);
++             const app=initializeApp(firebaseConfig);
++             const auth=getAuth(app);
++             const db=getFirestore(app);
+  
+              // Set persistence to LOCAL
+-         setPersistence(auth, browserSessionPersistence)
+-             .catch((error) => {
++             setPersistence(auth, browserSessionPersistence) .catch((error)=> {
+                      console.error("Auth persistence error:", error);
+                  });
+  
+              // Make auth and db available globally
+-         window.auth = auth;
+-         window.db = db;
++             window.auth=auth;
++             window.db=db;
+  
+              // Make logout function available globally
+-         window.handleLogout = async () => {
++             window.handleLogout=async ()=> {
+                  try {
+                      // Sign out from Firebase
+                      // Force page reload to reset all state
+                      window.location.reload();
+-             } catch (error) {
++                 }
++ 
++                 catch (error) {
+                      console.error('Error signing out:', error);
+                      // Even if there's an error, try to clear local state and reload
+                      window.location.reload();
+                  }
+-         };
++             }
++ 
++             ;
+  
+              // Check authentication state
+-         onAuthStateChanged(auth, async (user) => {
+-             if (!user) {
++             onAuthStateChanged(auth, async (user)=> {
++                     if ( !user) {
+                          // Check if there's a remembered user in localStorage
+-                 const rememberedUser = localStorage.getItem('rememberedUser');
++                         const rememberedUser=localStorage.getItem('rememberedUser');
++ 
+                          if (rememberedUser) {
+                              try {
+-                         const { username, password } = JSON.parse(rememberedUser);
++                                 const {
++                                     username, password
++                                 }
++ 
++                                 =JSON.parse(rememberedUser);
+                                  await signInWithEmailAndPassword(auth, username, password);
+                                  return; // The onAuthStateChanged will be triggered again
+-                     } catch (error) {
++                             }
++ 
++                             catch (error) {
+                                  console.error('Auto-login failed:', error);
+                                  localStorage.removeItem('rememberedUser');
+  
+                          // Show login modal and update state
+-                 const formApp = document.querySelector('[x-data="formApp"]')?.__x;
++                         const formApp=document.querySelector('[x-data="formApp"]')?.__x;
++ 
+                          if (formApp) {
+-                     formApp.$data.showLoginModal = true;
+-                     formApp.$data.currentUser = null;
+-                     formApp.$data.isAdmin = false;
+-                     formApp.$data.showUserMenu = false;
++                             formApp.$data.showLoginModal =true;
++                             formApp.$data.currentUser =null;
++                             formApp.$data.isAdmin =false;
++                             formApp.$data.showUserMenu =false;
+                              formApp.$data.showToast('Palun logi sisse', 'info');
+                          }
+-             } else {
++                     }
++ 
++                     else {
+                          // Get user data from Firestore
+-                 const userDoc = await getDoc(doc(db, 'users', user.uid));
+-                 const userData = userDoc.data();
++                         const userDoc=await getDoc(doc(db, 'users', user.uid));
++                         const userData=userDoc.data();
+  
+                          // Update Alpine.js state
+-                 const formApp = document.querySelector('[x-data="formApp"]')?.__x;
++                         const formApp=document.querySelector('[x-data="formApp"]')?.__x;
++ 
+                          if (formApp) {
+                              formApp.$data.currentUser = {
+                                  id: user.uid,
+                                  email: user.email,
+                                  ...userData
+-                     };
+-                     formApp.$data.isAdmin = userData?.isAdmin || false;
+-                     formApp.$data.showLoginModal = false;
++                             }
++ 
++                             ;
++                             formApp.$data.isAdmin =userData?.isAdmin || false;
++                             formApp.$data.showLoginModal =false;
+                              formApp.$data.showToast('Edukalt sisse logitud', 'success');
+                          }
+  
+          // Make login function available globally
+-         window.handleLogin = async (email, password) => {
++         window.handleLogin=async (email, password)=> {
+              try {
+-                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
+-                 const user = userCredential.user;
++                 const userCredential=await signInWithEmailAndPassword(auth, email, password);
++                 const user=userCredential.user;
+  
+                  // Get or create user document in Firestore
+-                 const userDoc = await getDoc(doc(db, 'users', user.uid));
+-                 if (!userDoc.exists()) {
++                 const userDoc=await getDoc(doc(db, 'users', user.uid));
++ 
++                 if ( !userDoc.exists()) {
++ 
+                      // Create new user document
+                      await setDoc(doc(db, 'users', user.uid), {
+                          email: user.email,
+-                         isAdmin: user.email.endsWith('@hankest.ee'),
++                         isAdmin: user.email.endsWith ('@hankest.ee'),
+                          createdAt: new Date().toISOString(),
+                          lastLogin: new Date().toISOString()
+                      });
+-                 } else {
++             }
++ 
++             else {
++ 
+                  // Update last login
+                  await setDoc(doc(db, 'users', user.uid), {
+                      lastLogin: new Date().toISOString()
+-                     }, { merge: true });
++                 }
++ 
++                 , {
++                 merge: true
++             });
+          }
+  
+                  id: user.uid,
+                  email: user.email,
+-                     isAdmin: user.email.endsWith('@hankest.ee')
++                 isAdmin: user.email.endsWith ('@hankest.ee')
+              }));
+  
+          return user;
+-             } catch (error) {
++         }
++ 
++         catch (error) {
+              console.error('Login error:', error);
+              throw error;
+          }
+-         };
+-     </script>
+- 
+-     <script>
+-         document.addEventListener('alpine:init', () => {
+-             Alpine.data('formApp', () => {
+-                 const standardFields = [
+-                     { key: 'buyer', label: 'Hankija', placeholder: 'Nimi, aadress, registrikood' },
+-                     { key: 'submission', label: 'Pakkumise esitamise aeg ja koht', placeholder: 'nt 10. aprill, e-post' },
+-                     { key: 'validity', label: 'Pakkumuse jõusoleku aeg', placeholder: 'nt 30 päeva' },
+-                     { key: 'requirements', label: 'Nõuded pakkujale', placeholder: 'nt kogemus 3 aastat' },
+-                     { key: 'criteria', label: 'Väljavaliku alused', placeholder: 'Majanduslikult soodsaim' },
+-                     { key: 'responsible', label: 'Vastutav isik', placeholder: 'Nimi' }
++         }
++ 
++         ;
++ 
++         </script><script>document.addEventListener('alpine:init', ()=> {
++                 Alpine.data('formApp', ()=> {
++                         const standardFields=[ {
++                             key: 'buyer', label: 'Hankija', placeholder: 'Nimi, aadress, registrikood'
++                         }
++ 
++                         ,
++                         {
++                         key: 'submission', label: 'Pakkumise esitamise aeg ja koht', placeholder: 'nt 10. aprill, e-post'
++                     }
++ 
++                     ,
++                     {
++                     key: 'validity', label: 'Pakkumuse jõusoleku aeg', placeholder: 'nt 30 päeva'
++                 }
++ 
++                 ,
++                 {
++                 key: 'requirements', label: 'Nõuded pakkujale', placeholder: 'nt kogemus 3 aastat'
++             }
++ 
++             ,
++             {
++             key: 'criteria', label: 'Väljavaliku alused', placeholder: 'Majanduslikult soodsaim'
++         }
++ 
++         ,
++         {
++         key: 'responsible', label: 'Vastutav isik', placeholder: 'Nimi'
++         }
++ 
+          ];
+  
+-                 const defaultFields = {};
+-                 standardFields.forEach(field => {
+-                     defaultFields[field.key] = '';
++         const defaultFields= {}
++ 
++         ;
++ 
++         standardFields.forEach(field=> {
++                 defaultFields[field.key]='';
+              });
+  
+          return {
++ 
+              standardFields,
+              form: {
++ 
+                  name: '',
+                  intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+-                         fields: { ...defaultFields },
+-                         sections: [
+-                             {
++                 fields: {
++                     ...defaultFields
++                 }
++ 
++                 ,
++                 sections: [ {
++ 
+                      title: '1 Üldtingimused',
+                      enabled: true,
+                      open: false,
+-                                 options: [
+-                                     { text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
+-                                     { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
+-                                     { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
+-                                     { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
+-                                     { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false },
+-                                     { text: 'Arve maksetähtaeg peab olema vähemalt 21 päeva.', checked: true }
++                     options: [ {
++                         text: 'Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false
++                     }
++ 
++                     ,
++                     {
++                     text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false
++                 }
++ 
++                 ,
++                 {
++                 text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false
++             }
++ 
++             ,
++             {
++             text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Arve maksetähtaeg peab olema vähemalt 21 päeva.', checked: true
++         }
++ 
+          ]
+-                             },
++         }
++ 
++         ,
+          {
++ 
+          title: '2 Tehniline kirjeldus',
+          enabled: true,
+          open: false,
+-                                 options: [
+-                                     { text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.', checked: false, editable: true }
++         options: [ {
++             text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.', checked: false, editable: true
++         }
++ 
+          ]
+-                             },
++         }
++ 
++         ,
+          {
++ 
+          title: '3 Nõuded pakkumusele',
+          enabled: true,
+          open: false,
+-                                 options: [
+-                                     { text: 'Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.', checked: false },
+-                                     { text: 'Hilinenud pakkumusi hankija vastu ei võta.', checked: false },
+-                                     { text: 'Pakkumus peab sisaldama: Pakkumuse maksumust vastavalt lisale 1;', checked: false },
+-                                     { text: 'Pakkumus peab sisaldama: Pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.', checked: false },
+-                                     { text: 'Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.', checked: false },
+-                                     { text: 'Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.', checked: false },
+-                                     { text: 'Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist... Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.', checked: false }
++         options: [ {
++             text: 'Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hilinenud pakkumusi hankija vastu ei võta.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkumus peab sisaldama: Pakkumuse maksumust vastavalt lisale 1;', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkumus peab sisaldama: Pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist... Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.', checked: false
++         }
++ 
+          ]
+-                             },
++         }
++ 
++         ,
+          {
++ 
+          title: '4 Pakkumuste kontroll, hindamine ja eduka pakkumuse valik',
+          enabled: true,
+          open: false,
+-                                 options: [
+-                                     { text: 'Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele...', checked: false },
+-                                     { text: 'Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.', checked: false },
+-                                     { text: 'Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel...', checked: false },
+-                                     { text: 'Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi...', checked: false },
+-                                     { text: 'Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama...', checked: false }
++         options: [ {
++             text: 'Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama...', checked: false
++         }
++ 
+          ]
+-                             },
++         }
++ 
++         ,
+          {
++ 
+          title: '5 Läbirääkimiste pidamine',
+          enabled: true,
+          open: false,
+-                                 options: [
+-                                     { text: 'Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu ja maksumuse ning tellimuse tingimuste üle.', checked: false },
+-                                     { text: 'Hankijal on õigus loobuda ühest või mitmest pakkumuses kirjeldatud teenusest, tööst või asjast või vähendada nende mahtusid või koguseid...', checked: false },
+-                                     { text: 'Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja... Läbirääkimised on konfidentsiaalsed.', checked: false },
+-                                     { text: 'Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse...', checked: false }
++         options: [ {
++             text: 'Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu ja maksumuse ning tellimuse tingimuste üle.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hankijal on õigus loobuda ühest või mitmest pakkumuses kirjeldatud teenusest, tööst või asjast või vähendada nende mahtusid või koguseid...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja... Läbirääkimised on konfidentsiaalsed.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse...', checked: false
++         }
++ 
+          ]
+-                             },
++         }
++ 
++         ,
+          {
++ 
+          title: '6 Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine',
+          enabled: true,
+          open: false,
+-                                 options: [
+-                                     { text: 'Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata...', checked: false },
+-                                     { text: 'Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta...', checked: false },
+-                                     { text: 'Hankija võib ostumenetluse kehtetuks tunnistada, kui peale pakkumuste esitamise tähtpäeva selgub, et hankija on teinud vea...', checked: false }
++         options: [ {
++             text: 'Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hankija võib ostumenetluse kehtetuks tunnistada, kui peale pakkumuste esitamise tähtpäeva selgub, et hankija on teinud vea...', checked: false
++         }
++ 
+          ]
+-                             },
++         }
++ 
++         ,
+          {
++ 
+          title: '7 Lisad',
+          enabled: true,
+          open: false,
+-                                 options: [
+-                                     { text: 'Lisa 1. ', checked: false, editable: true }
++         options: [ {
++             text: 'Lisa 1. ', checked: false, editable: true
++         }
++ 
+          ]
+          }
++ 
+          ]
+-                     },
++         }
++ 
++         ,
+          today: new Date().toLocaleDateString('et-EE', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
++ 
+          }).replace(/\//g, '.').replace(/(\d+)\.(\d+)\.(\d+)/, '$1.$2.$3'),
+          toasts: [],
+              font: 'Inter', // Default font
+              buttonStyle: 'rounded', // Default button style
+-                     },
++         }
++ 
++         ,
+  
+          async login() {
+-                         const email = document.getElementById('emailLogin').value;
+-                         const password = document.getElementById('passwordLogin').value;
+-                         const rememberMe = document.getElementById('rememberMe').checked;
++             const email=document.getElementById('emailLogin').value;
++             const password=document.getElementById('passwordLogin').value;
++             const rememberMe=document.getElementById('rememberMe').checked;
+  
+              try {
+                              password: password
+                          }));
+-                             } else {
++             }
++ 
++             else {
+                  localStorage.removeItem('rememberedUser');
+              }
+  
+              this.showToast('Sisselogimine õnnestus', 'success');
+-                             this.showLoginModal = false;
++             this.showLoginModal=false;
++ 
+              // Force Alpine.js to update the state
+-                             this.$nextTick(() => {
+-                                 this.currentUser = window.auth.currentUser ? {
++             this.$nextTick(()=> {
++                     this.currentUser=window.auth.currentUser ? {
+                          id: window.auth.currentUser.uid,
+                          email: window.auth.currentUser.email,
+-                                     isAdmin: window.auth.currentUser.email.endsWith('@hankest.ee')
+-                                 } : null;
+-                                 this.isAdmin = this.currentUser?.isAdmin || false;
++                         isAdmin: window.auth.currentUser.email.endsWith ('@hankest.ee')
++                     }
++ 
++                     : null;
++                     this.isAdmin=this.currentUser?.isAdmin || false;
+                  });
+-                         } catch (error) {
++         }
++ 
++         catch (error) {
+              this.showToast(this.getErrorMessage(error.code), 'error');
+          }
+-                     },
++         }
++ 
++         ,
+  
+          getErrorMessage(errorCode) {
+-                         const errorMessages = {
++             const errorMessages= {
+                  'auth/invalid-email': 'Vigane e-posti aadress',
+                  'auth/user-disabled': 'Kasutaja on deaktiveeritud',
+                  'auth/too-many-requests': 'Liiga palju katsetusi. Palun proovige hiljem uuesti',
+                  'auth/network-request-failed': 'Võrgu viga. Palun kontrollige oma internetiühendust'
+-                         };
++             }
++ 
++             ;
+              return errorMessages[errorCode] || 'Sisselogimisel tekkis viga';
+-                     },
++         }
++ 
++         ,
+  
+          checkLocalStorage() {
+              try {
++ 
+                  // Test if localStorage is available
+-                             if (typeof localStorage === 'undefined') {
++                 if (typeof localStorage==='undefined') {
+                      this.showToast('localStorage ei ole saadaval', 'error');
+                      return false;
+                  // Test writing and reading
+                  localStorage.setItem('test', 'test');
+-                             if (localStorage.getItem('test') !== 'test') {
++ 
++                 if (localStorage.getItem('test') !=='test') {
+                      this.showToast('localStorage ei tööta korralikult', 'error');
+                      return false;
+                  }
++ 
+                  localStorage.removeItem('test');
+  
+                  // Check available space (estimate)
+-                             let totalSize = 0;
++                 let totalSize=0;
++ 
+                  for (let key in localStorage) {
+                      if (localStorage.hasOwnProperty(key)) {
+-                                     totalSize += (localStorage[key].length || 0) * 2; // UTF-16 characters = 2 bytes
++                         totalSize +=(localStorage[key].length || 0) * 2; // UTF-16 characters = 2 bytes
+                      }
+                  }
+  
+-                             const availableSpace = 5 * 1024 * 1024 - totalSize; // 5MB is a common limit
+-                             if (availableSpace < 500000) { // If less than 500KB available
++                 const availableSpace=5 * 1024 * 1024 - totalSize; // 5MB is a common limit
++ 
++                 if (availableSpace < 500000) {
++                     // If less than 500KB available
+                      this.showToast('Hoiatus: localStorage on peaaegu täis', 'info');
+                  }
+  
+                  return true;
+-                         } catch (error) {
++             }
++ 
++             catch (error) {
+                  console.error('localStorage check failed:', error);
+                  this.showToast('Viga localStorage kontrollimisel: ' + error.message, 'error');
+                  return false;
+              }
+-                     },
++         }
++ 
++         ,
+  
+          init() {
++ 
+              // Initialize form data
+-                         this.form = {
++             this.form= {
++ 
+                  name: '',
+                  fields: {
+                      criteria: '',
+                      responsible: ''
+-                             },
++                 }
++ 
++                 ,
+                  sections: this.defaultSections
+-                         };
++             }
++ 
++             ;
+  
+              // Initialize history variables
+-                         this.generatedPdfs = [];
+-                         this.isLoadingHistory = false;
++             this.generatedPdfs=[];
++             this.isLoadingHistory=false;
+  
+              // Initialize user settings with defaults
+-                         this.userSettings = {
++             this.userSettings= {
+                  buyer: '',
+                  submission: '',
+                  font: 'Inter',
+                  buttonStyle: 'rounded'
+-                         };
++             }
++ 
++             ;
+  
+              // Check for remembered user
+-                         const rememberedUser = localStorage.getItem('rememberedUser');
++             const rememberedUser=localStorage.getItem('rememberedUser');
++ 
+              if (rememberedUser) {
+-                             const { username } = JSON.parse(rememberedUser);
+-                             document.getElementById('emailLogin').value = username;
+-                             document.getElementById('rememberMe').checked = true;
++                 const {
++                     username
++                 }
++ 
++                 =JSON.parse(rememberedUser);
++                 document.getElementById('emailLogin').value=username;
++                 document.getElementById('rememberMe').checked=true;
+              }
+  
+              // Initialize Sortable for the sections
+-                         this.$nextTick(() => {
++             this.$nextTick(()=> {
+                      if (this.$refs.draggableSections) {
+                          new Sortable(this.$refs.draggableSections, {
++ 
+                              animation: 150,
+                              handle: '.drag-handle',
+-                                     onEnd: (evt) => {
+-                                         const newOrder = Array.from(evt.from.children).map(child => {
++                             onEnd: (evt)=> {
++                                 const newOrder=Array.from(evt.from.children).map(child=> {
+                                          return child.__x.$data.section;
+                                      });
+-                                         this.form.sections = newOrder;
++                                 this.form.sections=newOrder;
+                                  this.saveToStorage();
+                              }
+  
+          // Auto-hide error messages
+-                         setInterval(() => {
++         setInterval(()=> {
+                  if (this.showError) {
+-                                 this.showError = false;
++                     this.showError=false;
+                  }
+-                         }, 5000);
++             }
++ 
++             , 5000);
+  
+          // Load user settings immediately
+          this.loadUserSettings();
+  
+          // Listen for auth state changes
+-                         window.auth?.onAuthStateChanged(async (user) => {
++         window.auth?.onAuthStateChanged(async (user)=> {
+                  if (user) {
+-                                 this.currentUser = {
++                     this.currentUser= {
+                          id: user.uid,
+                          email: user.email,
+-                                     isAdmin: user.email.endsWith('@hankest.ee')
+-                                 };
+-                                 this.isAdmin = this.currentUser.isAdmin;
+-                                 this.showLoginModal = false;
++                         isAdmin: user.email.endsWith ('@hankest.ee')
++                     }
++ 
++                     ;
++                     this.isAdmin=this.currentUser.isAdmin;
++                     this.showLoginModal=false;
+  
+                      // Save current user to localStorage
+                      // Load user settings after successful login
+                      await this.loadUserSettings();
+-                             } else {
+-                                 this.currentUser = null;
+-                                 this.isAdmin = false;
+-                                 this.showLoginModal = true;
++                 }
++ 
++                 else {
++                     this.currentUser=null;
++                     this.isAdmin=false;
++                     this.showLoginModal=true;
+                      localStorage.removeItem('currentUser');
+                  }
+              });
+  
+          // Check for current user in localStorage on initial load
+-                         const currentUser = localStorage.getItem('currentUser');
++         const currentUser=localStorage.getItem('currentUser');
++ 
+          if (currentUser) {
+-                             const userData = JSON.parse(currentUser);
+-                             this.currentUser = userData;
+-                             this.isAdmin = userData.isAdmin;
+-                             this.showLoginModal = false;
++             const userData=JSON.parse(currentUser);
++             this.currentUser=userData;
++             this.isAdmin=userData.isAdmin;
++             this.showLoginModal=false;
+          }
+-                     },
++         }
++ 
++         ,
+  
+          // Add handler for settings modal open
+          async handleSettingsModalOpen() {
+-                         this.showSettingsModal = true;
++             this.showSettingsModal=true;
+  
+              // Load user settings when opening modal
+  
+                  // Load PDF history when opening the History tab
+-                             if (this.activeTab === 'history') {
++                 if (this.activeTab==='history') {
+                      await this.loadPdfHistory();
+                  }
+              }
+-                     },
++         }
++ 
++         ,
+  
+          setupFormWatcher() {
++ 
+              // Watch for changes to form inputs
+-                         document.addEventListener('input', (e) => {
+-                             if (e.target.hasAttribute('x-model') ||
+-                                 e.target.closest('[x-model]') ||
+-                                 e.target.closest('[x-data]')) {
++             document.addEventListener('input', (e)=> {
++                     if (e.target.hasAttribute('x-model') || e.target.closest('[x-model]') || e.target.closest('[x-data]')) {
+                          this.debouncedSave();
+                      }
+                  });
+  
+              // Also watch for checkbox changes
+-                         document.addEventListener('change', (e) => {
+-                             if (e.target.type === 'checkbox') {
++             document.addEventListener('change', (e)=> {
++                     if (e.target.type==='checkbox') {
+                          this.debouncedSave();
+                      }
+                  });
+-                     },
++         }
++ 
++         ,
+  
+          get visibleSections() {
+-                         return this.form.sections.filter(s => s.enabled && s.options.some(o => o.checked));
+-                     },
++             return this.form.sections.filter(s=> s.enabled && s.options.some(o=> o.checked));
++         }
++ 
++         ,
+  
+          validateForm() {
+-                         if (!this.form.name?.trim()) {
++             if ( !this.form.name?.trim()) {
+                  this.showToast('Palun sisesta ostumenetluse nimi', 'error');
+                  return false;
+              }
+-                         if (!this.form.fields?.buyer?.trim()) {
++ 
++             if ( !this.form.fields?.buyer?.trim()) {
+                  this.showToast('Palun täida hankija andmed', 'error');
+                  return false;
+              }
++ 
+              return true;
+-                     },
++         }
++ 
++         ,
+  
+          async generatePDF() {
+              try {
+                  // Get current user
+-                             const user = window.firebase.auth().currentUser;
+-                             if (!user) {
++                 const user=window.firebase.auth().currentUser;
++ 
++                 if ( !user) {
+                      throw new Error('Kasutaja pole sisse logitud');
+                  }
+  
+                  // Create PDF content
+-                             const doc = new jsPDF();
++                 const doc=new jsPDF();
+                  doc.setFontSize(16);
+                  doc.text('Ostu- ja müügileping', 20, 20);
+                  doc.text('Ettevõtte info:', 20, 40);
+                  doc.setFontSize(10);
+-                             doc.text(`Nimi: ${this.companyName}`, 30, 50);
+-                             doc.text(`Registrikood: ${this.registrationCode}`, 30, 60);
+-                             doc.text(`Aadress: ${this.address}`, 30, 70);
++ 
++                 doc.text(`Nimi: $ {
++                         this.companyName
++                     }
++ 
++                     `, 30, 50);
++ 
++                 doc.text(`Registrikood: $ {
++                         this.registrationCode
++                     }
++ 
++                     `, 30, 60);
++ 
++                 doc.text(`Aadress: $ {
++                         this.address
++                     }
++ 
++                     `, 30, 70);
+  
+                  // Add parties
+                  doc.setFontSize(10);
+                  doc.text('Ostja:', 30, 100);
+-                             doc.text(`Nimi: ${this.buyerName}`, 40, 110);
+-                             doc.text(`Isikukood: ${this.buyerId}`, 40, 120);
+-                             doc.text(`Aadress: ${this.buyerAddress}`, 40, 130);
++ 
++                 doc.text(`Nimi: $ {
++                         this.buyerName
++                     }
++ 
++                     `, 40, 110);
++ 
++                 doc.text(`Isikukood: $ {
++                         this.buyerId
++                     }
++ 
++                     `, 40, 120);
++ 
++                 doc.text(`Aadress: $ {
++                         this.buyerAddress
++                     }
++ 
++                     `, 40, 130);
+  
+                  doc.text('Müüja:', 30, 150);
+-                             doc.text(`Nimi: ${this.sellerName}`, 40, 160);
+-                             doc.text(`Isikukood: ${this.sellerId}`, 40, 170);
+-                             doc.text(`Aadress: ${this.sellerAddress}`, 40, 180);
++ 
++                 doc.text(`Nimi: $ {
++                         this.sellerName
++                     }
++ 
++                     `, 40, 160);
++ 
++                 doc.text(`Isikukood: $ {
++                         this.sellerId
++                     }
++ 
++                     `, 40, 170);
++ 
++                 doc.text(`Aadress: $ {
++                         this.sellerAddress
++                     }
++ 
++                     `, 40, 180);
+  
+                  // Add object
+                  doc.text('Hind:', 20, 230);
+                  doc.setFontSize(10);
+-                             doc.text(`${this.price} €`, 30, 240);
++ 
++                 doc.text(`$ {
++                         this.price
++                     }
++ 
++                     €`, 30, 240);
+  
+                  // Add date and signatures
+                  doc.setFontSize(12);
+-                             doc.text(`Kuupäev: ${new Date().toLocaleDateString('et-EE')}`, 20, 260);
++ 
++                 doc.text(`Kuupäev: $ {
++                         new Date().toLocaleDateString('et-EE')
++                     }
++ 
++                     `, 20, 260);
+                  doc.text('Allkirjad:', 20, 280);
+                  doc.line(30, 290, 90, 290);
+  
+                  // Save PDF
+-                             const pdfBlob = doc.output('blob');
+-                             const pdfUrl = URL.createObjectURL(pdfBlob);
+-                             const timestamp = new Date().toISOString();
++                 const pdfBlob=doc.output('blob');
++                 const pdfUrl=URL.createObjectURL(pdfBlob);
++                 const timestamp=new Date().toISOString();
+  
+                  // Save to Firestore with user details
+                  try {
+                      // Get current user from Firebase Auth
+-                                 const user = firebase.auth().currentUser;
+-                                 if (!user) {
++                     const user=firebase.auth().currentUser;
++ 
++                     if ( !user) {
+                          throw new Error('Kasutaja pole sisse logitud');
+                      }
+  
+                      // Save to Firestore
+-                                 const pdfHistoryRef = firebase.firestore().collection('pdfHistory');
++                     const pdfHistoryRef=firebase.firestore().collection('pdfHistory');
++ 
+                      await pdfHistoryRef.add({
+                          userId: user.uid,
+                          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                          createdBy: user.email,
+-                                     role: user.email.endsWith('@hankest.ee') ? 'admin' : 'user'
++                         role: user.email.endsWith ('@hankest.ee') ? 'admin' : 'user'
+                      });
+-                             } catch (error) {
++             }
++ 
++             catch (error) {
+                  console.error('Error saving PDF history:', error);
+                  this.showToast(error.message || 'PDF ajaloo salvestamisel tekkis viga', 'error');
+              }
+  
+              // Update local state
+-                             this.generatedPdfs = [{
++             this.generatedPdfs=[ {
++ 
+                  id: Date.now().toString(),
+-                                 name: `${this.companyName} - ${timestamp}`,
++                 name: `$ {
++                     this.companyName
++                 }
++ 
++                 - $ {
++                     timestamp
++                 }
++ 
++                 `,
+                  url: pdfUrl,
+                  createdAt: new Date()
+-                             }, ...(this.generatedPdfs || [])].slice(0, 10);
++             }
++ 
++             , ...(this.generatedPdfs || [])].slice(0, 10);
+  
+              // Show success message
+              this.showToast('PDF genereeritud ja salvestatud', 'success');
+-                         } catch (error) {
++         }
++ 
++         catch (error) {
+              console.error('Error generating PDF:', error);
+              this.showToast(error.message || 'PDF genereerimine ebaõnnestus', 'error');
+          }
+-                     },
++         }
++ 
++         ,
+  
+          saveToStorage() {
+              try {
+                  // Create a deep clone of the form data to avoid reference issues
+-                             const formToSave = JSON.parse(JSON.stringify(this.form));
++                 const formToSave=JSON.parse(JSON.stringify(this.form));
+  
+-                             const payload = {
++                 const payload= {
+                      form: formToSave,
+                      timestamp: Date.now(),
+                      version: '1.4',
+                      lastModified: new Date().toISOString(),
+                      files: this.files.length > 0 ? this.files : []
+-                             };
++                 }
++ 
++                 ;
+  
+                  // Save to localStorage
+                  this.showToast('Salvestatud!', 'success');
+                  return true;
+-                         } catch (error) {
++             }
++ 
++             catch (error) {
+                  console.error('Failed to save to storage:', error);
+                  this.showToast('Salvestamine ebaõnnestus: ' + error.message, 'error');
+                  return false;
+              }
+-                     },
++         }
++ 
++         ,
+  
+          loadFromStorage() {
+              try {
+-                             const raw = localStorage.getItem('OM_DRAFT');
+-                             if (!raw) {
++                 const raw=localStorage.getItem('OM_DRAFT');
++ 
++                 if ( !raw) {
+                      console.log('No saved data found in localStorage');
+                      return false;
+                  }
+  
+-                             const data = JSON.parse(raw);
+-                             if (data.version === '1.4' && data.form) {
++                 const data=JSON.parse(raw);
++ 
++                 if (data.version==='1.4' && data.form) {
+                      console.log('Loading saved form data:', data.form);
+  
+                      // Create a fresh default form
+-                                 const freshDefaultFields = {};
+-                                 this.standardFields.forEach(field => {
+-                                     freshDefaultFields[field.key] = '';
++                     const freshDefaultFields= {}
++ 
++                     ;
++ 
++                     this.standardFields.forEach(field=> {
++                             freshDefaultFields[field.key]='';
+                          });
+  
+                      // Apply saved data to the form
+-                                 this.form = {
++                     this.form= {
++ 
+                          name: data.form.name || '',
+                          intro: data.form.intro || 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+                          fields: {
++ 
+                              ...freshDefaultFields,
+                              ...(data.form.fields || {})
+-                                     },
++                         }
++ 
++                         ,
+                          sections: data.form.sections || this.form.sections
+-                                 };
++                     }
++ 
++                     ;
+  
+                      // Load files if present
+                      if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+-                                     this.files = data.files;
++                         this.files=data.files;
+                      }
+  
+                      this.showToast('Laaditud salvestatud andmed', 'success');
+                      return true;
+-                             } else {
++                 }
++ 
++                 else {
+                      console.warn('Incompatible data version or missing form data');
+                      localStorage.removeItem('OM_DRAFT');
+                      this.showToast('Vana versiooni andmed, algandmed laetud', 'info');
+                      return false;
+                  }
+-                         } catch (error) {
++             }
++ 
++             catch (error) {
+                  console.error('Failed to load from storage:', error, error.stack);
+                  localStorage.removeItem('OM_DRAFT');
+                  this.showToast('Viga andmete laadimisel: ' + error.message, 'error');
+                  return false;
+              }
+-                     },
++         }
++ 
++         ,
+  
+          manualSave() {
+              // This is called directly from the save button click
+              clearTimeout(this.saveTimeout); // Clear any pending save
+-                         const success = this.saveToStorage();
++             const success=this.saveToStorage();
++ 
+              if (success) {
+                  this.showToast('Andmed edukalt salvestatud!', 'success');
+              }
+-                     },
++         }
++ 
++         ,
+  
+          addAttachment() {
+-                         const lisaCount = this.form.sections[6].options.length + 1;
++             const lisaCount=this.form.sections[6].options.length + 1;
++ 
+              this.form.sections[6].options.push({
+-                             text: `Lisa ${lisaCount}. `,
++                 text: `Lisa $ {
++                     lisaCount
++                 }
++ 
++                 . `,
+                  checked: false,
+                  editable: true
+              });
+          this.showToast('Lisa lisatud', 'success');
+-                     },
++         }
++ 
++         ,
+  
+          addNewSection() {
+-                         const nextNum = this.form.sections.length + 1;
+-                         const title = prompt(`Lisa punktile pealkiri (${nextNum}):`);
++             const nextNum=this.form.sections.length + 1;
++ 
++             const title=prompt(`Lisa punktile pealkiri ($ {
++                         nextNum
++                     }):`);
+  
+              if (title) {
+                  this.form.sections.push({
+-                                 title: `${nextNum} ${title}`,
++                     title: `$ {
++                         nextNum
++                     }
++ 
++                     $ {
++                         title
++                     }
++ 
++                     `,
+                      enabled: false,
+                      open: true,
+-                                 options: [{ text: 'Lisa tingimus', checked: false, editable: true, isEditing: true }]
++                     options: [ {
++                         text: 'Lisa tingimus', checked: false, editable: true, isEditing: true
++                     }
++ 
++                     ]
+                  });
+              this.showToast('Uus sektsioon lisatud', 'success');
+          }
+-                     },
++         }
++ 
++         ,
+  
+          toggleAllSections() {
+-                         const hasClosedSections = this.form.sections.some(section => !section.open);
+-                         this.form.sections.forEach(section => {
+-                             section.open = hasClosedSections;
++             const hasClosedSections=this.form.sections.some(section=> !section.open);
++ 
++             this.form.sections.forEach(section=> {
++                     section.open=hasClosedSections;
+                  });
+              this.showToast(hasClosedSections ? 'Kõik sektsioonid avatud' : 'Kõik sektsioonid suletud', 'success');
+-                     },
++         }
++ 
++         ,
+  
+          selectAllOptions() {
+-                         const hasUncheckedOptions = this.form.sections.some(section =>
+-                             section.options.some(option => !option.checked)
+-                         );
++             const hasUncheckedOptions=this.form.sections.some(section=> section.options.some(option=> !option.checked));
+  
+-                         this.form.sections.forEach(section => {
+-                             section.enabled = true;
+-                             section.options.forEach(option => {
+-                                 option.checked = hasUncheckedOptions;
++             this.form.sections.forEach(section=> {
++                     section.enabled=true;
++ 
++                     section.options.forEach(option=> {
++                             option.checked=hasUncheckedOptions;
+                          });
+                  });
+              this.showToast(hasUncheckedOptions ? 'Kõik valikud valitud' : 'Kõik valikud eemaldatud', 'success');
+-                     },
++         }
+  
+-                     showToast(message, type = 'info', duration = 3000) {
++         ,
++ 
++         showToast(message, type='info', duration=3000) {
++ 
+              // Initialize toasts array if it doesn't exist
+-                         if (!Array.isArray(this.toasts)) {
+-                             this.toasts = [];
++             if ( !Array.isArray(this.toasts)) {
++                 this.toasts=[];
+              }
+  
+-                         const toast = {
++             const toast= {
+                  id: Date.now() + '-' + Math.random().toString(36).substring(2, 9),
+                  message,
+                  type,
+                  duration
+-                         };
++             }
++ 
++             ;
+              this.toasts.push(toast);
+  
+              // Use direct setTimeout without $nextTick
+-                         setTimeout(() => {
++             setTimeout(()=> {
+                      if (Array.isArray(this.toasts)) {
+-                                 this.toasts = this.toasts.filter(t => t.id !== toast.id);
++                         this.toasts=this.toasts.filter(t=> t.id !==toast.id);
+                      }
+-                         }, duration);
+-                     },
++                 }
++ 
++                 , duration);
++         }
++ 
++         ,
+  
+          handleDragOver(e) {
+              e.preventDefault();
+-                         this.isDragging = true;
+-                     },
++             this.isDragging=true;
++         }
++ 
++         ,
+  
+          handleDragLeave() {
+-                         this.isDragging = false;
+-                     },
++             this.isDragging=false;
++         }
++ 
++         ,
+  
+          handleDrop(e) {
+              e.preventDefault();
+-                         this.isDragging = false;
+-                         const files = Array.from(e.dataTransfer.files);
++             this.isDragging=false;
++             const files=Array.from(e.dataTransfer.files);
+              this.processFiles(files);
+-                     },
++         }
++ 
++         ,
+  
+          handleFileInput(e) {
+-                         const files = Array.from(e.target.files);
++             const files=Array.from(e.target.files);
+              this.processFiles(files);
+-                         e.target.value = ''; // Reset input
+-                     },
++             e.target.value=''; // Reset input
++         }
++ 
++         ,
+  
+          processFiles(files) {
+-                         const maxFileSize = 10 * 1024 * 1024; // 10MB
+-                         const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif'];
++             const maxFileSize=10 * 1024 * 1024; // 10MB
++             const allowedTypes=['application/pdf', 'image/jpeg', 'image/png', 'image/gif'];
+  
+-                         Array.from(files).forEach(file => {
++             Array.from(files).forEach(file=> {
+                      if (file.size > maxFileSize) {
+-                                 this.showToast(`Fail ${file.name} on liiga suur. Maksimaalne suurus on 10MB.`, 'error');
++                         this.showToast(`Fail $ {
++                                 file.name
++                             }
++ 
++                             on liiga suur. Maksimaalne suurus on 10MB.`, 'error');
+                          return;
+                      }
+  
+-                             if (!allowedTypes.includes(file.type)) {
+-                                 this.showToast(`Fail ${file.name} on sobimatu tüüp. Lubatud on PDF ja pildifailid.`, 'error');
++                     if ( !allowedTypes.includes(file.type)) {
++                         this.showToast(`Fail $ {
++                                 file.name
++                             }
++ 
++                             on sobimatu tüüp. Lubatud on PDF ja pildifailid.`, 'error');
+                          return;
+                      }
+  
+-                             const reader = new FileReader();
+-                             reader.onload = (e) => {
++                     const reader=new FileReader();
++ 
++                     reader.onload=(e)=> {
+                          this.files.push({
+                              name: file.name,
+                          });
+                      this.showToast('Fail lisatud', 'success');
+-                             };
+-                             reader.onerror = () => {
+-                                 this.showToast(`Faili ${file.name} lugemisel tekkis viga`, 'error');
+-                             };
++                 }
++ 
++                 ;
++ 
++                 reader.onerror=()=> {
++                     this.showToast(`Faili $ {
++                             file.name
++                         }
++ 
++                         lugemisel tekkis viga`, 'error');
++                 }
++ 
++                 ;
+                  reader.readAsDataURL(file);
+              });
+-                     },
++         }
++ 
++         ,
+  
+          removeFile(index) {
+-                         const fileName = this.files[index].name;
++             const fileName=this.files[index].name;
+              this.files.splice(index, 1);
+-                         this.showToast(`Fail ${fileName} eemaldatud`, 'info');
+-                     },
++ 
++             this.showToast(`Fail $ {
++                     fileName
++                 }
++ 
++                 eemaldatud`, 'info');
++         }
++ 
++         ,
+  
+          formatFileSize(bytes) {
+-                         if (bytes === 0) return '0 Bytes';
+-                         const k = 1024;
+-                         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+-                         const i = Math.floor(Math.log(bytes) / Math.log(k));
++             if (bytes===0) return '0 Bytes';
++             const k=1024;
++             const sizes=['Bytes', 'KB', 'MB', 'GB'];
++             const i=Math.floor(Math.log(bytes) / Math.log(k));
+              return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+-                     },
++         }
++ 
++         ,
+  
+          resetForm() {
+              if (confirm('Kas oled kindel, et soovid kõik andmed kustutada? Seda tegevust ei saa tagasi võtta.')) {
++ 
+                  // Reset to default form structure
+-                             this.form = {
++                 this.form= {
++ 
+                      name: '',
+                      intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+-                                 fields: { ...defaultFields },
+-                                 sections: [
+-                                     {
++                     fields: {
++                         ...defaultFields
++                     }
++ 
++                     ,
++                     sections: [ {
++ 
+                          title: '1 Üldised tingimused',
+                          enabled: true,
+                          open: false,
+-                                         options: [
+-                                             { text: '111Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false },
+-                                             { text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false },
+-                                             { text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false },
+-                                             { text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false },
+-                                             { text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false },
++                         options: [ {
++                             text: '111Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.', checked: false
++                         }
++ 
++                         ,
++                         {
++                         text: 'Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.', checked: false
++                     }
++ 
++                     ,
++                     {
++                     text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".', checked: false
++                 }
++ 
++                 ,
++                 {
++                 text: 'Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg)...', checked: false
++             }
++ 
++             ,
++             {
++             text: 'Hankija jätab endale õiguse tellida teenust lähtudes oma eelarvelistest vahenditest. Teenuse hankija ei hüvita pakkujale teenuse tellimata jätmise eest tekkinud kahju.', checked: false
++         }
++ 
++         ,
+  
+          ]
+-                                     },
++         }
++ 
++         ,
+          {
++ 
+          title: '2 Ostumenetluse tehniline kirjeldus',
+          enabled: true,
+          open: false,
+-                                         options: [
+-                                             { text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.', checked: false, editable: true }
++         options: [ {
++             text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.', checked: false, editable: true
++         }
++ 
+          ]
+-                                     },
++         }
++ 
++         ,
+          {
++ 
+          title: '3 Nõuded pakkumusele',
+          enabled: true,
+          open: false,
+-                                         options: [
+-                                             { text: 'Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.', checked: false },
+-                                             { text: 'Hilinenud pakkumusi hankija vastu ei võta.', checked: false },
+-                                             { text: 'Pakkumus peab sisaldama: Pakkumuse maksumust vastavalt lisale 1;', checked: false },
+-                                             { text: 'Pakkumus peab sisaldama: Pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.', checked: false },
+-                                             { text: 'Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.', checked: false },
+-                                             { text: 'Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.', checked: false },
+-                                             { text: 'Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist... Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.', checked: false }
++         options: [ {
++             text: 'Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hilinenud pakkumusi hankija vastu ei võta.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkumus peab sisaldama: Pakkumuse maksumust vastavalt lisale 1;', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkumus peab sisaldama: Pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist... Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.', checked: false
++         }
++ 
+          ]
+-                                     },
++         }
++ 
++         ,
+          {
++ 
+          title: '4 Pakkumuste kontrollimine, hindamine ja eduka pakkumuse valik',
+          enabled: true,
+          open: false,
+-                                         options: [
+-                                             { text: 'Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele...', checked: false },
+-                                             { text: 'Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.', checked: false },
+-                                             { text: 'Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel...', checked: false },
+-                                             { text: 'Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi...', checked: false },
+-                                             { text: 'Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama...', checked: false }
++         options: [ {
++             text: 'Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama...', checked: false
++         }
++ 
+          ]
+-                                     },
++         }
++ 
++         ,
+          {
++ 
+          title: '5 Läbirääkimiste pidamine',
+          enabled: true,
+          open: false,
+-                                         options: [
+-                                             { text: 'Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu ja maksumuse ning tellimuse tingimuste üle.', checked: false },
+-                                             { text: 'Hankijal on õigus loobuda ühest või mitmest pakkumuses kirjeldatud teenusest, tööst või asjast või vähendada nende mahtusid või koguseid...', checked: false },
+-                                             { text: 'Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja... Läbirääkimised on konfidentsiaalsed.', checked: false },
+-                                             { text: 'Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse...', checked: false }
++         options: [ {
++             text: 'Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu ja maksumuse ning tellimuse tingimuste üle.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hankijal on õigus loobuda ühest või mitmest pakkumuses kirjeldatud teenusest, tööst või asjast või vähendada nende mahtusid või koguseid...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja... Läbirääkimised on konfidentsiaalsed.', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse...', checked: false
++         }
++ 
+          ]
+-                                     },
++         }
++ 
++         ,
+          {
++ 
+          title: '6 Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine',
+          enabled: true,
+          open: false,
+-                                         options: [
+-                                             { text: 'Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata...', checked: false },
+-                                             { text: 'Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta...', checked: false },
+-                                             { text: 'Hankija võib ostumenetluse kehtetuks tunnistada, kui peale pakkumuste esitamise tähtpäeva selgub, et hankija on teinud vea...', checked: false }
++         options: [ {
++             text: 'Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta...', checked: false
++         }
++ 
++         ,
++         {
++         text: 'Hankija võib ostumenetluse kehtetuks tunnistada, kui peale pakkumuste esitamise tähtpäeva selgub, et hankija on teinud vea...', checked: false
++         }
++ 
+          ]
+-                                     },
++         }
++ 
++         ,
+          {
++ 
+          title: '7 Lisad',
+          enabled: true,
+          open: false,
+-                                         options: [
+-                                             { text: 'Lisa 1. ', checked: false, editable: true }
++         options: [ {
++             text: 'Lisa 1. ', checked: false, editable: true
++         }
++ 
+          ]
+          }
++ 
+          ]
+-                             };
++         }
++ 
++         ;
+  
+          // Clear files
+-                             this.files = [];
++         this.files=[];
+  
+          // Remove from local storage
+          this.showToast('Vorm on tühjendatud', 'info');
+          }
+-                     },
++         }
++ 
++         ,
+  
+          removeSection(index) {
+                  this.showToast('Sektsioon kustutatud', 'success');
+              }
+-                     },
++         }
++ 
++         ,
+  
+          debouncedSave() {
+              clearTimeout(this.saveTimeout);
+-                         this.saveTimeout = setTimeout(() => {
++ 
++             this.saveTimeout=setTimeout(()=> {
+                      this.saveToStorage();
+-                         }, 2000);
+-                     },
++                 }
++ 
++                 , 2000);
++         }
++ 
++         ,
+  
+          addOption(sectionIndex) {
+-                         const section = this.form.sections[sectionIndex];
+-                         const optionCount = section.options.length + 1;
++             const section=this.form.sections[sectionIndex];
++             const optionCount=section.options.length + 1;
+  
+              let newOption;
+-                         if (sectionIndex === 6) { // Lisad section
+-                             newOption = {
+-                                 text: `Lisa ${optionCount}. `,
++ 
++             if (sectionIndex===6) {
++ 
++                 // Lisad section
++                 newOption= {
++                     text: `Lisa $ {
++                         optionCount
++                     }
++ 
++                     . `,
+                      checked: false,
+                      editable: true,
+                      isEditing: true
+-                             };
+-                         } else if (sectionIndex === 0) { // Üldised tingimused section
+-                             newOption = {
+-                                 text: `${optionCount}. `,
++                 }
++ 
++                 ;
++             }
++ 
++             else if (sectionIndex===0) {
++ 
++                 // Üldised tingimused section
++                 newOption= {
++                     text: `$ {
++                         optionCount
++                     }
++ 
++                     . `,
+                      checked: false,
+                      checked: true,
+                      editable: true,
+                      isEditing: true
+-                             };
+-                         } else { // Other sections
+-                             newOption = {
+-                                 text: `${optionCount}. `,
++                 }
++ 
++                 ;
++             }
++ 
++             else {
++ 
++                 // Other sections
++                 newOption= {
++                     text: `$ {
++                         optionCount
++                     }
++ 
++                     . `,
+                      checked: false,
+                      editable: true,
+                      isEditing: true
+-                             };
++                 }
++ 
++                 ;
+              }
+  
+              section.options.push(newOption);
+              this.showToast('Punkt lisatud', 'success');
+-                     },
++         }
++ 
++         ,
+  
+          toggleUserMenu() {
+              if (this.currentUser) {
+-                             this.showUserMenu = !this.showUserMenu;
++                 this.showUserMenu= !this.showUserMenu;
+              }
+-                     },
++         }
++ 
++         ,
+  
+          logout() {
+              window.handleLogout();
+-                     },
++         }
++ 
++         ,
+  
+          async saveUserSettings() {
+              try {
++ 
+                  // Create a settings object with all current settings
+-                             const settingsToSave = {
++                 const settingsToSave= {
+                      basicInfo: {
+                          buyer: this.userSettings.buyer || '',
+                          responsible: this.userSettings.responsible || '',
+                          autofillEnabled: this.userSettings.autofillEnabled || false
+-                                 },
++                     }
++ 
++                     ,
+                      design: {
+                          theme: this.userSettings.theme || 'indigo',
+                          font: this.userSettings.font || 'Inter',
+                          buttonStyle: this.userSettings.buttonStyle || 'rounded'
+-                                 },
++                     }
++ 
++                     ,
+                      lastUpdated: new Date().toISOString()
+-                             };
++                 }
++ 
++                 ;
+  
+                  // Try to save to Firestore if logged in
+                  if (window.auth?.currentUser) {
+-                                 const { doc, setDoc } = window.firestoreFunctions;
+-                                 const userRef = doc(window.db, "users", window.auth.currentUser.uid);
++                     const {
++                         doc, setDoc
++                     }
++ 
++                     =window.firestoreFunctions;
++                     const userRef=doc(window.db, "users", window.auth.currentUser.uid);
++ 
+                      await setDoc(userRef, {
+                          settings: settingsToSave
+-                                 }, { merge: true });
+-                             } else {
++                     }
++ 
++                     , {
++                     merge: true
++                 });
++         }
++ 
++         else {
+              // Fallback: Save to localStorage if not logged in
+              localStorage.setItem('userSettings', JSON.stringify(settingsToSave));
+          // If autofill is enabled, update the form fields
+          if (this.userSettings.autofillEnabled) {
+-                                 this.form.fields = {
++             this.form.fields= {
+                  ...this.form.fields,
+                  buyer: this.userSettings.buyer || '',
+                  criteria: this.userSettings.criteria || '',
+                  responsible: this.userSettings.responsible || ''
+-                                 };
+              }
+  
+-                             this.showSettingsModal = false;
++             ;
++         }
++ 
++         this.showSettingsModal=false;
+          this.showToast('Seaded salvestatud!', 'success');
+-                         } catch (error) {
++         }
++ 
++         catch (error) {
+              console.error('Settings save error:', error);
+              this.showToast('Viga seadete salvestamisel: ' + error.message, 'error');
+          }
+-                     },
++         }
++ 
++         ,
+  
+          applyTheme() {
+              // Apply current theme settings to the UI
+-                         const html = document.documentElement;
++             const html=document.documentElement;
+  
+              // Apply font setting
+              if (this.userSettings.font) {
+-                             html.style.fontFamily = this.userSettings.font;
++                 html.style.fontFamily=this.userSettings.font;
++ 
+                  // Also apply to specific elements that might need it
+-                             document.querySelectorAll('.font-sans').forEach(el => {
+-                                 el.style.fontFamily = this.userSettings.font;
++                 document.querySelectorAll('.font-sans').forEach(el=> {
++                         el.style.fontFamily=this.userSettings.font;
+                      });
+              }
+  
+              // Apply button style
+-                         const buttons = document.querySelectorAll('.btn, button');
+-                         buttons.forEach(button => {
++             const buttons=document.querySelectorAll('.btn, button');
++ 
++             buttons.forEach(button=> {
+                      // Remove existing button style classes
+-                             button.classList.remove(
+-                                 'rounded-xl',
++                     button.classList.remove('rounded-xl',
+                          'rounded-lg',
+                          'rounded-md',
+                      // Apply new button style
+                      switch (this.userSettings.buttonStyle) {
+-                                 case 'rounded':
+-                                     button.classList.add('rounded-xl');
++                         case 'rounded': button.classList.add('rounded-xl');
+                          break;
+-                                 case 'square':
+-                                     button.classList.add('rounded-none');
++                         case 'square': button.classList.add('rounded-none');
+                          break;
+-                                 case 'soft':
+-                                     button.classList.add('rounded-lg');
++                         case 'soft': button.classList.add('rounded-lg');
+                          break;
+-                                 default:
+-                                     button.classList.add('rounded-xl');
++                         default: button.classList.add('rounded-xl');
+                      }
+                  });
+  
+              // Apply theme colors to gradients
+-                         const gradientElements = document.querySelectorAll('.bg-gradient-to-r');
+-                         const theme = this.userSettings.theme;
++             const gradientElements=document.querySelectorAll('.bg-gradient-to-r');
++             const theme=this.userSettings.theme;
+  
+-                         gradientElements.forEach(el => {
++             gradientElements.forEach(el=> {
+                      // Remove all existing gradient classes
+-                             el.classList.remove(
+-                                 'from-indigo-600', 'to-indigo-700',
++                     el.classList.remove('from-indigo-600', 'to-indigo-700',
+                          'from-blue-600', 'to-blue-700',
+                          'from-emerald-600', 'to-emerald-700',
+                      // Add new gradient classes based on theme
+                      switch (theme) {
+-                                 case 'indigo':
+-                                     el.classList.add('from-indigo-600', 'to-indigo-700');
++                         case 'indigo': el.classList.add('from-indigo-600', 'to-indigo-700');
+                          break;
+-                                 case 'blue':
+-                                     el.classList.add('from-blue-600', 'to-blue-700');
++                         case 'blue': el.classList.add('from-blue-600', 'to-blue-700');
+                          break;
+-                                 case 'emerald':
+-                                     el.classList.add('from-emerald-600', 'to-emerald-700');
++                         case 'emerald': el.classList.add('from-emerald-600', 'to-emerald-700');
+                          break;
+-                                 case 'purple':
+-                                     el.classList.add('from-purple-600', 'to-purple-700');
++                         case 'purple': el.classList.add('from-purple-600', 'to-purple-700');
+                          break;
+-                                 default:
+-                                     el.classList.add('from-indigo-600', 'to-indigo-700');
++                         default: el.classList.add('from-indigo-600', 'to-indigo-700');
+                      }
+                  });
+  
+              // Apply theme colors to other elements
+-                         const themeColors = {
+-                             indigo: { primary: 'indigo-600', secondary: 'indigo-700' },
+-                             blue: { primary: 'blue-600', secondary: 'blue-700' },
+-                             emerald: { primary: 'emerald-600', secondary: 'emerald-700' },
+-                             purple: { primary: 'purple-600', secondary: 'purple-700' }
+-                         };
++             const themeColors= {
++                 indigo: {
++                     primary: 'indigo-600', secondary: 'indigo-700'
++                 }
++ 
++                 ,
++                 blue: {
++                     primary: 'blue-600', secondary: 'blue-700'
++                 }
++ 
++                 ,
++                 emerald: {
++                     primary: 'emerald-600', secondary: 'emerald-700'
++                 }
++ 
++                 ,
++                 purple: {
++                     primary: 'purple-600', secondary: 'purple-700'
++                 }
++             }
++ 
++             ;
+  
+-                         const colors = themeColors[theme] || themeColors.indigo;
++             const colors=themeColors[theme] || themeColors.indigo;
+  
+              // Update primary color elements
+-                         document.querySelectorAll('.text-indigo-600, .text-blue-600, .text-emerald-600, .text-purple-600')
+-                             .forEach(el => {
++             document.querySelectorAll('.text-indigo-600, .text-blue-600, .text-emerald-600, .text-purple-600') .forEach(el=> {
+                      el.classList.remove('text-indigo-600', 'text-blue-600', 'text-emerald-600', 'text-purple-600');
+-                                 el.classList.add(`text-${colors.primary}`);
++ 
++                     el.classList.add(`text-$ {
++                             colors.primary
++                         }
++ 
++                         `);
+                  });
+  
+              // Update background color elements
+-                         document.querySelectorAll('.bg-indigo-600, .bg-blue-600, .bg-emerald-600, .bg-purple-600')
+-                             .forEach(el => {
++             document.querySelectorAll('.bg-indigo-600, .bg-blue-600, .bg-emerald-600, .bg-purple-600') .forEach(el=> {
+                      el.classList.remove('bg-indigo-600', 'bg-blue-600', 'bg-emerald-600', 'bg-purple-600');
+-                                 el.classList.add(`bg-${colors.primary}`);
++ 
++                     el.classList.add(`bg-$ {
++                             colors.primary
++                         }
++ 
++                         `);
+                  });
+  
+              // Update border color elements
+-                         document.querySelectorAll('.border-indigo-600, .border-blue-600, .border-emerald-600, .border-purple-600')
+-                             .forEach(el => {
++             document.querySelectorAll('.border-indigo-600, .border-blue-600, .border-emerald-600, .border-purple-600') .forEach(el=> {
+                      el.classList.remove('border-indigo-600', 'border-blue-600', 'border-emerald-600', 'border-purple-600');
+-                                 el.classList.add(`border-${colors.primary}`);
++ 
++                     el.classList.add(`border-$ {
++                             colors.primary
++                         }
++ 
++                         `);
+                  });
+  
+              // Update ring color elements
+-                         document.querySelectorAll('.ring-indigo-600, .ring-blue-600, .ring-emerald-600, .ring-purple-600')
+-                             .forEach(el => {
++             document.querySelectorAll('.ring-indigo-600, .ring-blue-600, .ring-emerald-600, .ring-purple-600') .forEach(el=> {
+                      el.classList.remove('ring-indigo-600', 'ring-blue-600', 'ring-emerald-600', 'ring-purple-600');
+-                                 el.classList.add(`ring-${colors.primary}`);
++ 
++                     el.classList.add(`ring-$ {
++                             colors.primary
++                         }
++ 
++                         `);
+                  });
+-                     },
++         }
++ 
++         ,
+  
+          async loadUserSettings() {
+              try {
+-                             let settings = null;
++                 let settings=null;
+  
+                  // Try to load from Firestore if logged in
+                  if (window.auth?.currentUser) {
+-                                 const { doc, getDoc } = window.firestoreFunctions;
+-                                 const userRef = doc(window.db, "users", window.auth.currentUser.uid);
+-                                 const userDoc = await getDoc(userRef);
++                     const {
++                         doc, getDoc
++                     }
++ 
++                     =window.firestoreFunctions;
++                     const userRef=doc(window.db, "users", window.auth.currentUser.uid);
++                     const userDoc=await getDoc(userRef);
+  
+                      if (userDoc.exists()) {
+-                                     const data = userDoc.data();
++                         const data=userDoc.data();
++ 
+                          if (data.settings) {
+-                                         settings = data.settings;
++                             settings=data.settings;
+                          }
+                      }
+-                             } else {
++                 }
++ 
++                 else {
+                      // Fallback: Try to load from localStorage if not logged in
+-                                 const savedSettings = localStorage.getItem('userSettings');
++                     const savedSettings=localStorage.getItem('userSettings');
++ 
+                      if (savedSettings) {
+-                                     settings = JSON.parse(savedSettings);
++                         settings=JSON.parse(savedSettings);
+                      }
+                  }
+  
+                  // If we have settings, update the userSettings object
+                  if (settings) {
++ 
+                      // Update basic info settings
+                      if (settings.basicInfo) {
+-                                     Object.keys(settings.basicInfo).forEach(key => {
++                         Object.keys(settings.basicInfo).forEach(key=> {
+                                  if (this.userSettings.hasOwnProperty(key)) {
+-                                             this.userSettings[key] = settings.basicInfo[key];
++                                     this.userSettings[key]=settings.basicInfo[key];
+                                  }
+                              });
+                      // Update design settings
+                      if (settings.design) {
+-                                     Object.keys(settings.design).forEach(key => {
++                         Object.keys(settings.design).forEach(key=> {
+                                  if (this.userSettings.hasOwnProperty(key)) {
+-                                             this.userSettings[key] = settings.design[key];
++                                     this.userSettings[key]=settings.design[key];
+                                  }
+                              });
+                      // If autofill is enabled, populate the form fields
+                      if (this.userSettings.autofillEnabled) {
+-                                     const updatedFields = { ...this.form.fields };
+-                                     if (this.userSettings.buyer) updatedFields.buyer = this.userSettings.buyer;
+-                                     if (this.userSettings.submission) updatedFields.submission = this.userSettings.submission;
+-                                     if (this.userSettings.validity) updatedFields.validity = this.userSettings.validity;
+-                                     if (this.userSettings.requirements) updatedFields.requirements = this.userSettings.requirements;
+-                                     if (this.userSettings.criteria) updatedFields.criteria = this.userSettings.criteria;
+-                                     if (this.userSettings.responsible) updatedFields.responsible = this.userSettings.responsible;
+-                                     this.form.fields = updatedFields;
++                         const updatedFields= {
++                             ...this.form.fields
++                         }
++ 
++                         ;
++                         if (this.userSettings.buyer) updatedFields.buyer=this.userSettings.buyer;
++                         if (this.userSettings.submission) updatedFields.submission=this.userSettings.submission;
++                         if (this.userSettings.validity) updatedFields.validity=this.userSettings.validity;
++                         if (this.userSettings.requirements) updatedFields.requirements=this.userSettings.requirements;
++                         if (this.userSettings.criteria) updatedFields.criteria=this.userSettings.criteria;
++                         if (this.userSettings.responsible) updatedFields.responsible=this.userSettings.responsible;
++                         this.form.fields=updatedFields;
+                      }
+  
+                      // Apply theme settings immediately
+-                                 this.$nextTick(() => {
++                     this.$nextTick(()=> {
+                              this.applyTheme();
+                          });
+                  }
+-                         } catch (error) {
++             }
++ 
++             catch (error) {
+                  console.error('Settings load error:', error);
+                  this.showToast('Viga seadete laadimisel: ' + error.message, 'error');
+              }
+-                     },
++         }
++ 
++         ,
+  
+          // Load PDF history from Firestore
+          async loadPdfHistory() {
+              try {
+-                             if (!this.currentUser) return;
++                 if ( !this.currentUser) return;
+  
+-                             this.isLoadingHistory = true;
++                 this.isLoadingHistory=true;
+  
+                  // Use window.firestoreFunctions directly
+-                             const firebaseQuery = window.firestoreFunctions.query(
+-                                 window.firestoreFunctions.collection(window.db, 'pdfHistory'),
++                 const firebaseQuery=window.firestoreFunctions.query(window.firestoreFunctions.collection(window.db, 'pdfHistory'),
+                      window.firestoreFunctions.where('userId', '==', this.currentUser.uid),
+                      window.firestoreFunctions.orderBy('createdAt', 'desc'),
+-                                 window.firestoreFunctions.limit(10)
+-                             );
++                     window.firestoreFunctions.limit(10));
+  
+-                             const querySnapshot = await window.firestoreFunctions.getDocs(firebaseQuery);
+-                             this.generatedPdfs = querySnapshot.docs.map(docSnapshot => ({
++                 const querySnapshot=await window.firestoreFunctions.getDocs(firebaseQuery);
++ 
++                 this.generatedPdfs=querySnapshot.docs.map(docSnapshot=> ({
+                          id: docSnapshot.id,
+                          ...docSnapshot.data(),
+  
+              this.showToast('PDF ajalugu laaditud', 'success');
+-                         } catch (error) {
++         }
++ 
++         catch (error) {
+              console.error('Error loading PDF history:', error);
+              this.showToast('PDF ajaloo laadimisel tekkis viga', 'error');
+-                         } finally {
+-                             this.isLoadingHistory = false;
++         }
++ 
++         finally {
++             this.isLoadingHistory=false;
+          }
+-                     },
++         }
++ 
++         ,
+  
+          // Format the date for display
+          formatDate(date) {
+-                         if (!date) return '';
++             if ( !date) return '';
+              return new Date(date).toLocaleDateString('et-EE');
+-                     },
++         }
++ 
++         ,
+  
+          // Download a PDF from history
+          async regeneratePdf(pdf) {
+              try {
+-                             this.isGeneratingPDF = true;
++                 this.isGeneratingPDF=true;
+  
+                  // Create a new PDF based on the stored data
+-                             if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+-                                 if (typeof window.jsPDF !== 'undefined') {
+-                                     window.jspdf = { jsPDF: window.jsPDF };
+-                                 } else {
++                 if (typeof window.jspdf==='undefined' || typeof window.jspdf.jsPDF==='undefined') {
++                     if (typeof window.jsPDF !=='undefined') {
++                         window.jspdf= {
++                             jsPDF: window.jsPDF
++                         }
++ 
++                         ;
++                     }
++ 
++                     else {
+                          throw new Error('jsPDF not properly loaded');
+                      }
+                  }
+  
+-                             const { jsPDF } = window.jspdf;
+-                             const doc = new jsPDF('p', 'mm', 'a4');
++                 const {
++                     jsPDF
++                 }
++ 
++                 =window.jspdf;
++                 const doc=new jsPDF('p', 'mm', 'a4');
+  
+                  // Add header with logo and title
+                  doc.setFontSize(24);
+                  doc.setFont(undefined, 'bold');
+-                             doc.text(pdf.name || 'Ostumenetluse kutse', 105, 20, { align: 'center' });
++ 
++                 doc.text(pdf.name || 'Ostumenetluse kutse', 105, 20, {
++                     align: 'center'
++                 });
+  
+              // Add basic info
+              doc.setTextColor(0, 0, 0);
+              doc.setFontSize(12);
+-                             doc.text(`Loodud: ${this.formatDate(pdf.createdAt)}`, 20, 40);
++ 
++             doc.text(`Loodud: $ {
++                     this.formatDate(pdf.createdAt)
++                 }
++ 
++                 `, 20, 40);
+  
+              // You can add more PDF content here based on the stored data
+  
+              // Save the PDF
+-                             const pdfName = `${pdf.name || 'ostumenetlus'}.pdf`;
++             const pdfName=`$ {
++                 pdf.name || 'ostumenetlus'
++             }
++ 
++             .pdf`;
+              doc.save(pdfName);
+  
+              this.showToast('PDF allalaaditud', 'success');
+-                         } catch (error) {
++         }
++ 
++         catch (error) {
+              console.error('Error regenerating PDF:', error);
+              this.showToast('PDF taastamisel tekkis viga: ' + error.message, 'error');
+-                         } finally {
+-                             this.isGeneratingPDF = false;
++         }
++ 
++         finally {
++             this.isGeneratingPDF=false;
+          }
+-                     },
++         }
++ 
++         ,
+  
+          // Copy a PDF's data to the current form
+          copyPdfData(pdf) {
+              try {
+                  if (pdf.fields) {
+-                                 this.form.name = pdf.name || '';
+-                                 this.form.fields = { ...pdf.fields };
++                     this.form.name=pdf.name || '';
++ 
++                     this.form.fields= {
++                         ...pdf.fields
++                     }
++ 
++                     ;
+                  }
+  
+                  if (pdf.files && Array.isArray(pdf.files)) {
+-                                 this.files = [...pdf.files];
++                     this.files=[...pdf.files];
+                  }
+  
+-                             this.showSettingsModal = false;
++                 this.showSettingsModal=false;
+                  this.showToast('PDF andmed kopeeritud vormi', 'success');
+-                         } catch (error) {
++             }
++ 
++             catch (error) {
+                  console.error('Error copying PDF data:', error);
+                  this.showToast('PDF andmete kopeerimisel tekkis viga', 'error');
+              }
+-                     },
++         }
++ 
++         ,
+  
+          // Clear PDF history
+          async clearPdfHistory() {
+              try {
+-                             if (!this.currentUser) return;
++                 if ( !this.currentUser) return;
+  
+-                             if (!confirm('Kas olete kindel, et soovite kogu PDF ajaloo kustutada? Seda tegevust ei saa tagasi võtta.')) {
++                 if ( !confirm('Kas olete kindel, et soovite kogu PDF ajaloo kustutada? Seda tegevust ei saa tagasi võtta.')) {
+                      return;
+                  }
+  
+-                             this.isLoadingHistory = true;
++                 this.isLoadingHistory=true;
+  
+                  // Use window.firestoreFunctions directly
+-                             const firebaseQuery = window.firestoreFunctions.query(
+-                                 window.firestoreFunctions.collection(window.db, 'pdfHistory'),
+-                                 window.firestoreFunctions.where('userId', '==', this.currentUser.uid)
+-                             );
++                 const firebaseQuery=window.firestoreFunctions.query(window.firestoreFunctions.collection(window.db, 'pdfHistory'),
++                     window.firestoreFunctions.where('userId', '==', this.currentUser.uid));
+  
+-                             const querySnapshot = await window.firestoreFunctions.getDocs(firebaseQuery);
++                 const querySnapshot=await window.firestoreFunctions.getDocs(firebaseQuery);
+  
+                  // Delete each document
+-                             const deletePromises = querySnapshot.docs.map(docSnapshot =>
+-                                 window.firestoreFunctions.deleteDoc(docSnapshot.ref)
+-                             );
++                 const deletePromises=querySnapshot.docs.map(docSnapshot=> window.firestoreFunctions.deleteDoc(docSnapshot.ref));
+                  await Promise.all(deletePromises);
+  
+                  // Clear the local array
+-                             this.generatedPdfs = [];
++                 this.generatedPdfs=[];
+  
+                  this.showToast('PDF ajalugu kustutatud', 'success');
+-                         } catch (error) {
++             }
++ 
++             catch (error) {
+                  console.error('Error clearing PDF history:', error);
+                  this.showToast('PDF ajaloo kustutamisel tekkis viga', 'error');
+-                         } finally {
+-                             this.isLoadingHistory = false;
++             }
++ 
++             finally {
++                 this.isLoadingHistory=false;
+              }
+-                     },
++         }
++ 
++         ,
+          }
+          });
+          // Remove these lines (around line 1098)
+          // Show settings modal
+-         let showSettingsModal = false;
++         let showSettingsModal=false;
+  
+          // Function to load user basic data
+          // Call this function when the page loads
+          loadUserBasicData();
+-     </script>
+  
+-     <style>
+-         :root {
++         </script><style> :root {
+              --primary-color: #6366F1;
+              --primary-hover: #4F46E5;
+```
+
+---
+
+I see that the apply model made some unexpected changes to the file. Let me try a more targeted edit to just remove the module imports and update the Firebase initialization:
+
+
+---
+
+
+
+---
+
+I apologize for the confusion. Let me try a different approach by reading the file first to understand its current state:
+
+
+---
+
+Read file: ostu/om.html
+
+---
+
+I see the issue now. The file has both the Firebase compat version and module imports mixed together. Let me fix this by removing the module imports and keeping only the compat version:
+
+
+---
+
+
+
+---
+
+I apologize for the difficulty. Let me try a different approach by reading more of the file to understand its structure better:
+
+
+
+---
+
+Read file: ostu/om.html
+
+---
+
+Let me try one more time with a more targeted edit to fix the Firebase initialization:
+
+
+---
+
+Cancelled
 
 ---
 

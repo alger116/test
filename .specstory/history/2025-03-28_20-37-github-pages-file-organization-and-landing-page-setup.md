@@ -1656,11 +1656,30 @@ I'll add a button to return to the root index.html (landing page) with the text 
 
 ---
 
-Cancelled
+```diff
+                      <i class="fas fa-tools mr-2"></i> Rakendus
+                  </button>
++ 
++                 <!-- Avalehele Button -->
++                 <a href="../index.html" 
++                     class="px-3 py-1.5 text-lg font-bold text-gray-800 rounded-lg hover:bg-blue-200 hover:text-black transition transform hover:scale-105 items-center flex">
++                     <i class="fas fa-home mr-2"></i> Avalehele
++                 </a>
+  
+                  <!-- Hanked Button -->
+```
 
 ---
 
+I've added a new button that:
+1. Uses an `<a>` tag for proper navigation
+2. Links to `../index.html` (the root landing page)
+3. Matches the existing button styling
+4. Includes a home icon from Font Awesome
+5. Has hover effects consistent with other buttons
+6. Is positioned between the "Rakendus" and "Hanked" buttons
 
+The button has the same styling as other navigation buttons but uses a blue hover effect to distinguish it. It's fully responsive and will work on both desktop and mobile devices. Let me know if you'd like any adjustments to the styling or positioning!
 
 ---
 

@@ -6699,11 +6699,56 @@ Let's edit the admin.html to properly include our modules and initialize Firebas
 
 ---
 
-Cancelled
+```diff
+                          </table>
+                      </div>
++                 </div>
+              </main>
+          </div>
+```
 
 ---
 
+It seems the editor couldn't make the full changes. Let's try a more targeted approach:
 
+---
+
+```bash
+tail -20 auth/admin.html
+```
+
+```
+    </script>
+
+    <!-- Load the modular admin panel JavaScript -->
+    <script type="module">
+        // This script initializes the modular admin panel
+        console.log("Loading admin panel modules...");
+        import { init } from "./admin/js/index.js";
+
+        // Initialize when DOM is fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+            console.log("Waiting for DOMContentLoaded to initialize admin panel");
+        } else {
+            console.log("Document already loaded, initializing admin panel now");
+            init();
+        }
+    </script>
+</body>
+
+</html>%
+
+
+```
+
+---
+
+Let's add a direct script to initialize Firebase before our module:
+
+---
+
+Cancelled
 
 ---
 

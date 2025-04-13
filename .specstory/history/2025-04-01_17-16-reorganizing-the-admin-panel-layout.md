@@ -1315,11 +1315,15 @@ Let me focus on fixing the actual issue with the event listener error. The probl
 
 ---
 
-Cancelled
+
 
 ---
 
+Let me try to fix the specific section with the error:
 
+---
+
+Cancelled
 
 ---
 

@@ -1859,11 +1859,95 @@ I understand. Let me focus only on fixing the `copyToTender` function to properl
 
 ---
 
-Cancelled
+```diff
+                              console.log('PDF data structure:', pdf);
+  
+-                             // Get the form data from localStorage
+-                             const raw = localStorage.getItem('OM_DRAFT');
+-                             if (!raw) {
+-                                 throw new Error('No saved form data found');
++                             // Parse the form data
++                             let formData;
++                             try {
++                                 formData = typeof pdf.formData === 'string' ? JSON.parse(pdf.formData) : pdf.formData;
++                             } catch (error) {
++                                 console.error('Error parsing formData:', error);
++                                 throw new Error('Invalid tender data: could not parse formData');
+                              }
+  
+-                             const data = JSON.parse(raw);
+-                             if (!data.form) {
+-                                 throw new Error('Invalid form data structure');
++                             if (!formData || typeof formData !== 'object') {
++                                 console.error('Invalid formData structure:', formData);
++                                 throw new Error('Invalid tender data: formData is not an object');
+                              }
+  
+-                             // Update all form fields with fallback values
+-                             this.form.name = pdf.name?.replace(/\.pdf$/, '') || '';
+-                             this.form.intro = data.form.intro || '';
++                             // Update form with saved data
++                             this.form.name = formData.name || '';
++                             this.form.intro = formData.intro || '';
+  
+-                             // Copy all standard fields with validation
+-                             if (data.form.fields && typeof data.form.fields === 'object') {
+-                                 Object.keys(data.form.fields).forEach(key => {
++                             // Copy all standard fields
++                             if (formData.fields && typeof formData.fields === 'object') {
++                                 Object.keys(formData.fields).forEach(key => {
+                                      if (this.form.fields[key] !== undefined) {
+-                                         this.form.fields[key] = data.form.fields[key] || '';
++                                         this.form.fields[key] = formData.fields[key] || '';
+                                      }
+                                  });
+                              }
+  
+-                             // Update specific fields from the PDF data
+-                             if (pdf.responsible) {
+-                                 this.form.fields.responsible = pdf.responsible;
+-                             }
+-                             if (pdf.submissionDate) {
+-                                 this.form.fields.submission = pdf.submissionDate;
+-                             }
+- 
+-                             // Copy sections if they exist
+-                             if (Array.isArray(data.form.sections)) {
+-                                 this.form.sections = data.form.sections.map(section => ({
++                             // Copy sections
++                             if (Array.isArray(formData.sections)) {
++                                 this.form.sections = formData.sections.map(section => ({
+                                      ...section,
+                                      enabled: section.enabled ?? true,
+                              }
+  
+-                             // Copy attachments if they exist
+-                             if (Array.isArray(data.files)) {
+-                                 this.files = data.files;
++                             // Copy files if they exist
++                             if (Array.isArray(formData.files)) {
++                                 this.files = formData.files;
+                              }
+  
+```
 
 ---
 
+I've updated the `copyToTender` function to properly handle the form data that's saved with the PDF. The key changes are:
 
+1. Instead of trying to load from localStorage, it now uses the `formData` that's saved with the PDF
+2. Added proper parsing and validation of the form data
+3. Copies all form fields, sections, and files from the saved data
+4. Improved error handling and logging
+
+The function now:
+1. Gets the form data from the PDF object
+2. Parses it if it's a string
+3. Validates the data structure
+4. Copies all form fields, sections, and files
+5. Shows appropriate success/error messages
+
+This should now properly copy all the form data when you click the copy button. Let me know if you still see any issues!
 
 ---
 

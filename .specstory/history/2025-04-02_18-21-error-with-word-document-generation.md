@@ -373,6 +373,7 @@ aga miks ei ole punktide sektsioone ja manuseid jne ? ta ei võta täidetud andm
 
 _**Assistant**_
 
+Ah, nüüd saan aru! Jah, meil on vaja lisada ka sektsioonid ja manused Word dokumendi. Ma näen, et meil on `this.form.sections` kus on kõik sektsioonid ja nende sisu. Muudan `generateWord` funktsiooni, et see sisaldaks kõiki sektsioone ja manuseid:
 
 
 ---

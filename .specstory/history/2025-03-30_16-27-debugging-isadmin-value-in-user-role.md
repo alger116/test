@@ -4412,11 +4412,158 @@ Let me help fix the styles by making them more specific and ensuring they overri
 
 ---
 
-Cancelled
+```diff
+              --info-color: #3B82F6;
+              --card-bg: rgba(255, 255, 255, 0.3);
+-             --text-color: #1f2937;
++             --text-color: #000000;
+              --background-color: transparent;
+          }
+  
+          body {
+-             background-image: url('../src/tornid_ja_linnamuur_kaupo_kalda_2016.jpg');
+-             background-size: cover;
+-             background-position: center;
+-             background-attachment: fixed;
+-             background-repeat: no-repeat;
+-             color: var(--text-color);
+-             font-family: 'Inter', sans-serif;
+-             min-height: 100vh;
+-             line-height: 1.6;
++             background-image: url('../src/tornid_ja_linnamuur_kaupo_kalda_2016.jpg') !important;
++             background-size: cover !important;
++             background-position: center !important;
++             background-attachment: fixed !important;
++             background-repeat: no-repeat !important;
++             color: var(--text-color) !important;
++             font-family: 'Inter', sans-serif !important;
++             min-height: 100vh !important;
++             line-height: 1.6 !important;
+          }
+  
+  
+          .card {
+-             @apply bg-white/30 backdrop-blur-md rounded-xl shadow-md border border-white/20 transition-all duration-200;
++             @apply bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 transition-all duration-200 !important;
+          }
+  
+          .card:hover {
+-             @apply bg-white/40 shadow-lg;
++             @apply bg-white/40 shadow-xl !important;
+          }
+  
+          input[type="text"],
+          textarea {
+-             @apply bg-white/80 backdrop-blur-sm rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-all duration-200 text-black;
++             @apply bg-white/80 backdrop-blur-sm rounded-lg border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-all duration-200 text-black !important;
+          }
+  
+  
+          .section-header {
+-             @apply flex items-center p-3 font-semibold cursor-pointer bg-white/40 hover:bg-white/50 backdrop-blur-sm rounded-lg transition-all duration-200 text-black;
++             @apply flex items-center p-3 font-semibold cursor-pointer bg-white/40 hover:bg-white/50 backdrop-blur-sm rounded-lg transition-all duration-200 !important;
+          }
+  
+-         .dark .section-header {
+-             @apply bg-gray-700/80 hover:bg-gray-600/80;
++         .section-header * {
++             @apply text-black !important;
+          }
+  
+          .section-content {
+-             @apply ml-8 mt-3 space-y-3 p-3 text-black;
++             @apply ml-8 mt-3 space-y-3 p-3 !important;
++         }
++ 
++         .section-content * {
++             @apply text-black !important;
+          }
+  
+  
+          #pdfPreview {
+-             @apply bg-white/20 backdrop-blur-md !important;
+-         }
+- 
+-         #pdfPreview .bg-gray-50 {
+-             @apply bg-white/30 backdrop-blur-sm;
++             @apply bg-white/30 backdrop-blur-md rounded-xl shadow-lg border border-white/20 !important;
+          }
+  
+-         #pdfPreview .text-gray-700 {
+-             @apply text-black font-medium;
++         #pdfPreview * {
++             @apply text-black !important;
+          }
+  
+          #pdfPreview .bg-indigo-600 {
+-             @apply bg-indigo-700/90 backdrop-blur-lg text-white p-5 rounded-t-xl shadow-md;
++             @apply bg-indigo-700/90 backdrop-blur-lg text-white p-5 rounded-t-xl shadow-md !important;
++         }
++ 
++         #pdfPreview h1,
++         #pdfPreview h2,
++         #pdfPreview h3 {
++             @apply text-white !important;
++         }
++ 
++         #pdfPreview .section-content {
++             @apply text-black font-medium !important;
+          }
+  
+          .highlight-points li {
+-             @apply text-black font-semibold mb-2 leading-relaxed;
++             @apply text-black font-semibold mb-2 leading-relaxed !important;
+          }
+  
+          label {
+-             @apply text-black font-semibold mb-1 block;
++             @apply text-black font-semibold mb-1 block !important;
+          }
+  
+          .text-gray-400,
+          .text-gray-800,
+-         .text-gray-900 {
+-             @apply text-black font-medium;
++         .text-gray-900,
++         span[class*="text-gray-"],
++         div[class*="text-gray-"],
++         p[class*="text-gray-"] {
++             @apply text-black font-medium !important;
+          }
+  
+  
+          h2.text-lg {
+-             @apply text-xl font-bold text-indigo-800 mb-4;
++             @apply text-xl font-bold text-indigo-800 mb-4 !important;
+          }
+  
+          nav {
+-             @apply bg-white/40 backdrop-blur-lg shadow-lg sticky top-0 z-50;
++             @apply bg-white/40 backdrop-blur-lg shadow-lg sticky top-0 z-50 !important;
+          }
+  
+          .nav-link {
+-             @apply text-black font-medium hover:text-indigo-600 transition-colors duration-200 text-base;
++             @apply text-black font-medium hover:text-indigo-600 transition-colors duration-200 text-base !important;
+          }
+  
+```
 
 ---
 
+I've made several important changes to ensure the styles are properly applied:
 
+1. Added `!important` to all critical styles to ensure they override any conflicting styles
+2. Made text color rules more specific by targeting elements directly
+3. Added specific rules for the PDF preview section to ensure proper text contrast
+4. Enhanced the card and section styles with stronger background opacity and blur effects
+5. Added specific rules for all text elements to ensure they're black by default
+6. Added specific exceptions for elements that should have white text (like in the indigo headers)
+7. Made the background image rules more forceful with `!important`
+8. Enhanced shadow and hover effects for better visual feedback
+9. Added specific rules for form elements to ensure proper contrast
+
+The styles should now be properly applied and visible. Let me know if you notice any specific areas where the styles are still not being applied correctly, and I can make additional adjustments.
 
 ---
 

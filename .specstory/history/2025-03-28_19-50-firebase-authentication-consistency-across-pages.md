@@ -1736,11 +1736,28 @@ I see the issue. The problem is that we're trying to use the `query` function be
 
 ---
 
-Cancelled
+```diff
+              window.signOut = signOut;
+              window.auth = auth;
++             window.query = query;
++             window.where = where;
++             window.limit = limit;
+          }
+  
+```
 
 ---
 
+I've added the missing Firestore query functions to the global window object. Now the `query`, `where`, and `limit` functions will be available globally when needed by the `loadUsers` function.
 
+The changes made:
+1. Added `window.query = query` to make the query function available globally
+2. Added `window.where = where` to make the where function available globally
+3. Added `window.limit = limit` to make the limit function available globally
+
+This should resolve the "Cannot access 'query' before initialization" error because now the query functions will be properly initialized and available when the `loadUsers` function is called.
+
+Would you like me to make any additional improvements to the user loading functionality?
 
 ---
 

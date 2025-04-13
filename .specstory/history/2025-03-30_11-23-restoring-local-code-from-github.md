@@ -1059,6 +1059,30 @@ To set up `viljar@test.ee` as the main admin in your Firestore database, follow 
    const email = "viljar@test.ee";
    const uid = "GENERATE_OR_USE_EXISTING_UID"; // Replace with the actual UID
 
+   const userDocRef = doc(db, "users", uid);
+
+   // Set the user document with admin role
+   setDoc(userDocRef, {
+       email: email,
+       role: "admin",
+       searches: [] // Initialize with an empty array or any other data
+   })
+   .then(() => {
+       console.log("Admin user created/updated successfully");
+   })
+   .catch((error) => {
+       console.error("Error creating/updating admin user:", error);
+   });
+   ```
+
+3. **Verify the Changes**:
+   - After running the code or manually updating the Firestore, check the Firestore console to ensure that the document for `viljar@test.ee` has been created or updated with the correct role.
+
+4. **Test the Admin Access**:
+   - Log in with the `viljar@test.ee` account and verify that the admin functionalities are accessible.
+
+If you need further assistance with any of these steps, please let me know!
+
 ---
 
 

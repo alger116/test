@@ -1130,18 +1130,6 @@ Try accessing the admin panel again - it should now work correctly with your Fir
 
 ---
 
-_**User**_
-
-i dont tihnk you made any updates... the admin panel is not working, i can log in, nothing is working, the panel log in button is frozen.. sooo ??
-
----
-
-_**Assistant**_
-
-
-
----
-
 
 
 ---

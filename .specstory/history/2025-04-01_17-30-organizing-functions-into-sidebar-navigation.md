@@ -648,11 +648,266 @@ Let me help you restore all the functionality. I'll make the necessary changes t
 
 ---
 
-Cancelled
+```diff
+                  <div id="usersSection" class="hidden">
+                      <div class="bg-white rounded-lg shadow p-6">
+-                         <h2 class="text-lg font-semibold text-gray-900 mb-4">Kasutajate haldamine</h2>
+-                         <div class="space-y-4">
+-                             <!-- User management content -->
++                         <div class="flex items-center justify-between mb-4">
++                             <h2 class="text-lg font-semibold text-gray-900">Kasutajate haldamine</h2>
++                             <div class="flex space-x-2">
++                                 <!-- Bulk Actions -->
++                                 <div class="relative" x-data="{ open: false }">
++                                     <button @click="open = !open"
++                                         class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center">
++                                         <i class="fas fa-tasks mr-2"></i>Hulgitegevused
++                                     </button>
++                                     <div x-show="open" @click.away="open = false"
++                                         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
++                                         <button onclick="bulkApproveUsers()"
++                                             class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
++                                             <i class="fas fa-check mr-2"></i>Kinnita valitud
++                                         </button>
++                                         <button onclick="bulkDeleteUsers()"
++                                             class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
++                                             <i class="fas fa-trash mr-2"></i>Kustuta valitud
++                                         </button>
++                                         <button onclick="bulkExportUsers()"
++                                             class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
++                                             <i class="fas fa-download mr-2"></i>Ekspordi valitud
++                                         </button>
++                                     </div>
++                                 </div>
++ 
++                                 <!-- Import Users -->
++                                 <button onclick="openImportModal()"
++                                     class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
++                                     <i class="fas fa-file-import mr-2"></i>Impordi
++                                 </button>
++ 
++                                 <!-- Add User -->
++                                 <button id="addUserButton"
++                                     class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center">
++                                     <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
++                                 </button>
++                             </div>
++                         </div>
++ 
++                         <!-- Advanced Filters -->
++                         <div class="px-6 py-4 border-b bg-gray-50 mb-4">
++                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
++                                 <div>
++                                     <label class="block text-sm font-medium text-gray-700">Otsi</label>
++                                     <input type="text" id="userSearch" placeholder="Email, nimi..."
++                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
++                                 </div>
++                                 <div>
++                                     <label class="block text-sm font-medium text-gray-700">Roll</label>
++                                     <select id="roleFilter"
++                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
++                                         <option value="">Kõik rollid</option>
++                                         <option value="mainAdmin">Peaadministraator</option>
++                                         <option value="admin">Administraator</option>
++                                         <option value="omUser">Ostumaailm Kasutaja</option>
++                                         <option value="hmUser">Hankemaailm Kasutaja</option>
++                                         <option value="user">Tavakasutaja</option>
++                                     </select>
++                                 </div>
++                                 <div>
++                                     <label class="block text-sm font-medium text-gray-700">Olek</label>
++                                     <select id="statusFilter"
++                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
++                                         <option value="">Kõik olekud</option>
++                                         <option value="active">Aktiivne</option>
++                                         <option value="inactive">Mitteaktiivne</option>
++                                         <option value="pending">Ootel</option>
++                                     </select>
++                                 </div>
++                                 <div>
++                                     <label class="block text-sm font-medium text-gray-700">Verifitseerimine</label>
++                                     <select id="verificationFilter"
++                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
++                                         <option value="">Kõik</option>
++                                         <option value="verified">Verifitseeritud</option>
++                                         <option value="unverified">Verifitseerimata</option>
++                                     </select>
++                                 </div>
++                             </div>
++                             <div class="mt-4 flex justify-end">
++                                 <button onclick="applyFilters()"
++                                     class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
++                                     Rakenda filtrid
++                                 </button>
++                             </div>
++                         </div>
++ 
++                         <div class="overflow-x-auto">
++                             <table class="min-w-full divide-y divide-gray-200">
++                                 <thead class="bg-gray-50">
++                                     <tr>
++                                         <th class="px-6 py-3 text-left">
++                                             <input type="checkbox" id="selectAll" class="rounded text-blue-600">
++                                         </th>
++                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
++                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roll</th>
++                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Olek</th>
++                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verifitseerimine</th>
++                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tegevused</th>
++                                     </tr>
++                                 </thead>
++                                 <tbody id="userTable" class="bg-white divide-y divide-gray-200">
++                                     <!-- Users will be dynamically added here -->
++                                 </tbody>
++                             </table>
+                          </div>
+                      </div>
+                  <div id="rolesSection" class="hidden">
+                      <div class="bg-white rounded-lg shadow p-6">
+-                         <h2 class="text-lg font-semibold text-gray-900 mb-4">Rollide haldamine</h2>
++                         <div class="flex items-center justify-between mb-4">
++                             <h2 class="text-lg font-semibold text-gray-900">Rollide haldamine</h2>
++                             <button id="addRoleButton"
++                                 class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
++                                 <i class="fas fa-plus mr-2"></i>Lisa Roll
++                             </button>
++                         </div>
+                          <div class="space-y-4">
+-                             <!-- Roles management content -->
++                             <!-- Role List -->
++                             <div id="roleList" class="space-y-4">
++                                 <!-- Roles will be dynamically added here -->
++                             </div>
+                          </div>
+                      </div>
+          </div>
+      </div>
++ 
++     <!-- Modals -->
++     <!-- Import Users Modal -->
++     <div id="importUserModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
++         <div class="flex items-center justify-center min-h-screen">
++             <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
++                 <h2 class="text-xl font-bold mb-4">Impordi kasutajad</h2>
++                 <form id="importUserForm" class="space-y-4">
++                     <div>
++                         <label class="block text-sm font-medium text-gray-700">CSV fail</label>
++                         <input type="file" id="csvFile" accept=".csv" required
++                             class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
++                     </div>
++                     <div>
++                         <label class="block text-sm font-medium text-gray-700">Vaikimisi roll</label>
++                         <select id="defaultRole" required
++                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
++                             <option value="user">Tavakasutaja</option>
++                             <option value="omUser">Ostumaailm Kasutaja</option>
++                             <option value="hmUser">Hankemaailm Kasutaja</option>
++                         </select>
++                     </div>
++                     <div class="flex justify-end space-x-2">
++                         <button type="button" onclick="closeImportModal()"
++                             class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
++                             Tühista
++                         </button>
++                         <button type="submit"
++                             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
++                             Impordi
++                         </button>
++                     </div>
++                 </form>
++             </div>
++         </div>
++     </div>
++ 
++     <!-- Add User Modal -->
++     <div id="addUserModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
++         <div class="flex items-center justify-center min-h-screen">
++             <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
++                 <h2 class="text-xl font-bold mb-4">Lisa uus kasutaja</h2>
++                 <form id="addUserForm" class="space-y-4">
++                     <div>
++                         <label class="block text-sm font-medium text-gray-700">E-post:</label>
++                         <input type="email" id="userEmail" required
++                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
++                     </div>
++                     <div>
++                         <label class="block text-sm font-medium text-gray-700">Parool:</label>
++                         <input type="password" id="userPassword" required
++                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
++                     </div>
++                     <div>
++                         <label class="block text-sm font-medium text-gray-700">Roll:</label>
++                         <select id="userRole" required
++                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
++                             <!-- Options will be populated dynamically -->
++                         </select>
++                     </div>
++                     <div class="flex items-center space-x-2">
++                         <input type="checkbox" id="userApproved" class="rounded text-blue-600">
++                         <label for="userApproved" class="text-sm text-gray-700">Kasutaja on kinnitatud</label>
++                     </div>
++                     <div class="flex justify-end space-x-2">
++                         <button type="button" onclick="closeAddUserModal()"
++                             class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
++                             Tühista
++                         </button>
++                         <button type="submit"
++                             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
++                             Lisa Kasutaja
++                         </button>
++                     </div>
++                 </form>
++             </div>
++         </div>
++     </div>
++ 
++     <!-- User Details Modal -->
++     <div id="userDetailsModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
++         <div class="flex items-center justify-center min-h-screen">
++             <div class="bg-white rounded-lg shadow-lg p-6">
++                 <h2 class="text-xl font-bold mb-4">Kasutaja Üksikasjad</h2>
++                 <div class="space-y-2">
++                     <p><strong>Email:</strong> <span id="userDetailsEmail"></span></p>
++                     <p><strong>Roll:</strong> <span id="userDetailsRole"></span></p>
++                     <p><strong>Status:</strong> <span id="userDetailsStatus"></span></p>
++                 </div>
++                 <div class="mt-4 flex justify-end">
++                     <button onclick="closeUserDetailsModal()"
++                         class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
++                         Sulge
++                     </button>
++                 </div>
++             </div>
++         </div>
++     </div>
++ 
++     <!-- Loading Overlay -->
++     <div id="loadingOverlay" class="hidden fixed inset-0 bg-white/50 z-50 backdrop-blur-sm">
++         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
++             <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
++         </div>
++     </div>
+  
+      <script>
+```
+
+---
+
+Now let me add the necessary JavaScript functions to handle all the functionality:
+
 
 ---
 
 
+
+---
+
+Let me try again with a different approach:
+
+
+---
+
+Cancelled
 
 ---
 

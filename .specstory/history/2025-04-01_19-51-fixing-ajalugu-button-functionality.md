@@ -652,11 +652,160 @@ I understand! Now let's implement a simple settings functionality in `om.html` t
 
 ---
 
-Cancelled
+```diff
+                  <div>
+                      <label class="block text-sm font-medium text-gray-700">Kasutajanimi</label>
+-                     <input type="text" x-model="currentUser.username"
+-                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
++                     <input type="text" x-model="settingsUsername"
++                         class="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                  </div>
+                  <div>
+                      <label class="block text-sm font-medium text-gray-700">Roll</label>
+-                     <input type="text" x-model="currentUser.role"
+-                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
++                     <input type="text" x-model="settingsRole"
++                         class="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                  </div>
+                  <div class="flex justify-end space-x-3">
+                      <button @click="showSettingsModal = false" class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                          Tühista
+                      </button>
+-                     <button @click="saveSettings"
++                     <button @click="saveSettings()"
+                          class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                          Salvesta
+      <!-- Toast Container -->
+      <div class="fixed bottom-4 right-4 z-50 space-y-2">
+-         <template x-for="toast in toasts" :key="toast.id">
++         <template x-for="(toast, index) in toastMessages" :key="index">
+              <div class="bg-white rounded-lg shadow-lg p-4 max-w-sm" :class="{
+                      'bg-green-50 border border-green-200': toast.type === 'success',
+  
+      <script>
+-         // Add settings-related functions to the existing Alpine.js data
+-         function addSettingsFunctions() {
+-             return {
++         // Add settings-related code to the window's onload event
++         window.addEventListener('DOMContentLoaded', () => {
++             // Add settings functionality to the global Alpine.js store
++             document.addEventListener('alpine:init', () => {
++                 Alpine.store('settingsData', {
+                      showSettingsModal: false,
+-                 toasts: [],
+-                 toastId: 0,
++                     settingsUsername: '',
++                     settingsRole: '',
++                     toastMessages: [],
+                      
+-                 handleSettingsModalOpen() {
++                     openSettingsModal() {
+                          this.showSettingsModal = true;
+-                 },
+- 
+-                 async saveSettings() {
+-                     try {
+-                         const userRef = doc(db, 'users', this.currentUser.uid);
+-                         await setDoc(userRef, {
+-                             username: this.currentUser.username,
+-                             role: this.currentUser.role,
++                         // Load settings from user profile
++                         if (window.auth && window.auth.currentUser) {
++                             const userRef = window.firestoreFunctions.doc(window.db, 'users', window.auth.currentUser.uid);
++                             window.firestoreFunctions.getDoc(userRef).then((doc) => {
++                                 if (doc.exists()) {
++                                     const data = doc.data();
++                                     this.settingsUsername = data.username || '';
++                                     this.settingsRole = data.role || '';
++                                 }
++                             }).catch((error) => {
++                                 console.error('Error loading settings:', error);
++                                 this.showToast('Seadete laadimisel tekkis viga', 'error');
++                             });
++                         }
++                     },
++                     
++                     saveSettings() {
++                         if (window.auth && window.auth.currentUser) {
++                             const userRef = window.firestoreFunctions.doc(window.db, 'users', window.auth.currentUser.uid);
++                             window.firestoreFunctions.setDoc(userRef, {
++                                 username: this.settingsUsername,
++                                 role: this.settingsRole,
+                                  updatedAt: new Date()
+-                         }, { merge: true });
++                             }, { merge: true }).then(() => {
+                                  this.showSettingsModal = false;
+                                  this.showToast('Seaded edukalt salvestatud', 'success');
+-                     } catch (error) {
++                             }).catch((error) => {
+                                  console.error('Error saving settings:', error);
+                                  this.showToast('Seadete salvestamisel tekkis viga', 'error');
++                             });
+                          }
+                      },
+                      
+                      showToast(message, type = 'success') {
+-                     const id = this.toastId++;
+                          const toast = {
+-                         id,
+                              message,
+                              type,
+                              visible: true
+                          };
+                          
+-                     this.toasts.push(toast);
++                         this.toastMessages.push(toast);
+                          
+                          setTimeout(() => {
+                              toast.visible = false;
+                              setTimeout(() => {
+-                             this.toasts = this.toasts.filter(t => t.id !== id);
++                                 this.toastMessages = this.toastMessages.filter(t => t !== toast);
+                              }, 300);
+                          }, 3000);
+                      }
+-             }
+-         }
+- 
+-         // Merge the settings functions with the existing Alpine.js data
+-         document.addEventListener('alpine:init', () => {
+-             Alpine.data('formData', () => ({
+-                 ...existingFormData(),
+-                 ...addSettingsFunctions()
+-             }));
++                 });
++             });
+          });
+      </script>
+```
 
 ---
 
+Now we need to update the settings button in the navigation bar to trigger the settings modal using our new Alpine.js store approach.
 
+---
+
+<details>
+            <summary>Grep search for "@click="showSettingsModal = true"" • **7** files</summary>
+        
+| File | Line | Match |
+|------|------|-------|
+| `file:///Users/viljarpartel/Desktop/test/ostu/om.html` | L1640 | `<button @click="showSettingsModal = true" x-show="currentUser"` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_19-51-fixing-ajalugu-button-functionality.md` | L232 | `-                     <button @click="showSettingsModal = true" x-show="currentUser"` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_19-02-improving-my-landing-page-tips-and-suggestions.md` | L265 | `<button @click="showSettingsModal = true" x-show="currentUser"` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_16-58-visual-upgrade-for-web-page.md` | L2096 | `+                     <button @click="showSettingsModal = true"` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_16-58-visual-upgrade-for-web-page.md` | L3163 | `| `file:///Users/viljarpartel/Desktop/test/ostu/om.html` | L1440 | `<button @click="showSettingsModal = true"` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_16-58-visual-upgrade-for-web-page.md` | L3200 | `⟪ 112 characters skipped ⟫ L2096 | `+                     <button @click="showSettingsModal = true"` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_16-58-visual-upgrade-for-web-page.md` | L3237 | `| `file:///Users/viljarpartel/Desktop/test/ostu/om.html` | L1440 | `<button @click="showSettingsModal = true"` |` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-04-01_19-44-ajalugu-page-pdf-management-features.md` | L773 | `-                     <button @click="showSettingsModal = true" x-show="currentUser"` |
+| `file:///Users/viljarpartel/Desktop/test/.specstory/history/2025-03-31_18-49-user-authentication-for-button-visibility.md` | L21 | `<button @click="showSettingsModal = true"` |
+| `file:///Users/viljarpartel/Desktop/test/ostu/om.html` | L1640 | `<button @click="showSettingsModal = true" x-show="currentUser"` |
+
+</details>
+
+---
+
+Cancelled
 
 ---
 

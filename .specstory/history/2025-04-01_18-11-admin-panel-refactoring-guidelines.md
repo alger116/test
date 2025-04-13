@@ -7382,7 +7382,493 @@ the last changes again broke fking shit up
 
 _**Assistant**_
 
+I see the issue now. Let me provide a specific fix for the most critical problem without changing too much:
 
+---
+
+```diff
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex space-x-2 justify-end">
+-                 <button onclick="openUserDetailsModal('${userData.uid}')"
++                 <button onclick="openUserDetails('${userData.uid}')"
+                      class="text-indigo-600 hover:text-indigo-900">
+                      <i class="fas fa-eye"></i>
+  window.toggleUserStatus = toggleUserStatus;
+  window.deleteUser = deleteUser;
+- window.openUserDetailsModal = openUserDetailsModal;
++ window.openUserDetails = openUserDetails;
+  window.closeUserDetailsModal = closeUserDetailsModal;
+  window.openAddUserModal = openAddUserModal;
+```
+
+---
+
+Let's fix the remaining issues with window function assignments:
+
+---
+
+```diff
+  }
+  
+- // Initialize all event listeners
++ // Initialize event listeners
+  function initializeEventListeners() {
+    console.log("Initializing all event listeners for admin panel");
+    const settingsButton = document.getElementById("settingsButton");
+    if (settingsButton) {
+-     settingsButton.addEventListener("click", SettingsManagement.openSettings);
+-     console.log("Added settings button listener");
++     console.log("Found settingsButton, adding event listener");
++     settingsButton.addEventListener("click", function() {
++       if (typeof window.openSettings === 'function') {
++         window.openSettings();
++       } else {
++         console.error("openSettings function not found", window.openSettings);
++       }
++     });
+    } else {
+      console.error("Settings button element not found");
+    const rolesButton = document.getElementById("rolesButton");
+    if (rolesButton) {
+-     rolesButton.addEventListener("click", RolesManagement.openRoles);
+-     console.log("Added roles button listener");
++     console.log("Found rolesButton, adding event listener");
++     rolesButton.addEventListener("click", function() {
++       if (typeof window.openRoles === 'function') {
++         window.openRoles();
++       } else {
++         console.error("openRoles function not found", window.openRoles);
++       }
++     });
+    } else {
+      console.error("Roles button element not found");
+    const dashboardButton = document.getElementById("dashboardButton");
+    if (dashboardButton) {
+-     dashboardButton.addEventListener("click", SettingsManagement.showDashboard);
++     console.log("Found dashboardButton, adding event listener");
++     dashboardButton.addEventListener("click", function() {
++       if (typeof window.showDashboard === 'function') {
++         window.showDashboard();
++       } else {
++         console.error("showDashboard function not found", window.showDashboard);
++       }
++     });
++   } else {
++     console.error("Dashboard button element not found");
+    }
+  
+    // Close settings
+    const closeSettings = document.getElementById("closeSettings");
+    if (closeSettings) {
+-     closeSettings.addEventListener(
+-       "click",
+-       SettingsManagement.closeSettingsModal,
+-     );
++     console.log("Found closeSettings button, adding event listener");
++     closeSettings.addEventListener("click", function() {
++       if (typeof window.closeSettingsModal === 'function') {
++         window.closeSettingsModal();
++       } else {
++         console.error("closeSettingsModal function not found");
++       }
++     });
++   } else {
++     console.error("Close settings button not found");
+    }
+  
+    // Close roles
+    const closeRoles = document.getElementById("closeRoles");
+    if (closeRoles) {
+-     closeRoles.addEventListener("click", RolesManagement.closeRolesModal);
+-   }
+- 
+-   // Handle backdrop clicks
+-   const settingsBackdrop = document.getElementById("settingsBackdrop");
+-   if (settingsBackdrop) {
+-     settingsBackdrop.addEventListener("click", (e) => {
+-       if (e.target === settingsBackdrop) {
+-         SettingsManagement.closeSettingsModal();
+-       }
+-     });
+-   }
+- 
+-   const rolesBackdrop = document.getElementById("rolesBackdrop");
+-   if (rolesBackdrop) {
+-     rolesBackdrop.addEventListener("click", (e) => {
+-       if (e.target === rolesBackdrop) {
+-         RolesManagement.closeRolesModal();
+-       }
+-     });
+-   }
+- 
+-   // Settings form submission
+-   const settingsForm = document.getElementById("settingsForm");
+-   if (settingsForm) {
+-     settingsForm.addEventListener(
+-       "submit",
+-       SettingsManagement.saveSettingsForm,
+-     );
+-   }
+- 
+-   // Add role button
+-   const addRoleButton = document.getElementById("addRoleButton");
+-   if (addRoleButton) {
+-     addRoleButton.addEventListener("click", RolesManagement.addNewRole);
+-   }
+- 
+-   // Add procedure type button
+-   const addProcedureTypeButton = document.getElementById(
+-     "addProcedureTypeButton",
+-   );
+-   if (addProcedureTypeButton) {
+-     addProcedureTypeButton.addEventListener(
+-       "click",
+-       SettingsManagement.addProcedureType,
+-     );
++     console.log("Found closeRoles button, adding event listener");
++     closeRoles.addEventListener("click", function() {
++       if (typeof window.closeRolesModal === 'function') {
++         window.closeRolesModal();
++       } else {
++         console.error("closeRolesModal function not found");
+        }
+- 
+-   // Procedure type selection change
+-   const procedureTypeSelect = document.getElementById("procedureTypeSelect");
+-   if (procedureTypeSelect) {
+-     procedureTypeSelect.addEventListener("change", function () {
+-       SettingsManagement.loadProcedureTypeSettings(this.value);
+-     });
++     });
++   } else {
++     console.error("Close roles button not found");
+    }
+  
+    // Add user button
+    const addUserButton = document.getElementById("addUserButton");
+    if (addUserButton) {
+-     console.log("Found addUserButton, attaching event listener");
+-     addUserButton.addEventListener("click", UserManagement.openAddUserModal);
+-     console.log("Added click listener to addUserButton");
++     console.log("Found addUserButton, adding event listener");
++     addUserButton.addEventListener("click", function() {
++       if (typeof window.openAddUserModal === 'function') {
++         window.openAddUserModal();
++       } else {
++         console.error("openAddUserModal function not found");
++       }
++     });
+    } else {
+      console.error("Add User button not found");
+    }
+- 
+-   // Close add user modal
+-   const closeAddUser = document.getElementById("closeAddUser");
+-   if (closeAddUser) {
+-     closeAddUser.addEventListener("click", UserManagement.closeAddUserModal);
+-   }
+- 
+-   // Add user form submission
+-   const addUserForm = document.getElementById("addUserForm");
+-   if (addUserForm) {
+-     addUserForm.addEventListener("submit", UserManagement.handleAddUser);
+-   }
+  
+    // Handle ESC key for modals
+```
+
+---
+
+Let's restore the missing event listeners and fix a critical issue with the Firebase initialization:
+
+---
+
+```diff
+    if (settingsButton) {
+      console.log("Found settingsButton, adding event listener");
+-     settingsButton.addEventListener("click", function () {
+-       if (typeof window.openSettings === "function") {
++     settingsButton.addEventListener("click", function() {
++       if (typeof window.openSettings === 'function') {
+          window.openSettings();
+        } else {
+    if (rolesButton) {
+      console.log("Found rolesButton, adding event listener");
+-     rolesButton.addEventListener("click", function () {
+-       if (typeof window.openRoles === "function") {
++     rolesButton.addEventListener("click", function() {
++       if (typeof window.openRoles === 'function') {
+          window.openRoles();
+        } else {
+    if (dashboardButton) {
+      console.log("Found dashboardButton, adding event listener");
+-     dashboardButton.addEventListener("click", function () {
+-       if (typeof window.showDashboard === "function") {
++     dashboardButton.addEventListener("click", function() {
++       if (typeof window.showDashboard === 'function') {
+          window.showDashboard();
+        } else {
+    if (closeSettings) {
+      console.log("Found closeSettings button, adding event listener");
+-     closeSettings.addEventListener("click", function () {
+-       if (typeof window.closeSettingsModal === "function") {
++     closeSettings.addEventListener("click", function() {
++       if (typeof window.closeSettingsModal === 'function') {
+          window.closeSettingsModal();
+        } else {
+    if (closeRoles) {
+      console.log("Found closeRoles button, adding event listener");
+-     closeRoles.addEventListener("click", function () {
+-       if (typeof window.closeRolesModal === "function") {
++     closeRoles.addEventListener("click", function() {
++       if (typeof window.closeRolesModal === 'function') {
+          window.closeRolesModal();
+        } else {
+      console.error("Close roles button not found");
+    }
++   
++   // Handle backdrop clicks
++   const settingsBackdrop = document.getElementById("settingsBackdrop");
++   if (settingsBackdrop) {
++     settingsBackdrop.addEventListener("click", (e) => {
++       if (e.target === settingsBackdrop && typeof window.closeSettingsModal === 'function') {
++         window.closeSettingsModal();
++       }
++     });
++   }
++ 
++   const rolesBackdrop = document.getElementById("rolesBackdrop");
++   if (rolesBackdrop) {
++     rolesBackdrop.addEventListener("click", (e) => {
++       if (e.target === rolesBackdrop && typeof window.closeRolesModal === 'function') {
++         window.closeRolesModal();
++       }
++     });
++   }
++ 
++   // Settings form submission
++   const settingsForm = document.getElementById("settingsForm");
++   if (settingsForm) {
++     settingsForm.addEventListener("submit", function(e) {
++       if (typeof window.saveSettingsForm === 'function') {
++         window.saveSettingsForm(e);
++       }
++     });
++   }
++ 
++   // Add role button
++   const addRoleButton = document.getElementById("addRoleButton");
++   if (addRoleButton) {
++     addRoleButton.addEventListener("click", function() {
++       if (typeof window.addNewRole === 'function') {
++         window.addNewRole();
++       }
++     });
++   }
++ 
++   // Add procedure type button
++   const addProcedureTypeButton = document.getElementById("addProcedureTypeButton");
++   if (addProcedureTypeButton) {
++     addProcedureTypeButton.addEventListener("click", function() {
++       if (typeof window.addProcedureType === 'function') {
++         window.addProcedureType();
++       }
++     });
++   }
++ 
++   // Procedure type selection change
++   const procedureTypeSelect = document.getElementById("procedureTypeSelect");
++   if (procedureTypeSelect) {
++     procedureTypeSelect.addEventListener("change", function() {
++       if (typeof window.loadProcedureTypeSettings === 'function') {
++         window.loadProcedureTypeSettings(this.value);
++       }
++     });
++   }
+  
+    // Add user button
+    const addUserButton = document.getElementById("addUserButton");
+    if (addUserButton) {
+      console.log("Found addUserButton, adding event listener");
+-     addUserButton.addEventListener("click", function () {
+-       if (typeof window.openAddUserModal === "function") {
++     addUserButton.addEventListener("click", function() {
++       if (typeof window.openAddUserModal === 'function') {
+          window.openAddUserModal();
+        } else {
+      console.error("Add User button not found");
+    }
++ 
++   // Close add user modal
++   const closeAddUser = document.getElementById("closeAddUser");
++   if (closeAddUser) {
++     closeAddUser.addEventListener("click", function() {
++       if (typeof window.closeAddUserModal === 'function') {
++         window.closeAddUserModal();
++       }
++     });
++   }
++ 
++   // Add user form submission
++   const addUserForm = document.getElementById("addUserForm");
++   if (addUserForm) {
++     addUserForm.addEventListener("submit", function(e) {
++       if (typeof window.handleAddUser === 'function') {
++         window.handleAddUser(e);
++       }
++     });
++   }
+  
+    // Handle ESC key for modals
+        if (
+          settingsContainer &&
+-         !settingsContainer.classList.contains("hidden")
++         !settingsContainer.classList.contains("hidden") &&
++         typeof window.closeSettingsModal === 'function'
+        ) {
+-         SettingsManagement.closeSettingsModal();
++         window.closeSettingsModal();
+        }
+  
+-       if (rolesContainer && !rolesContainer.classList.contains("hidden")) {
+-         RolesManagement.closeRolesModal();
++       if (rolesContainer && !rolesContainer.classList.contains("hidden") &&
++           typeof window.closeRolesModal === 'function') {
++         window.closeRolesModal();
+        }
+  
+-       if (addUserContainer && !addUserContainer.classList.contains("hidden")) {
+-         UserManagement.closeAddUserModal();
++       if (addUserContainer && !addUserContainer.classList.contains("hidden") &&
++           typeof window.closeAddUserModal === 'function') {
++         window.closeAddUserModal();
+        }
+      }
+```
+
+---
+
+Now, let's fix the Firebase initialization in admin.js to ensure collection() and other functions work correctly:
+
+---
+
+```diff
+    // Make Firebase functions available globally
+    window.db = db;
+-   window.collection = collection;
+-   window.getDocs = getDocs;
+-   window.doc = doc;
+-   window.getDoc = getDoc;
+-   window.updateDoc = updateDoc;
+-   window.deleteDoc = deleteDoc;
+-   window.addDoc = addDoc;
+-   window.signOut = signOut;
+    window.auth = auth;
+-   window.query = query;
++   
++   // Create helper functions for global access to match both v8 and v9 APIs
++   window.collection = function(db, path) {
++     return collection(db, path);
++   };
++   window.getDocs = function(query) {
++     return getDocs(query);
++   };
++   window.doc = function(db, path, id) {
++     return doc(db, path, id);
++   };
++   window.getDoc = function(docRef) {
++     return getDoc(docRef);
++   };
++   window.updateDoc = function(docRef, data) {
++     return updateDoc(docRef, data);
++   };
++   window.deleteDoc = function(docRef) {
++     return deleteDoc(docRef);
++   };
++   window.addDoc = function(collectionRef, data) {
++     return addDoc(collectionRef, data);
++   };
++   window.setDoc = function(docRef, data, options) {
++     return setDoc(docRef, data, options);
++   };
++   window.query = function(collectionRef, ...queryConstraints) {
++     return query(collectionRef, ...queryConstraints);
++   };
+    window.where = where;
+    window.limit = limit;
+-   window.writeBatch = writeBatch;
++   window.writeBatch = function(db) {
++     return writeBatch(db);
++   };
++   window.createUserWithEmailAndPassword = function(auth, email, password) {
++     return createUserWithEmailAndPassword(auth, email, password);
++   };
++   window.signInWithEmailAndPassword = function(auth, email, password) {
++     return signInWithEmailAndPassword(auth, email, password);
++   };
+  
+    // Set the roles, procedure data, and settings in the window object
+```
+
+---
+
+Let's add the missing signOut function:
+
+---
+
+```diff
+      return signInWithEmailAndPassword(auth, email, password);
+    };
++   window.signOut = function() {
++     return signOut(auth);
++   };
+  
+    // Set the roles, procedure data, and settings in the window object
+```
+
+---
+
+Now let's make sure the window.showNotification function is properly exported:
+
+---
+
+```diff
+    window.internationalProcedureData = internationalProcedureData;
+    window.settings = settings;
++   window.showNotification = showNotification;
+  
+    // Setup authentication state change listener
+```
+
+---
+
+Let's verify that the openUserDetailsModal function call is correctly fixed in the window initialization:
+
+---
+
+```diff
+  window.toggleUserStatus = toggleUserStatus;
+  window.deleteUser = deleteUser;
+- window.openUserDetails = openUserDetails;
++ window.openUserDetailsModal = openUserDetails;
+  window.closeUserDetailsModal = closeUserDetailsModal;
+  window.openAddUserModal = openAddUserModal;
+```
+
+---
+
+These changes should get the admin panel working again with the properly modularized JavaScript files. Let's review what we've done:
+
+1. Fixed Firebase function initialization to properly work with modules
+2. Ensured all UI event listeners properly access global window functions
+3. Corrected a mismatch between function name (openUserDetails) and the global function name (window.openUserDetailsModal)
+4. Ensured utility functions like showNotification are properly exposed to all modules
+
+These changes should allow you to:
+1. Open the settings panel when clicking the Settings button
+2. Open the roles panel when clicking the Roles button
+3. Open the user details when clicking on the eye icon in the users table
+4. Use all Firebase-related functionality correctly
 
 ---
 

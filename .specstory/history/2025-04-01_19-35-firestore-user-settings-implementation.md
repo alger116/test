@@ -741,7 +741,21 @@ Ah, I see the issue. The problem is in the initialization code where we removed 
 
 ---
 
+I've fixed the issue by:
 
+1. Adding back the localStorage persistence for the current user
+2. Properly saving the user state to localStorage when they log in
+3. Removing the user state from localStorage when they log out
+4. Checking for the current user in localStorage on initial page load
+
+This should now:
+1. Keep you logged in after page refresh
+2. Properly maintain your authentication state
+3. Still work with the settings persistence we implemented earlier
+
+The issue was that we removed the localStorage check for the current user during the previous changes, which caused the authentication state to be lost on page refresh. Now it should work properly again.
+
+Try refreshing the page now - you should stay logged in. Let me know if you're still experiencing any issues!
 
 ---
 

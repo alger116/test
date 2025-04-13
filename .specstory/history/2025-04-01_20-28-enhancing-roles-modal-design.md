@@ -750,7 +750,448 @@ Read file: auth/admin.html
 
 ---
 
+Let me check the settings modal JavaScript functionality:
 
+
+
+---
+
+Read file: auth/admin.html
+
+---
+
+Let me check the procedure types loading function:
+
+
+---
+
+Read file: auth/admin.html
+
+---
+
+Let me check the procedure data initialization:
+
+
+
+---
+
+Read file: auth/admin.html
+
+---
+
+I've found the issue with the procedure types in settings. There are a few problems:
+
+1. The `procedureData` object is defined but not properly initialized with all the required fields. It only has `visible` property for each procedure type, but it's missing other important fields like `taotlusteAeg`, `pakkumusteAeg`, and `piirmäär`.
+
+2. The `loadProcedureTypes()` function is only loading from `procedureData` but not from `internationalProcedureData`, which contains the complete procedure information.
+
+3. The `loadProcedureTypeSettings()` function is not properly handling all the fields from the procedure data.
+
+Let me fix these issues:
+
+
+---
+
+```diff
+  
+                      const procedureData = {
+-                         "Avatud hankemenetlus": { visible: true },
+-                         "Piiratud hankemenetlus": { visible: true },
+-                         "Konkurentsipõhine läbirääkimistega menetlus": { visible: true },
+-                         "Võistlev dialoog": { visible: true },
+-                         "Innovatsioonipartnerlus": { visible: true },
+-                         "Kontsessioonimenetlus": { visible: true },
+-                         "Erimenetlused": { visible: true }
++                         "Avatud hankemenetlus": { 
++                             taotlusteAeg: 0, 
++                             pakkumusteAeg: 30, 
++                             piirmäär: 143000, 
++                             visible: true 
++                         },
++                         "Piiratud hankemenetlus": { 
++                             taotlusteAeg: 30, 
++                             pakkumusteAeg: 25, 
++                             piirmäär: 143000, 
++                             visible: true 
++                         },
++                         "Konkurentsipõhine läbirääkimistega menetlus": { 
++                             taotlusteAeg: 30, 
++                             pakkumusteAeg: 25, 
++                             piirmäär: 143000, 
++                             visible: true 
++                         },
++                         "Võistlev dialoog": { 
++                             taotlusteAeg: 30, 
++                             pakkumusteAeg: 25, 
++                             piirmäär: 143000, 
++                             visible: true 
++                         },
++                         "Innovatsioonipartnerlus": { 
++                             taotlusteAeg: 30, 
++                             pakkumusteAeg: 25, 
++                             piirmäär: 143000, 
++                             visible: true 
++                         },
++                         "Kontsessioonimenetlus": { 
++                             taotlusteAeg: 30, 
++                             pakkumusteAeg: 17, 
++                             piirmäär: 5538000, 
++                             visible: true 
++                         },
++                         "Erimenetlused": { 
++                             taotlusteAeg: 0, 
++                             pakkumusteAeg: 10, 
++                             piirmäär: 750000, 
++                             visible: true 
++                         }
+                      };
+  
+```
+
+---
+
+Now let me update the `loadProcedureTypeSettings` function to properly display all fields:
+
+
+---
+
+```diff
+                              </div>
+                              <div class="space-y-1">
+-                                 <label for="requestDays" class="block text-sm font-medium text-gray-700">Taotluste aeg (päevad):</label>
+-                                 <input type="number" id="requestDays" value="${procedure?.taotlusteAeg || 0}"
+-                                     class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+-                                     required>
++                                 <label for="procedureTypeVisible" class="block text-sm font-medium text-gray-700">Nähtav:</label>
++                                 <div class="flex items-center space-x-2">
++                                     <input type="checkbox" id="procedureTypeVisible" ${procedure.visible ? 'checked' : ''}
++                                         class="rounded text-blue-600 focus:ring-blue-500">
++                                     <label for="procedureTypeVisible" class="text-sm text-gray-700">Aktiivne</label>
++                                 </div>
+                              </div>
+                              <div class="space-y-1">
+-                                 <label for="offerDays" class="block text-sm font-medium text-gray-700">Pakkumuste aeg (päevad):</label>
+-                                 <input type="number" id="offerDays" value="${procedure?.pakkumusteAeg || 0}"
++                                 <label for="procedureTypeTaotlusteAeg" class="block text-sm font-medium text-gray-700">Taotluste esitamise aeg (päevad):</label>
++                                 <input type="number" id="procedureTypeTaotlusteAeg" value="${procedure.taotlusteAeg}"
+                                      class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+-                                     required>
++                                     min="0" required>
+                              </div>
+                              <div class="space-y-1">
+-                                 <label for="threshold" class="block text-sm font-medium text-gray-700">Piirmäär (€):</label>
+-                                 <input type="number" id="threshold" value="${procedure?.piirmäär || 60000}"
++                                 <label for="procedureTypePakkumusteAeg" class="block text-sm font-medium text-gray-700">Pakkumuste esitamise aeg (päevad):</label>
++                                 <input type="number" id="procedureTypePakkumusteAeg" value="${procedure.pakkumusteAeg}"
+                                      class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+-                                     required>
++                                     min="0" required>
+                              </div>
+                              <div class="space-y-1">
+-                                 <label for="useInternationalThreshold" class="block text-sm font-medium text-gray-700">Kasuta rahvusvahelisi piirmääre:</label>
+-                                 <div class="flex items-center space-x-2">
+-                                     <label class="relative inline-flex items-center cursor-pointer">
+-                                         <input type="checkbox" id="useInternationalThreshold" class="sr-only peer" ${procedure?.useInternational ? 'checked' : ''}>
+-                                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+-                                     </label>
++                                 <label for="procedureTypePiirmäär" class="block text-sm font-medium text-gray-700">Piirmäär (€):</label>
++                                 <input type="number" id="procedureTypePiirmäär" value="${procedure.piirmäär}"
++                                     class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
++                                     min="0" required>
+                              </div>
+                          </div>
+-                             <div class="space-y-1">
+-                                 <label for="procedureVisibility" class="block text-sm font-medium text-gray-700">Menetlusliigi nähtavus:</label>
+-                                 <div class="flex items-center space-x-2">
+-                                     <label class="relative inline-flex items-center cursor-pointer">
+-                                         <input type="checkbox" id="procedureVisibility" class="sr-only peer" ${procedure?.visible ? 'checked' : ''}>
+-                                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+-                                         <span class="ml-2 text-sm text-gray-600">${procedure?.visible ? 'Nähtav' : 'Peidetud'}</span>
+-                                     </label>
+-                                 </div>
+-                             </div>
+-                         </div>
+-                         <div class="flex justify-end space-x-2">
+-                             <button onclick="deleteProcedureType('${type}')"
+-                                 class="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-all duration-200 flex items-center space-x-2 text-sm">
+-                                 <i class="fas fa-trash"></i>
+-                                 <span>Kustuta</span>
++                         <div class="flex justify-end space-x-2 pt-4">
++                             <button type="button" onclick="deleteProcedureType('${type}')"
++                                 class="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors duration-200">
++                                 <i class="fas fa-trash mr-2"></i>Kustuta
+                              </button>
+-                             <button onclick="saveProcedureType('${type}')"
+-                                 class="bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-all duration-200 flex items-center space-x-2 text-sm">
+-                                 <i class="fas fa-save"></i>
+-                                 <span>Salvesta</span>
++                             <button type="button" onclick="saveProcedureType('${type}')"
++                                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
++                                 <i class="fas fa-save mr-2"></i>Salvesta
+                              </button>
+                          </div>
+                      </div>
+                  `;
++                         }
+  
+                          // Add event listeners
+-                             const visibilityToggle = document.getElementById('procedureVisibility');
++                         const visibilityToggle = document.getElementById('procedureTypeVisible');
+                          const visibilityLabel = visibilityToggle.nextElementSibling.nextElementSibling;
+-                             const internationalToggle = document.getElementById('useInternationalThreshold');
+  
+                          // Visibility toggle event listener
+                              });
+                          });
+- 
+-                             // International threshold toggle event listener
+-                             if (internationalToggle) {
+-                                 internationalToggle.addEventListener('change', function () {
+-                                     toggleInternationalThreshold(type);
+-                                 });
+-                             }
+-                         }
+  
+                          // Make functions available globally
+-                         window.toggleInternationalThreshold = function (type) {
+-                             const useInternational = document.getElementById('useInternationalThreshold').checked;
+-                             const requestDaysInput = document.getElementById('requestDays');
+-                             const offerDaysInput = document.getElementById('offerDays');
+-                             const thresholdInput = document.getElementById('threshold');
+- 
+-                             if (useInternational && internationalProcedureData[type]) {
+-                                 // Use international values
+-                                 requestDaysInput.value = internationalProcedureData[type].taotlusteAeg || 0;
+-                                 offerDaysInput.value = internationalProcedureData[type].pakkumusteAeg || 0;
+-                                 thresholdInput.value = internationalProcedureData[type].piirmäär || 60000;
+-                             } else {
+-                                 // Use default values
+-                                 requestDaysInput.value = procedureData[type]?.taotlusteAeg || 0;
+-                                 offerDaysInput.value = procedureData[type]?.pakkumusteAeg || 0;
+-                                 thresholdInput.value = procedureData[type]?.piirmäär || 60000;
+-                             }
+-                         };
+- 
+                          window.deleteProcedureType = async function (type) {
+                              if (!confirm('Kas oled kindel, et soovid selle menetlusliigi kustutada?')) return;
+                              try {
+                                  const newType = document.getElementById('procedureTypeName').value;
+-                                 const requestDays = parseInt(document.getElementById('requestDays').value);
+-                                 const offerDays = parseInt(document.getElementById('offerDays').value);
+-                                 const useInternational = document.getElementById('useInternationalThreshold').checked;
+-                                 const visible = document.getElementById('procedureVisibility').checked;
++                                 const taotlusteAeg = parseInt(document.getElementById('procedureTypeTaotlusteAeg').value);
++                                 const pakkumusteAeg = parseInt(document.getElementById('procedureTypePakkumusteAeg').value);
++                                 const piirmäär = parseInt(document.getElementById('procedureTypePiirmäär').value);
++                                 const visible = document.getElementById('procedureTypeVisible').checked;
+  
+-                                 if (!newType || isNaN(requestDays) || isNaN(offerDays)) {
++                                 if (!newType || isNaN(taotlusteAeg) || isNaN(pakkumusteAeg) || isNaN(piirmäär)) {
+                                      showNotification('Palun täida kõik väljad!', 'error');
+                                      return;
+                                  delete procedureData[oldType];
+                                  procedureData[newType] = {
+-                                     taotlusteAeg: requestDays,
+-                                     pakkumusteAeg: offerDays,
+-                                     piirmäär: 60000,
+-                                     useInternational,
++                                     taotlusteAeg,
++                                     pakkumusteAeg,
++                                     piirmäär,
++                                     useInternational: false,
+                                      visible
+                                  };
+                              try {
+                                  const newType = document.getElementById('procedureTypeName').value;
+-                                 const requestDays = parseInt(document.getElementById('requestDays').value);
+-                                 const offerDays = parseInt(document.getElementById('offerDays').value);
+-                                 const useInternational = document.getElementById('useInternationalThreshold').checked;
+-                                 const visible = document.getElementById('procedureVisibility').checked;
++                                 const taotlusteAeg = parseInt(document.getElementById('procedureTypeTaotlusteAeg').value);
++                                 const pakkumusteAeg = parseInt(document.getElementById('procedureTypePakkumusteAeg').value);
++                                 const piirmäär = parseInt(document.getElementById('procedureTypePiirmäär').value);
++                                 const visible = document.getElementById('procedureTypeVisible').checked;
+  
+-                                 if (!newType || isNaN(requestDays) || isNaN(offerDays)) {
++                                 if (!newType || isNaN(taotlusteAeg) || isNaN(pakkumusteAeg) || isNaN(piirmäär)) {
+                                      showNotification('Palun täida kõik väljad!', 'error');
+                                      return;
+                                  }
+  
+                                  procedureData[newType] = {
+-                                     taotlusteAeg: requestDays,
+-                                     pakkumusteAeg: offerDays,
+-                                     piirmäär: 60000,
+-                                     useInternational,
++                                     taotlusteAeg,
++                                     pakkumusteAeg,
++                                     piirmäär,
++                                     useInternational: false,
+                                      visible
+                                  };
+                                  }, {});
+                          };
+-                     });
++                     }
+  
+                      async function loadUsers(page = 1, searchTerm = '', roleFilter = '', statusFilter = '', verificationFilter = '') {
+```
+
+---
+
+Let me fix the linter errors:
+
+
+---
+
+```diff
+                          // Add event listeners
+                          const visibilityToggle = document.getElementById('procedureTypeVisible');
+-                         const visibilityLabel = visibilityToggle.nextElementSibling.nextElementSibling;
++                         const visibilityLabel = visibilityToggle.nextElementSibling;
+  
+                          // Visibility toggle event listener
+```
+
+---
+
+Let me check the settings modal HTML structure to ensure all elements are properly defined:
+
+
+---
+
+Read file: auth/admin.html
+
+---
+
+Let me check the settings modal HTML structure further:
+
+
+
+---
+
+Read file: auth/admin.html
+
+---
+
+Let me check one more section to find the settings modal HTML:
+
+
+
+---
+
+Read file: auth/admin.html
+
+---
+
+Let me check one more section to find the settings modal HTML:
+
+
+---
+
+Read file: auth/admin.html
+
+---
+
+I found the issue. The settings modal HTML structure is missing. Let me add it:
+
+
+---
+
+```diff
+  
+          <!-- Settings Modal -->
+-         <div id="settingsBackdrop"
+-             class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity z-50"></div>
++         <div id="settingsBackdrop" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-40"></div>
+          <div id="settingsContainer" class="hidden fixed inset-0 z-50 overflow-y-auto">
+              <div class="flex min-h-full items-center justify-center p-4">
+-                 <div class="relative w-full max-w-4xl bg-white rounded-lg shadow-xl">
++                 <div class="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl border border-gray-200">
+                      <!-- Modal Header -->
+-                     <div class="flex items-center justify-between p-6 border-b">
+-                         <h2 class="text-2xl font-bold text-gray-900">Seaded</h2>
+-                         <button id="closeSettings" class="text-gray-400 hover:text-gray-500">
+-                             <i class="fas fa-times"></i>
++                     <div class="flex items-center justify-between p-6 border-b border-gray-200">
++                         <div>
++                             <h2 class="text-2xl font-bold text-gray-900">Süsteemi Seaded</h2>
++                             <p class="text-sm text-gray-500 mt-1">Halda süsteemi seadeid ja menetlusliike</p>
++                         </div>
++                         <button id="closeSettings"
++                             class="text-gray-400 hover:text-gray-500 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200">
++                             <i class="fas fa-times text-lg"></i>
+                          </button>
+                      </div>
+  
+                      <!-- Modal Content -->
+                      <div class="p-6">
+-                         <!-- General Settings -->
+-                         <div class="mb-8">
+-                             <h3 class="text-lg font-semibold text-gray-900 mb-4">Üldised seaded</h3>
+-                             <form id="settingsForm" class="space-y-6">
+-                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
++                         <div class="space-y-8">
++                             <!-- Time Settings -->
++                             <div>
++                                 <h3 class="text-lg font-semibold text-gray-900 mb-4">⏱️ Aja Seaded</h3>
++                                 <form id="timeSettingsForm" class="space-y-4">
++                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                          <div>
+                                              <label for="documentPreparationDays"
+                                                  class="block text-sm font-medium text-gray-700 mb-1">
+-                                             📄 Riigihanke alusdokumentide koostamine
++                                                 📝 Dokumendi ettevalmistamine
+                                              </label>
+-                                         <input type="number" id="documentPreparationDays" name="documentPreparationDays"
++                                             <input type="number" id="documentPreparationDays"
++                                                 name="documentPreparationDays"
+                                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                  placeholder="Päevad" required min="0">
+                                              <label for="offerEvaluationDays"
+                                                  class="block text-sm font-medium text-gray-700 mb-1">
+-                                             🧐 Pakkumuste hindamine
++                                                 📊 Pakkumuste hindamine
+                                              </label>
+                                              <input type="number" id="offerEvaluationDays" name="offerEvaluationDays"
+                                          </div>
+                                          <div>
+-                                         <label for="decisionDays" class="block text-sm font-medium text-gray-700 mb-1">
++                                             <label for="decisionDays"
++                                                 class="block text-sm font-medium text-gray-700 mb-1">
+                                                  ✅ Vastavaks ja edukaks tunnistamise otsus
+                                              </label>
+                              </div>
+  
+-                         <!-- Settings Section -->
+-                         <div class="p-6">
+-                             <h2 class="text-2xl font-bold text-gray-900">Seaded</h2>
++                             <!-- System Settings -->
++                             <div>
++                                 <h3 class="text-lg font-semibold text-gray-900 mb-4">⚙️ Süsteemi Seaded</h3>
+                                  <form id="settingsForm" class="space-y-6">
+                                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                  class="block text-sm font-medium text-gray-700 mb-1">Ostumaailm
+                                                  nähtavus</label>
+-                                         <input type="checkbox" id="ostumaailmVisibility" class="rounded text-blue-600">
++                                             <input type="checkbox" id="ostumaailmVisibility"
++                                                 class="rounded text-blue-600">
+                                          </div>
+                                          <div>
+                                              <label for="hankemaailmVisibility"
+                                                  class="block text-sm font-medium text-gray-700 mb-1">Hankemaailm
+                                                  nähtavus</label>
+-                                         <input type="checkbox" id="hankemaailmVisibility" class="rounded text-blue-600">
++                                             <input type="checkbox" id="hankemaailmVisibility"
++                                                 class="rounded text-blue-600">
+                                          </div>
+                                      </div>
+                                      </div>
+                                  </form>
++                             </div>
+                          </div>
+                      </div>
+```
 
 ---
 

@@ -268,11 +268,36 @@ Let me try again with more specific changes:
 
 ---
 
-Cancelled
+
+
+---
+
+I apologize for the difficulty. Let me try one more time with the exact line to remove:
 
 ---
 
 
+
+---
+
+I apologize for the difficulty with the edit tool. Let me try one final time with more context:
+
+---
+
+```diff
+                      <i class="fas fa-sign-in-alt mr-2"></i> Logi sisse
+                  </button>
+- 
+-                 <div class="mt-5 text-center text-sm text-gray-600">
+-                     Puudub konto? <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">Registreeru</a>
+-                 </div>
+              </div>
+          </div>
+```
+
+---
+
+Great! I've successfully removed the registration section from the login modal. The modal is now simpler and only focused on the login functionality. Is there anything else you'd like me to modify?
 
 ---
 

@@ -2650,7 +2650,217 @@ I see the issue now. The problem is in the tab switching logic. When clicking on
 
 ---
 
-Now let's also update the `loadBasicData
+Now let's also update the `loadBasicDataFields` function to ensure it's properly loading the data:
+
+---
+
+```diff
+                          try {
+                              console.log('Loading basic data fields...');
+-                             if (window.currentUser) {
++                             if (window.currentUser && window.userData) {
+                                  console.log('Current user:', window.currentUser);
+-                                 const { doc, getDoc } = window.firestoreFunctions;
+-                                 const userRef = doc(window.db, "users", window.currentUser.uid);
+-                                 console.log('User reference:', userRef);
+- 
+-                                 const userDoc = await getDoc(userRef);
+-                                 console.log('User document exists:', userDoc.exists());
++                                 console.log('User data:', window.userData);
+                                  
+-                                 if (userDoc.exists()) {
+-                                     const data = userDoc.data();
+-                                     console.log('Full user data:', data);
+- 
+-                                     if (data.settings) {
+-                                         console.log('Loading settings from Firestore:', data.settings);
+-                                         // Update only the basic data fields
+-                                         const basicFields = ['buyer', 'submission', 'validity', 'requirements', 'criteria', 'responsible', 'autofillEnabled'];
+-                                         basicFields.forEach(field => {
+-                                             if (data.settings[field] !== undefined) {
+-                                                 this.userSettings[field] = data.settings[field];
+-                                             }
+-                                         });
+-                                         console.log('Updated userSettings:', this.userSettings);
++                                 if (window.userData.settings) {
++                                     console.log('Loading settings from global data:', window.userData.settings);
++                                     const fields = ['buyer', 'submission', 'validity', 'requirements', 'criteria', 'responsible', 'autofillEnabled'];
++                                     fields.forEach(field => {
++                                         if (window.userData.settings[field] !== undefined) {
++                                             this.userSettings[field] = window.userData.settings[field];
++                                             console.log(`Set ${field} to:`, this.userSettings[field]);
++                                         }
++                                     });
+                                  } else {
+-                                         console.log('No settings found in data');
++                                     console.log('No settings found in global data');
+                                  }
+                              } else {
+-                                     console.log('No user document found');
+-                                 }
+-                             } else {
+-                                 console.log('No current user found');
++                                 console.log('No user data available');
++                                 // Load from localStorage as fallback
++                                 const savedSettings = localStorage.getItem('userSettings');
++                                 if (savedSettings) {
++                                     const settings = JSON.parse(savedSettings);
++                                     Object.keys(settings).forEach(key => {
++                                         if (this.userSettings.hasOwnProperty(key)) {
++                                             this.userSettings[key] = settings[key];
++                                         }
++                                     });
++                                 }
+                              }
+                          } catch (error) {
+```
+
+---
+
+Finally, let's make sure the settings are properly initialized when the modal is opened:
+
+---
+
+```diff
+                              });
+                          });
+-                     },
+- 
+-                     // Add function to download saved PDF
+-                     async downloadSavedPdf(pdfData, fileName) {
+-                         try {
+-                             const link = document.createElement('a');
+-                             link.href = pdfData;
+-                             link.download = fileName;
+-                             document.body.appendChild(link);
+-                             link.click();
+-                             document.body.removeChild(link);
+-                         } catch (error) {
+-                             this.showToast('Viga PDF allalaadimisel: ' + error.message, 'error');
+-                         }
+-                     },
+- 
+-                     // Add function to clear PDF history
+-                     async clearPdfHistory() {
+-                         if (!confirm('Kas olete kindel, et soovite kogu PDF ajaloo kustutada?')) return;
+- 
+-                         try {
+-                             if (window.currentUser) {
+-                                 const { doc, setDoc } = window.firestoreFunctions;
+-                                 const userRef = doc(window.db, "users", window.currentUser.uid);
+-                                 await setDoc(userRef, {
+-                                     pdfHistory: []
+-                                 }, { merge: true });
+- 
+-                                 this.userSettings.generatedPdfs = [];
+-                                 this.showToast('PDF ajalugu kustutatud', 'success');
+-                             }
+-                         } catch (error) {
+-                             this.showToast('Viga PDF ajaloo kustutamisel: ' + error.message, 'error');
++ 
++                         // Add watcher for settings modal
++                         this.$watch('showSettingsModal', (value) => {
++                             if (value) {
++                                 console.log('Settings modal opened, loading basic data fields');
++                                 this.loadBasicDataFields();
+                              }
++                         });
+                      },
+  
+-                     // Update the tab click handler
+-                     handleTabClick(tab) {
+-                         console.log('Tab clicked:', tab);
+-                         this.activeTab = tab;
+-                         if (tab === 'history') {
+-                             console.log('Loading PDF history for history tab');
+-                             this.loadPdfHistory();
+-                         } else if (tab === 'settings') {
+-                             console.log('Loading basic data fields for settings tab');
+-                             this.loadBasicDataFields();
++                     // Add function to download saved PDF
+                  }
+              },
+                  try {
+                      console.log('Loading basic data fields...');
+-                             if (window.currentUser && window.userData) {
++                     if(window.currentUser && window.userData) {
+                  console.log('Current user:', window.currentUser);
+                  console.log('User data:', window.userData);
+```
+
+---
+
+Let me fix those linter errors:
+
+---
+
+```diff
+  
+                      // Add function to download saved PDF
++                     async downloadSavedPdf(pdfData, fileName) {
++                         try {
++                             const link = document.createElement('a');
++                             link.href = pdfData;
++                             link.download = fileName;
++                             document.body.appendChild(link);
++                             link.click();
++                             document.body.removeChild(link);
++                         } catch (error) {
++                             this.showToast('Viga PDF allalaadimisel: ' + error.message, 'error');
++                         }
++                     },
++ 
++                     // Add function to clear PDF history
++                     async clearPdfHistory() {
++                         if (!confirm('Kas olete kindel, et soovite kogu PDF ajaloo kustutada?')) return;
++ 
++                         try {
++                             if (window.currentUser) {
++                                 const { doc, setDoc } = window.firestoreFunctions;
++                                 const userRef = doc(window.db, "users", window.currentUser.uid);
++                                 await setDoc(userRef, {
++                                     pdfHistory: []
++                                 }, { merge: true });
++ 
++                                 this.userSettings.generatedPdfs = [];
++                                 this.showToast('PDF ajalugu kustutatud', 'success');
++                             }
++                         } catch (error) {
++                             this.showToast('Viga PDF ajaloo kustutamisel: ' + error.message, 'error');
++                         }
++                     },
++ 
++                     // Update the tab click handler
++                     handleTabClick(tab) {
++                         console.log('Tab clicked:', tab);
++                         this.activeTab = tab;
++                         if (tab === 'history') {
++                             console.log('Loading PDF history for history tab');
++                             this.loadPdfHistory();
++                         } else if (tab === 'settings') {
++                             console.log('Loading basic data fields for settings tab');
++                             this.loadBasicDataFields();
++                         }
++                     },
+                  }
+              },
+```
+
+---
+
+I've made several changes to fix the issues with the settings modal and basic data fields:
+
+1. Added a watcher for the `activeTab` to load basic data fields when switching to the "Põhiandmed" tab
+2. Updated the `loadBasicDataFields` function to use the global user data instead of making redundant Firestore calls
+3. Added a watcher for `showSettingsModal` to load basic data fields when the modal is opened
+4. Fixed the tab click handler to properly handle tab switching
+
+These changes should ensure that:
+1. Basic data fields are loaded when opening the settings modal
+2. Basic data fields are reloaded when switching to the "Põhiandmed" tab
+3. The data is loaded from the global state (window.userData) which is more efficient than making new Firestore calls
+
+Try opening the settings modal now and switching to the "Põhiandmed" tab - it should properly display your saved settings. Let me know if you still see any issues!
 
 ---
 

@@ -743,11 +743,106 @@ Ah yes, I see the issue. We have both a button showing the selected text AND a s
 
 ---
 
-Cancelled
+```diff
+  
+                          <!-- Role dropdown -->
+-                         <div x-data="{ roleOpen: false }" @click.away="roleOpen = false" class="relative">
++                         <div x-data="{ roleOpen: false, selectedRole: '' }" @click.away="roleOpen = false" class="relative">
+                              <label class="block text-sm font-medium text-gray-700">Roll</label>
+                              <button @click="roleOpen = !roleOpen" type="button"
+                                  class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+-                                 <span x-text="$refs.roleSelect.options[$refs.roleSelect.selectedIndex].text">Kõik
+-                                     rollid</span>
++                                 <span x-text="selectedRole || 'Kõik rollid'">Kõik rollid</span>
+                                  <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+-                                     <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+-                                         viewBox="0 0 20 20" fill="currentColor">
+-                                         <path fill-rule="evenodd"
+-                                             d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+-                                             clip-rule="evenodd" />
++                                     <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
++                                         <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                      </svg>
+                                  </span>
+                              </button>
+-                             <div x-show="roleOpen" x-transition
++                             <div x-show="roleOpen" x-cloak x-transition
+                                  class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+-                                 <select x-ref="roleSelect" id="roleFilter" @change="roleOpen = false"
+-                                     class="w-full h-full bg-transparent border-0 focus:ring-0">
+-                                     <option value="">Kõik rollid</option>
+-                                     <option value="mainAdmin">Peaadministraator</option>
+-                                     <option value="admin">Administraator</option>
+-                                     <option value="omUser">Ostumaailm Kasutaja</option>
+-                                     <option value="hmUser">Hankemaailm Kasutaja</option>
+-                                     <option value="user">Tavakasutaja</option>
+-                                 </select>
++                                 <button @click="selectedRole = 'Kõik rollid'; roleOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Kõik rollid</button>
++                                 <button @click="selectedRole = 'Peaadministraator'; roleOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Peaadministraator</button>
++                                 <button @click="selectedRole = 'Administraator'; roleOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Administraator</button>
++                                 <button @click="selectedRole = 'Ostumaailm Kasutaja'; roleOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ostumaailm Kasutaja</button>
++                                 <button @click="selectedRole = 'Hankemaailm Kasutaja'; roleOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Hankemaailm Kasutaja</button>
++                                 <button @click="selectedRole = 'Tavakasutaja'; roleOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Tavakasutaja</button>
+                              </div>
+                          </div>
+  
+                          <!-- Status dropdown -->
+-                         <div x-data="{ statusOpen: false }" @click.away="statusOpen = false" class="relative">
++                         <div x-data="{ statusOpen: false, selectedStatus: '' }" @click.away="statusOpen = false" class="relative">
+                              <label class="block text-sm font-medium text-gray-700">Olek</label>
+                              <button @click="statusOpen = !statusOpen" type="button"
+                                  class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+-                                 <span x-text="$refs.statusSelect.options[$refs.statusSelect.selectedIndex].text">Kõik
+-                                     olekud</span>
++                                 <span x-text="selectedStatus || 'Kõik olekud'">Kõik olekud</span>
+                                  <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+-                                     <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+-                                         viewBox="0 0 20 20" fill="currentColor">
+-                                         <path fill-rule="evenodd"
+-                                             d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+-                                             clip-rule="evenodd" />
++                                     <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
++                                         <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                      </svg>
+                                  </span>
+                              </button>
+-                             <div x-show="statusOpen" x-transition
++                             <div x-show="statusOpen" x-cloak x-transition
+                                  class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+-                                 <select x-ref="statusSelect" id="statusFilter" @change="statusOpen = false"
+-                                     class="w-full h-full bg-transparent border-0 focus:ring-0">
+-                                     <option value="">Kõik olekud</option>
+-                                     <option value="active">Aktiivne</option>
+-                                     <option value="inactive">Mitteaktiivne</option>
+-                                     <option value="pending">Ootel</option>
+-                                 </select>
++                                 <button @click="selectedStatus = 'Kõik olekud'; statusOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Kõik olekud</button>
++                                 <button @click="selectedStatus = 'Aktiivne'; statusOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Aktiivne</button>
++                                 <button @click="selectedStatus = 'Mitteaktiivne'; statusOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mitteaktiivne</button>
++                                 <button @click="selectedStatus = 'Ootel'; statusOpen = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ootel</button>
+                              </div>
+                          </div>
+```
 
 ---
 
+I've made several important changes:
 
+1. Removed the `select` elements completely and replaced them with button lists
+2. Added `selectedRole` and `selectedStatus` to store the selected values
+3. Each button now updates the selected value and closes the dropdown
+4. Simplified the display logic to use the selected value or default text
+5. Added proper hover states for the buttons
+6. Added `x-cloak` to prevent flash of content
+
+Now the dropdowns should:
+1. Show only one level of options
+2. Update the selected value properly
+3. Close when an option is selected
+4. Have proper hover states
+5. Maintain all the functionality
+
+The dropdowns should now work as expected without any duplicate options. Let me know if you need any adjustments!
 
 ---
 

@@ -4243,7 +4243,80 @@ the pdf preview has to text Eelvaade and REaalajas, lets just combine them to on
 
 _**Assistant**_
 
+Let's fix both issues - combining the "Eelvaade" and "Reaalajas" text, and fixing the white border around the form:
 
+---
+
+Read file: ostu/om.html
+
+---
+
+Let's make both changes:
+
+---
+
+```diff
+                  <div class="sticky top-24">
+                      <div class="flex items-center mb-4">
+-                         <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
++                         <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                              <i class="fas fa-eye text-indigo-600"></i>
+                          </div>
+-                         <h2 class="text-xl font-bold text-gray-800">Eelvaade</h2>
+-                         <div class="ml-auto">
+-                             <span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
+-                                 <i class="fas fa-bolt mr-1"></i> Reaalajas
+-                             </span>
+-                         </div>
++                         <h2 class="text-lg font-bold text-gray-800">Reaalajas eelvaade</h2>
+                      </div>
+  
+                      <div id="pdfPreview"
+-                         class="card space-y-6 min-h-[70vh] max-h-[80vh] overflow-auto backdrop-blur-md transition-all scroll-smooth">
++                         class="border-0 card space-y-6 min-h-[70vh] max-h-[80vh] overflow-auto backdrop-blur-md transition-all scroll-smooth">
+                          <!-- Header -->
+                          <div
+```
+
+---
+
+Now let's also fix the PDF Preview styles to ensure it doesn't have any unwanted borders:
+
+---
+
+Read file: ostu/om.html
+
+---
+
+Let's update the #pdfPreview CSS to remove the border:
+
+---
+
+```diff
+  
+          #pdfPreview {
+-             @apply bg-white/50 backdrop-blur-lg rounded-2xl shadow-xl border border-white/30 !important;
++             @apply bg-white/50 backdrop-blur-lg rounded-2xl shadow-xl !important;
+          }
+  
+```
+
+---
+
+Perfect! I've made both changes you requested:
+
+1. **Combined "Eelvaade" and "Reaalajas" text**:
+   - Merged the two labels into "Reaalajas eelvaade"
+   - Reduced the size of the text from "text-xl" to "text-lg"
+   - Made the icon smaller and more proportional (from w-10/h-10 to w-8/h-8)
+   - Removed the separate badge with "Reaalajas" text and bolt icon for a cleaner look
+
+2. **Fixed the white border around the PDF preview**:
+   - Added "border-0" class to override any border settings
+   - Removed "border border-white/30" from the #pdfPreview CSS rule
+   - Left the shadow and rounded corners for visual definition
+
+These changes make the preview section cleaner and more streamlined while maintaining good visual hierarchy and readability. The PDF preview no longer has a distracting white border, giving it a more seamless appearance that better matches the overall design.
 
 ---
 

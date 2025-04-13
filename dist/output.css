@@ -194,9 +194,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .inset-0 {
   inset: calc(var(--spacing) * 0);
 }
-.inset-2 {
-  inset: calc(var(--spacing) * 2);
-}
 .inset-50 {
   inset: calc(var(--spacing) * 50);
 }
@@ -208,9 +205,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .top-0\.5 {
   top: calc(var(--spacing) * 0.5);
-}
-.top-1 {
-  top: calc(var(--spacing) * 1);
 }
 .top-1\/2 {
   top: calc(1/2 * 100%);
@@ -274,9 +268,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .left-0\.5 {
   left: calc(var(--spacing) * 0.5);
-}
-.left-1 {
-  left: calc(var(--spacing) * 1);
 }
 .left-1\/2 {
   left: calc(1/2 * 100%);
@@ -533,23 +524,14 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .table-row-group {
   display: table-row-group;
 }
-.h-0 {
-  height: calc(var(--spacing) * 0);
-}
 .h-0\.5 {
   height: calc(var(--spacing) * 0.5);
 }
 .h-1 {
   height: calc(var(--spacing) * 1);
 }
-.h-2 {
-  height: calc(var(--spacing) * 2);
-}
 .h-2\.5 {
   height: calc(var(--spacing) * 2.5);
-}
-.h-3 {
-  height: calc(var(--spacing) * 3);
 }
 .h-3\.5 {
   height: calc(var(--spacing) * 3.5);
@@ -631,12 +613,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .w-1\/2 {
   width: calc(1/2 * 100%);
-}
-.w-2 {
-  width: calc(var(--spacing) * 2);
-}
-.w-3 {
-  width: calc(var(--spacing) * 3);
 }
 .w-3\.5 {
   width: calc(var(--spacing) * 3.5);
@@ -788,10 +764,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .origin-top-left {
   transform-origin: top left;
 }
-.-translate-x-1 {
-  --tw-translate-x: calc(var(--spacing) * -1);
-  translate: var(--tw-translate-x) var(--tw-translate-y);
-}
 .-translate-x-1\/2 {
   --tw-translate-x: calc(calc(1/2 * 100%) * -1);
   translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -802,10 +774,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .translate-x-0 {
   --tw-translate-x: calc(var(--spacing) * 0);
-  translate: var(--tw-translate-x) var(--tw-translate-y);
-}
-.-translate-y-1 {
-  --tw-translate-y: calc(var(--spacing) * -1);
   translate: var(--tw-translate-x) var(--tw-translate-y);
 }
 .-translate-y-1\/2 {
@@ -880,12 +848,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
-.grid-cols-2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.grid-cols-3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
 .grid-cols-5 {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
@@ -940,14 +902,8 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .gap-6 {
   gap: calc(var(--spacing) * 6);
 }
-.gap-7 {
-  gap: calc(var(--spacing) * 7);
-}
 .gap-8 {
   gap: calc(var(--spacing) * 8);
-}
-.gap-26 {
-  gap: calc(var(--spacing) * 26);
 }
 .space-y-0 {
   :where(& > :not(:last-child)) {
@@ -1060,11 +1016,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     border-top-style: var(--tw-border-style);
     border-top-width: calc(1px * var(--tw-divide-y-reverse));
     border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
-  }
-}
-.divide-gray-100 {
-  :where(& > :not(:last-child)) {
-    border-color: var(--color-gray-100);
   }
 }
 .divide-gray-100\/70 {
@@ -1301,9 +1252,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .bg-emerald-500 {
   background-color: var(--color-emerald-500);
 }
-.bg-emerald-600 {
-  background-color: var(--color-emerald-600);
-}
 .bg-emerald-600\/90 {
   background-color: color-mix(in oklab, var(--color-emerald-600) 90%, transparent);
 }
@@ -1455,10 +1403,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .from-blue-50 {
   --tw-gradient-from: var(--color-blue-50);
-  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-}
-.from-blue-300 {
-  --tw-gradient-from: var(--color-blue-300);
   --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
 }
 .from-blue-300\/40 {
@@ -2120,26 +2064,14 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentColor);
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
-.shadow-blue-500 {
-  --tw-shadow-color: var(--color-blue-500);
-}
 .shadow-blue-500\/20 {
   --tw-shadow-color: color-mix(in oklab, var(--color-blue-500) 20%, transparent);
-}
-.shadow-green-500 {
-  --tw-shadow-color: var(--color-green-500);
 }
 .shadow-green-500\/20 {
   --tw-shadow-color: color-mix(in oklab, var(--color-green-500) 20%, transparent);
 }
-.shadow-indigo-500 {
-  --tw-shadow-color: var(--color-indigo-500);
-}
 .shadow-indigo-500\/30 {
   --tw-shadow-color: color-mix(in oklab, var(--color-indigo-500) 30%, transparent);
-}
-.shadow-red-500 {
-  --tw-shadow-color: var(--color-red-500);
 }
 .shadow-red-500\/20 {
   --tw-shadow-color: color-mix(in oklab, var(--color-red-500) 20%, transparent);
@@ -3043,14 +2975,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
-.hover\:from-indigo-700 {
-  &:hover {
-    @media (hover: hover) {
-      --tw-gradient-from: var(--color-indigo-700);
-      --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-    }
-  }
-}
 .hover\:from-red-600 {
   &:hover {
     @media (hover: hover) {
@@ -3103,14 +3027,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       --tw-gradient-to: var(--color-indigo-700);
-      --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-    }
-  }
-}
-.hover\:to-indigo-800 {
-  &:hover {
-    @media (hover: hover) {
-      --tw-gradient-to: var(--color-indigo-800);
       --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
     }
   }
@@ -3413,11 +3329,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .focus\:ring-red-400 {
   &:focus {
     --tw-ring-color: var(--color-red-400);
-  }
-}
-.focus\:ring-red-500 {
-  &:focus {
-    --tw-ring-color: var(--color-red-500);
   }
 }
 .focus\:ring-violet-500 {

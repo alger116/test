@@ -1554,11 +1554,144 @@ Let me update the CSS file to properly integrate these styles:
 
 ---
 
-Cancelled
+```diff
+  @import "tailwindcss/preflight";
+  
++ @tailwind base;
++ @tailwind components;
+  @tailwind utilities;
+- @import "tailwindcss";
+- 
+- @layer theme;
++ 
++ @layer base {
++   body {
++     @apply font-['Inter'] leading-relaxed;
++   }
++ }
+  
+  @layer components {
+-   optgroup {
+-     @apply font-bold text-gray-700;
++   .card {
++     @apply bg-white/85 rounded-2xl shadow-lg p-[18px] transition-all duration-300 backdrop-blur-md;
+    }
+-   .container {
+-     @apply max-w-4xl mx-auto p-4;
+- 
+-     header,
+-     footer {
+-       @apply text-sm p-2;
+-     }
++ 
++   .card:hover {
++     @apply shadow-xl transform -translate-y-1;
+    }
+  
+  
+    .toast-success {
+-     background-color: var(--success-color);
+-     @apply shadow-lg rounded-xl shadow-green-500/20;
++     @apply bg-green-500 text-white shadow-lg rounded-xl shadow-green-500/20;
+    }
+  
+    .toast-error {
+-     background-color: var(--error-color);
+-     @apply shadow-lg rounded-xl shadow-red-500/20;
++     @apply bg-red-500 text-white shadow-lg rounded-xl shadow-red-500/20;
+    }
+  
+    .toast-info {
+-     background-color: var(--info-color);
+-     @apply shadow-lg rounded-xl shadow-blue-500/20;
++     @apply bg-blue-500 text-white shadow-lg rounded-xl shadow-blue-500/20;
+    }
+  
+```
 
 ---
 
+Let me fix those linter errors by adjusting the Tailwind directives for v4:
 
+
+---
+
+```diff
+  @import "tailwindcss/preflight";
+- 
+- @tailwind base;
+- @tailwind components;
+  @tailwind utilities;
+  
+```
+
+---
+
+Now let's run the build to make sure everything works:
+
+
+---
+
+```bash
+npm run build:tailwind
+```
+
+```
+viljarpartel@Mac test % npm run build:tailwind
+
+> testdraftcopy@1.0.0 build:tailwind
+> npx tailwindcss -i src/styles/input.css -o dist/output.css --minify
+
+Error: Cannot apply unknown utility class: leading-relaxed
+viljarpartel@Mac test %
+```
+
+---
+
+Let me fix the line height utility class:
+
+
+---
+
+```diff
+  @layer base {
+    body {
+-     @apply font-['Inter'] leading-relaxed;
++     @apply font-['Inter'] leading-normal;
+    }
+  }
+```
+
+---
+
+Let's try the build again:
+
+
+
+---
+
+```bash
+npm run build:tailwind
+```
+
+```
+viljarpartel@Mac test % npm run build:tailwind
+
+> testdraftcopy@1.0.0 build:tailwind
+> npx tailwindcss -i src/styles/input.css -o dist/output.css --minify
+
+Error: Cannot apply unknown utility class: leading-normal
+viljarpartel@Mac test %
+```
+
+---
+
+Let me check the Tailwind configuration to see what line height utilities are available:
+
+
+---
+
+Read file: tailwind.config.js
 
 ---
 

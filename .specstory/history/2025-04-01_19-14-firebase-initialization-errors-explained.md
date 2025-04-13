@@ -1556,11 +1556,47 @@ Let's completely rewrite the password reset function and its surrounding code:
 
 ---
 
-Cancelled
+
+
+---
+
+Let's try a more targeted approach:
+
+---
+
+```bash
+cd /Users/viljarpartel/Desktop/test && grep -n "<window.resetUserPassword" auth/admin.html
+```
+
+```
+< grep -n "<window.resetUserPassword" auth/admin.html
+750:                    <window.resetUserPassword=async (userId)=> {
+viljarpartel@Mac test %
+```
+
+---
+
+Now let's edit just that specific line:
 
 ---
 
 
+
+---
+
+Let's try creating a new file with the correct code to compare against:
+
+---
+
+Cancelled
+
+---
+
+Let's try to delete and rewrite the problematic section:
+
+---
+
+Cancelled
 
 ---
 
