@@ -230,6 +230,49 @@
         @apply ml-4;
       }
     }
+
+    /* Add these styles to ensure modal visibility */
+    #tableModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+    }
+
+    #tableModal.hidden {
+      display: none;
+    }
+
+    #tableModal:not(.hidden) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Add these styles for editable table headers */
+    th[contenteditable="true"] {
+      cursor: text;
+      transition: all 0.2s ease;
+    }
+
+    th[contenteditable="true"]:hover {
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+
+    th[contenteditable="true"]:focus {
+      background-color: rgba(99, 102, 241, 0.1);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    th[contenteditable="true"]:empty:before {
+      content: attr(data-placeholder);
+      color: #9CA3AF;
+    }
   </style>
 
   <script type="module">
@@ -2577,29 +2620,55 @@
       const exportPdf = document.getElementById("exportPdfBtn");
       const saveTable = document.getElementById("saveTableBtn");
       const previewBtn = document.getElementById("previewBtn");
+      const columnCount = document.getElementById("columnCount");
+      const rowCount = document.getElementById("rowCount");
 
       // Preview modal elements
       const previewModal = document.getElementById("previewModal");
       const previewContent = document.getElementById("previewContent");
       const closePreviewBtn = document.getElementById("closePreviewBtn");
 
-      openBtn.onclick = () => modal.classList.remove("hidden");
-      closeBtn.onclick = () => modal.classList.add("hidden");
-      closePreviewBtn.onclick = () => previewModal.classList.add("hidden");
+      // Initialize table with default values
+      function initializeTable() {
+        console.log("Initializing table...");
+        const cols = parseInt(columnCount.value) || 3;
+        const rows = parseInt(rowCount.value) || 5;
 
-      // Function to add delete buttons to rows and columns
+        // Clear existing table
+        document.getElementById("tableHead").innerHTML = "";
+        document.getElementById("tableBody").innerHTML = "";
+
+        // Add headers
+        const headerRow = document.createElement("tr");
+        for (let i = 0; i < cols; i++) {
+          const th = document.createElement("th");
+          th.className = "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider group relative";
+          th.contentEditable = "true";
+          th.setAttribute("data-placeholder", "Sisesta veeru nimi");
+          th.textContent = `Veerg ${i + 1}`;
+          headerRow.appendChild(th);
+        }
+        document.getElementById("tableHead").appendChild(headerRow);
+
+        // Add rows
+        for (let i = 0; i < rows; i++) {
+          addTableRow();
+        }
+
+        addDeleteButtons();
+      }
+
+      // Add delete buttons to rows and columns
       function addDeleteButtons() {
         // Add delete buttons to rows
         const rows = document.querySelectorAll("#tableBody tr");
         rows.forEach((row) => {
           if (!row.querySelector(".delete-row")) {
             const deleteCell = document.createElement("td");
-            deleteCell.className =
-              "w-10 p-3 opacity-0 group-hover:opacity-100";
+            deleteCell.className = "w-10 p-3 opacity-0 group-hover:opacity-100";
             const deleteBtn = document.createElement("button");
-            deleteBtn.className =
-              "delete-row text-red-500 hover:text-red-700";
-            deleteBtn.textContent = "✕";
+            deleteBtn.className = "delete-row text-red-500 hover:text-red-700";
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
             deleteBtn.onclick = () => row.remove();
             deleteCell.appendChild(deleteBtn);
             row.appendChild(deleteCell);
@@ -2611,14 +2680,12 @@
         headers.forEach((header, index) => {
           if (!header.querySelector(".delete-col")) {
             const deleteBtn = document.createElement("button");
-            deleteBtn.className =
-              "delete-col absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100";
-            deleteBtn.textContent = "✕";
+            deleteBtn.className = "delete-col absolute right-2 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100";
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
             deleteBtn.onclick = () => {
-              // Remove column from all rows
               const rows = document.querySelectorAll("#tableBody tr");
               rows.forEach((row) => {
-                const cells = row.querySelectorAll("td:not(.w-10)");
+                const cells = row.querySelectorAll("td:not(.delete-row)");
                 if (cells[index]) cells[index].remove();
               });
               header.remove();
@@ -2628,11 +2695,64 @@
         });
       }
 
+      // Add a new row to the table
+      function addTableRow() {
+        const row = document.createElement("tr");
+        row.className = "group hover:bg-gray-50";
+        const cols = document.querySelectorAll("#tableHead th").length;
+
+        for (let i = 0; i < cols; i++) {
+          const td = document.createElement("td");
+          td.contentEditable = "true";
+          td.className = "px-4 py-3 text-left border-b border-gray-200";
+          row.appendChild(td);
+        }
+
+        document.getElementById("tableBody").appendChild(row);
+        addDeleteButtons();
+      }
+
+      // Event listeners
+      openBtn.onclick = () => {
+        console.log("Open button clicked");
+        modal.classList.remove("hidden");
+        initializeTable();
+      };
+
+      closeBtn.onclick = () => modal.classList.add("hidden");
+      closePreviewBtn.onclick = () => previewModal.classList.add("hidden");
+
+      columnCount.addEventListener("change", initializeTable);
+      rowCount.addEventListener("change", initializeTable);
+
+      addColumn.onclick = () => {
+        const head = document.getElementById("tableHead");
+        const rows = document.querySelectorAll("#tableBody tr");
+        const columnIndex = head.children[0].children.length;
+
+        const th = document.createElement("th");
+        th.className = "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider group relative";
+        th.contentEditable = "true";
+        th.setAttribute("data-placeholder", "Sisesta veeru nimi");
+        th.textContent = `Veerg ${columnIndex + 1}`;
+        head.children[0].appendChild(th);
+
+        rows.forEach((row) => {
+          const td = document.createElement("td");
+          td.contentEditable = "true";
+          td.className = "px-4 py-3 text-left border-b border-gray-200";
+          td.textContent = "";
+          row.insertBefore(td, row.lastElementChild);
+        });
+
+        addDeleteButtons();
+      };
+
+      addRow.onclick = () => addTableRow();
+
       // Show preview
       previewBtn.onclick = () => {
-        const element = document
-          .getElementById("dynamicTable")
-          .cloneNode(true);
+        const element = document.getElementById("dynamicTable").cloneNode(true);
         const title = document.getElementById("tableTitle").value;
         previewContent.innerHTML = `<h2 class="text-xl font-bold mb-4">${title}</h2>`;
         previewContent.appendChild(element);
@@ -2642,12 +2762,18 @@
       // Save to Firestore
       saveTable.onclick = async () => {
         if (!auth.currentUser) {
-          alert("Palun logi sisse, et tabelit salvestada");
+          showToast("Palun logi sisse, et tabelit salvestada", "error");
+          return;
+        }
+
+        const title = document.getElementById("tableTitle").value.trim();
+        if (!title) {
+          showToast("Palun sisesta tabeli pealkiri", "error");
           return;
         }
 
         const tableData = {
-          title: document.getElementById("tableTitle").value,
+          title,
           headers: [...document.querySelectorAll("#tableHead th")].map((th) =>
             th.textContent.replace("❌", "").trim(),
           ),
@@ -2662,57 +2788,15 @@
 
         try {
           await addDoc(collection(db, "tables"), tableData);
-          alert("Tabel salvestatud edukalt!");
+          showToast("Tabel salvestatud edukalt!", "success");
+          modal.classList.add("hidden");
         } catch (error) {
           console.error("Error saving table:", error);
-          alert("Viga tabeli salvestamisel");
+          showToast("Viga tabeli salvestamisel", "error");
         }
       };
 
-      // Initialize delete buttons
-      addDeleteButtons();
-
-      // ➕ Lisa veerg
-      addColumn.onclick = () => {
-        const head = document.getElementById("tableHead");
-        const rows = document.querySelectorAll("#tableBody tr");
-
-        const th = document.createElement("th");
-        th.className =
-          "border border-gray-200 p-3 text-left font-semibold text-gray-700 relative";
-        th.textContent = `Veerg ${head.children.length + 1}`;
-        head.appendChild(th);
-
-        rows.forEach((row) => {
-          const td = document.createElement("td");
-          td.contentEditable = "true";
-          td.className = "border border-gray-200 p-3 text-left";
-          td.textContent = "";
-          // Insert before the delete button cell
-          row.insertBefore(td, row.lastElementChild);
-        });
-
-        addDeleteButtons();
-      };
-
-      // ➕ Lisa rida
-      addRow.onclick = () => {
-        const row = document.createElement("tr");
-        row.className = "group hover:bg-gray-50";
-        const cols = document.querySelectorAll("#tableHead th").length;
-
-        for (let i = 0; i < cols; i++) {
-          const td = document.createElement("td");
-          td.contentEditable = "true";
-          td.className = "border border-gray-200 p-3 text-left";
-          row.appendChild(td);
-        }
-
-        document.getElementById("tableBody").appendChild(row);
-        addDeleteButtons();
-      };
-
-      // 📥 Ekspordi Excel
+      // Export to Excel
       exportExcel.onclick = () => {
         const wb = XLSX.utils.book_new();
         const data = [];
@@ -2726,9 +2810,9 @@
         data.push(headers);
 
         document.querySelectorAll("#tableBody tr").forEach((row) => {
-          const rowData = [
-            ...row.querySelectorAll("td:not(.delete-row)"),
-          ].map((td) => td.textContent.trim());
+          const rowData = [...row.querySelectorAll("td:not(.delete-row)")].map(
+            (td) => td.textContent.trim(),
+          );
           data.push(rowData);
         });
 
@@ -2737,27 +2821,38 @@
         XLSX.writeFile(wb, "tabel.xlsx");
       };
 
-      // 📄 Ekspordi PDF
+      // Export to PDF
       exportPdf.onclick = () => {
-        const element = document
-          .getElementById("dynamicTable")
-          .cloneNode(true);
+        const element = document.getElementById("dynamicTable").cloneNode(true);
         const title = document.getElementById("tableTitle").value;
         const container = document.createElement("div");
         container.innerHTML = `<h2 class="text-xl font-bold mb-4">${title}</h2>`;
         container.appendChild(element);
 
-        html2pdf()
-          .set({
-            filename: "tabel.pdf",
-            margin: 10,
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-          })
-          .from(container)
-          .save();
+        const opt = {
+          margin: 1,
+          filename: "tabel.pdf",
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        };
+
+        html2pdf().set(opt).from(container).save();
       };
+
+      // Toast notification function
+      function showToast(message, type = "info") {
+        const toast = document.createElement("div");
+        toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white shadow-lg transition-all duration-300 ${type === "success" ? "bg-green-500" : type === "error" ? "bg-red-500" : "bg-blue-500"
+          }`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.classList.add("opacity-0");
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
     });
   </script>
 
@@ -3844,91 +3939,124 @@
 
 
 <!-- Tabeli modal -->
-<div id="tableModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50">
-  <div class="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl p-6">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold text-gray-900">
-          📊 Esildise koostamine
-        </h2>
-        <button id="closeTableModal" class="text-gray-500 hover:text-red-600 transition">
+<div id="tableModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+    <div class="p-6 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h3 class="text-2xl font-bold text-gray-900">Loo uus tabel</h3>
+        <button id="closeTableModal" class="text-gray-500 hover:text-gray-700">
           <i class="fas fa-times text-xl"></i>
         </button>
       </div>
+    </div>
 
-      <!-- Tabeli pealkiri -->
-      <input type="text" id="tableTitle" placeholder="Tabeli pealkiri..."
-        class="w-full px-5 py-3 bg-gray-50 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-400 focus:outline-none mb-6" />
+    <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+      <div class="space-y-6">
+        <!-- Table Title -->
+        <div>
+          <label for="tableTitle" class="block text-sm font-medium text-gray-700 mb-2">Tabeli pealkiri</label>
+          <input type="text" id="tableTitle" placeholder="Sisesta tabeli pealkiri"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200">
+        </div>
 
-      <!-- Tabel -->
-      <div class="overflow-x-auto mb-6">
-        <table id="dynamicTable" class="min-w-full text-sm text-left border border-gray-200">
-          <thead>
-            <tr id="tableHead">
-              <th contenteditable="true"
-                class="p-3 border border-gray-200 bg-gray-50 text-left font-semibold text-gray-700">
-                Veerg 1
-              </th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr class="hover:bg-gray-50 group">
-              <td contenteditable="true" class="p-3 border border-gray-200 focus:outline-none">
-                Andmed 1
-              </td>
-              <td class="w-10 text-center opacity-0 group-hover:opacity-100">
-                <button class="delete-row text-red-500 hover:text-red-700">
-                  ✖
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Table Customization -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Veergude arv</label>
+            <input type="number" id="columnCount" min="1" max="10" value="3"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Ridade arv</label>
+            <input type="number" id="rowCount" min="1" max="50" value="5"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200">
+          </div>
+        </div>
+
+        <!-- Table Preview -->
+        <div class="mt-6">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-lg font-medium text-gray-900">Tabeli eelvaade</h4>
+            <div class="flex space-x-2">
+              <button id="addColumn"
+                class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors">
+                <i class="fas fa-plus mr-1"></i> Lisa veerg
+              </button>
+              <button id="addRow"
+                class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors">
+                <i class="fas fa-plus mr-1"></i> Lisa rida
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table id="dynamicTable" class="min-w-full divide-y divide-gray-200">
+              <thead id="tableHead" class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider group relative">
+                    Veerg 1
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider group relative">
+                    Veerg 2
+                  </th>
+                  <th
+                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider group relative">
+                    Veerg 3
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="tableBody" class="bg-white divide-y divide-gray-200">
+                <!-- Rows will be added here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <!-- Lisa read / veerud -->
-      <div class="flex gap-4 mb-6">
-        <button id="addColumn" class="px-4 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 transition">
-          ➕ Veerg
-        </button>
-        <button id="addRow" class="px-4 py-2 rounded-lg bg-green-100 hover:bg-green-200 transition">
-          ➕ Rida
-        </button>
-      </div>
-
-      <!-- Ekspordi nupud -->
-      <div class="flex flex-wrap gap-4">
-        <button id="previewBtn" class="btn px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600">
-          👁️ Eelvaade
-        </button>
-        <button id="saveTableBtn" class="btn px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-          💾 Salvesta
-        </button>
-        <button id="exportExcelBtn" class="btn px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-          📥 Excel
-        </button>
-        <button id="exportPdfBtn" class="btn px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-          📄 PDF
-        </button>
+    <div class="p-6 border-t border-gray-200 bg-gray-50">
+      <div class="flex items-center justify-between">
+        <div class="flex space-x-3">
+          <button id="exportExcelBtn"
+            class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+            <i class="fas fa-file-excel mr-2"></i> Ekspordi Excel
+          </button>
+          <button id="exportPdfBtn"
+            class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+            <i class="fas fa-file-pdf mr-2"></i> Ekspordi PDF
+          </button>
+        </div>
+        <div class="flex space-x-3">
+          <button id="previewBtn"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+            <i class="fas fa-eye mr-2"></i> Eelvaade
+          </button>
+          <button id="saveTableBtn"
+            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+            <i class="fas fa-save mr-2"></i> Salvesta
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Preview Modal -->
-<div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
-  <div
-    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-bold">Tabeli eelvaade</h2>
-      <button id="closePreviewBtn" class="text-gray-500 hover:text-gray-700">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+<div id="previewModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+    <div class="p-6 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h3 class="text-2xl font-bold text-gray-900">Tabeli eelvaade</h3>
+        <button id="closePreviewBtn" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
     </div>
-    <div id="previewContent" class="overflow-x-auto"></div>
+    <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+      <div id="previewContent"></div>
+    </div>
   </div>
 </div>
 

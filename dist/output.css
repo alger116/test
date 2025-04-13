@@ -605,6 +605,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .max-h-\[85vh\] {
   max-height: 85vh;
 }
+.max-h-\[90vh\] {
+  max-height: 90vh;
+}
+.max-h-\[calc\(90vh-200px\)\] {
+  max-height: calc(90vh - 200px);
+}
 .min-h-24 {
   min-height: calc(var(--spacing) * 24);
 }
@@ -1248,6 +1254,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-black\/40 {
   background-color: color-mix(in oklab, var(--color-black) 40%, transparent);
+}
+.bg-black\/50 {
+  background-color: color-mix(in oklab, var(--color-black) 50%, transparent);
 }
 .bg-black\/70 {
   background-color: color-mix(in oklab, var(--color-black) 70%, transparent);
