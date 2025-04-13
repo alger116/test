@@ -61,6 +61,50 @@
         window.onAuthStateChanged = onAuthStateChanged;
         window.serverTimestamp = serverTimestamp;
 
+        // Add permission check function
+        function hasFormPermission(userData, permission) {
+            if (!userData) return false;
+
+            // First check if user has custom permissions
+            if (userData.customPermissions && userData.customPermissions.formManagement) {
+                const customPerms = userData.customPermissions.formManagement;
+                if (customPerms[permission] !== undefined) {
+                    return customPerms[permission];
+                }
+            }
+
+            // Fallback to role-based permissions if custom permissions not set
+            if (userData.role === 'mainAdmin') {
+                return true;
+            }
+
+            // Default permissions based on role
+            const rolePermissions = {
+                'admin': {
+                    createPresets: true,
+                    viewPresets: true,
+                    editPresets: true,
+                    deletePresets: true,
+                    backupSettings: true,
+                    applyPresets: true,
+                    manageStandardFields: true
+                },
+                'tavakasutaja': {
+                    createPresets: false,
+                    viewPresets: true,
+                    editPresets: false,
+                    deletePresets: false,
+                    backupSettings: false,
+                    applyPresets: true,
+                    manageStandardFields: false
+                }
+            };
+
+            return rolePermissions[userData.role]?.[permission] || false;
+        }
+
+        window.hasFormPermission = hasFormPermission;
+
         // Add auth state listener
         onAuthStateChanged(auth, async (user) => {
             console.log("Auth state changed:", user ? "User logged in" : "No user");
@@ -77,6 +121,25 @@
                 if (userDoc.exists()) {
                     window.userData = userDoc.data();
                     console.log("User data loaded:", window.userData);
+
+                    // Check if user has any permissions
+                    if (!window.userData.customPermissions) {
+                        // Initialize permissions if they don't exist
+                        const permissions = {
+                            formManagement: {
+                                createPresets: window.userData.role === 'mainAdmin',
+                                viewPresets: true,
+                                editPresets: window.userData.role === 'mainAdmin',
+                                deletePresets: window.userData.role === 'mainAdmin',
+                                backupSettings: window.userData.role === 'mainAdmin',
+                                applyPresets: true,
+                                manageStandardFields: window.userData.role === 'mainAdmin'
+                            }
+                        };
+
+                        await updateDoc(userDocRef, { customPermissions: permissions });
+                        window.userData.customPermissions = permissions;
+                    }
                 } else {
                     console.log("No user data found, initializing with defaults");
                     window.userData = {
@@ -934,6 +997,17 @@
                         });
                 },
                 saveChanges() {
+                    if (!window.auth.currentUser) {
+                        alert("Seadete salvestamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to save settings
+                    if (!hasFormPermission(window.userData, 'backupSettings')) {
+                        alert("Teil pole õigusi seadete salvestamiseks");
+                        return;
+                    }
+
                     this.backupSettings().then(() => {
                         window.setDoc(window.doc(window.db, "formSettings", "main"), {
                             standardFields: this.standardFields,
@@ -955,6 +1029,17 @@
                     });
                 },
                 backupSettings() {
+                    if (!window.auth.currentUser) {
+                        alert("Varunduse tegemiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to backup settings
+                    if (!hasFormPermission(window.userData, 'backupSettings')) {
+                        alert("Teil pole õigusi varunduse tegemiseks");
+                        return;
+                    }
+
                     return window.setDoc(window.doc(window.db, "formSettingsBackup", "main_backup"), {
                         standardFields: this.standardFields,
                         form: this.form,
@@ -969,6 +1054,17 @@
                         });
                 },
                 addStandardField() {
+                    if (!window.auth.currentUser) {
+                        alert("Standardväljade lisamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to manage standard fields
+                    if (!hasFormPermission(window.userData, 'manageStandardFields')) {
+                        alert("Teil pole õigusi standardväljade haldamiseks");
+                        return;
+                    }
+
                     this.standardFields.push({
                         key: "",
                         label: "",
@@ -976,6 +1072,17 @@
                     });
                 },
                 removeStandardField(index) {
+                    if (!window.auth.currentUser) {
+                        alert("Standardväljade kustutamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to manage standard fields
+                    if (!hasFormPermission(window.userData, 'manageStandardFields')) {
+                        alert("Teil pole õigusi standardväljade haldamiseks");
+                        return;
+                    }
+
                     if (confirm("Kas soovid välja kustutada?")) {
                         this.standardFields.splice(index, 1);
                     }
@@ -1060,7 +1167,6 @@
                             console.error("Õiguste kontroll ebaõnnestus: ", error);
                         });
                 },
-                // Vormimalli salvestamine
                 saveFormPreset(name, description) {
                     if (!name || name.trim() === '') {
                         alert("Palun sisestage vormimalli nimi");
@@ -1068,12 +1174,13 @@
                     }
 
                     if (!window.auth.currentUser) {
-                        alert("Vormimalli salvestamiseks peate olema sisse logitud administraatorina");
+                        alert("Vormimalli salvestamiseks peate olema sisse logitud");
                         return;
                     }
 
-                    if (!window.userData || window.userData.role !== 'mainAdmin') {
-                        alert("Vormimalli salvestamine õnnestub ainult peaadministraatoril");
+                    // Check if user has permission to create presets
+                    if (!hasFormPermission(window.userData, 'createPresets')) {
+                        alert("Teil pole õigusi vormimallide loomiseks");
                         return;
                     }
 
@@ -1112,20 +1219,19 @@
                             alert("Vormimalli salvestamine ebaõnnestus: " + error.message);
                         });
                 },
-
-                // Vormimalli kustutamine
                 deleteFormPreset(presetId) {
                     if (!confirm("Kas olete kindel, et soovite selle vormimalli kustutada?")) {
                         return;
                     }
 
                     if (!window.auth.currentUser) {
-                        alert("Vormimalli kustutamiseks peate olema sisse logitud administraatorina");
+                        alert("Vormimalli kustutamiseks peate olema sisse logitud");
                         return;
                     }
 
-                    if (!window.userData || window.userData.role !== 'mainAdmin') {
-                        alert("Vormimalli kustutamine õnnestub ainult peaadministraatoril");
+                    // Check if user has permission to delete presets
+                    if (!hasFormPermission(window.userData, 'deletePresets')) {
+                        alert("Teil pole õigusi vormimallide kustutamiseks");
                         return;
                     }
 
@@ -1162,12 +1268,13 @@
                     }
 
                     if (!window.auth.currentUser) {
-                        alert("Vormimalli salvestamiseks peate olema sisse logitud administraatorina");
+                        alert("Vormimalli salvestamiseks peate olema sisse logitud");
                         return;
                     }
 
-                    if (!window.userData || window.userData.role !== 'mainAdmin') {
-                        alert("Vormimalli salvestamine õnnestub ainult peaadministraatoril");
+                    // Check if user has permission to create presets
+                    if (!hasFormPermission(window.userData, 'createPresets')) {
+                        alert("Teil pole õigusi vormimallide loomiseks");
                         return;
                     }
 
@@ -1251,6 +1358,17 @@
                 },
                 applyPreset(presetId) {
                     if (!confirm("Kas soovite rakendada selle vormimalli? See asendab praeguse vormi sisu.")) {
+                        return;
+                    }
+
+                    if (!window.auth.currentUser) {
+                        alert("Vormimalli rakendamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to apply presets
+                    if (!hasFormPermission(window.userData, 'applyPresets')) {
+                        alert("Teil pole õigusi vormimallide rakendamiseks");
                         return;
                     }
 

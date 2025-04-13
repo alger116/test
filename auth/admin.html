@@ -928,15 +928,70 @@
         </div>
 
         <!-- User Details Modal -->
-        <div id="userDetailsModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-            <div class="flex items-center justify-center min-h-screen">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-xl font-bold">Kasutaja Üksikasjad</h2>
-                    <p><strong>Email:</strong> <span id="userDetailsEmail"></span></p>
-                    <p><strong>Roll:</strong> <span id="userDetailsRole"></span></p>
-                    <p><strong>Status:</strong> <span id="userDetailsStatus"></span></p>
-                    <button onclick="closeUserDetailsModal()"
-                        class="mt-4 px-4 py-2 bg-gray-600 text-white rounded">Sulge</button>
+        <div id="userDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Kasutaja andmed</h3>
+                    <div class="mt-2 px-7 py-3">
+                        <p class="text-sm text-gray-500">E-post: <span id="userDetailsEmail" class="font-medium"></span>
+                        </p>
+                        <p class="text-sm text-gray-500">Roll: <span id="userDetailsRole" class="font-medium"></span>
+                        </p>
+                        <p class="text-sm text-gray-500">Olek: <span id="userDetailsStatus" class="font-medium"></span>
+                        </p>
+
+                        <!-- Add Permissions Section -->
+                        <div class="mt-4 border-t pt-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Vormi halduse õigused</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Vormimallide loomine</span>
+                                    <input type="checkbox" id="permCreatePresets"
+                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Vormimallide vaatamine</span>
+                                    <input type="checkbox" id="permViewPresets"
+                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Vormimallide muutmine</span>
+                                    <input type="checkbox" id="permEditPresets"
+                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Vormimallide kustutamine</span>
+                                    <input type="checkbox" id="permDeletePresets"
+                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Seadete varundamine</span>
+                                    <input type="checkbox" id="permBackupSettings"
+                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Vormimallide rakendamine</span>
+                                    <input type="checkbox" id="permApplyPresets"
+                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">Standardväljade haldamine</span>
+                                    <input type="checkbox" id="permManageStandardFields"
+                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                </div>
+                            </div>
+                            <button id="savePermissions"
+                                class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                Salvesta õigused
+                            </button>
+                        </div>
+                    </div>
+                    <div class="items-center px-4 py-3">
+                        <button id="closeUserDetails"
+                            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                            Sulge
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -981,11 +1036,14 @@
             import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
             import { getFirestore, doc, getDoc, setDoc, orderBy, collection, query, where, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove, Timestamp, onSnapshot, serverTimestamp, addDoc, limit, writeBatch } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
             import { firebaseConfig } from "./firebase-config-generated.js";
+            import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-functions.js";
 
             // Initialize Firebase
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
             const db = getFirestore(app);
+            const functions = getFunctions();
+            const initializePermissions = httpsCallable(functions, 'initializeUserPermissions');
 
             // Create a separate auth instance for user creation
             const tempAuth = getAuth(initializeApp(firebaseConfig, "temp"));
@@ -1996,6 +2054,7 @@
                                 }
                             }
 
+                            // Set main admin permissions
                             await setDoc(userRef, {
                                 email: user.email,
                                 role: "mainAdmin",
@@ -2006,8 +2065,31 @@
                                 lastLogin: new Date(),
                                 status: 'active',
                                 emailVerified: true,
-                                lastUpdated: new Date()
+                                lastUpdated: new Date(),
+                                customPermissions: {
+                                    formManagement: {
+                                        createPresets: true,
+                                        viewPresets: true,
+                                        editPresets: true,
+                                        deletePresets: true,
+                                        backupSettings: true,
+                                        applyPresets: true,
+                                        manageStandardFields: true
+                                    }
+                                }
                             }, { merge: true });
+
+                            // Initialize permissions for all users using Cloud Function
+                            try {
+                                const result = await initializePermissions();
+                                console.log("Permission initialization result:", result.data);
+                                if (result.data.success) {
+                                    alert(`Permissions initialized successfully. Updated ${result.data.updatedCount} users.`);
+                                }
+                            } catch (error) {
+                                console.error("Error initializing permissions:", error);
+                                alert("Error initializing permissions. Please try again later.");
+                            }
                         }
 
                         if (!userSnap.exists()) {
@@ -2580,6 +2662,9 @@
                         console.log("User Loaded:", userData);
 
                         const userRow = document.createElement("tr");
+                        userRow.className = "hover:bg-gray-50 cursor-pointer"; // Add hover effect and cursor
+                        userRow.onclick = () => openUserDetailsModal(docSnapshot.id, userData); // Add click handler
+
                         userRow.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap">
                             <input type="checkbox" value="${docSnapshot.id}" class="rounded text-blue-600">
@@ -2887,18 +2972,18 @@
             // Add the updateUserRole function
             window.updateUserRole = async (userId, newRole) => {
                 try {
-                    // Get current user's role
-                    const currentUserRef = doc(db, "users", auth.currentUser.uid);
-                    const currentUserDoc = await getDoc(currentUserRef);
-
-                    if (!currentUserDoc.exists()) {
-                        showNotification('Kasutaja andmed ei leitud!', 'error');
+                    // Check if current user is mainAdmin
+                    const currentUser = auth.currentUser;
+                    if (!currentUser) {
+                        showNotification("Pead olema sisse logitud!", "error");
                         return;
                     }
 
+                    const currentUserDoc = await getDoc(doc(db, "users", currentUser.uid));
                     const currentUserData = currentUserDoc.data();
+                    const isMainAdmin = currentUserData && currentUserData.role === 'mainAdmin';
 
-                    // Only main admin can change roles
+                    // Only mainAdmin can change roles
                     if (currentUserData.role !== 'mainAdmin') {
                         showNotification('Sul ei ole õigusi rollide muutmiseks!', 'error');
                         return;
@@ -3074,7 +3159,18 @@
                         emailVerified: false,
                         lastUpdated: new Date(),
                         createdBy: auth.currentUser.uid,
-                        createdByEmail: auth.currentUser.email
+                        createdByEmail: auth.currentUser.email,
+                        customPermissions: {
+                            formManagement: {
+                                createPresets: role === 'mainAdmin',
+                                viewPresets: true,
+                                editPresets: role === 'mainAdmin',
+                                deletePresets: role === 'mainAdmin',
+                                backupSettings: role === 'mainAdmin',
+                                applyPresets: true,
+                                manageStandardFields: role === 'mainAdmin'
+                            }
+                        }
                     });
 
                     // Add audit log
@@ -3140,6 +3236,20 @@
                         document.getElementById('userDetailsEmail').textContent = userData.email;
                         document.getElementById('userDetailsRole').textContent = userData.role;
                         document.getElementById('userDetailsStatus').textContent = userData.status;
+
+                        // Populate permissions checkboxes
+                        const perms = userData.customPermissions?.formManagement || {};
+                        document.getElementById('permCreatePresets').checked = perms.createPresets || false;
+                        document.getElementById('permViewPresets').checked = perms.viewPresets || false;
+                        document.getElementById('permEditPresets').checked = perms.editPresets || false;
+                        document.getElementById('permDeletePresets').checked = perms.deletePresets || false;
+                        document.getElementById('permBackupSettings').checked = perms.backupSettings || false;
+                        document.getElementById('permApplyPresets').checked = perms.applyPresets || false;
+                        document.getElementById('permManageStandardFields').checked = perms.manageStandardFields || false;
+
+                        // Store current user ID for permission updates
+                        document.getElementById('userDetailsModal').dataset.userId = userId;
+
                         // Show modal
                         document.getElementById('userDetailsModal').classList.remove('hidden');
                     } else {
@@ -3149,6 +3259,29 @@
                     console.error("Error fetching user details:", error);
                 });
             }
+
+            // Add event listener for saving permissions
+            document.getElementById('savePermissions').addEventListener('click', async function () {
+                const userId = document.getElementById('userDetailsModal').dataset.userId;
+                if (!userId) return;
+
+                const permissions = {
+                    createPresets: document.getElementById('permCreatePresets').checked,
+                    viewPresets: document.getElementById('permViewPresets').checked,
+                    editPresets: document.getElementById('permEditPresets').checked,
+                    deletePresets: document.getElementById('permDeletePresets').checked,
+                    backupSettings: document.getElementById('permBackupSettings').checked,
+                    applyPresets: document.getElementById('permApplyPresets').checked,
+                    manageStandardFields: document.getElementById('permManageStandardFields').checked
+                };
+
+                await updateUserPermissions(userId, permissions);
+            });
+
+            // Add event listener for closing user details modal
+            document.getElementById('closeUserDetails').addEventListener('click', function () {
+                document.getElementById('userDetailsModal').classList.add('hidden');
+            });
 
             // Bulk actions functions
             async function bulkApproveUsers() {
@@ -4472,6 +4605,574 @@
                 stopUpdates();
             });
 
+            // Add this function after the existing permission check functions
+            function hasFormPermission(userData, permission) {
+                // First check if user has custom permissions
+                if (userData.customPermissions && userData.customPermissions.formManagement) {
+                    const customPerms = userData.customPermissions.formManagement;
+                    if (customPerms[permission] !== undefined) {
+                        return customPerms[permission];
+                    }
+                }
+
+                // Fallback to role-based permissions if custom permissions not set
+                if (userData.role === 'mainAdmin') {
+                    return true;
+                }
+
+                // Default permissions based on role
+                const rolePermissions = {
+                    'admin': {
+                        createPresets: true,
+                        viewPresets: true,
+                        editPresets: true,
+                        deletePresets: true,
+                        backupSettings: true,
+                        applyPresets: true,
+                        manageStandardFields: true
+                    },
+                    'tavakasutaja': {
+                        createPresets: false,
+                        viewPresets: true,
+                        editPresets: false,
+                        deletePresets: false,
+                        backupSettings: false,
+                        applyPresets: true,
+                        manageStandardFields: false
+                    }
+                };
+
+                return rolePermissions[userData.role]?.[permission] || false;
+            }
+
+            // Add this function to update user permissions
+            async function updateUserPermissions(userId, permissions) {
+                try {
+                    const userRef = doc(db, "users", userId);
+                    await updateDoc(userRef, {
+                        'customPermissions.formManagement': permissions,
+                        lastUpdated: new Date()
+                    });
+
+                    // Add audit log
+                    await addDoc(collection(db, "auditLog"), {
+                        action: "permissions_updated",
+                        userId: userId,
+                        permissions: permissions,
+                        performedBy: auth.currentUser.uid,
+                        performedByEmail: auth.currentUser.email,
+                        timestamp: new Date()
+                    });
+
+                    showNotification("Õigused uuendatud edukalt!", "success");
+                    return true;
+                } catch (error) {
+                    console.error("Error updating user permissions:", error);
+                    showNotification("Viga õiguste uuendamisel!", "error");
+                    return false;
+                }
+            }
+
+            // Add this function to handle opening the user details modal
+            function openUserDetailsModal(userId, userData) {
+                const modal = document.getElementById('userDetailsModal');
+                if (!modal) return;
+
+                // Populate modal with user data
+                document.getElementById('userDetailsEmail').textContent = userData.email;
+                document.getElementById('userDetailsRole').textContent = userData.role;
+                document.getElementById('userDetailsStatus').textContent = userData.status;
+
+                // Get current permissions
+                const currentPermissions = userData.customPermissions?.formManagement || {};
+
+                // Set checkbox states based on current permissions
+                const permissions = [
+                    'createPresets',
+                    'viewPresets',
+                    'editPresets',
+                    'deletePresets',
+                    'backupSettings',
+                    'applyPresets',
+                    'manageStandardFields'
+                ];
+
+                permissions.forEach(permission => {
+                    const checkbox = document.getElementById(`permission-${permission}`);
+                    if (checkbox) {
+                        checkbox.checked = currentPermissions[permission] || false;
+                    }
+                });
+
+                // Store current user ID for saving
+                modal.dataset.userId = userId;
+
+                // Show the modal
+                modal.classList.remove('hidden');
+            }
+
+            // Add this function to save user permissions
+            async function saveUserPermissions() {
+                const modal = document.getElementById('userDetailsModal');
+                if (!modal) return;
+
+                const userId = modal.dataset.userId;
+                if (!userId) return;
+
+                // Get all permission checkboxes
+                const permissions = [
+                    'createPresets',
+                    'viewPresets',
+                    'editPresets',
+                    'deletePresets',
+                    'backupSettings',
+                    'applyPresets',
+                    'manageStandardFields'
+                ];
+
+                // Create permissions object
+                const newPermissions = {};
+                permissions.forEach(permission => {
+                    const checkbox = document.getElementById(`permission-${permission}`);
+                    if (checkbox) {
+                        newPermissions[permission] = checkbox.checked;
+                    }
+                });
+
+                try {
+                    // Update user permissions
+                    await updateUserPermissions(userId, newPermissions);
+
+                    // Close the modal
+                    closeUserDetailsModal();
+
+                    // Refresh the user list to show updated permissions
+                    loadUsers();
+                } catch (error) {
+                    console.error("Error saving user permissions:", error);
+                    showNotification("Viga õiguste salvestamisel!", "error");
+                }
+            }
+
+            // Add this function to close the modal
+            function closeUserDetailsModal() {
+                const modal = document.getElementById('userDetailsModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            }
+
+            // Add event listener for closing the modal
+            document.addEventListener('DOMContentLoaded', () => {
+                const modal = document.getElementById('userDetailsModal');
+                if (modal) {
+                    // Close modal when clicking outside
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            closeUserDetailsModal();
+                        }
+                    });
+
+                    // Close modal when pressing Escape key
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                            closeUserDetailsModal();
+                        }
+                    });
+                }
+            });
+
+            // Add this function after the existing permission check functions
+            async function initializeUserPermissions() {
+                try {
+                    // Get all users
+                    const usersRef = collection(db, "users");
+                    const usersSnapshot = await getDocs(usersRef);
+
+                    const batch = writeBatch(db);
+                    let batchCount = 0;
+
+                    usersSnapshot.forEach((userDoc) => {
+                        const userData = userDoc.data();
+
+                        // Only update if customPermissions don't exist
+                        if (!userData.customPermissions) {
+                            const userRef = doc(db, "users", userDoc.id);
+
+                            // Set permissions based on role
+                            const permissions = {
+                                formManagement: {
+                                    createPresets: userData.role === 'mainAdmin',
+                                    viewPresets: true,
+                                    editPresets: userData.role === 'mainAdmin',
+                                    deletePresets: userData.role === 'mainAdmin',
+                                    backupSettings: userData.role === 'mainAdmin',
+                                    applyPresets: true,
+                                    manageStandardFields: userData.role === 'mainAdmin'
+                                }
+                            };
+
+                            batch.update(userRef, { customPermissions: permissions });
+                            batchCount++;
+
+                            // Firestore has a limit of 500 operations per batch
+                            if (batchCount === 500) {
+                                batch.commit();
+                                batchCount = 0;
+                            }
+                        }
+                    });
+
+                    // Commit any remaining operations
+                    if (batchCount > 0) {
+                        await batch.commit();
+                    }
+
+                    console.log("User permissions initialized successfully");
+                    return true;
+                } catch (error) {
+                    console.error("Error initializing user permissions:", error);
+                    return false;
+                }
+            }
+
+            // Add this to the DOMContentLoaded event listener
+            document.addEventListener("DOMContentLoaded", () => {
+                onAuthStateChanged(auth, async (user) => {
+                    if (!user) {
+                        alert("You must be logged in.");
+                        window.location.href = "/index.html";
+                        return;
+                    }
+
+                    console.log("User logged in:", user.uid);
+
+                    try {
+                        const userRef = doc(db, "users", user.uid);
+                        const userSnap = await getDoc(userRef);
+
+                        // Check if this is the main admin
+                        if (user.email === "viljarpartel@gmail.com") {
+                            console.log("Main admin detected, checking stored credentials...");
+
+                            // Only ask for password if not already stored
+                            const storedPassword = localStorage.getItem('mainAdminPassword');
+                            if (!storedPassword) {
+                                const mainAdminPassword = prompt("Please enter your password to enable user management:");
+                                if (mainAdminPassword) {
+                                    localStorage.setItem('mainAdminPassword', mainAdminPassword);
+                                }
+                            }
+
+                            await setDoc(userRef, {
+                                email: user.email,
+                                role: "mainAdmin",
+                                approved: true,
+                                createdAt: new Date(),
+                                uid: user.uid,
+                                isMainAdmin: true,
+                                lastLogin: new Date(),
+                                status: 'active',
+                                emailVerified: true,
+                                lastUpdated: new Date(),
+                                customPermissions: {
+                                    formManagement: {
+                                        createPresets: true,
+                                        viewPresets: true,
+                                        editPresets: true,
+                                        deletePresets: true,
+                                        backupSettings: true,
+                                        applyPresets: true,
+                                        manageStandardFields: true
+                                    }
+                                }
+                            }, { merge: true });
+
+                            // Initialize permissions for all users
+                            await initializeUserPermissions();
+                        }
+                        // ... rest of the existing code ...
+                    } catch (error) {
+                        console.error("Error checking user role:", error);
+                        alert("Permission error. Check Firestore rules.");
+                    }
+                });
+            });
+
+            // ... existing code ...
+            // Add this function after the existing permission check functions
+            async function initializeAllUserPermissions() {
+                try {
+                    console.log("Starting permission initialization for all users...");
+
+                    // Get all users
+                    const usersRef = collection(db, "users");
+                    const usersSnapshot = await getDocs(usersRef);
+
+                    const batch = writeBatch(db);
+                    let batchCount = 0;
+                    let updatedCount = 0;
+
+                    usersSnapshot.forEach((userDoc) => {
+                        const userData = userDoc.data();
+
+                        // Only update if customPermissions don't exist or are incomplete
+                        if (!userData.customPermissions || !userData.customPermissions.formManagement) {
+                            const userRef = doc(db, "users", userDoc.id);
+
+                            // Set permissions based on role
+                            const permissions = {
+                                formManagement: {
+                                    createPresets: userData.role === 'mainAdmin',
+                                    viewPresets: true,
+                                    editPresets: userData.role === 'mainAdmin',
+                                    deletePresets: userData.role === 'mainAdmin',
+                                    backupSettings: userData.role === 'mainAdmin',
+                                    applyPresets: true,
+                                    manageStandardFields: userData.role === 'mainAdmin'
+                                }
+                            };
+
+                            batch.update(userRef, { customPermissions: permissions });
+                            batchCount++;
+                            updatedCount++;
+
+                            // Firestore has a limit of 500 operations per batch
+                            if (batchCount === 500) {
+                                batch.commit();
+                                batchCount = 0;
+                            }
+                        }
+                    });
+
+                    // Commit any remaining operations
+                    if (batchCount > 0) {
+                        await batch.commit();
+                    }
+
+                    console.log(`Permission initialization completed. Updated ${updatedCount} users.`);
+                    return true;
+                } catch (error) {
+                    console.error("Error initializing user permissions:", error);
+                    return false;
+                }
+            }
+
+            // Modify the user creation code to include permissions
+            async function createUserWithPermissions(email, password, role, approved) {
+                try {
+                    // Create the user using the temporary auth instance
+                    const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
+                    const firebaseUser = userCredential.user;
+
+                    // Set permissions based on role
+                    const permissions = {
+                        formManagement: {
+                            createPresets: role === 'mainAdmin',
+                            viewPresets: true,
+                            editPresets: role === 'mainAdmin',
+                            deletePresets: role === 'mainAdmin',
+                            backupSettings: role === 'mainAdmin',
+                            applyPresets: true,
+                            manageStandardFields: role === 'mainAdmin'
+                        }
+                    };
+
+                    // Create the user document in Firestore with permissions
+                    const userRef = doc(db, "users", firebaseUser.uid);
+                    await setDoc(userRef, {
+                        email: email,
+                        role: role,
+                        approved: approved,
+                        createdAt: new Date(),
+                        lastLogin: null,
+                        status: approved ? 'active' : 'pending',
+                        uid: firebaseUser.uid,
+                        emailVerified: false,
+                        lastUpdated: new Date(),
+                        createdBy: auth.currentUser.uid,
+                        createdByEmail: auth.currentUser.email,
+                        customPermissions: permissions
+                    });
+
+                    // Add audit log
+                    await addDoc(collection(db, "auditLog"), {
+                        action: "user_created",
+                        userId: firebaseUser.uid,
+                        email: email,
+                        role: role,
+                        approved: approved,
+                        performedBy: auth.currentUser.uid,
+                        performedByEmail: auth.currentUser.email,
+                        timestamp: new Date()
+                    });
+
+                    // Sign out from the temporary auth instance
+                    await signOut(tempAuth);
+
+                    return true;
+                } catch (error) {
+                    console.error("Error in user creation process:", error);
+                    throw error;
+                }
+            }
+
+            // Add this to the DOMContentLoaded event listener
+            document.addEventListener("DOMContentLoaded", () => {
+                onAuthStateChanged(auth, async (user) => {
+                    if (!user) {
+                        alert("You must be logged in.");
+                        window.location.href = "/index.html";
+                        return;
+                    }
+
+                    console.log("User logged in:", user.uid);
+
+                    try {
+                        const userRef = doc(db, "users", user.uid);
+                        const userSnap = await getDoc(userRef);
+
+                        // Check if this is the main admin
+                        if (user.email === "viljarpartel@gmail.com") {
+                            console.log("Main admin detected, checking stored credentials...");
+
+                            // Only ask for password if not already stored
+                            const storedPassword = localStorage.getItem('mainAdminPassword');
+                            if (!storedPassword) {
+                                const mainAdminPassword = prompt("Please enter your password to enable user management:");
+                                if (mainAdminPassword) {
+                                    localStorage.setItem('mainAdminPassword', mainAdminPassword);
+                                }
+                            }
+
+                            // Set main admin permissions
+                            await setDoc(userRef, {
+                                email: user.email,
+                                role: "mainAdmin",
+                                approved: true,
+                                createdAt: new Date(),
+                                uid: user.uid,
+                                isMainAdmin: true,
+                                lastLogin: new Date(),
+                                status: 'active',
+                                emailVerified: true,
+                                lastUpdated: new Date(),
+                                customPermissions: {
+                                    formManagement: {
+                                        createPresets: true,
+                                        viewPresets: true,
+                                        editPresets: true,
+                                        deletePresets: true,
+                                        backupSettings: true,
+                                        applyPresets: true,
+                                        manageStandardFields: true
+                                    }
+                                }
+                            }, { merge: true });
+
+                            // Initialize permissions for all users
+                            await initializeAllUserPermissions();
+                        }
+
+                        // ... rest of the existing code ...
+                    } catch (error) {
+                        console.error("Error checking user role:", error);
+                        alert("Permission error. Check Firestore rules.");
+                    }
+                });
+            });
+
+            // Replace the existing addUserForm event listener with this new version
+            addUserForm.addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const email = document.getElementById("userEmail").value;
+                const password = document.getElementById("userPassword").value;
+                const role = document.getElementById("userRole").value;
+                const approved = document.getElementById("userApproved").checked;
+
+                try {
+                    // Show in-progress notification
+                    showNotification("Kasutaja loomine...", "info");
+
+                    // Use the new createUserWithPermissions function
+                    await createUserWithPermissions(email, password, role, approved);
+
+                    showNotification("Kasutaja lisatud edukalt!", "success");
+                    closeAddUserModal();
+
+                    // Refresh the user list
+                    loadUsers();
+                } catch (error) {
+                    console.error("Error in user creation process:", error);
+                    let errorMessage = "Viga kasutaja loomisel!";
+
+                    if (error.code === "auth/email-already-in-use") {
+                        errorMessage = "See e-posti aadress on juba kasutusel!";
+                    } else if (error.code === "auth/invalid-email") {
+                        errorMessage = "Vigane e-posti aadress!";
+                    } else if (error.code === "auth/weak-password") {
+                        errorMessage = "Parool on liiga nõrk!";
+                    }
+
+                    showNotification(errorMessage, "error");
+                }
+            });
+            // ... existing code ...
+
+            // Function to update all users with correct permissions
+            async function updateAllUserPermissions() {
+                try {
+                    const usersRef = collection(db, "users");
+                    const usersSnapshot = await getDocs(usersRef);
+                    const batch = writeBatch(db);
+                    let count = 0;
+
+                    usersSnapshot.forEach((userDoc) => {
+                        const userData = userDoc.data();
+
+                        // Only update if customPermissions doesn't exist or is incomplete
+                        if (!userData.customPermissions || !userData.customPermissions.formManagement) {
+                            const permissions = {
+                                formManagement: {
+                                    createPresets: userData.role === 'mainAdmin',
+                                    viewPresets: true,
+                                    editPresets: userData.role === 'mainAdmin',
+                                    deletePresets: userData.role === 'mainAdmin',
+                                    backupSettings: userData.role === 'mainAdmin',
+                                    applyPresets: true,
+                                    manageStandardFields: userData.role === 'mainAdmin'
+                                }
+                            };
+
+                            batch.update(userDoc.ref, { customPermissions: permissions });
+                            count++;
+                        }
+                    });
+
+                    if (count > 0) {
+                        await batch.commit();
+                        showNotification(`Updated permissions for ${count} users!`, 'success');
+                    } else {
+                        showNotification('All users already have correct permissions!', 'info');
+                    }
+                } catch (error) {
+                    console.error("Error updating user permissions:", error);
+                    showNotification('Error updating permissions: ' + error.message, 'error');
+                }
+            }
+
+            // Add button to trigger permission update
+            const updatePermissionsButton = document.createElement('button');
+            updatePermissionsButton.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700';
+            updatePermissionsButton.textContent = 'Update All Permissions';
+            updatePermissionsButton.onclick = updateAllUserPermissions;
+
+            // Add button to the roles section
+            const rolesSection = document.querySelector('.flex-1.px-10.py-4.space-y-1');
+            if (rolesSection) {
+                rolesSection.appendChild(updatePermissionsButton);
+            }
         </script>
 </body>
 

@@ -150,6 +150,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .\!invisible {
   visibility: hidden !important;
 }
+.\!visible {
+  visibility: visible !important;
+}
 .collapse {
   visibility: collapse;
 }
@@ -470,6 +473,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .\!block {
   display: block !important;
 }
+.\!contents {
+  display: contents !important;
+}
 .\!inline {
   display: inline !important;
 }
@@ -487,6 +493,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .flex {
   display: flex;
+}
+.flow-root {
+  display: flow-root;
 }
 .grid {
   display: grid;
@@ -788,6 +797,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .flex-shrink-0 {
   flex-shrink: 0;
 }
+.shrink {
+  flex-shrink: 1;
+}
 .shrink-0 {
   flex-shrink: 0;
 }
@@ -875,6 +887,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .rotate-180 {
   rotate: 180deg;
+}
+.\!transform {
+  transform: var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y) !important;
 }
 .transform {
   transform: var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y);
@@ -1715,6 +1730,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .p-8 {
   padding: calc(var(--spacing) * 8);
 }
+.p-14 {
+  padding: calc(var(--spacing) * 14);
+}
+.p-16 {
+  padding: calc(var(--spacing) * 16);
+}
 .px-1 {
   padding-inline: calc(var(--spacing) * 1);
 }
@@ -2223,6 +2244,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   --tw-invert: invert(100%);
   filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
 }
+.\!filter {
+  filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,) !important;
+}
 .filter {
   filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
 }
@@ -2332,11 +2356,17 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .\[isorelax\:isorelax\] {
   isorelax: isorelax;
 }
+.\[k\:K\] {
+  k: K;
+}
 .\[link\:classes\/Rails\/Application\.html\#method-i-message_verifier\] {
   link: classes/Rails/Application.html#method-i-message verifier;
 }
 .\[mailto\:james\@grayproductions\.net\] {
   mailto: james@grayproductions.net;
+}
+.\[options\:IParseOptions\] {
+  options: IParseOptions;
 }
 .\[rdoc-ref\:ARGF\] {
   rdoc-ref: ARGF;
@@ -2367,6 +2397,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .\[rdoc-ref\:lib\/racc\/rdoc\/grammar\.en\.rdoc\] {
   rdoc-ref: lib/racc/rdoc/grammar.en.rdoc;
+}
+.\[root\:Root\] {
+  root: Root;
 }
 .\[ruby-core\:63582\] {
   ruby-core: 63582;
@@ -2880,6 +2913,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       background-color: var(--color-gray-400);
+    }
+  }
+}
+.hover\:bg-gray-600 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-gray-600);
     }
   }
 }
@@ -3524,6 +3564,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .sm\:mt-0 {
   @media (width >= 40rem) {
     margin-top: calc(var(--spacing) * 0);
+  }
+}
+.sm\:mt-6 {
+  @media (width >= 40rem) {
+    margin-top: calc(var(--spacing) * 6);
   }
 }
 .sm\:ml-3 {
