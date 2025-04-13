@@ -260,6 +260,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .bottom-6 {
   bottom: calc(var(--spacing) * 6);
 }
+.bottom-full {
+  bottom: 100%;
+}
 .-left-4 {
   left: calc(var(--spacing) * -4);
 }
@@ -530,6 +533,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .h-1 {
   height: calc(var(--spacing) * 1);
 }
+.h-2 {
+  height: calc(var(--spacing) * 2);
+}
 .h-2\.5 {
   height: calc(var(--spacing) * 2.5);
 }
@@ -581,6 +587,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .max-h-60 {
   max-height: calc(var(--spacing) * 60);
 }
+.max-h-64 {
+  max-height: calc(var(--spacing) * 64);
+}
 .max-h-\[80vh\] {
   max-height: 80vh;
 }
@@ -613,6 +622,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .w-1\/2 {
   width: calc(1/2 * 100%);
+}
+.w-2 {
+  width: calc(var(--spacing) * 2);
 }
 .w-3\.5 {
   width: calc(var(--spacing) * 3.5);
@@ -792,6 +804,10 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   --tw-translate-y: calc(var(--spacing) * 0);
   translate: var(--tw-translate-x) var(--tw-translate-y);
 }
+.translate-y-1\/2 {
+  --tw-translate-y: calc(1/2 * 100%);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+}
 .translate-y-2 {
   --tw-translate-y: calc(var(--spacing) * 2);
   translate: var(--tw-translate-x) var(--tw-translate-y);
@@ -811,6 +827,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   --tw-scale-y: 100%;
   --tw-scale-z: 100%;
   scale: var(--tw-scale-x) var(--tw-scale-y);
+}
+.rotate-45 {
+  rotate: 45deg;
 }
 .rotate-180 {
   rotate: 180deg;
@@ -841,6 +860,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .resize {
   resize: both;
+}
+.list-decimal {
+  list-style-type: decimal;
+}
+.list-disc {
+  list-style-type: disc;
 }
 .list-none {
   list-style-type: none;
@@ -1102,6 +1127,10 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   border-top-style: var(--tw-border-style);
   border-top-width: 1px;
 }
+.border-t-2 {
+  border-top-style: var(--tw-border-style);
+  border-top-width: 2px;
+}
 .border-b {
   border-bottom-style: var(--tw-border-style);
   border-bottom-width: 1px;
@@ -1338,6 +1367,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-red-500\/90 {
   background-color: color-mix(in oklab, var(--color-red-500) 90%, transparent);
+}
+.bg-red-600 {
+  background-color: var(--color-red-600);
 }
 .bg-sky-500 {
   background-color: var(--color-sky-500);
@@ -2509,6 +2541,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.last\:border-b-0 {
+  &:last-child {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 0px;
+  }
+}
 .even\:bg-gray-100 {
   &:nth-child(even) {
     background-color: var(--color-gray-100);
@@ -3481,6 +3519,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .md\:w-1\/2 {
   @media (width >= 48rem) {
     width: calc(1/2 * 100%);
+  }
+}
+.md\:w-80 {
+  @media (width >= 48rem) {
+    width: calc(var(--spacing) * 80);
   }
 }
 .md\:grid-cols-2 {

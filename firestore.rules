@@ -21,9 +21,9 @@ service cloud.firestore {
 
     // Users collection
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
       allow create: if isAdmin();
-      allow update: if isAdmin();
+      allow update: if isAdmin() || (isAuthenticated() && request.auth.uid == userId);
       allow delete: if isMainAdmin();
     }
 
@@ -95,88 +95,21 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
     
-     // Settings access
-    match /settings/{settingId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['mainAdmin', 'admin'];
-    }
-    
     // Settings collection
-     match /settings/{settingId} {
+    match /settings/{settingId} {
       allow read: if isAuthenticated();  // Any authenticated user can read settings
-      allow write: if (
-        settingId == "maintenance" || settingId == "procurement") && isAdmin() ||  // Both admin and mainAdmin can write these
-        settingId == "sessionTimeout" && isMainAdmin()  // Only mainAdmin can write session timeout
-    }
-    
-     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && 
-        (request.auth.uid == userId || 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'mainAdmin');
-    }
-    
-       // Audit log
-    match /auditLog/{logId} {
-      allow read: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['mainAdmin', 'admin'];
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['mainAdmin', 'admin'];
+      allow write: if 
+        ((settingId == "maintenance" || settingId == "procurement") && isAdmin()) ||  // Both admin and mainAdmin can write these
+        (settingId == "sessionTimeout" && isMainAdmin());  // Only mainAdmin can write session timeout
     }
     
     // Procurements collection
     match /procurements/{procurementId} {
       allow read, write: if isAdmin();
-      
-      }
-      
-		match /databases/{database}/documents {
-    // Helper functions (olemasolevad)
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-    
-    function isAdmin() {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'mainAdmin'];
-    }
-    
-    function isMainAdmin() {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'mainAdmin';
     }
 
-    // Statistika kollektsioonid
-		match /databases/{database}/documents {
-    // Helper functions (existing)
-    function isAuthenticated() {
-      return request.auth != null;
-    }
+    // Statistika kollektsioonid ja OM komponendid
     
-    function isAdmin() {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'mainAdmin'];
-    }
-
-    // Users collection with all its documents
-    	match /users/{userId} {
-      allow read, list: if isAuthenticated(request.auth.uid) && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'mainAdmin']    }
-  }
-    match /databases/{database}/documents {
-    // Abifunktsioonid
-    function isMainAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'mainadmin';
-    }
-    
-    function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['mainadmin', 'admin'];
-    }
-
     // Põhiväljad
     match /omStandardFields/{fieldId} {
       allow read: if true;  // Kõik võivad lugeda
@@ -212,52 +145,49 @@ service cloud.firestore {
       allow read: if isMainAdmin();
       allow write: if isMainAdmin();
     }
-  }
   
-  // FIELD SETTINGS
+    // FIELD SETTINGS
     match /fieldSettings/{docId} {
-       allow read: if isMainAdmin();
+      allow read: if isMainAdmin();
       allow write: if isMainAdmin();
     }
 
     // BACKUP & LOGID
     match /fieldSettingsBackup/{docId} {
-         allow read: if isMainAdmin();
+      allow read: if isMainAdmin();
       allow write: if isMainAdmin();
     }
 
     match /fieldSettingsLogs/{docId} {
-        allow read: if isMainAdmin();
+      allow read: if isMainAdmin();
       allow write: if isMainAdmin();
     }
     
-  
-    match /formSettings/{document=**} {
+    // FORM SETTINGS - need puudusid või olid valesti defineeritud
+    match /formSettings/{document} {
       allow read: if true;
       allow write: if isMainAdmin();
     }
-
    
-    match /formSettingsBackup/{document=**} {
+    match /formSettingsBackup/{document} {
       allow read: if true;
       allow write: if isMainAdmin();
     }
-
+    
+    match /purchaseForms/{document} {
+      allow read: if isAuthenticated();
+      allow write: if isMainAdmin();
+    }
    
-    match /formSettingsLogs/{document=**} {
+    match /formSettingsLogs/{document} {
       allow read: if true;
       allow write: if isMainAdmin();
     }
-
-    // KASUTAJA ANDMED
-    match /users/{userId} {
-          allow read: if isMainAdmin();
-      allow write: if isMainAdmin();
+    
+    // Vormimallid (formPresets)
+    match /formPresets/{document} {
+      allow read: if isAuthenticated();  // Kõik autenditud kasutajad saavad lugeda vormimalle
+      allow write: if isMainAdmin();     // Ainult peaadministraator saab vormimalle luua/muuta/kustutada
     }
-    
   }
-
-    
-  
-  }
- }
+}

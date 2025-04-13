@@ -251,6 +251,7 @@
       arrayRemove,
       addDoc,
       collection,
+      getDocs,
     } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
     import { auth, db } from "../auth/firebase-config.js";
 
@@ -267,6 +268,7 @@
     window.arrayRemove = arrayRemove;
     window.addDoc = addDoc;
     window.collection = collection;
+    window.getDocs = getDocs;
 
     // Set persistence to LOCAL
     setPersistence(auth, browserLocalPersistence).catch((error) => {
@@ -312,8 +314,8 @@
       const checkAuthState = setInterval(() => {
         if (window.currentUser !== undefined) {
           clearInterval(checkAuthState);
-          // Initialize Alpine.js
-          Alpine.start();
+          // No need to initialize Alpine.js again - it auto-initializes
+          // Alpine.start();
         }
       }, 100);
     });
@@ -449,7 +451,9 @@
 
   <script>
     document.addEventListener("alpine:init", () => {
-      Alpine.data("formApp", () => {
+      Alpine.data("formData", formDataGenerator);
+
+      function formDataGenerator() {
         const standardFields = [
           {
             key: "buyer",
@@ -476,7 +480,11 @@
             label: "Väljavaliku alused",
             placeholder: "Majanduslikult soodsaim",
           },
-          { key: "responsible", label: "Vastutav isik", placeholder: "Nimi" },
+          {
+            key: "responsible",
+            label: "Vastutav isik",
+            placeholder: "Nimi"
+          }
         ];
 
         const defaultFields = {};
@@ -488,164 +496,9 @@
           standardFields,
           form: {
             name: "",
-            intro:
-              'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+            intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
             fields: { ...defaultFields },
-            sections: [
-              {
-                title: "1. Üldtingimused",
-                enabled: true,
-                open: false,
-                options: [
-                  {
-                    text: "Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.",
-                    checked: false,
-                  },
-                  {
-                    text: "Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.",
-                    checked: false,
-                  },
-                  {
-                    text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega „või sellega samaväärne".',
-                    checked: false,
-                  },
-                  {
-                    text: "Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg). Enne hankelepingu sõlmimist kontrollib hankija pakkujal maksuvõla puudumist. Kui pakkujal esineb maksuvõlg, siis teavitab hankija sellest pakkujat ja annab pakkujale kaks tööpäeva maksuvõla tasumiseks või täies ulatuses ajatamiseks. Hankija võib anda ka pikema tähtaja maksuvõla tasumiseks või täies ulatuses ajatamiseks. Kui hankija poolt antud tähtaja jooksul pakkuja maksuvõlga ei tasu või täies ulatuses ei ajata, siis kõrvaldab hankija pakkuja ostumenetluselt. ",
-                    checked: false,
-                  },
-                  {
-                    text: "Arve maksetähtaeg peab olema vähemalt 21 päeva.",
-                    checked: true,
-                  },
-                ],
-              },
-              {
-                title: "2. Tehniline kirjeldus",
-                enabled: true,
-                open: false,
-                options: [
-                  {
-                    text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.',
-                    checked: false,
-                    editable: true,
-                  },
-                ],
-              },
-              {
-                title: "3 Nõuded pakkumusele",
-                enabled: true,
-                open: false,
-                options: [
-                  {
-                    text: "Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.",
-                    checked: false,
-                  },
-                  {
-                    text: "Hilinenud pakkumusi hankija vastu ei võta.",
-                    checked: false,
-                  },
-                  {
-                    text: "Pakkumus peab sisaldama pakkumuse maksumust vastavalt lisale 1.",
-                    checked: false,
-                  },
-                  {
-                    text: "Pakkumus peab sisaldama pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.",
-                    checked: false,
-                  },
-                  {
-                    text: "Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.",
-                    checked: false,
-                  },
-                  {
-                    text: "Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.",
-                    checked: false,
-                  },
-                  {
-                    text: "Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist. Ärisaladusena ei või märkida pakkumuse maksumust (sh osamaksumusi kui need on hindamise aluseks) (RHS § 46 1 ). Kui põhjendust pakkumuses ei sisaldu, siis eeldab hankija, et ärisaladus puudub. Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.",
-                    checked: false,
-                  },
-                ],
-              },
-              {
-                title:
-                  "4 Pakkumuste kontroll, hindamine ja eduka pakkumuse valik",
-                enabled: true,
-                open: false,
-                options: [
-                  {
-                    text: "Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele. Juhul, kui pakkumus ei vasta kutses esitatud tingimustele, lükkab hankija pakkumuse tagasi.",
-                    checked: false,
-                  },
-                  {
-                    text: "Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.",
-                    checked: false,
-                  },
-                  {
-                    text: "Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel. Juhul, kui esitatud maksumused on võrdsed, korraldab hankija eduka pakkumuse väljaselgitamiseks liisuheitmise, võimaldades võrdse pakkumuse esitanud pakkujatel liisuheitmise juures viibida.",
-                    checked: false,
-                  },
-                  {
-                    text: "Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi, ei allkirjasta hankija antud tähtaja jooksul hankelepingut või ei asu nõustumuse andmisega sõlmitud hankelepingut pakkujast tulenevatel põhjustel hankija määratud aja jooksul täitma, hindab hankija kõiki ülejäänud pakkumusi uuesti ja tunnistab edukaks pakkumuse, mis on vastavaks tunnistatud pakkumustest majanduslikult soodsaim.",
-                    checked: false,
-                  },
-                  {
-                    text: "Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama ja võib tunnistada edukaks esialgsel hindamisel leitud järjestuselt teise pakkumuse juhul, kui edukaks tunnistatud pakkumuse äralangemine ei saa mõjutada ülejäänud pakkumuste omavahelist järjestust.",
-                    checked: false,
-                  },
-                ],
-              },
-              {
-                title: "5 Läbirääkimiste pidamine",
-                enabled: true,
-                open: false,
-                options: [
-                  {
-                    text: "Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu, maksumuse ning ostukutsest sätestatud tingimuste üle.",
-                    checked: false,
-                  },
-                  {
-                    text: "Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja. Iga pakkujaga peetakse läbirääkimisi eraldi. Läbirääkimisi võib pidada kirjalikku taasesitamist võimaldavas vormis (nt e-kiri) või suuliselt. Suuliselt peetud läbirääkimised protokollitakse. Läbirääkimised on konfidentsiaalsed. Hankija tagab läbirääkimiste käigus pakkujate võrdse kohtlemise.",
-                    checked: false,
-                  },
-                  {
-                    text: "Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse, mis esitatakse läbirääkimistel kokku lepitud tähtajaks.",
-                    checked: false,
-                  },
-                  {
-                    text: "Hankija ei ole kohustatud läbirääkimisi pidama.",
-                    checked: false,
-                  },
-                ],
-              },
-              {
-                title:
-                  "6 Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine",
-                enabled: true,
-                open: false,
-                options: [
-                  {
-                    text: "Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata igal ajal enne lepingu sõlmimist või tellimuse tegemist, kui esitatud pakkumuste maksumused ületavad eeldatavat maksumust. Hankija teavitab pakkujaid kõigi pakkumuste tagasilükkamisest.",
-                    checked: false,
-                  },
-                  {
-                    text: "Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta või kui ostumenetluse läbiviimise aluseks olevad tingimused on oluliselt muutunud ja seetõttu osutub ostumenetluse esemeks oleva asja või teenuse tellimine mittevajalikuks, saadab hankija pakkujatele sellekohase teavituse.",
-                    checked: false,
-                  },
-                  {
-                    text: "Hankija võib ostumenetluse kehtetuks tunnistada, kui hankija tuvastab peale pakkumuste esitamise tähtpäeva, et on teinud ostumenetluse kutses vea, mida ei ole võimalik enam antud etapis seaduspäraselt parandada.",
-                    checked: false,
-                  },
-                ],
-              },
-              {
-                title: "7 Lisad",
-                enabled: true,
-                open: false,
-                options: [
-                  { text: "Lisa 1. ", checked: false, editable: true },
-                ],
-              },
-            ],
+            sections: [] // Alustame tühja sektsiooniloendiga, mis hiljem laaditakse Firestore'ist
           },
           today: new Date()
             .toLocaleDateString("et-EE", {
@@ -660,7 +513,7 @@
           isDragging: false,
           isGeneratingPDF: false,
           saveTimeout: null,
-          isLoading: false,
+          isLoading: true,
           errorMessage: "",
           showError: false,
           isDarkMode: false,
@@ -684,6 +537,11 @@
             generatedPdfs: [],
             lastUpdated: null,
           },
+          previewPdfName: null,
+          previewPdfUrl: null,
+          showNewSectionModal: false,
+          newSectionTitle: '',
+          showResetConfirmModal: false,
 
           // Add tab switching function
           switchTab(tab) {
@@ -743,112 +601,167 @@
           },
 
           async init() {
-            console.log("Initializing Alpine.js component...");
-            this.checkLocalStorage();
+            console.log("Initializing form and loading sections from Firestore...");
+            try {
+              // Loeme sisseehitatud init meetodit  
+              console.log("Initializing Alpine.js component...");
+              this.checkLocalStorage();
 
-            // Check for remembered user
-            const rememberedUser = localStorage.getItem("rememberedUser");
-            if (rememberedUser) {
-              const { username } = JSON.parse(rememberedUser);
-              document.getElementById("emailLogin").value = username;
-              document.getElementById("rememberMe").checked = true;
-            }
+              // Check for remembered user
+              const rememberedUser = localStorage.getItem("rememberedUser");
+              if (rememberedUser) {
+                const { username } = JSON.parse(rememberedUser);
+                document.getElementById("emailLogin").value = username;
+                document.getElementById("rememberMe").checked = true;
+              }
 
-            // Check for current user
-            const currentUser = localStorage.getItem("currentUser");
-            if (currentUser) {
-              const userData = JSON.parse(currentUser);
-              this.currentUser = userData;
-              this.isAdmin = userData.isAdmin;
-              this.showLoginModal = false;
-            }
+              // Check for current user
+              const currentUser = localStorage.getItem("currentUser");
+              if (currentUser) {
+                const userData = JSON.parse(currentUser);
+                this.currentUser = userData;
+                this.isAdmin = userData.isAdmin;
+                this.showLoginModal = false;
+              }
 
-            // Initialize Sortable for the sections
-            this.$nextTick(() => {
-              if (this.$refs.draggableSections) {
-                new Sortable(this.$refs.draggableSections, {
-                  animation: 150,
-                  handle: ".drag-handle",
-                  onEnd: (evt) => {
-                    const newOrder = Array.from(evt.from.children).map(
-                      (child) => {
-                        return child.__x.$data.section;
-                      },
-                    );
-                    this.form.sections = newOrder;
-                    this.saveToStorage();
-                  },
+              // Initialize Sortable for the sections
+              this.$nextTick(() => {
+                if (this.$refs.draggableSections) {
+                  new Sortable(this.$refs.draggableSections, {
+                    animation: 150,
+                    handle: ".drag-handle",
+                    onEnd: (evt) => {
+                      const newOrder = Array.from(evt.from.children).map(
+                        (child) => {
+                          return child.__x.$data.section;
+                        },
+                      );
+                      this.form.sections = newOrder;
+                      this.saveToStorage();
+                    },
+                  });
+                }
+              });
+
+              // Load data from storage initially
+              this.loadFromStorage();
+
+              // LISAME SIIA FIRESTORE'I ANDMETE LAADIMISE
+              // Oodake, kuni autentimine on läbi
+              if (typeof window.currentUser === 'undefined') {
+                await new Promise(resolve => {
+                  const checkUser = setInterval(() => {
+                    if (typeof window.currentUser !== 'undefined') {
+                      clearInterval(checkUser);
+                      resolve();
+                    }
+                  }, 100);
                 });
               }
-            });
 
-            // Load data from storage initially
-            this.loadFromStorage();
+              this.isLoading = true;
 
-            // Wait until user is fully loaded (onAuthStateChanged)
-            const waitForAuth = () => {
-              return new Promise((resolve) => {
-                const check = setInterval(() => {
-                  if (window.currentUser) {
-                    clearInterval(check);
-                    resolve();
+              // Lae sektsiooniandmed Firestore'ist
+              console.log("Loading form sections from Firestore...");
+              const formSettingsDoc = await window.getDoc(window.doc(window.db, "formSettings", "main"));
+
+              if (formSettingsDoc.exists()) {
+                const data = formSettingsDoc.data();
+                console.log("Form data loaded from Firestore:", data);
+
+                if (data.form) {
+                  // Laadi ainult sektsiooniandmed ja intro, säilita kasutaja väljad
+                  if (data.form.sections && Array.isArray(data.form.sections)) {
+                    this.form.sections = data.form.sections;
+                    console.log("Sections loaded from Firestore:", this.form.sections);
                   }
-                }, 100);
-              });
-            };
 
-            await waitForAuth();
+                  // Kui intro on olemas, laadi ka see
+                  if (data.form.intro) {
+                    this.form.intro = data.form.intro;
+                  }
 
-            // Lae seaded Firestore'ist
-            await this.loadUserSettings();
-
-            // Rakenda autofill, kui lubatud
-            if (this.userSettings.autofillEnabled) {
-              this.$nextTick(() => {
-                console.log("Applying autofill after auth and nextTick...");
-                this.applyAutofill();
-              });
-            }
-
-
-            // Set up manual watcher for form changes
-            this.setupFormWatcher();
-
-            // Auto-hide error messages
-            setInterval(() => {
-              if (this.showError) {
-                this.showError = false;
-              }
-            }, 5000);
-
-
-
-            // Load user settings and PDF history
-            await this.loadUserSettings();
-
-            // Listen for user data updates
-            window.addEventListener("userDataUpdated", (event) => {
-              console.log("Received user data update:", event.detail);
-              const { currentUser, userData } = event.detail;
-              this.currentUser = currentUser;
-              if (userData) {
-                window.userData = userData;
-                if (userData.pdfHistory) {
-                  this.userSettings.generatedPdfs = userData.pdfHistory;
-                  console.log(
-                    "Updated PDF history in Alpine:",
-                    this.userSettings.generatedPdfs,
-                  );
+                  console.log("Form updated with Firestore data (only sections and intro)");
+                } else {
+                  console.warn("Form data not found in Firestore document");
                 }
               } else {
-                window.userData = null;
-                this.userSettings.generatedPdfs = [];
+                console.warn("formSettings/main document does not exist");
               }
-            });
 
-            // Set up watchers
-            this.watchAutofill();
-            this.watchBasicDataFields();
+              // JÄTKAME TAVALIST INITSIALISEERIMIST
+              // Wait until user is fully loaded (onAuthStateChanged)
+              const waitForAuth = () => {
+                return new Promise((resolve) => {
+                  const check = setInterval(() => {
+                    if (window.currentUser) {
+                      clearInterval(check);
+                      resolve();
+                    }
+                  }, 100);
+                });
+              };
+
+              await waitForAuth();
+
+              // Lae seaded Firestore'ist
+              await this.loadUserSettings();
+
+              // Rakenda autofill, kui lubatud
+              if (this.userSettings.autofillEnabled) {
+                this.$nextTick(() => {
+                  console.log("Applying autofill after auth and nextTick...");
+                  this.applyAutofill();
+                });
+              }
+
+              // Set up manual watcher for form changes
+              this.setupFormWatcher();
+
+              // Auto-hide error messages
+              setInterval(() => {
+                if (this.showError) {
+                  this.showError = false;
+                }
+              }, 5000);
+
+              // Load user settings and PDF history
+              await this.loadUserSettings();
+
+              // Listen for user data updates
+              window.addEventListener("userDataUpdated", (event) => {
+                console.log("Received user data update:", event.detail);
+                const { currentUser, userData } = event.detail;
+                this.currentUser = currentUser;
+                if (userData) {
+                  window.userData = userData;
+                  if (userData.pdfHistory) {
+                    this.userSettings.generatedPdfs = userData.pdfHistory;
+                    console.log(
+                      "Updated PDF history in Alpine:",
+                      this.userSettings.generatedPdfs,
+                    );
+                  }
+                } else {
+                  window.userData = null;
+                  this.userSettings.generatedPdfs = [];
+                }
+              });
+
+              // Set up watchers
+              this.watchAutofill();
+              this.watchBasicDataFields();
+
+              // Lae eelsätted
+              this.loadFormPresets();
+
+            } catch (error) {
+              console.error("Error initializing form:", error);
+              this.errorMessage = "Vormi algandmete laadimine ebaõnnestus. Proovige uuesti laadida lehte.";
+              this.showError = true;
+            } finally {
+              this.isLoading = false;
+            }
           },
 
           async loadPdfHistory() {
@@ -1798,7 +1711,7 @@
                   ],
                 },
                 {
-                  title: "3. Nõuded pakkumusele",
+                  title: "3 Nõuded pakkumusele",
                   enabled: true,
                   open: false,
                   options: [
@@ -1834,7 +1747,7 @@
                 },
                 {
                   title:
-                    "4. Pakkumuste kontroll, hindamine ja eduka pakkumuse valik",
+                    "4 Pakkumuste kontroll, hindamine ja eduka pakkumuse valik",
                   enabled: true,
                   open: false,
                   options: [
@@ -1861,7 +1774,7 @@
                   ],
                 },
                 {
-                  title: "5. Läbirääkimiste pidamine",
+                  title: "5 Läbirääkimiste pidamine",
                   enabled: true,
                   open: false,
                   options: [
@@ -1885,7 +1798,7 @@
                 },
                 {
                   title:
-                    "6. Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine",
+                    "6 Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine",
                   enabled: true,
                   open: false,
                   options: [
@@ -1904,7 +1817,7 @@
                   ],
                 },
                 {
-                  title: "7. Lisad",
+                  title: "7 Lisad",
                   enabled: true,
                   open: false,
                   options: [
@@ -2561,8 +2474,91 @@
               this.previewPdfName = null;
             }
           },
+
+          // Lisame eelsätete funktsionaalsuse
+          formPresets: [],
+          showPresetDropdown: false,
+          isLoadingPresets: false,
+
+          // Lisame eelsätete laadimise ja rakendamise meetodid
+          async loadFormPresets() {
+            try {
+              this.isLoadingPresets = true;
+              console.log("Loading form presets from Firestore...");
+
+              // Lae eelsätted Firestore'ist
+              const presetsSnapshot = await window.getDocs(
+                window.collection(window.db, "formPresets")
+              );
+
+              const presets = [];
+              presetsSnapshot.forEach(doc => {
+                const preset = doc.data();
+                presets.push({
+                  id: doc.id,
+                  name: preset.name || `Preset ${doc.id}`,
+                  description: preset.description || '',
+                  createdBy: preset.createdBy || 'Admin',
+                  createdAt: preset.createdAt ? new Date(preset.createdAt.seconds * 1000).toLocaleDateString() : 'Teadmata',
+                  data: preset.form || {}
+                });
+              });
+
+              this.formPresets = presets;
+              console.log(`Loaded ${presets.length} form presets`);
+            } catch (error) {
+              console.error("Error loading form presets:", error);
+              this.errorMessage = "Eelsätete laadimine ebaõnnestus.";
+              this.showError = true;
+            } finally {
+              this.isLoadingPresets = false;
+            }
+          },
+
+          applyFormPreset(preset) {
+            try {
+              console.log("Applying form preset:", preset.name);
+              if (!preset || !preset.data) {
+                console.error("Invalid preset data");
+                return;
+              }
+
+              // Säilitame kasutaja väljad
+              const userFields = { ...this.form.fields };
+
+              // Rakendame eelsätte intro teksti
+              if (preset.data.intro) {
+                this.form.intro = preset.data.intro;
+              }
+
+              // Rakendame eelsätte sektsioone
+              if (preset.data.sections && Array.isArray(preset.data.sections)) {
+                this.form.sections = preset.data.sections;
+              }
+
+              // Taastame kasutaja väljad
+              this.form.fields = userFields;
+
+              // Salvesta muudatused
+              this.saveToStorage();
+
+              // Lisa teade kasutajale
+              this.toasts.push({
+                message: `Eelsäte "${preset.name}" rakendatud!`,
+                type: 'success',
+                id: Date.now()
+              });
+
+              // Peida dropdown
+              this.showPresetDropdown = false;
+            } catch (error) {
+              console.error("Error applying form preset:", error);
+              this.errorMessage = "Eelsätte rakendamine ebaõnnestus.";
+              this.showError = true;
+            }
+          },
         };
-      });
+      }
     });
 
   </script>
@@ -2791,7 +2787,7 @@
   </script>
 </head>
 
-<body class="backdrop-blur-2xl min-h-screen flex flex-col" x-data="formApp" x-cloak :class="{'dark': isDarkMode}">
+<body class="backdrop-blur-2xl min-h-screen flex flex-col" x-data="formData" x-cloak :class="{'dark': isDarkMode}">
   <!-- Login Modal -->
   <div x-show="showLoginModal" x-cloak x-transition:enter="transition duration-300 ease-out"
     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -3044,6 +3040,69 @@
                     :class="form.sections.some(section => !section.open) ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
                   <span x-text="form.sections.some(section => !section.open) ? 'Ava kõik' : 'Sulge kõik'"></span>
                 </button>
+
+                <!-- Eelsätete dropdown -->
+                <div class="relative" x-data="{ showTooltip: false }">
+                  <button @click="loadFormPresets(); showPresetDropdown = !showPresetDropdown"
+                    class="flex items-center text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-lg transition-colors"
+                    @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
+                    <i class="fas fa-list mr-1"></i>
+                    <span>Vormimallid</span>
+                    <i class="fas fa-chevron-down ml-1 text-xs"
+                      :class="{'transform rotate-180': showPresetDropdown}"></i>
+                  </button>
+
+                  <!-- Tooltip -->
+                  <div x-show="showTooltip && !showPresetDropdown" x-transition
+                    class="absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap">
+                    Vali administraatori loodud vormimall
+                    <div
+                      class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900">
+                    </div>
+                  </div>
+
+                  <!-- Dropdown -->
+                  <div x-show="showPresetDropdown" x-transition @click.away="showPresetDropdown = false"
+                    class="absolute z-10 left-0 mt-2 w-64 md:w-80 bg-white rounded-xl shadow-xl border border-gray-200 py-2 overflow-hidden">
+                    <div class="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                      <h3 class="font-medium text-gray-800 text-sm">Vali vormimall</h3>
+                      <p class="text-xs text-gray-500 mt-1">
+                        Need mallid on loodud administraatori poolt
+                      </p>
+                    </div>
+
+                    <!-- Laadimise indikaator -->
+                    <div x-show="isLoadingPresets" class="flex justify-center py-4">
+                      <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+
+                    <!-- Puuduvad eelsätted -->
+                    <div x-show="!isLoadingPresets && formPresets.length === 0" class="px-4 py-3 text-center">
+                      <p class="text-sm text-gray-500">Ühtegi vormimalli pole veel loodud</p>
+                    </div>
+
+                    <!-- Eelsätete nimekiri -->
+                    <div x-show="!isLoadingPresets && formPresets.length > 0" class="max-h-64 overflow-y-auto">
+                      <template x-for="preset in formPresets" :key="preset.id">
+                        <div @click="applyFormPreset(preset)"
+                          class="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0">
+                          <div class="flex justify-between items-start">
+                            <div>
+                              <h4 class="font-medium text-gray-800 text-sm" x-text="preset.name"></h4>
+                              <p class="text-xs text-gray-500 mt-1" x-text="preset.description || 'Kirjeldus puudub'">
+                              </p>
+                            </div>
+                            <span class="text-blue-600 hover:text-blue-800 text-xs">Vali</span>
+                          </div>
+                          <div class="flex justify-between mt-2">
+                            <span class="text-xs text-gray-500" x-text="'Autor: ' + preset.createdBy"></span>
+                            <span class="text-xs text-gray-500" x-text="preset.createdAt"></span>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div id="draggableSections" x-ref="draggableSections" class="space-y-4">
