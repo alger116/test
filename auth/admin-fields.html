@@ -521,9 +521,9 @@
             <div class="sidebar">
                 <!-- Navigation Section -->
                 <div class="mb-6">
-                    <h3 class="font-medium text-gray-800 mb-3">Navigatsioon</h3>
+                    <h3 class="font-medium text-gray-800 mb-3"></h3>
                     <div class="grid grid-cols-2 gap-2">
-                        <a href="admin.html"
+                        <button @click="navigateToAdmin()"
                             class="px-4 py-3 bg-indigo-600 text-white text-sm text-center rounded hover:bg-indigo-700 transition flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -533,8 +533,8 @@
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             Admin paneel
-                        </a>
-                        <a href="../ostu/om.html"
+                        </button>
+                        <button @click="navigateToOm()"
                             class="px-4 py-3 bg-green-600 text-white text-sm text-center rounded hover:bg-green-700 transition flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -542,7 +542,7 @@
                                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
                             Kutse koostamine
-                        </a>
+                        </button>
                     </div>
                 </div>
 
@@ -612,7 +612,7 @@
                     </div>
 
                     <div x-show="Object.keys(collectionStatus).length > 0" class="bg-gray-50 p-3 rounded border mb-3">
-                        <p class="text-sm font-medium text-gray-700 mb-2">Kollektsioonide juurdepääs:</p>
+                        <p class="text-sm font-medium text-gray-700 mb-2">õiguste kontroll:</p>
                         <ul class="space-y-1">
                             <template x-for="(status, collection) in collectionStatus">
                                 <li class="flex justify-between text-sm">
@@ -651,6 +651,28 @@
                     'formSettingsLogs': false
                 },
                 init() {
+                    // Proovi taastada sessioon, kui kasutaja andmed on sessionStorage'is
+                    try {
+                        const storedUserData = sessionStorage.getItem('authUserData');
+                        if (storedUserData && !window.currentUser) {
+                            const parsedUserData = JSON.parse(storedUserData);
+                            console.log("Taastatud kasutaja andmed sessionStorage'ist:", parsedUserData);
+
+                            // Kui window.currentUser pole veel seatud (Firebase autentimine pole töötanud),
+                            // siis kasutame salvestatud andmeid
+                            if (!window.currentUser) {
+                                window.currentUser = {
+                                    uid: parsedUserData.uid,
+                                    email: parsedUserData.email
+                                };
+                                window.userData = parsedUserData.userData;
+                                console.log("Kasutaja sessioon taastatud sessionStorage'ist");
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Sessiooni taastamisel tekkis viga:", error);
+                    }
+
                     // Veendume, et window.db on olemas enne selle kasutamist
                     setTimeout(() => {
                         this.currentUser = window.currentUser;
@@ -1367,6 +1389,56 @@
                     this.form.sections[sectionIndex].options.forEach((_, optIndex) => {
                         this.selectedSections.sectionOptions[sectionIndex][optIndex] = false;
                     });
+                },
+                navigateToOm() {
+
+
+                    // Salvesta kasutaja autentimisteave enne navigeerimist
+                    try {
+                        // Salvesta praegune kasutaja info sessionStorage'isse
+                        if (window.currentUser) {
+                            const userInfo = {
+                                uid: window.currentUser.uid,
+                                email: window.currentUser.email,
+                                userData: window.userData
+                            };
+                            sessionStorage.setItem('authUserData', JSON.stringify(userInfo));
+                            console.log("Kasutaja andmed salvestatud sessionStorage'i", userInfo);
+                        } else {
+                            console.warn("Kasutaja pole sisselogitud, ei saa andmeid salvestada");
+                        }
+
+                        // Suuna kasutaja ostumenetluse lehele
+                        window.location.href = "../ostu/om.html";
+                    } catch (error) {
+                        console.error("Navigeerimisel tekkis viga:", error);
+                        alert("Navigeerimisel tekkis viga: " + error.message);
+                    }
+                },
+                navigateToAdmin() {
+
+
+                    // Salvesta kasutaja autentimisteave enne navigeerimist
+                    try {
+                        // Salvesta praegune kasutaja info sessionStorage'isse
+                        if (window.currentUser) {
+                            const userInfo = {
+                                uid: window.currentUser.uid,
+                                email: window.currentUser.email,
+                                userData: window.userData
+                            };
+                            sessionStorage.setItem('authUserData', JSON.stringify(userInfo));
+                            console.log("Kasutaja andmed salvestatud sessionStorage'i", userInfo);
+                        } else {
+                            console.warn("Kasutaja pole sisselogitud, ei saa andmeid salvestada");
+                        }
+
+                        // Suuna kasutaja admin paneeli
+                        window.location.href = "admin.html";
+                    } catch (error) {
+                        console.error("Navigeerimisel tekkis viga:", error);
+                        alert("Navigeerimisel tekkis viga: " + error.message);
+                    }
                 }
             }
         }

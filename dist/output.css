@@ -704,11 +704,17 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .w-52 {
   width: calc(var(--spacing) * 52);
 }
+.w-54 {
+  width: calc(var(--spacing) * 54);
+}
 .w-56 {
   width: calc(var(--spacing) * 56);
 }
 .w-64 {
   width: calc(var(--spacing) * 64);
+}
+.w-68 {
+  width: calc(var(--spacing) * 68);
 }
 .w-80 {
   width: calc(var(--spacing) * 80);
@@ -897,9 +903,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .resize {
   resize: both;
 }
-.list-decimal {
-  list-style-type: decimal;
-}
 .list-disc {
   list-style-type: disc;
 }
@@ -911,9 +914,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.grid-cols-4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .grid-cols-5 {
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1736,8 +1736,23 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .px-6 {
   padding-inline: calc(var(--spacing) * 6);
 }
+.px-7 {
+  padding-inline: calc(var(--spacing) * 7);
+}
 .px-8 {
   padding-inline: calc(var(--spacing) * 8);
+}
+.px-10 {
+  padding-inline: calc(var(--spacing) * 10);
+}
+.px-15 {
+  padding-inline: calc(var(--spacing) * 15);
+}
+.px-20 {
+  padding-inline: calc(var(--spacing) * 20);
+}
+.px-40 {
+  padding-inline: calc(var(--spacing) * 40);
 }
 .py-0 {
   padding-block: calc(var(--spacing) * 0);
@@ -2404,6 +2419,27 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:is(:where(.group):hover *) {
     @media (hover: hover) {
       color: var(--color-blue-400);
+    }
+  }
+}
+.group-hover\:text-blue-500 {
+  &:is(:where(.group):hover *) {
+    @media (hover: hover) {
+      color: var(--color-blue-500);
+    }
+  }
+}
+.group-hover\:text-green-500 {
+  &:is(:where(.group):hover *) {
+    @media (hover: hover) {
+      color: var(--color-green-500);
+    }
+  }
+}
+.group-hover\:text-indigo-500 {
+  &:is(:where(.group):hover *) {
+    @media (hover: hover) {
+      color: var(--color-indigo-500);
     }
   }
 }
