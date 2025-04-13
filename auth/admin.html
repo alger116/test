@@ -54,51 +54,72 @@
                 </div>
                 <nav class="flex-1 px-10 py-4 space-y-1">
                     <a href="../index.html"
-                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
-                        <i class="fas fa-home w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-400">
+                        <i
+                            class="fas fa-home w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
                         <span class="ml-3">Avaleht</span>
                     </a>
                     <button id="settingsButton"
-                        class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
-                        <i class="fas fa-cog w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-400">
+                        <i
+                            class="fas fa-cog w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
                         <span class="ml-3">Seaded</span>
                     </button>
                     <a href="#"
-                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
-                        <i class="fas fa-users w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-400">
+                        <i
+                            class="fas fa-users w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
                         <span class="ml-3">Kasutajad</span>
                     </a>
                     <button id="rolesButton"
-                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
-                        <i class="fas fa-user-shield w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-400">
+                        <i
+                            class="fas fa-user-shield w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
                         <span class="ml-3">Rollid</span>
                     </button>
                     <a href="../ostu/om.html"
-                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
-                        <i class="fas fa-shopping-cart w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-400">
+                        <i
+                            class="fas fa-shopping-cart w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
                         <span class="ml-3">Ostukutse</span>
                     </a>
                     <a href="../hanke/index.html"
-                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
-                        <i class="fas fa-truck w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-400">
+                        <i
+                            class="fas fa-truck w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
                         <span class="ml-3">Riigihange</span>
                     </a>
                     <a href="../auth/audit.html"
-                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
-                        <i class="fas fa-file-alt w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-400">
+                        <i
+                            class="fas fa-file-alt w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
                         <span class="ml-3">Audit</span>
                     </a>
                     <button id="fieldSettingsButton"
-                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-400"
                         onclick="window.open('../auth/admin-fields.html', '_blank')">
-                        <i class="fas fa-edit w-5 text-gray-400 group-hover:text-blue-400"></i>
+                        <i
+                            class="fas fa-edit w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
                         <span class="ml-3">Ostumenetluse tingimused</span>
                     </button>
                 </nav>
                 <div class="p-4 border-t border-gray-800">
+                    <button id="updatePermissionsButton"
+                        class="w-full flex items-center px-4 py-3 text-blue-400 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-300 mb-3">
+                        <i class="fas fa-sync w-5 transition-colors duration-200"></i>
+                        <span class="ml-3">Update All Permissions</span>
+                        <span id="updatePermissionsSpinner" class="ml-auto hidden">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                    <button id="addUserButton"
+                        class="w-full flex items-center px-4 py-3 text-green-400 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-green-300 mb-3">
+                        <i class="fas fa-user-plus w-5 transition-colors duration-200"></i>
+                        <span class="ml-3">Lisa Kasutaja</span>
+                    </button>
                     <button id="logoutButton"
-                        class="w-full flex items-center px-4 py-3 text-red-400 hover:bg-gray-800 rounded-lg transition-all duration-200 group">
-                        <i class="fas fa-sign-out-alt w-5"></i>
+                        class="w-full flex items-center px-4 py-3 text-red-400 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-red-300">
+                        <i class="fas fa-sign-out-alt w-5 transition-colors duration-200"></i>
                         <span class="ml-3">Logi välja</span>
                     </button>
                 </div>
@@ -211,324 +232,250 @@
                 </div>
             </div>
 
-            <!-- Main Content Area -->
-            <main class="p-6">
-                <!-- User Management Section -->
-                <div id="userManagementSection" class="mb-8">
-
-                    <!-- System Health Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <!-- Active Users Card -->
-                        <div
-                            class="bg-white rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:bg-emerald-100">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-900">Aktiivsed kasutajad</h3>
-                                <div class="p-2 bg-blue-100 rounded-full">
-                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <span id="activeUsersCount" class="text-3xl font-bold text-gray-900">0</span>
-                                <p class="text-sm text-gray-600 mt-2">Kokku</p>
-                            </div>
+            <!-- Users Section -->
+            <div class="p-6">
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <!-- Active Users Card -->
+                    <div
+                        class="bg-white rounded-lg shadow p-4 flex items-center justify-between hover:bg-emerald-50 transition-colors">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900">Aktiivsed kasutajad</h3>
+                            <span id="activeUsersCount" class="text-2xl font-bold text-gray-900 block mt-1">0</span>
+                            <span class="text-xs text-gray-500">Kokku</span>
                         </div>
-
-                        <!-- PDF Files Card -->
-                        <div
-                            class="bg-white rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:bg-emerald-100">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-900">Loodud PDF-id</h3>
-                                <div class="p-2 bg-red-100 rounded-full">
-                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <span id="pdfCount" class="text-3xl font-bold text-gray-900">0</span>
-                                <p class="text-sm text-gray-600 mt-2">Kokku loodud</p>
-                            </div>
+                        <div class="p-2 bg-blue-100 rounded-full">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                </path>
+                            </svg>
                         </div>
+                    </div>
 
-                        <!-- Excel Files Card -->
-                        <div
-                            class="bg-white rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:bg-emerald-100">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold text-gray-900">Loodud Excelid</h3>
-                                <div class="p-2 bg-green-100 rounded-full">
-                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <span id="excelCount" class="text-3xl font-bold text-gray-900">0</span>
-                                <p class="text-sm text-gray-600 mt-2">Kokku loodud</p>
-                            </div>
+                    <!-- PDF Files Card -->
+                    <div
+                        class="bg-white rounded-lg shadow p-4 flex items-center justify-between hover:bg-emerald-50 transition-colors">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900">Loodud PDF-id</h3>
+                            <span id="pdfCount" class="text-2xl font-bold text-gray-900 block mt-1">0</span>
+                            <span class="text-xs text-gray-500">Kokku loodud</span>
                         </div>
+                        <div class="p-2 bg-red-100 rounded-full">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
 
+                    <!-- Excel Files Card -->
+                    <div
+                        class="bg-white rounded-lg shadow p-4 flex items-center justify-between hover:bg-emerald-50 transition-colors">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900">Loodud Excelid</h3>
+                            <span id="excelCount" class="text-2xl font-bold text-gray-900 block mt-1">0</span>
+                            <span class="text-xs text-gray-500">Kokku loodud</span>
+                        </div>
+                        <div class="p-2 bg-green-100 rounded-full">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                        </div>
                     </div>
                 </div>
-                <!-- System Settings Section -->
-                <div class="bg-white rounded-lg shadow mb-6">
-                    <div class="px-6 py-4 border-b">
-                        <h2 class="text-lg font-semibold text-gray-800">Süsteemi seaded</h2>
+
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
+                        <div id="mainAdminIndicator"
+                            class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full flex items-center gap-1 tooltip"
+                            data-tip="Peaadministraatoril on õigused muuta kõiki rollegi">
+                            <i class="fas fa-crown text-yellow-500"></i>
+                            <span>Peaadministraator</span>
+                        </div>
+                        <button id="adminSettingsButton"
+                            class="hidden px-3 py-1.5 ml-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg flex items-center gap-1"
+                            onclick="openRoles()">
+                            <i class="fas fa-user-cog"></i>
+                            <span>Rollide Seaded</span>
+                        </button>
                     </div>
-                    <div class="p-6">
-                        <!-- Backup/Restore -->
-                        <div class="mb-6">
-                            <h3 class="text-md font-medium text-gray-900 mb-4">Varundamine ja taastamine</h3>
+                </div>
 
+                <!-- Advanced Filters -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Otsi</label>
+                            <input type="text" id="userSearch" placeholder="Email, nimi..."
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                onkeyup="handleUserSearch(this.value)">
                         </div>
-
-                        <!-- Maintenance Mode -->
-                        <div class="maintenance-section">
-                            <h3 class="text-md font-medium text-gray-900 mb-4">Hooldusrežiim</h3>
-                            <div class="flex items-center space-x-4">
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="maintenanceMode" class="sr-only peer"
-                                        onchange="toggleMaintenanceMode(this.checked)">
-                                    <div
-                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                    </div>
-                                    <span class="ml-3 text-sm font-medium text-gray-900">Hooldusrežiim</span>
-                                </label>
-                                <input type="text" id="maintenanceMessage"
-                                    class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Hooldusrežiimi sõnum">
-                            </div>
-                        </div>
-
-                        <!-- Session Timeout Settings -->
-                        <div class="session-timeout-section mt-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-md font-medium text-gray-900">Sessiooni Aegumine</h3>
-                                <div id="mainAdminSessionIndicator"
-                                    class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full flex items-center gap-1">
-                                    <i class="fas fa-crown text-yellow-500"></i>
-                                    <span>Ainult Peaadministraatorile</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="sessionTimeoutEnabled" class="sr-only peer" disabled>
-                                    <div
-                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                    </div>
-                                    <span class="ml-3 text-sm font-medium text-gray-900">Sessiooni aegumine</span>
-                                </label>
-                                <div class="flex items-center space-x-2">
-                                    <input type="number" id="sessionTimeoutMinutes" min="1" max="1440"
-                                        class="w-20 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="30" disabled>
-                                    <span class="text-sm text-gray-600">minutit</span>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-2">Kasutaja logitakse automaatselt välja pärast määratud
-                                aja möödumist.</p>
-                        </div>
-
-                        <!-- Email Templates -->
-                        <div class="mb-6">
-                            <h3 class="text-md font-medium text-gray-900 mb-4"></h3>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
-                                    <div id="mainAdminIndicator"
-                                        class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full flex items-center gap-1 tooltip"
-                                        data-tip="Peaadministraatoril on õigused muuta kõiki rollegi">
-                                        <i class="fas fa-crown text-yellow-500"></i>
-                                        <span>Peaadministraator</span>
-                                    </div>
-                                    <!-- Admin Settings Button - Only visible to mainAdmin -->
-                                    <button id="adminSettingsButton"
-                                        class="hidden px-3 py-1.5 ml-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg flex items-center gap-1"
-                                        onclick="openRoles()">
-                                        <i class="fas fa-user-cog"></i>
-                                        <span>Rollide Seaded</span>
-                                    </button>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <!-- Import Users -->
-                                    <button onclick="openImportModal()"
-                                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center">
-                                        <i class="fas fa-file-import mr-2"></i>Impordi
-                                    </button>
-
-                                    <!-- Add User -->
-                                    <button id="addUserButton"
-                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center">
-                                        <i class="fas fa-plus mr-2"></i>Lisa Kasutaja
-                                    </button>
-                                </div>
+                        <div x-data="{ open: false }" @click.away="open = false" class="relative">
+                            <label class="block text-sm font-medium text-gray-700">Roll</label>
+                            <button @click="open = !open" type="button"
+                                class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <span x-text="$refs.roleSelect.options[$refs.roleSelect.selectedIndex].text">Kõik
+                                    rollid</span>
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </button>
+                            <div x-show="open" x-transition
+                                class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                <select x-ref="roleSelect" id="roleFilter" @change="open = false"
+                                    class="w-full h-full bg-transparent border-0 focus:ring-0">
+                                    <option value="">Kõik rollid</option>
+                                    <option value="mainAdmin">Peaadministraator 👑</option>
+                                    <option value="admin">Administraator 👑</option>
+                                    <option value="omUser">Ostumaailm Kasutaja</option>
+                                    <option value="hmUser">Hankemaailm Kasutaja</option>
+                                    <option value="user">Tavakasutaja</option>
+                                    <option value="custom">Kohandatud</option>
+                                </select>
+                                <small class="absolute -bottom-5 left-0 text-xs text-gray-500">
+                                    👑 Krooniga rolli saab muuta ainult Peaadministraator
+                                </small>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Advanced Filters -->
-                    <div class="px-6 py-4 border-b bg-gray-50">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Otsi</label>
-                                <input type="text" id="userSearch" placeholder="Email, nimi..."
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
-                            <div x-data="{ open: false }" @click.away="open = false" class="relative">
-                                <label class="block text-sm font-medium text-gray-700">Roll</label>
-                                <button @click="open = !open" type="button"
-                                    class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                    <span x-text="$refs.roleSelect.options[$refs.roleSelect.selectedIndex].text">Kõik
-                                        rollid</span>
-                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </span>
-                                </button>
-                                <div x-show="open" x-transition
-                                    class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                                    <select x-ref="roleSelect" id="roleFilter" @change="open = false"
-                                        class="w-full h-full bg-transparent border-0 focus:ring-0">
-                                        <option value="">Kõik rollid</option>
-                                        <option value="mainAdmin">Peaadministraator 👑</option>
-                                        <option value="admin">Administraator 👑</option>
-                                        <option value="omUser">Ostumaailm Kasutaja</option>
-                                        <option value="hmUser">Hankemaailm Kasutaja</option>
-                                        <option value="user">Tavakasutaja</option>
-                                        <option value="custom">Kohandatud</option>
-                                    </select>
-                                    <small class="absolute -bottom-5 left-0 text-xs text-gray-500">
-                                        👑 Krooniga rolli saab muuta ainult Peaadministraator
-                                    </small>
-                                </div>
-                            </div>
-                            <div x-data="{ open: false }" @click.away="open = false" class="relative">
-                                <label class="block text-sm font-medium text-gray-700">Olek</label>
-                                <button @click="open = !open" type="button"
-                                    class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                    <span
-                                        x-text="$refs.statusSelect.options[$refs.statusSelect.selectedIndex].text">Kõik
-                                        olekud</span>
-                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </span>
-                                </button>
-                                <div x-show="open" x-transition
-                                    class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                                    <select x-ref="statusSelect" id="statusFilter" @change="open = false"
-                                        class="w-full h-full bg-transparent border-0 focus:ring-0">
-                                        <option value="">Kõik olekud</option>
-                                        <option value="active">Aktiivne</option>
-                                        <option value="inactive">Mitteaktiivne</option>
-                                        <option value="pending">Ootel</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Kinnitamine</label>
-                                <select id="verificationFilter"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="">Kõik</option>
-                                    <option value="verified">Kinnitatud</option>
-                                    <option value="unverified">Kinnitamata</option>
+                        <div x-data="{ open: false }" @click.away="open = false" class="relative">
+                            <label class="block text-sm font-medium text-gray-700">Olek</label>
+                            <button @click="open = !open" type="button"
+                                class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <span x-text="$refs.statusSelect.options[$refs.statusSelect.selectedIndex].text">Kõik
+                                    olekud</span>
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </button>
+                            <div x-show="open" x-transition
+                                class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                <select x-ref="statusSelect" id="statusFilter" @change="open = false"
+                                    class="w-full h-full bg-transparent border-0 focus:ring-0">
+                                    <option value="">Kõik olekud</option>
+                                    <option value="active">Aktiivne</option>
+                                    <option value="inactive">Mitteaktiivne</option>
+                                    <option value="pending">Ootel</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="mt-4 flex justify-end">
-                            <button onclick="applyFilters()"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                Rakenda filtrid
-                            </button>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Kinnitamine</label>
+                            <select id="verificationFilter"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="">Kõik</option>
+                                <option value="verified">Kinnitatud</option>
+                                <option value="unverified">Kinnitamata</option>
+                            </select>
                         </div>
                     </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left">
-                                        <input type="checkbox" id="selectAll" class="rounded text-blue-600">
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Email</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Roll</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Olek</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kinnitamine</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tegevused</th>
-                                </tr>
-                            </thead>
-                            <tbody id="userTable" class="bg-white divide-y divide-gray-200">
-                                <!-- Users will be dynamically added here -->
-                            </tbody>
-                        </table>
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="applyFilters()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                            Rakenda filtrid
+                        </button>
                     </div>
                 </div>
 
-                <!-- Import Users Modal -->
-                <div id="importUserModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
-                    <div class="flex items-center justify-center min-h-screen">
-                        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                            <h2 class="text-xl font-bold mb-4">Impordi kasutajad</h2>
-                            <form id="importUserForm" class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">CSV fail</label>
-                                    <input type="file" id="csvFile" accept=".csv" required
-                                        class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Vaikimisi roll</label>
-                                    <select id="defaultRole" required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <option value="user">Tavakasutaja</option>
-                                        <option value="omUser">Ostumaailm Kasutaja</option>
-                                        <option value="hmUser">Hankemaailm Kasutaja</option>
-                                    </select>
-                                </div>
-                                <div class="flex justify-end space-x-2">
-                                    <button type="button" onclick="closeImportModal()"
-                                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                                        Tühista
-                                    </button>
-                                    <button type="submit"
-                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                        Impordi
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                <!-- Users Table -->
+                <div class="overflow-x-auto bg-white rounded-lg shadow">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left">
+                                    <input type="checkbox" id="selectAll" class="rounded text-blue-600">
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Email</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Roll</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Olek</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Kinnitamine</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Tegevused</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Users will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- System Settings Section -->
+            <div class="p-6 border-t">
+                <div class="mb-6">
+                    <h2 class="text-lg font-semibold text-gray-800">Süsteemi seaded</h2>
+                </div>
+
+                <!-- Maintenance Mode -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <h3 class="text-md font-medium text-gray-900 mb-4">Hooldusrežiim</h3>
+                    <div class="flex items-center space-x-4">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="maintenanceMode" class="sr-only peer"
+                                onchange="toggleMaintenanceMode(this.checked)">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                            </div>
+                            <span class="ml-3 text-sm font-medium text-gray-900">Hooldusrežiim</span>
+                        </label>
+                        <input type="text" id="maintenanceMessage"
+                            class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Hooldusrežiimi sõnum">
                     </div>
                 </div>
 
-
-            </main>
+                <!-- Session Timeout Settings -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-md font-medium text-gray-900">Sessiooni Aegumine</h3>
+                        <div id="mainAdminSessionIndicator"
+                            class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full flex items-center gap-1">
+                            <i class="fas fa-crown text-yellow-500"></i>
+                            <span>Ainult Peaadministraatorile</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="sessionTimeoutEnabled" class="sr-only peer" disabled>
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                            </div>
+                            <span class="ml-3 text-sm font-medium text-gray-900">Sessiooni aegumine</span>
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="sessionTimeoutMinutes" min="1" max="1440"
+                                class="w-20 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="30" disabled>
+                            <span class="text-sm text-gray-600">minutit</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Kasutaja logitakse automaatselt välja pärast määratud aja
+                        möödumist.</p>
+                </div>
+            </div>
         </div>
 
         <!-- Settings Modal -->
@@ -928,67 +875,70 @@
         </div>
 
         <!-- User Details Modal -->
-        <div id="userDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div id="userDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
             <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                 <div class="mt-3 text-center">
                     <h3 class="text-lg leading-6 font-medium text-gray-900">Kasutaja andmed</h3>
                     <div class="mt-2 px-7 py-3">
-                        <p class="text-sm text-gray-500">E-post: <span id="userDetailsEmail" class="font-medium"></span>
-                        </p>
-                        <p class="text-sm text-gray-500">Roll: <span id="userDetailsRole" class="font-medium"></span>
-                        </p>
-                        <p class="text-sm text-gray-500">Olek: <span id="userDetailsStatus" class="font-medium"></span>
-                        </p>
+                        <p class="text-sm text-gray-500">Email: <span id="userDetailsEmail"></span></p>
+                        <p class="text-sm text-gray-500">Roll: <span id="userDetailsRole"></span></p>
+                        <p class="text-sm text-gray-500">Staatus: <span id="userDetailsStatus"></span></p>
 
-                        <!-- Add Permissions Section -->
-                        <div class="mt-4 border-t pt-4">
-                            <h4 class="text-sm font-medium text-gray-700 mb-3">Vormi halduse õigused</h4>
+                        <div class="mt-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-2">Õigused</h4>
                             <div class="space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Vormimallide loomine</span>
-                                    <input type="checkbox" id="permCreatePresets"
-                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="permission-createPresets"
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="permission-createPresets"
+                                        class="ml-2 block text-sm text-gray-900">Loomine</label>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Vormimallide vaatamine</span>
-                                    <input type="checkbox" id="permViewPresets"
-                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="permission-viewPresets"
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="permission-viewPresets"
+                                        class="ml-2 block text-sm text-gray-900">Vaatamine</label>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Vormimallide muutmine</span>
-                                    <input type="checkbox" id="permEditPresets"
-                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="permission-editPresets"
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="permission-editPresets"
+                                        class="ml-2 block text-sm text-gray-900">Muutmine</label>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Vormimallide kustutamine</span>
-                                    <input type="checkbox" id="permDeletePresets"
-                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="permission-deletePresets"
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="permission-deletePresets"
+                                        class="ml-2 block text-sm text-gray-900">Kustutamine</label>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Seadete varundamine</span>
-                                    <input type="checkbox" id="permBackupSettings"
-                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="permission-backupSettings"
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="permission-backupSettings"
+                                        class="ml-2 block text-sm text-gray-900">Varundamine</label>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Vormimallide rakendamine</span>
-                                    <input type="checkbox" id="permApplyPresets"
-                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="permission-applyPresets"
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="permission-applyPresets"
+                                        class="ml-2 block text-sm text-gray-900">Rakendamine</label>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">Standardväljade haldamine</span>
-                                    <input type="checkbox" id="permManageStandardFields"
-                                        class="form-checkbox h-4 w-4 text-blue-600">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="permission-manageStandardFields"
+                                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                    <label for="permission-manageStandardFields"
+                                        class="ml-2 block text-sm text-gray-900">Standardväljade haldamine</label>
                                 </div>
                             </div>
-                            <button id="savePermissions"
-                                class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                                Salvesta õigused
-                            </button>
                         </div>
                     </div>
                     <div class="items-center px-4 py-3">
+                        <button id="savePermissions"
+                            class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            Salvesta
+                        </button>
                         <button id="closeUserDetails"
-                            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                            class="ml-3 px-4 py-2 bg-gray-200 text-gray-700 text-base font-medium rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
                             Sulge
                         </button>
                     </div>
@@ -3261,22 +3211,39 @@
             }
 
             // Add event listener for saving permissions
-            document.getElementById('savePermissions').addEventListener('click', async function () {
-                const userId = document.getElementById('userDetailsModal').dataset.userId;
-                if (!userId) return;
+            const saveButton = document.getElementById('savePermissions');
+            if (saveButton) {
+                saveButton.addEventListener('click', async function () {
+                    const userId = document.getElementById('userDetailsModal').dataset.userId;
+                    if (!userId) return;
 
-                const permissions = {
-                    createPresets: document.getElementById('permCreatePresets').checked,
-                    viewPresets: document.getElementById('permViewPresets').checked,
-                    editPresets: document.getElementById('permEditPresets').checked,
-                    deletePresets: document.getElementById('permDeletePresets').checked,
-                    backupSettings: document.getElementById('permBackupSettings').checked,
-                    applyPresets: document.getElementById('permApplyPresets').checked,
-                    manageStandardFields: document.getElementById('permManageStandardFields').checked
-                };
+                    const permissions = {
+                        createPresets: document.getElementById('permission-createPresets').checked,
+                        viewPresets: document.getElementById('permission-viewPresets').checked,
+                        editPresets: document.getElementById('permission-editPresets').checked,
+                        deletePresets: document.getElementById('permission-deletePresets').checked,
+                        backupSettings: document.getElementById('permission-backupSettings').checked,
+                        applyPresets: document.getElementById('permission-applyPresets').checked,
+                        manageStandardFields: document.getElementById('permission-manageStandardFields').checked
+                    };
 
-                await updateUserPermissions(userId, permissions);
-            });
+                    try {
+                        const userRef = doc(db, "users", userId);
+                        await updateDoc(userRef, {
+                            customPermissions: {
+                                formManagement: permissions
+                            }
+                        });
+                        alert("Õigused edukalt salvestatud!");
+                        closeUserDetailsModal();
+                    } catch (error) {
+                        console.error("Viga õiguste salvestamisel:", error);
+                        alert("Õiguste salvestamisel tekkis viga: " + error.message);
+                    }
+                });
+            } else {
+                console.warn("Save button not found in the DOM");
+            }
 
             // Add event listener for closing user details modal
             document.getElementById('closeUserDetails').addEventListener('click', function () {
@@ -3369,67 +3336,7 @@
                 }
             }
 
-            // Import users functions
-            function openImportModal() {
-                document.getElementById('importUserModal').classList.remove('hidden');
-            }
 
-            function closeImportModal() {
-                document.getElementById('importUserModal').classList.add('hidden');
-                document.getElementById('importUserForm').reset();
-            }
-
-            document.getElementById('importUserForm').addEventListener('submit', async function (e) {
-                e.preventDefault();
-                const file = document.getElementById('csvFile').files[0];
-                const defaultRole = document.getElementById('defaultRole').value;
-
-                try {
-                    const text = await file.text();
-                    const rows = text.split('\n').map(row => row.split(','));
-                    const headers = rows[0];
-                    const data = rows.slice(1);
-
-                    const batch = writeBatch(db);
-                    let successCount = 0;
-
-                    for (const row of data) {
-                        if (row.length < 1) continue;
-
-                        const email = row[0].trim();
-                        if (!email) continue;
-
-                        try {
-                            const userCredential = await createUserWithEmailAndPassword(auth, email, generateRandomPassword());
-                            const user = userCredential.user;
-
-                            batch.set(doc(db, "users", user.uid), {
-                                email: email,
-                                role: defaultRole,
-                                approved: false,
-                                createdAt: new Date(),
-                                lastLogin: null,
-                                status: 'pending',
-                                uid: user.uid,
-                                emailVerified: false,
-                                lastUpdated: new Date()
-                            });
-
-                            successCount++;
-                        } catch (error) {
-                            console.error(`Error creating user ${email}:`, error);
-                        }
-                    }
-
-                    await batch.commit();
-                    showNotification(`${successCount} kasutajat imporditud!`, 'success');
-                    closeImportModal();
-                    loadUsers();
-                } catch (error) {
-                    console.error('Error importing users:', error);
-                    showNotification('Viga kasutajate impordil!', 'error');
-                }
-            });
 
             // Helper functions
             function getSelectedUsers() {
@@ -3451,10 +3358,10 @@
 
             // Apply filters function
             async function applyFilters() {
-                const searchTerm = document.getElementById('userSearch').value;
-                const roleFilter = document.getElementById('roleFilter').value;
-                const statusFilter = document.getElementById('statusFilter').value;
-                const verificationFilter = document.getElementById('verificationFilter').value;
+                const searchTerm = document.getElementById('userSearch')?.value || '';
+                const roleFilter = document.getElementById('roleFilter')?.value || '';
+                const statusFilter = document.getElementById('statusFilter')?.value || '';
+                const verificationFilter = document.getElementById('verificationFilter')?.value || '';
 
                 await loadUsers(1, searchTerm, roleFilter, statusFilter, verificationFilter);
             }
@@ -4678,83 +4585,59 @@
                 const modal = document.getElementById('userDetailsModal');
                 if (!modal) return;
 
-                // Populate modal with user data
-                document.getElementById('userDetailsEmail').textContent = userData.email;
-                document.getElementById('userDetailsRole').textContent = userData.role;
-                document.getElementById('userDetailsStatus').textContent = userData.status;
+                // Set user details
+                document.getElementById('userDetailsEmail').textContent = userData.email || '';
+                document.getElementById('userDetailsRole').textContent = userData.role || '';
+                document.getElementById('userDetailsStatus').textContent = userData.status || '';
 
-                // Get current permissions
-                const currentPermissions = userData.customPermissions?.formManagement || {};
+                // Set permissions
+                const perms = userData.customPermissions?.formManagement || {};
+                document.getElementById('permission-createPresets').checked = perms.createPresets || false;
+                document.getElementById('permission-viewPresets').checked = perms.viewPresets || false;
+                document.getElementById('permission-editPresets').checked = perms.editPresets || false;
+                document.getElementById('permission-deletePresets').checked = perms.deletePresets || false;
+                document.getElementById('permission-backupSettings').checked = perms.backupSettings || false;
+                document.getElementById('permission-applyPresets').checked = perms.applyPresets || false;
+                document.getElementById('permission-manageStandardFields').checked = perms.manageStandardFields || false;
 
-                // Set checkbox states based on current permissions
-                const permissions = [
-                    'createPresets',
-                    'viewPresets',
-                    'editPresets',
-                    'deletePresets',
-                    'backupSettings',
-                    'applyPresets',
-                    'manageStandardFields'
-                ];
-
-                permissions.forEach(permission => {
-                    const checkbox = document.getElementById(`permission-${permission}`);
-                    if (checkbox) {
-                        checkbox.checked = currentPermissions[permission] || false;
-                    }
-                });
-
-                // Store current user ID for saving
+                // Store current user ID for permission updates
                 modal.dataset.userId = userId;
 
-                // Show the modal
+                // Show modal
                 modal.classList.remove('hidden');
             }
 
-            // Add this function to save user permissions
-            async function saveUserPermissions() {
+            // Function to save user permissions
+            function saveUserPermissions() {
                 const modal = document.getElementById('userDetailsModal');
                 if (!modal) return;
 
                 const userId = modal.dataset.userId;
                 if (!userId) return;
 
-                // Get all permission checkboxes
-                const permissions = [
-                    'createPresets',
-                    'viewPresets',
-                    'editPresets',
-                    'deletePresets',
-                    'backupSettings',
-                    'applyPresets',
-                    'manageStandardFields'
-                ];
+                const permissions = {
+                    createPresets: document.getElementById('permission-createPresets').checked,
+                    viewPresets: document.getElementById('permission-viewPresets').checked,
+                    editPresets: document.getElementById('permission-editPresets').checked,
+                    deletePresets: document.getElementById('permission-deletePresets').checked,
+                    backupSettings: document.getElementById('permission-backupSettings').checked,
+                    applyPresets: document.getElementById('permission-applyPresets').checked,
+                    manageStandardFields: document.getElementById('permission-manageStandardFields').checked
+                };
 
-                // Create permissions object
-                const newPermissions = {};
-                permissions.forEach(permission => {
-                    const checkbox = document.getElementById(`permission-${permission}`);
-                    if (checkbox) {
-                        newPermissions[permission] = checkbox.checked;
-                    }
-                });
-
-                try {
-                    // Update user permissions
-                    await updateUserPermissions(userId, newPermissions);
-
-                    // Close the modal
-                    closeUserDetailsModal();
-
-                    // Refresh the user list to show updated permissions
-                    loadUsers();
-                } catch (error) {
-                    console.error("Error saving user permissions:", error);
-                    showNotification("Viga õiguste salvestamisel!", "error");
-                }
+                // Update permissions in Firestore
+                updateUserPermissions(userId, permissions)
+                    .then(() => {
+                        alert('Õigused edukalt uuendatud!');
+                        closeUserDetailsModal();
+                    })
+                    .catch(error => {
+                        console.error('Error updating permissions:', error);
+                        alert('Õiguste uuendamisel tekkis viga: ' + error.message);
+                    });
             }
 
-            // Add this function to close the modal
+            // Function to close user details modal
             function closeUserDetailsModal() {
                 const modal = document.getElementById('userDetailsModal');
                 if (modal) {
@@ -5163,16 +5046,146 @@
             }
 
             // Add button to trigger permission update
-            const updatePermissionsButton = document.createElement('button');
-            updatePermissionsButton.className = 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700';
-            updatePermissionsButton.textContent = 'Update All Permissions';
-            updatePermissionsButton.onclick = updateAllUserPermissions;
+            const updatePermissionsButton = document.getElementById('updatePermissionsButton');
+            const updatePermissionsSpinner = document.getElementById('updatePermissionsSpinner');
 
-            // Add button to the roles section
-            const rolesSection = document.querySelector('.flex-1.px-10.py-4.space-y-1');
-            if (rolesSection) {
-                rolesSection.appendChild(updatePermissionsButton);
+            if (updatePermissionsButton) {
+                updatePermissionsButton.onclick = async function () {
+                    try {
+                        updatePermissionsButton.disabled = true;
+                        updatePermissionsSpinner.classList.remove('hidden');
+                        await updateAllUserPermissions();
+                    } finally {
+                        updatePermissionsButton.disabled = false;
+                        updatePermissionsSpinner.classList.add('hidden');
+                    }
+                };
             }
+
+            // Add hover effects to all buttons
+            document.querySelectorAll('button, a').forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    element.classList.add('scale-105');
+                });
+                element.addEventListener('mouseleave', () => {
+                    element.classList.remove('scale-105');
+                });
+            });
+
+            // ... existing code ...
+            // Add event listener for saving permissions
+            const userDetailsModal = document.getElementById('userDetailsModal');
+            if (userDetailsModal) {
+                userDetailsModal.addEventListener('click', function (e) {
+                    if (e.target && e.target.matches('button[onclick="saveUserPermissions()"]')) {
+                        const userId = this.dataset.userId;
+                        if (!userId) return;
+
+                        const permissions = {
+                            createPresets: document.getElementById('permission-createPresets').checked,
+                            viewPresets: document.getElementById('permission-viewPresets').checked,
+                            editPresets: document.getElementById('permission-editPresets').checked,
+                            deletePresets: document.getElementById('permission-deletePresets').checked,
+                            backupSettings: document.getElementById('permission-backupSettings').checked,
+                            applyPresets: document.getElementById('permission-applyPresets').checked,
+                            manageStandardFields: document.getElementById('permission-manageStandardFields').checked
+                        };
+
+                        // Update permissions in Firestore
+                        updateUserPermissions(userId, permissions)
+                            .then(() => {
+                                alert('Õigused edukalt uuendatud!');
+                                closeUserDetailsModal();
+                            })
+                            .catch(error => {
+                                console.error('Error updating permissions:', error);
+                                alert('Õiguste uuendamisel tekkis viga: ' + error.message);
+                            });
+                    }
+                });
+            }
+            // ... existing code ...
+
+            function handleUserSearch(searchTerm) {
+                const rows = document.querySelectorAll('#userTable tr');
+                searchTerm = searchTerm.toLowerCase();
+
+                rows.forEach(row => {
+                    const email = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    const match = email.includes(searchTerm);
+                    row.style.display = match ? '' : 'none';
+                });
+            }
+
+            // Import users functions
+            const importUserForm = document.getElementById('importUserForm');
+            if (importUserForm) {
+                importUserForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const file = document.getElementById('csvFile').files[0];
+                    const defaultRole = document.getElementById('defaultRole').value;
+
+                    try {
+                        const text = await file.text();
+                        const rows = text.split('\n').map(row => row.split(','));
+                        const headers = rows[0];
+                        const data = rows.slice(1);
+
+                        const batch = writeBatch(db);
+                        let successCount = 0;
+
+                        for (const row of data) {
+                            if (row.length < 1) continue;
+
+                            const email = row[0].trim();
+                            if (!email) continue;
+
+                            try {
+                                const userCredential = await createUserWithEmailAndPassword(auth, email, generateRandomPassword());
+                                const user = userCredential.user;
+
+                                batch.set(doc(db, "users", user.uid), {
+                                    email: email,
+                                    role: defaultRole,
+                                    approved: false,
+                                    createdAt: new Date(),
+                                    lastLogin: null,
+                                    status: 'pending',
+                                    uid: user.uid,
+                                    emailVerified: false,
+                                    lastUpdated: new Date()
+                                });
+
+                                successCount++;
+                            } catch (error) {
+                                console.error(`Error creating user ${email}:`, error);
+                            }
+                        }
+
+                        await batch.commit();
+                        showNotification(`${successCount} kasutajat imporditud!`, 'success');
+                        closeImportModal();
+                        loadUsers();
+                    } catch (error) {
+                        console.error('Error importing users:', error);
+                        showNotification('Viga kasutajate impordil!', 'error');
+                    }
+                });
+            }
+
+            // Helper functions
+            // ... existing code ...
+        </script>
+        <script>
+            // Add the closeUserDetailsModal function to the global scope
+            function closeUserDetailsModal() {
+                const modal = document.getElementById('userDetailsModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            }
+
+            // Rest of your existing script code...
         </script>
 </body>
 
