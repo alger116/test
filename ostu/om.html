@@ -2798,27 +2798,195 @@
 
       // Export to Excel
       exportExcel.onclick = () => {
-        const wb = XLSX.utils.book_new();
-        const data = [];
-
-        const title = document.getElementById("tableTitle").value;
-        if (title) data.push([title], []);
-
-        const headers = [...document.querySelectorAll("#tableHead th")].map(
-          (th) => th.textContent.replace("❌", "").trim(),
-        );
-        data.push(headers);
-
-        document.querySelectorAll("#tableBody tr").forEach((row) => {
-          const rowData = [...row.querySelectorAll("td:not(.delete-row)")].map(
-            (td) => td.textContent.trim(),
-          );
-          data.push(rowData);
+        // Close any existing modals
+        document.querySelectorAll('.fixed.inset-0.bg-black.bg-opacity-50').forEach(modal => {
+          modal.classList.add('hidden');
         });
 
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        XLSX.utils.book_append_sheet(wb, ws, "Tabel");
-        XLSX.writeFile(wb, "tabel.xlsx");
+        const excelModal = document.getElementById("excelExportModal");
+        const excelFileName = document.getElementById("excelFileName");
+        const excelPreview = document.getElementById("excelPreview");
+        const cancelExcelExport = document.getElementById("cancelExcelExport");
+        const confirmExcelExport = document.getElementById("confirmExcelExport");
+
+        // Show modal
+        excelModal.classList.remove("hidden");
+
+        // Generate preview
+        const generatePreview = () => {
+          const title = document.getElementById("tableTitle").value;
+          const headers = [...document.querySelectorAll("#tableHead th")].map(
+            (th) => th.textContent.replace("❌", "").trim()
+          );
+
+          let previewHTML = '<table class="w-full border-collapse">';
+
+          if (title) {
+            previewHTML += `<tr><td colspan="${headers.length}" class="border p-2 font-bold text-center">${title}</td></tr>`;
+          }
+
+          // Headers
+          previewHTML += '<tr class="bg-gray-100">';
+          headers.forEach(header => {
+            previewHTML += `<th class="border p-2">${header}</th>`;
+          });
+          previewHTML += '</tr>';
+
+          // Data rows
+          document.querySelectorAll("#tableBody tr").forEach((row, rowIndex) => {
+            const cells = [...row.querySelectorAll("td:not(.delete-row)")].map(
+              (td) => td.textContent.trim()
+            );
+
+            previewHTML += '<tr>';
+            cells.forEach((cell, colIndex) => {
+              // Add formula indicators
+              if (cell.startsWith('=')) {
+                previewHTML += `<td class="border p-2 text-blue-600">${cell}</td>`;
+              } else {
+                previewHTML += `<td class="border p-2">${cell}</td>`;
+              }
+            });
+            previewHTML += '</tr>';
+          });
+
+          previewHTML += '</table>';
+          excelPreview.innerHTML = previewHTML;
+        };
+
+        // Initial preview
+        generatePreview();
+
+        // Handle cancel
+        cancelExcelExport.onclick = () => {
+          excelModal.classList.add("hidden");
+        };
+
+        // Handle confirm export
+        confirmExcelExport.onclick = () => {
+          const wb = XLSX.utils.book_new();
+          const data = [];
+
+          // Add title
+          const title = document.getElementById("tableTitle").value;
+          if (title) {
+            data.push([title]);
+            data.push([]); // Empty row after title
+          }
+
+          // Get headers
+          const headers = [...document.querySelectorAll("#tableHead th")].map(
+            (th) => th.textContent.replace("❌", "").trim()
+          );
+          data.push(headers);
+
+          // Process data rows with formulas and proper type detection
+          document.querySelectorAll("#tableBody tr").forEach((row) => {
+            const rowData = [...row.querySelectorAll("td:not(.delete-row)")].map((td) => {
+              const content = td.textContent.trim();
+
+              // Handle empty cells
+              if (!content) return '';
+
+              // Handle formulas (must start with = and contain at least one operator or function)
+              if (content.startsWith('=') && (content.includes('+') || content.includes('-') ||
+                content.includes('*') || content.includes('/') || content.includes('('))) {
+                return { f: content }; // Keep the = sign
+              }
+
+              // Handle numbers (must be a valid number and not just a string of digits)
+              const num = Number(content);
+              if (!isNaN(num) && content === num.toString() && content !== '') {
+                return num;
+              }
+
+              // Handle dates (must be a valid date string)
+              const date = new Date(content);
+              if (date instanceof Date && !isNaN(date) && content === date.toISOString().split('T')[0]) {
+                return date;
+              }
+
+              return content;
+            });
+            data.push(rowData);
+          });
+
+          const ws = XLSX.utils.aoa_to_sheet(data);
+
+          // Set column widths based on content
+          const colWidths = headers.map((_, colIndex) => {
+            let maxLength = headers[colIndex].length;
+            data.forEach((row, rowIndex) => {
+              if (rowIndex > (title ? 2 : 0)) { // Skip title and headers
+                const cellContent = row[colIndex]?.toString() || '';
+                maxLength = Math.max(maxLength, cellContent.length);
+              }
+            });
+            return { wch: Math.min(Math.max(maxLength + 2, 10), 50) }; // Min 10, max 50 chars
+          });
+          ws['!cols'] = colWidths;
+
+          // Add styling
+          const range = XLSX.utils.decode_range(ws['!ref']);
+
+          // Style title if exists
+          if (title) {
+            const titleCell = XLSX.utils.encode_cell({ r: 0, c: 0 });
+            ws[titleCell].s = {
+              font: { bold: true, sz: 14 },
+              alignment: { horizontal: 'center' },
+              fill: { fgColor: { rgb: "F0F0F0" } }
+            };
+            // Merge title cells
+            ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }];
+          }
+
+          // Style headers
+          for (let C = 0; C < headers.length; ++C) {
+            const headerCell = XLSX.utils.encode_cell({ r: title ? 2 : 0, c: C });
+            ws[headerCell].s = {
+              font: { bold: true },
+              alignment: { horizontal: 'center' },
+              fill: { fgColor: { rgb: "E6E6E6" } }
+            };
+          }
+
+          // Style data cells
+          for (let R = (title ? 3 : 1); R <= range.e.r; ++R) {
+            for (let C = 0; C <= range.e.c; ++C) {
+              const cell_address = { c: C, r: R };
+              const cell_ref = XLSX.utils.encode_cell(cell_address);
+
+              if (!ws[cell_ref]) continue;
+
+              // Get cell content to determine alignment
+              const cellContent = ws[cell_ref].v;
+              const isNumber = typeof cellContent === 'number';
+              const isDate = cellContent instanceof Date;
+
+              ws[cell_ref].s = {
+                alignment: {
+                  horizontal: isNumber || isDate ? 'right' : 'left',
+                  vertical: 'center'
+                }
+              };
+
+              // Add number format for dates
+              if (isDate) {
+                ws[cell_ref].z = 'yyyy-mm-dd';
+              }
+            }
+          }
+
+          XLSX.utils.book_append_sheet(wb, ws, "Tabel");
+
+          // Use custom filename
+          const fileName = excelFileName.value || "tabel";
+          XLSX.writeFile(wb, `${fileName}.xlsx`);
+
+          // Close modal
+          excelModal.classList.add("hidden");
+        };
       };
 
       // Export to PDF
@@ -2850,7 +3018,7 @@
 
         setTimeout(() => {
           toast.classList.add("opacity-0");
-          setTimeout(() => toast.remove(), 300);
+          setTimeout(() => toast.remove(), 3000);
         }, 3000);
       }
     });
@@ -4170,6 +4338,37 @@
         <button @click="handleResetConfirm()"
           class="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl hover:shadow-lg hover:shadow-red-500/30 transform hover:-translate-y-0.5 transition-all duration-300">
           Kustuta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Excel Export Modal -->
+<div id="excelExportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+  <div class="fixed inset-0 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4">Excel Export Options</h2>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">File Name</label>
+        <input type="text" id="excelFileName" class="w-full px-3 py-2 border rounded-md" placeholder="Enter file name"
+          value="tabel">
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Preview</label>
+        <div id="excelPreview" class="border rounded-md p-4 max-h-60 overflow-auto">
+          <!-- Preview content will be inserted here -->
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-2">
+        <button id="cancelExcelExport" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">
+          Cancel
+        </button>
+        <button id="confirmExcelExport" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+          Export
         </button>
       </div>
     </div>
