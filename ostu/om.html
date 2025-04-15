@@ -3338,9 +3338,13 @@
           );
           data.push(headers);
 
+          // Detect cost column index (Maksumus)
+          const costColumnIndex = headers.findIndex(header =>
+            header.toLowerCase().includes('maksumus'));
+
           // Process data rows with improved type detection
           document.querySelectorAll("#tableBody tr").forEach((row) => {
-            const rowData = [...row.querySelectorAll("td:not(.delete-row)")].map((td) => {
+            const rowData = [...row.querySelectorAll("td:not(.delete-row)")].map((td, colIndex) => {
               const content = td.textContent.trim();
 
               // Handle empty cells
@@ -3355,6 +3359,17 @@
                 formula = formula.replace(/,/g, '.'); // Replace decimal commas with points
 
                 return { f: formula }; // Keep the = sign
+              }
+
+              // Special handling for the cost column (Maksumus)
+              if (colIndex === costColumnIndex && costColumnIndex !== -1) {
+                // Extract number from the content, handling € symbol and spaces
+                const cleanContent = content.replace(/[€\s]/g, '').replace(/,/g, '.');
+                const num = parseFloat(cleanContent);
+
+                if (!isNaN(num)) {
+                  return { v: num, t: 'n', z: '#,##0.00 €' };
+                }
               }
 
               // Handle currencies (€ symbol)
@@ -3407,9 +3422,9 @@
           const ws = XLSX.utils.aoa_to_sheet(data);
 
           // Set column widths based on content with more precise calculations
-          const colWidths = headers.map((_, colIndex) => {
+          const colWidths = headers.map((header, colIndex) => {
             // Start with the header width
-            let maxLength = headers[colIndex]?.length || 0;
+            let maxLength = header?.length || 0;
 
             // Check each row's content length
             document.querySelectorAll("#tableBody tr").forEach(row => {
@@ -3506,19 +3521,32 @@
                 cellStyle.font = { color: { rgb: "0000FF" } };
               }
 
-              // Add zebra striping for better readability
-              if (R % 2 === 1) {
-                cellStyle.fill = { fgColor: { rgb: "F9F9F9" } };
+              // Special styling for cost column
+              if (C === costColumnIndex && costColumnIndex !== -1) {
+                cellStyle.alignment.horizontal = 'right';
+
+                // Add subtle background for cost column
+                cellStyle.fill = { fgColor: { rgb: "F5F5F5" } };
+              } else {
+                // Regular zebra striping for other columns
+                if (R % 2 === 1) {
+                  cellStyle.fill = { fgColor: { rgb: "F9F9F9" } };
+                }
               }
 
               ws[cell_ref].s = cellStyle;
             }
           }
 
-          XLSX.utils.book_append_sheet(wb, ws, "Tabel");
+          // Use file name from input or generate a default using title or "Maksumuse esildis"
+          const fileName = excelFileName.value.trim() ||
+            title ||
+            "Maksumuse esildis";
 
-          // Use custom filename
-          const fileName = excelFileName.value.trim() || "tabel";
+          // Use sheet name based on the content
+          const sheetName = "Maksumuse esildis";
+
+          XLSX.utils.book_append_sheet(wb, ws, sheetName);
           XLSX.writeFile(wb, `${fileName}.xlsx`);
 
           // Close modal
@@ -3571,7 +3599,7 @@
               <div class="space-y-4">
                 <div>
                   <label for="pdfFileName" class="block text-sm font-medium text-gray-700 mb-2">Faili nimi</label>
-                  <input type="text" id="pdfFileName" placeholder="tabel.pdf" 
+                  <input type="text" id="pdfFileName" placeholder="Maksumuse esildis.pdf" value="Maksumuse esildis.pdf"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                 </div>
                 
@@ -3635,114 +3663,263 @@
 
       // Generate and download PDF with options
       function generateAndDownloadPdf() {
-        // Get options from the form
-        const fileName = document.getElementById("pdfFileName").value.trim() || "tabel.pdf";
-        const format = document.querySelector('input[name="pdfSize"]:checked').value;
-        const orientation = document.querySelector('input[name="pdfOrientation"]:checked').value;
-        const includeHeader = document.getElementById("pdfIncludeHeader").checked;
-        const fitToPage = document.getElementById("pdfFitToPage").checked;
+        try {
+          // Get options from the form
+          const fileName = document.getElementById("pdfFileName").value.trim() || "Maksumuse esildis.pdf";
+          const format = document.querySelector('input[name="pdfSize"]:checked').value;
+          const orientation = document.querySelector('input[name="pdfOrientation"]:checked').value;
+          const includeHeader = document.getElementById("pdfIncludeHeader").checked;
+          const fitToPage = document.getElementById("pdfFitToPage").checked;
 
-        // Clone the table for manipulation
-        const element = document.getElementById("dynamicTable").cloneNode(true);
-        const title = document.getElementById("tableTitle").value;
+          // Clone the table for manipulation
+          const element = document.getElementById("dynamicTable").cloneNode(true);
+          const title = document.getElementById("tableTitle").value || "Maksumuse esildis";
 
-        // Create a container for the PDF content
-        const container = document.createElement("div");
-        container.className = "pdf-container";
+          // Completely strip all tailwind classes that might use problematic colors
+          element.querySelectorAll('*').forEach(el => {
+            // Store original content and attributes we want to keep
+            const content = el.innerHTML;
+            const contentEditable = el.contentEditable;
+            const tagName = el.tagName;
 
-        // Add styling for PDF
-        const style = document.createElement("style");
-        style.textContent = `
-          .pdf-container {
-            font-family: 'Arial', sans-serif;
-            color: #333;
-            max-width: 100%;
-          }
-          .pdf-container h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            text-align: center;
-          }
-          .pdf-container table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-          }
-          .pdf-container th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-            text-align: left;
-            padding: 8px;
-            border: 1px solid #ddd;
-          }
-          .pdf-container td {
-            padding: 8px;
-            border: 1px solid #ddd;
-            background-color: #fff;
-          }
-          .pdf-container tr:nth-child(even) td {
-            background-color: #f9f9f9;
-          }
-        `;
-        container.appendChild(style);
+            // Clear all classes that could have color-related issues
+            el.className = '';
 
-        // Add title if present
-        if (title && includeHeader) {
-          const titleElem = document.createElement("h2");
-          titleElem.textContent = title;
-          container.appendChild(titleElem);
+            // Apply basic styling directly with standard colors using inline styles
+            if (tagName === 'TH') {
+              el.style.backgroundColor = '#f2f2f2';
+              el.style.color = '#333333';
+              el.style.borderColor = '#dddddd';
+              el.style.border = '1px solid #dddddd';
+              el.style.padding = '8px';
+              el.style.fontWeight = 'bold';
+              el.style.textAlign = 'left';
+            } else if (tagName === 'TD') {
+              el.style.backgroundColor = '#ffffff';
+              el.style.color = '#333333';
+              el.style.borderColor = '#dddddd';
+              el.style.border = '1px solid #dddddd';
+              el.style.padding = '8px';
+            } else if (tagName === 'TABLE') {
+              el.style.width = '100%';
+              el.style.borderCollapse = 'collapse';
+              el.style.marginBottom = '20px';
+            } else if (tagName === 'BUTTON' || tagName === 'INPUT') {
+              // Hide buttons and inputs from the PDF
+              el.style.display = 'none';
+            }
+
+            // Restore content and essential attributes
+            el.contentEditable = contentEditable;
+          });
+
+          // Create a container for the PDF content
+          const container = document.createElement("div");
+          container.className = "pdf-container";
+          container.style.fontFamily = "'Arial', sans-serif";
+          container.style.color = "#333333";
+          container.style.maxWidth = "100%";
+
+          // Add title if present
+          if (title && includeHeader) {
+            const titleElem = document.createElement("h2");
+            titleElem.textContent = title;
+            titleElem.style.color = "#333333";
+            titleElem.style.fontSize = "18px";
+            titleElem.style.marginBottom = "10px";
+            titleElem.style.textAlign = "center";
+            container.appendChild(titleElem);
+          }
+
+          // Add the table (clone it to avoid modifying the original)
+          container.appendChild(element);
+
+          // Remove delete buttons from the clone
+          container.querySelectorAll('.delete-row, .delete-col').forEach(el => el.remove());
+
+          // Find the cost column
+          const headers = [...container.querySelectorAll('th')];
+          const costColumnIndex = headers.findIndex(th =>
+            th.textContent.toLowerCase().includes('maksumus'));
+          const quantityColumnIndex = headers.findIndex(th =>
+            th.textContent.toLowerCase().includes('kogus'));
+
+          // Apply special styling to specific columns
+          if (costColumnIndex !== -1) {
+            // Apply to header
+            const costHeader = headers[costColumnIndex];
+            costHeader.style.textAlign = "right";
+            costHeader.style.backgroundColor = "#f5f5f5";
+
+            // Apply to all cells in that column
+            const rows = container.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+              const cells = [...row.querySelectorAll('td')];
+              if (cells[costColumnIndex]) {
+                const cell = cells[costColumnIndex];
+                cell.style.textAlign = "right";
+                cell.style.backgroundColor = "#f5f5f5";
+
+                // Format the cost with € if it doesn't already have it
+                const content = cell.textContent.trim();
+                if (/^-?\d+(\.\d+)?$/.test(content)) {
+                  cell.textContent = `${content} €`;
+                }
+              }
+            });
+          }
+
+          // Format quantity column as right-aligned
+          if (quantityColumnIndex !== -1) {
+            // Apply to all cells in quantity column
+            const rows = container.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+              const cells = [...row.querySelectorAll('td')];
+              if (cells[quantityColumnIndex]) {
+                cells[quantityColumnIndex].style.textAlign = "right";
+              }
+            });
+          }
+
+          // Apply zebra striping with standard colors
+          container.querySelectorAll('tbody tr:nth-child(even) td').forEach(cell => {
+            cell.style.backgroundColor = "#f9f9f9";
+          });
+
+          // Create PDF generation options
+          const opt = {
+            margin: 10,
+            filename: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`,
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              letterRendering: true,
+              backgroundColor: "#ffffff" // Use standard white
+            },
+            jsPDF: {
+              unit: "mm",
+              format: format,
+              orientation: orientation
+            }
+          };
+
+          // Add fit to page option if selected
+          if (fitToPage) {
+            // Calculate the optimal scale based on the table size and page size
+            const tableWidth = element.offsetWidth;
+            const pageWidth = format === 'a4' ? 210 : 216; // A4 or Letter width in mm
+            const margin = 20; // 10mm margins on each side
+            const availableWidth = pageWidth - (margin * 2);
+
+            // Convert px to mm (approx 3.8px = 1mm)
+            const tableWidthMm = tableWidth / 3.8;
+            const scale = Math.min(1, availableWidth / tableWidthMm);
+
+            opt.html2canvas.scale = 2 * scale; // Adjust scale for high resolution
+          }
+
+          // Try primary method first with html2pdf
+          generatePdfWithHtml2Pdf(container, opt)
+            .catch(error => {
+              console.error("Primary PDF generation failed:", error);
+              showToast("Proovin alternatiivset meetodit...", "info");
+
+              // Fall back to jsPDF direct method
+              generatePdfWithJsPdf(container, opt);
+            });
+        } catch (error) {
+          console.error("PDF generation setup error:", error);
+          showToast("Viga PDF-i seadistamisel: " + error.message, "error");
         }
+      }
 
-        // Add the table (clone it to avoid modifying the original)
-        container.appendChild(element);
-
-        // Remove delete buttons from the clone
-        container.querySelectorAll('.delete-row, .delete-col').forEach(el => el.remove());
-
-        // Create PDF generation options
-        const opt = {
-          margin: 10,
-          filename: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            letterRendering: true
-          },
-          jsPDF: {
-            unit: "mm",
-            format: format,
-            orientation: orientation
-          }
-        };
-
-        // Add fit to page option if selected
-        if (fitToPage) {
-          // Calculate the optimal scale based on the table size and page size
-          const tableWidth = element.offsetWidth;
-          const pageWidth = format === 'a4' ? 210 : 216; // A4 or Letter width in mm
-          const margin = 20; // 10mm margins on each side
-          const availableWidth = pageWidth - (margin * 2);
-
-          // Convert px to mm (approx 3.8px = 1mm)
-          const tableWidthMm = tableWidth / 3.8;
-          const scale = Math.min(1, availableWidth / tableWidthMm);
-
-          opt.html2canvas.scale = 2 * scale; // Adjust scale for high resolution
-        }
-
-        // Generate and download PDF
-        html2pdf()
+      // Primary PDF generation method
+      function generatePdfWithHtml2Pdf(container, opt) {
+        return html2pdf()
           .set(opt)
           .from(container)
           .save()
           .then(() => {
             showToast("PDF on eksporditud!", "success");
-          })
-          .catch(error => {
-            console.error("PDF generation error:", error);
-            showToast("Viga PDF-i loomisel", "error");
+            return true;
           });
+      }
+
+      // Fallback PDF generation method
+      function generatePdfWithJsPdf(container, opt) {
+        try {
+          // Create a new jsPDF instance
+          const pdf = new jspdf.jsPDF({
+            orientation: opt.jsPDF.orientation,
+            unit: opt.jsPDF.unit,
+            format: opt.jsPDF.format
+          });
+
+          // Extract table data
+          const table = container.querySelector('table');
+          const rows = Array.from(table.querySelectorAll('tr'));
+
+          // Get table headers
+          const headers = Array.from(rows[0].querySelectorAll('th')).map(th => th.textContent.trim());
+
+          // Get table data
+          const data = [];
+          for (let i = 1; i < rows.length; i++) {
+            const rowData = Array.from(rows[i].querySelectorAll('td')).map(td => td.textContent.trim());
+            if (rowData.some(cell => cell)) { // Skip empty rows
+              data.push(rowData);
+            }
+          }
+
+          // Title if included
+          let startY = 15;
+          const title = container.querySelector('h2');
+          if (title) {
+            pdf.setFontSize(16);
+            pdf.text(title.textContent, pdf.internal.pageSize.width / 2, startY, { align: 'center' });
+            startY += 10;
+          }
+
+          // Create the table in PDF
+          pdf.autoTable({
+            head: [headers],
+            body: data,
+            startY: startY,
+            theme: 'grid',
+            styles: {
+              fontSize: 10,
+              cellPadding: 3,
+              lineColor: [221, 221, 221],
+              lineWidth: 0.1
+            },
+            headStyles: {
+              fillColor: [242, 242, 242],
+              textColor: [51, 51, 51],
+              fontStyle: 'bold'
+            },
+            alternateRowStyles: {
+              fillColor: [249, 249, 249]
+            },
+            // Custom styling for specific columns
+            columnStyles: {
+              [headers.findIndex(h => h.toLowerCase().includes('maksumus'))]: {
+                halign: 'right',
+                fillColor: [245, 245, 245]
+              },
+              [headers.findIndex(h => h.toLowerCase().includes('kogus'))]: {
+                halign: 'right'
+              }
+            }
+          });
+
+          // Save the PDF
+          pdf.save(opt.filename);
+          showToast("PDF on eksporditud alternatiivse meetodiga!", "success");
+        } catch (error) {
+          console.error("Fallback PDF generation failed:", error);
+          showToast("Viga PDF-i loomisel: " + error.message, "error");
+        }
       }
 
       // Toast notification function
@@ -4929,7 +5106,7 @@
             <i class="fas fa-file-excel mr-2"></i> Ekspordi Excel
           </button>
           <button id="exportPdfBtn"
-            class="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+            class="hidden px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
             <i class="fas fa-file-pdf mr-2"></i> Ekspordi PDF
           </button>
         </div>
