@@ -1558,13 +1558,13 @@
             });
             this.showToast(
               hasUncheckedOptions
-                ? "Kõik valikud valitud"
-                : "Kõik valikud eemaldatud",
+                ? "Kõik tingimused lisatud"
+                : "Kõik tingimused eemaldatud",
               "success",
             );
           },
 
-          showToast(message, type = "info", duration = 3000) {
+          showToast(message, type = "OK!", duration = 3000) {
             const toast = {
               id: Date.now(),
               message,
@@ -2566,24 +2566,36 @@
                 return;
               }
 
-              // Säilitame kasutaja väljad
-              const userFields = { ...this.form.fields };
+              // Täielikult uuenda vormi struktuuri
+              this.form = {
+                ...this.form,
+                sections: preset.data.sections ?
+                  JSON.parse(JSON.stringify(preset.data.sections)) :
+                  []
+              };
 
-              // Rakendame eelsätte intro teksti
-              if (preset.data.intro) {
-                this.form.intro = preset.data.intro;
+              // Puhasta ja uuenda vaadet käsitsi
+              const formContainer = document.getElementById('formContainer');
+              if (formContainer) {
+                formContainer.innerHTML = ''; // Tühjenda vana sisu
+
+                // Loo uued väljad alates nullist
+                this.defaultFields = this.createDefaultFields();
+                this.initializeFormUI();
               }
 
-              // Rakendame eelsätte sektsioone
-              if (preset.data.sections && Array.isArray(preset.data.sections)) {
-                this.form.sections = preset.data.sections;
-              }
-
-              // Taastame kasutaja väljad
-              this.form.fields = userFields;
-
-              // Salvesta muudatused
+              // Salvesta ja värskenda kohe
               this.saveToStorage();
+
+              // Lisa väike viivitus UI uuendamiseks
+              setTimeout(() => {
+                if (typeof this.renderForm === 'function') {
+                  this.renderForm();
+                }
+              }, 50);
+
+              // Peida dropdown
+              this.showPresetDropdown = false;
 
               // Lisa teade kasutajale
               this.toasts.push({
@@ -2592,8 +2604,6 @@
                 id: Date.now()
               });
 
-              // Peida dropdown
-              this.showPresetDropdown = false;
             } catch (error) {
               console.error("Error applying form preset:", error);
               this.errorMessage = "Eelsätte rakendamine ebaõnnestus.";
@@ -3310,7 +3320,7 @@
                     class="flex items-center text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-lg transition-colors"
                     @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
                     <i class="fas fa-list mr-1"></i>
-                    <span>Vormimallid</span>
+                    <span>Kutse mallid</span>
                     <i class="fas fa-chevron-down ml-1 text-xs"
                       :class="{'transform rotate-180': showPresetDropdown}"></i>
                   </button>
@@ -3328,9 +3338,9 @@
                   <div x-show="showPresetDropdown" x-transition @click.away="showPresetDropdown = false"
                     class="absolute z-10 left-0 mt-2 w-64 md:w-80 bg-white rounded-xl shadow-xl border border-gray-200 py-2 overflow-hidden">
                     <div class="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                      <h3 class="font-medium text-gray-800 text-sm">Vali vormimall</h3>
+                      <h3 class="font-medium text-gray-800 text-sm">Mallid on eelvalitud tingimustega</h3>
                       <p class="text-xs text-gray-500 mt-1">
-                        Need mallid on loodud administraatori poolt
+
                       </p>
                     </div>
 
