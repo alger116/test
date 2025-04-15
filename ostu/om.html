@@ -2445,6 +2445,7 @@
                   ...section,
                   enabled: section.enabled ?? true,
                   open: section.open ?? false,
+                  isOpen: true, // Add isOpen property for section toggle
                   options: Array.isArray(section.options)
                     ? section.options.map((option) => ({
                       ...option,
@@ -4493,25 +4494,34 @@
               <!-- Sections -->
               <template x-for="(section, idx) in visibleSections" :key="idx">
                 <div class="mt-8">
-                  <!-- Section title -->
-                  <div class="flex items-center mb-4">
+                  <!-- Section title with toggle -->
+                  <div class="flex items-center mb-4 cursor-pointer" @click="section.isOpen = !section.isOpen">
+                    <div class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
+                      <i class="fas" :class="section.isOpen ? 'fa-chevron-down' : 'fa-chevron-right'"
+                        class="text-indigo-600 text-xs"></i>
+                    </div>
                     <h2 class="text-lg font-bold text-indigo-700"
                       x-text="(idx + 1) + ' ' + section.title.split(' ').slice(1).join(' ')"></h2>
                     <div class="flex-grow h-0.5 bg-gradient-to-r from-indigo-500 to-indigo-300 ml-3 rounded-full"></div>
                   </div>
 
                   <!-- Section options -->
-                  <ul class="space-y-3 pl-2">
-                    <template x-for="(opt, i) in section.options.filter(o => o.checked)" :key="i">
-                      <li class="flex items-start p-2 bg-white/30 rounded-lg shadow-sm hover:shadow-md transition-all">
-                        <div
-                          class="min-w-8 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-bold text-indigo-700 mr-3">
-                          <span x-text="(idx + 1) + '.' + (i+1)"></span>
-                        </div>
-                        <span class="text-sm text-gray-800" x-text="opt.text"></span>
-                      </li>
-                    </template>
-                  </ul>
+                  <div x-show="section.isOpen" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 transform -translate-y-2"
+                    x-transition:enter-end="opacity-100 transform translate-y-0">
+                    <ul class="space-y-3 pl-2">
+                      <template x-for="(opt, i) in section.options.filter(o => o.checked)" :key="i">
+                        <li
+                          class="flex items-start p-2 bg-white/30 rounded-lg shadow-sm hover:shadow-md transition-all">
+                          <div
+                            class="min-w-8 h-6 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-bold text-indigo-700 mr-3">
+                            <span x-text="(idx + 1) + '.' + (i+1)"></span>
+                          </div>
+                          <span class="text-sm text-gray-800" x-text="opt.text"></span>
+                        </li>
+                      </template>
+                    </ul>
+                  </div>
                 </div>
               </template>
 
@@ -5109,6 +5119,10 @@
             class="hidden px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
             <i class="fas fa-file-pdf mr-2"></i> Ekspordi PDF
           </button>
+          <button id="toggleRealTimePreviewBtn"
+            class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors">
+            <i class="fas fa-sync mr-2"></i> Reaalajas eelvaade
+          </button>
         </div>
         <div class="flex space-x-3">
           <button id="previewBtn"
@@ -5288,5 +5302,7 @@
     </div>
   </div>
 </div>
+
+
 
 </html>

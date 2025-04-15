@@ -245,6 +245,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .right-6 {
   right: calc(var(--spacing) * 6);
 }
+.right-8 {
+  right: calc(var(--spacing) * 8);
+}
 .-bottom-5 {
   bottom: calc(var(--spacing) * -5);
 }
@@ -256,6 +259,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bottom-6 {
   bottom: calc(var(--spacing) * 6);
+}
+.bottom-8 {
+  bottom: calc(var(--spacing) * 8);
 }
 .bottom-full {
   bottom: 100%;
@@ -283,6 +289,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .z-10 {
   z-index: 10;
+}
+.z-20 {
+  z-index: 20;
 }
 .z-40 {
   z-index: 40;
@@ -605,6 +614,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .max-h-\[90vh\] {
   max-height: 90vh;
 }
+.max-h-\[95vh\] {
+  max-height: 95vh;
+}
 .max-h-\[calc\(90vh-200px\)\] {
   max-height: calc(90vh - 200px);
 }
@@ -613,6 +625,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .min-h-\[70vh\] {
   min-height: 70vh;
+}
+.min-h-\[90vh\] {
+  min-height: 90vh;
 }
 .min-h-\[350px\] {
   min-height: 350px;
@@ -776,6 +791,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .border-collapse {
   border-collapse: collapse;
 }
+.origin-top {
+  transform-origin: top;
+}
 .origin-top-left {
   transform-origin: top left;
 }
@@ -854,6 +872,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .animate-spin {
   animation: var(--animate-spin);
+}
+.cursor-col-resize {
+  cursor: col-resize;
 }
 .cursor-default {
   cursor: default;
@@ -1140,6 +1161,10 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   border-bottom-style: var(--tw-border-style);
   border-bottom-width: 2px;
 }
+.border-l {
+  border-left-style: var(--tw-border-style);
+  border-left-width: 1px;
+}
 .border-l-2 {
   border-left-style: var(--tw-border-style);
   border-left-width: 2px;
@@ -1188,6 +1213,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .border-gray-300 {
   border-color: var(--color-gray-300);
+}
+.border-gray-400 {
+  border-color: var(--color-gray-400);
 }
 .border-gray-600 {
   border-color: var(--color-gray-600);
@@ -1360,6 +1388,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .bg-purple-500 {
   background-color: var(--color-purple-500);
 }
+.bg-red-50 {
+  background-color: var(--color-red-50);
+}
 .bg-red-100 {
   background-color: var(--color-red-100);
 }
@@ -1413,6 +1444,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-white\/90 {
   background-color: color-mix(in oklab, var(--color-white) 90%, transparent);
+}
+.bg-yellow-50 {
+  background-color: var(--color-yellow-50);
 }
 .bg-yellow-100 {
   background-color: var(--color-yellow-100);
@@ -1506,6 +1540,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .from-yellow-500 {
   --tw-gradient-from: var(--color-yellow-500);
   --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+}
+.via-indigo-700 {
+  --tw-gradient-via: var(--color-indigo-700);
+  --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-via-stops);
 }
 .to-blue-500\/40 {
   --tw-gradient-to: color-mix(in oklab, var(--color-blue-500) 40%, transparent);
@@ -1918,6 +1957,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .text-green-800 {
   color: var(--color-green-800);
 }
+.text-indigo-100 {
+  color: var(--color-indigo-100);
+}
 .text-indigo-500 {
   color: var(--color-indigo-500);
 }
@@ -2312,6 +2354,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.group-hover\:text-indigo-800 {
+  &:is(:where(.group):hover *) {
+    @media (hover: hover) {
+      color: var(--color-indigo-800);
+    }
+  }
+}
 .group-hover\:opacity-100 {
   &:is(:where(.group):hover *) {
     @media (hover: hover) {
@@ -2571,6 +2620,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.hover\:bg-blue-100 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-blue-100);
+    }
+  }
+}
 .hover\:bg-blue-200 {
   &:hover {
     @media (hover: hover) {
@@ -2757,6 +2813,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       background-color: var(--color-indigo-200);
+    }
+  }
+}
+.hover\:bg-indigo-500 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-indigo-500);
     }
   }
 }
@@ -3095,6 +3158,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.hover\:text-gray-900 {
+  &:hover {
+    @media (hover: hover) {
+      color: var(--color-gray-900);
+    }
+  }
+}
 .hover\:text-green-300 {
   &:hover {
     @media (hover: hover) {
@@ -3183,6 +3253,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       text-decoration-line: underline;
+    }
+  }
+}
+.hover\:opacity-100 {
+  &:hover {
+    @media (hover: hover) {
+      opacity: 100%;
     }
   }
 }
@@ -3351,6 +3428,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:focus {
     --tw-outline-style: none;
     outline-style: none;
+  }
+}
+.active\:bg-gray-200 {
+  &:active {
+    background-color: var(--color-gray-200);
   }
 }
 .sm\:my-8 {
@@ -3646,6 +3728,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.print\:hidden {
+  @media print {
+    display: none;
+  }
+}
 @layer theme, base, components, utilities;
 @layer theme {
   :root, :host {
@@ -3664,6 +3751,7 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --color-amber-200: oklch(92.4% 0.12 95.746);
     --color-amber-600: oklch(66.6% 0.179 58.318);
     --color-amber-700: oklch(55.5% 0.163 48.998);
+    --color-yellow-50: oklch(98.7% 0.026 102.212);
     --color-yellow-100: oklch(97.3% 0.071 103.193);
     --color-yellow-200: oklch(94.5% 0.129 101.54);
     --color-yellow-300: oklch(90.5% 0.182 98.111);
