@@ -2566,33 +2566,36 @@
                 return;
               }
 
-              // Täielikult uuenda vormi struktuuri
-              this.form = {
-                ...this.form,
-                sections: preset.data.sections ?
-                  JSON.parse(JSON.stringify(preset.data.sections)) :
-                  []
-              };
+              // DEEP CLONE the preset sections to ensure we get a completely new copy
+              let newSections = preset.data.sections ?
+                JSON.parse(JSON.stringify(preset.data.sections)) : [];
 
-              // Puhasta ja uuenda vaadet käsitsi
-              const formContainer = document.getElementById('formContainer');
-              if (formContainer) {
-                formContainer.innerHTML = ''; // Tühjenda vana sisu
+              console.log("Original preset sections:", newSections);
 
-                // Loo uued väljad alates nullist
-                this.defaultFields = this.createDefaultFields();
-                this.initializeFormUI();
-              }
+              // Apply the new sections directly to form
+              this.form.sections = newSections;
 
-              // Salvesta ja värskenda kohe
-              this.saveToStorage();
+              // Force a refresh of the Alpine component to ensure UI updates
+              this.$nextTick(() => {
+                // Ensure all sections are open for visibility
+                this.form.sections.forEach(section => {
+                  section.open = true;
+                  section.enabled = true; // Enable all sections for better visibility
+                });
 
-              // Lisa väike viivitus UI uuendamiseks
-              setTimeout(() => {
-                if (typeof this.renderForm === 'function') {
-                  this.renderForm();
-                }
-              }, 50);
+                console.log("Updated form sections after applying preset:", this.form.sections);
+
+                // Salvesta muudatused
+                this.saveToStorage();
+
+                // Force reactive update by creating a small change to the array
+                // This triggers Alpine's reactivity without using $refresh
+                const tempSections = [...this.form.sections];
+                this.form.sections = [];
+                setTimeout(() => {
+                  this.form.sections = tempSections;
+                }, 10);
+              });
 
               // Peida dropdown
               this.showPresetDropdown = false;
@@ -2648,24 +2651,309 @@
         document.getElementById("tableHead").innerHTML = "";
         document.getElementById("tableBody").innerHTML = "";
 
-        // Add headers
+        // Add headers with improved styling and placeholder behavior
         const headerRow = document.createElement("tr");
         for (let i = 0; i < cols; i++) {
           const th = document.createElement("th");
           th.className = "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider group relative";
           th.contentEditable = "true";
+
+          // Set default column headers
+          let defaultHeaderText;
+          if (i === 0) {
+            defaultHeaderText = "Nimetus";
+          } else if (i === 1) {
+            defaultHeaderText = "Kogus";
+          } else if (i === 2) {
+            defaultHeaderText = "Maksumus (eurodes ilma käibemaksuta)";
+          } else {
+            defaultHeaderText = `Veerg ${i + 1}`;
+          }
+
           th.setAttribute("data-placeholder", "Sisesta veeru nimi");
-          th.textContent = `Veerg ${i + 1}`;
+          th.textContent = defaultHeaderText;
+
+          // Add focus/blur events for placeholder behavior
+          th.addEventListener('focus', function () {
+            if (this.textContent === defaultHeaderText) {
+              this.textContent = '';
+            }
+            this.classList.add('editing');
+          });
+
+          th.addEventListener('blur', function () {
+            if (this.textContent.trim() === '') {
+              this.textContent = defaultHeaderText;
+            }
+            this.classList.remove('editing');
+          });
+
+          // Add keyboard events for better editing
+          th.addEventListener('keydown', handleCellKeydown);
+
           headerRow.appendChild(th);
         }
         document.getElementById("tableHead").appendChild(headerRow);
 
-        // Add rows
+        // Add rows with better cell behavior
         for (let i = 0; i < rows; i++) {
-          addTableRow();
+          addTableRow(true); // Pass true to indicate initial setup
         }
 
         addDeleteButtons();
+
+        // Add resize observer to auto-resize columns based on content
+        setupTableResizeObserver();
+      }
+
+      // Handle keyboard navigation within table
+      function handleCellKeydown(e) {
+        const isHeader = e.target.tagName === 'TH';
+
+        // Tab navigation
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          navigateToNextCell(e.target, e.shiftKey);
+          return;
+        }
+
+        // Enter in header creates a new row
+        if (e.key === 'Enter' && isHeader) {
+          e.preventDefault();
+          if (e.ctrlKey || e.metaKey) {
+            // Insert line break with Ctrl+Enter or Cmd+Enter
+            document.execCommand('insertLineBreak');
+          } else {
+            // Focus first cell in the next row
+            const firstCell = document.querySelector('#tableBody tr:first-child td');
+            if (firstCell) firstCell.focus();
+          }
+          return;
+        }
+
+        // Arrow key navigation
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+          if (e.ctrlKey || e.metaKey || e.altKey) return; // Allow default behavior with modifiers
+
+          e.preventDefault();
+          navigateTable(e.target, e.key);
+        }
+      }
+
+      // Navigate to next/previous cell
+      function navigateToNextCell(currentCell, reverse = false) {
+        const isHeader = currentCell.tagName === 'TH';
+        const allCells = isHeader
+          ? [...document.querySelectorAll('#tableHead th')]
+          : [...document.querySelectorAll('#tableBody td:not(.delete-row)')];
+
+        const currentIndex = allCells.indexOf(currentCell);
+        let nextIndex = reverse ? currentIndex - 1 : currentIndex + 1;
+
+        // Handle row boundaries
+        if (nextIndex < 0 && isHeader) {
+          // Wrap to last cell of body if we're in the header
+          const bodyCells = [...document.querySelectorAll('#tableBody td:not(.delete-row)')];
+          if (bodyCells.length > 0) {
+            bodyCells[bodyCells.length - 1].focus();
+          }
+          return;
+        } else if (nextIndex < 0) {
+          // Move to previous row, last cell
+          const currentRow = currentCell.closest('tr');
+          const prevRow = currentRow.previousElementSibling;
+
+          if (prevRow) {
+            const cells = [...prevRow.querySelectorAll('td:not(.delete-row)')];
+            if (cells.length > 0) {
+              cells[cells.length - 1].focus();
+            }
+          } else {
+            // Jump to header if we're at the first body row
+            const headerCells = [...document.querySelectorAll('#tableHead th')];
+            if (headerCells.length > 0) {
+              headerCells[headerCells.length - 1].focus();
+            }
+          }
+          return;
+        } else if (nextIndex >= allCells.length && isHeader) {
+          // If we're in header and going past the end, go to first body cell
+          const firstBodyCell = document.querySelector('#tableBody td:not(.delete-row)');
+          if (firstBodyCell) {
+            firstBodyCell.focus();
+          } else {
+            // If no body cells, add a row
+            addTableRow();
+            setTimeout(() => {
+              document.querySelector('#tableBody td:not(.delete-row)').focus();
+            }, 0);
+          }
+          return;
+        } else if (nextIndex >= allCells.length) {
+          // Add a new row when tabbing past the last cell
+          addTableRow();
+          setTimeout(() => {
+            document.querySelector('#tableBody tr:last-child td:first-child').focus();
+          }, 0);
+          return;
+        }
+
+        // Focus the next cell
+        allCells[nextIndex].focus();
+      }
+
+      // Navigate table with arrow keys
+      function navigateTable(currentCell, direction) {
+        const isHeader = currentCell.tagName === 'TH';
+        const currentRow = currentCell.closest('tr');
+        const rowCells = [...currentRow.querySelectorAll(isHeader ? 'th' : 'td:not(.delete-row)')];
+        const currentIndex = rowCells.indexOf(currentCell);
+
+        switch (direction) {
+          case 'ArrowLeft':
+            if (currentIndex > 0) {
+              rowCells[currentIndex - 1].focus();
+            }
+            break;
+          case 'ArrowRight':
+            if (currentIndex < rowCells.length - 1) {
+              rowCells[currentIndex + 1].focus();
+            }
+            break;
+          case 'ArrowUp':
+            if (isHeader) return; // Already at top
+
+            const prevRow = currentRow.previousElementSibling;
+            if (prevRow) {
+              const prevCells = [...prevRow.querySelectorAll('td:not(.delete-row)')];
+              if (currentIndex < prevCells.length) {
+                prevCells[currentIndex].focus();
+              } else if (prevCells.length > 0) {
+                prevCells[prevCells.length - 1].focus();
+              }
+            } else {
+              // Move to header
+              const headerCells = [...document.querySelector('#tableHead tr').querySelectorAll('th')];
+              if (headerCells.length > 0 && currentIndex < headerCells.length) {
+                headerCells[currentIndex].focus();
+              } else if (headerCells.length > 0) {
+                headerCells[headerCells.length - 1].focus();
+              }
+            }
+            break;
+          case 'ArrowDown':
+            if (isHeader) {
+              // Move from header to first body row
+              const firstBodyRow = document.querySelector('#tableBody tr');
+              if (firstBodyRow) {
+                const bodyCells = [...firstBodyRow.querySelectorAll('td:not(.delete-row)')];
+                if (currentIndex < bodyCells.length) {
+                  bodyCells[currentIndex].focus();
+                } else if (bodyCells.length > 0) {
+                  bodyCells[bodyCells.length - 1].focus();
+                }
+              } else {
+                // If no body rows, add one
+                addTableRow();
+                setTimeout(() => {
+                  const firstCell = document.querySelector('#tableBody td:not(.delete-row)');
+                  if (firstCell) firstCell.focus();
+                }, 0);
+              }
+            } else {
+              // Move to next body row
+              const nextRow = currentRow.nextElementSibling;
+              if (nextRow) {
+                const nextCells = [...nextRow.querySelectorAll('td:not(.delete-row)')];
+                if (currentIndex < nextCells.length) {
+                  nextCells[currentIndex].focus();
+                } else if (nextCells.length > 0) {
+                  nextCells[nextCells.length - 1].focus();
+                }
+              } else {
+                // Add new row if at the last row
+                addTableRow();
+                setTimeout(() => {
+                  const newRow = document.querySelector('#tableBody tr:last-child');
+                  const newCells = [...newRow.querySelectorAll('td:not(.delete-row)')];
+                  if (currentIndex < newCells.length) {
+                    newCells[currentIndex].focus();
+                  } else if (newCells.length > 0) {
+                    newCells[newCells.length - 1].focus();
+                  }
+                }, 0);
+              }
+            }
+            break;
+        }
+      }
+
+      // Setup automatic column resizing based on content
+      function setupTableResizeObserver() {
+        // Apply min-width to all cells for better readability
+        const allCells = document.querySelectorAll('#tableHead th, #tableBody td:not(.delete-row)');
+        allCells.forEach(cell => {
+          cell.style.minWidth = '100px';
+        });
+
+        // Create ResizeObserver to watch content changes
+        const resizeObserver = new ResizeObserver(entries => {
+          // This fires when any observed cell's content changes size
+          const table = document.getElementById('dynamicTable');
+          if (table.classList.contains('auto-sizing')) return; // Prevent recursion
+
+          table.classList.add('auto-sizing');
+          requestAnimationFrame(() => {
+            balanceColumnWidths();
+            table.classList.remove('auto-sizing');
+          });
+        });
+
+        // Observe all cells
+        allCells.forEach(cell => {
+          resizeObserver.observe(cell);
+        });
+      }
+
+      // Balance column widths based on content
+      function balanceColumnWidths() {
+        const headerCells = [...document.querySelectorAll('#tableHead th')];
+        const columnCount = headerCells.length;
+
+        if (columnCount === 0) return;
+
+        // Get all rows including header row
+        const allRows = [
+          document.querySelector('#tableHead tr'),
+          ...document.querySelectorAll('#tableBody tr')
+        ].filter(Boolean);
+
+        // Calculate ideal widths for each column
+        const colWidths = new Array(columnCount).fill(0);
+
+        // Check all cells in each column for largest content width
+        allRows.forEach(row => {
+          const cells = row.tagName === 'TR' && row.parentElement.id === 'tableHead'
+            ? [...row.querySelectorAll('th')]
+            : [...row.querySelectorAll('td:not(.delete-row)')];
+
+          cells.forEach((cell, index) => {
+            if (index >= colWidths.length) return;
+
+            // Use scrollWidth as a measure of the content width
+            const contentWidth = cell.scrollWidth;
+            colWidths[index] = Math.max(colWidths[index], contentWidth);
+          });
+        });
+
+        // Apply calculated widths with some padding
+        headerCells.forEach((cell, index) => {
+          const width = colWidths[index];
+          if (width > 0) {
+            const idealWidth = Math.min(Math.max(width + 20, 100), 300); // Between 100px and 300px
+            cell.style.width = `${idealWidth}px`;
+          }
+        });
       }
 
       // Add delete buttons to rows and columns
@@ -2706,7 +2994,7 @@
       }
 
       // Add a new row to the table
-      function addTableRow() {
+      function addTableRow(isInitialSetup = false) {
         const row = document.createElement("tr");
         row.className = "group hover:bg-gray-50";
         const cols = document.querySelectorAll("#tableHead th").length;
@@ -2715,11 +3003,103 @@
           const td = document.createElement("td");
           td.contentEditable = "true";
           td.className = "px-4 py-3 text-left border-b border-gray-200";
+
+          // Set up event handlers for better cell behavior
+          td.addEventListener('focus', function () {
+            this.classList.add('editing');
+            // Select all text on focus only if double-clicked
+            if (window.lastClickTarget === this && window.lastClickTime && (Date.now() - window.lastClickTime < 300)) {
+              const selection = window.getSelection();
+              const range = document.createRange();
+              range.selectNodeContents(this);
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+            window.lastClickTarget = this;
+            window.lastClickTime = Date.now();
+          });
+
+          td.addEventListener('blur', function () {
+            this.classList.remove('editing');
+            formatCellContent(this);
+          });
+
+          // Add keyboard navigation
+          td.addEventListener('keydown', handleCellKeydown);
+
+          // Set placeholder for empty cells in non-initial setup
+          if (!isInitialSetup) {
+            td.setAttribute('data-placeholder', 'Kliki siia...');
+          }
+
           row.appendChild(td);
         }
 
         document.getElementById("tableBody").appendChild(row);
-        addDeleteButtons();
+
+        // Only add delete buttons if we've completed the initial setup
+        if (!isInitialSetup) {
+          addDeleteButtons();
+        }
+
+        return row;
+      }
+
+      // Format cell content based on detected type
+      function formatCellContent(cell) {
+        const content = cell.textContent.trim();
+
+        // Reset all classes first
+        cell.classList.remove('text-right', 'font-mono', 'text-blue-600');
+
+        // Skip empty cells
+        if (!content) return;
+
+        // Detect and format numbers
+        if (/^-?\d+(\.\d+)?$/.test(content)) {
+          cell.classList.add('text-right');
+          // Format number with thousands separators
+          const num = parseFloat(content);
+          if (!isNaN(num)) {
+            // Don't reformat the number if it has leading zeros
+            if (!/^0\d+/.test(content)) {
+              cell.textContent = num.toLocaleString('et-EE');
+            }
+          }
+          return;
+        }
+
+        // Detect and format currencies
+        if (/^-?\d+(\.\d+)?\s*(€|EUR)$/.test(content)) {
+          cell.classList.add('text-right');
+          const num = parseFloat(content.replace(/[^\d.-]/g, ''));
+          if (!isNaN(num)) {
+            cell.textContent = num.toLocaleString('et-EE') + ' €';
+          }
+          return;
+        }
+
+        // Detect and format dates (dd.mm.yyyy or yyyy-mm-dd)
+        if (/^(\d{1,2}\.\d{1,2}\.\d{4}|\d{4}-\d{1,2}-\d{1,2})$/.test(content)) {
+          let date;
+          if (content.includes('.')) {
+            const [day, month, year] = content.split('.').map(part => parseInt(part, 10));
+            date = new Date(year, month - 1, day);
+          } else {
+            date = new Date(content);
+          }
+
+          if (!isNaN(date.getTime())) {
+            cell.textContent = date.toLocaleDateString('et-EE');
+          }
+          return;
+        }
+
+        // Detect formulas (starting with =)
+        if (content.startsWith('=')) {
+          cell.classList.add('text-blue-600', 'font-mono');
+          return;
+        }
       }
 
       // Event listeners
@@ -2744,18 +3124,77 @@
         th.className = "px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider group relative";
         th.contentEditable = "true";
         th.setAttribute("data-placeholder", "Sisesta veeru nimi");
-        th.textContent = `Veerg ${columnIndex + 1}`;
+
+        // Use more meaningful default names for new columns
+        let defaultHeaderText;
+        if (columnIndex === 0) {
+          defaultHeaderText = "Nimetus";
+        } else if (columnIndex === 1) {
+          defaultHeaderText = "Kogus";
+        } else if (columnIndex === 2) {
+          defaultHeaderText = "Maksumus (eurodes ilma käibemaksuta)";
+        } else {
+          defaultHeaderText = `Veerg ${columnIndex + 1}`;
+        }
+
+        th.textContent = defaultHeaderText;
+
+        // Add focus/blur events for placeholder behavior
+        th.addEventListener('focus', function () {
+          if (this.textContent === defaultHeaderText) {
+            this.textContent = '';
+          }
+          this.classList.add('editing');
+        });
+
+        th.addEventListener('blur', function () {
+          if (this.textContent.trim() === '') {
+            this.textContent = defaultHeaderText;
+          }
+          this.classList.remove('editing');
+        });
+
+        // Add keyboard events
+        th.addEventListener('keydown', handleCellKeydown);
+
         head.children[0].appendChild(th);
 
         rows.forEach((row) => {
           const td = document.createElement("td");
           td.contentEditable = "true";
           td.className = "px-4 py-3 text-left border-b border-gray-200";
+
+          // Add the same cell event handlers as in addTableRow
+          td.addEventListener('focus', function () {
+            this.classList.add('editing');
+            if (window.lastClickTarget === this && window.lastClickTime && (Date.now() - window.lastClickTime < 300)) {
+              const selection = window.getSelection();
+              const range = document.createRange();
+              range.selectNodeContents(this);
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+            window.lastClickTarget = this;
+            window.lastClickTime = Date.now();
+          });
+
+          td.addEventListener('blur', function () {
+            this.classList.remove('editing');
+            formatCellContent(this);
+          });
+
+          td.addEventListener('keydown', handleCellKeydown);
+
           td.textContent = "";
           row.insertBefore(td, row.lastElementChild);
         });
 
         addDeleteButtons();
+
+        // Update column sizing
+        setTimeout(() => {
+          balanceColumnWidths();
+        }, 0);
       };
 
       addRow.onclick = () => addTableRow();
@@ -2806,7 +3245,7 @@
         }
       };
 
-      // Export to Excel
+      // Export to Excel with improved formatting and formula support
       exportExcel.onclick = () => {
         // Close any existing modals
         document.querySelectorAll('.fixed.inset-0.bg-black.bg-opacity-50').forEach(modal => {
@@ -2850,9 +3289,18 @@
 
             previewHTML += '<tr>';
             cells.forEach((cell, colIndex) => {
-              // Add formula indicators
+              // Add formula indicators and special formatting
               if (cell.startsWith('=')) {
-                previewHTML += `<td class="border p-2 text-blue-600">${cell}</td>`;
+                previewHTML += `<td class="border p-2 text-blue-600 font-mono">${cell}</td>`;
+              } else if (/^-?\d+(\.\d+)?$/.test(cell)) {
+                // Number cell
+                previewHTML += `<td class="border p-2 text-right">${cell}</td>`;
+              } else if (/^-?\d+(\.\d+)?\s*(€|EUR)$/.test(cell)) {
+                // Currency cell
+                previewHTML += `<td class="border p-2 text-right">${cell}</td>`;
+              } else if (/^(\d{1,2}\.\d{1,2}\.\d{4}|\d{4}-\d{1,2}-\d{1,2})$/.test(cell)) {
+                // Date cell
+                previewHTML += `<td class="border p-2">${cell}</td>`;
               } else {
                 previewHTML += `<td class="border p-2">${cell}</td>`;
               }
@@ -2872,7 +3320,7 @@
           excelModal.classList.add("hidden");
         };
 
-        // Handle confirm export
+        // Handle confirm export with improved formula and format support
         confirmExcelExport.onclick = () => {
           const wb = XLSX.utils.book_new();
           const data = [];
@@ -2890,7 +3338,7 @@
           );
           data.push(headers);
 
-          // Process data rows with formulas and proper type detection
+          // Process data rows with improved type detection
           document.querySelectorAll("#tableBody tr").forEach((row) => {
             const rowData = [...row.querySelectorAll("td:not(.delete-row)")].map((td) => {
               const content = td.textContent.trim();
@@ -2898,22 +3346,57 @@
               // Handle empty cells
               if (!content) return '';
 
-              // Handle formulas (must start with = and contain at least one operator or function)
-              if (content.startsWith('=') && (content.includes('+') || content.includes('-') ||
-                content.includes('*') || content.includes('/') || content.includes('('))) {
-                return { f: content }; // Keep the = sign
+              // Handle formulas (must start with =)
+              if (content.startsWith('=')) {
+                // Convert Estonian formula formats to Excel format if needed
+                // For example, replace decimal comma with decimal point
+                let formula = content;
+                // Replace Estonian formula format with Excel format if needed
+                formula = formula.replace(/,/g, '.'); // Replace decimal commas with points
+
+                return { f: formula }; // Keep the = sign
+              }
+
+              // Handle currencies (€ symbol)
+              if (/^-?\d+(\.\d+)?\s*(€|EUR)$/.test(content)) {
+                const numPart = content.replace(/[^\d.-]/g, '');
+                const num = parseFloat(numPart.replace(',', '.'));
+                return { v: num, t: 'n', z: '#,##0.00 €' };
+              }
+
+              // Handle percentages
+              if (/^-?\d+(\.\d+)?%$/.test(content)) {
+                const numPart = content.replace(/%/g, '');
+                const num = parseFloat(numPart.replace(',', '.')) / 100;
+                return { v: num, t: 'n', z: '0.00%' };
               }
 
               // Handle numbers (must be a valid number and not just a string of digits)
-              const num = Number(content);
-              if (!isNaN(num) && content === num.toString() && content !== '') {
-                return num;
+              if (/^-?\d+(\.\d+)?$/.test(content)) {
+                const num = parseFloat(content.replace(',', '.'));
+                // Check if it's an integer or has decimal places
+                if (Number.isInteger(num)) {
+                  return { v: num, t: 'n', z: '#,##0' };
+                } else {
+                  return { v: num, t: 'n', z: '#,##0.00' };
+                }
               }
 
-              // Handle dates (must be a valid date string)
-              const date = new Date(content);
-              if (date instanceof Date && !isNaN(date) && content === date.toISOString().split('T')[0]) {
-                return date;
+              // Handle dates (Estonian format: dd.mm.yyyy)
+              if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(content)) {
+                const [day, month, year] = content.split('.').map(part => parseInt(part, 10));
+                const date = new Date(year, month - 1, day);
+                if (!isNaN(date.getTime())) {
+                  return { v: date, t: 'd', z: 'dd.mm.yyyy' };
+                }
+              }
+
+              // Handle ISO dates (yyyy-mm-dd)
+              if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(content)) {
+                const date = new Date(content);
+                if (!isNaN(date.getTime())) {
+                  return { v: date, t: 'd', z: 'dd.mm.yyyy' };
+                }
               }
 
               return content;
@@ -2923,100 +3406,344 @@
 
           const ws = XLSX.utils.aoa_to_sheet(data);
 
-          // Set column widths based on content
+          // Set column widths based on content with more precise calculations
           const colWidths = headers.map((_, colIndex) => {
-            let maxLength = headers[colIndex].length;
-            data.forEach((row, rowIndex) => {
-              if (rowIndex > (title ? 2 : 0)) { // Skip title and headers
-                const cellContent = row[colIndex]?.toString() || '';
-                maxLength = Math.max(maxLength, cellContent.length);
+            // Start with the header width
+            let maxLength = headers[colIndex]?.length || 0;
+
+            // Check each row's content length
+            document.querySelectorAll("#tableBody tr").forEach(row => {
+              const cells = row.querySelectorAll("td:not(.delete-row)");
+              if (colIndex < cells.length) {
+                const content = cells[colIndex].textContent.trim();
+                // Adjust width based on content type
+                if (/^-?\d+(\.\d+)?$/.test(content)) {
+                  // Numbers take less space
+                  maxLength = Math.max(maxLength, content.length * 0.8);
+                } else if (content.startsWith('=')) {
+                  // Formulas need more space
+                  maxLength = Math.max(maxLength, content.length * 1.2);
+                } else {
+                  maxLength = Math.max(maxLength, content.length);
+                }
               }
             });
-            return { wch: Math.min(Math.max(maxLength + 2, 10), 50) }; // Min 10, max 50 chars
+
+            // Calculate width: min 8 chars, max 50 chars
+            // Add 1 for padding and 1 for border
+            return { wch: Math.min(Math.max(maxLength + 2, 8), 50) };
           });
+
           ws['!cols'] = colWidths;
 
-          // Add styling
+          // Add full styling
           const range = XLSX.utils.decode_range(ws['!ref']);
 
           // Style title if exists
           if (title) {
             const titleCell = XLSX.utils.encode_cell({ r: 0, c: 0 });
-            ws[titleCell].s = {
-              font: { bold: true, sz: 14 },
-              alignment: { horizontal: 'center' },
-              fill: { fgColor: { rgb: "F0F0F0" } }
-            };
-            // Merge title cells
-            ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }];
+            if (ws[titleCell]) {
+              ws[titleCell].s = {
+                font: { bold: true, sz: 14 },
+                alignment: { horizontal: 'center', vertical: 'center' },
+                fill: { fgColor: { rgb: "E6F0FF" } }
+              };
+              // Merge title cells
+              ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }];
+            }
           }
 
-          // Style headers
-          for (let C = 0; C < headers.length; ++C) {
-            const headerCell = XLSX.utils.encode_cell({ r: title ? 2 : 0, c: C });
-            ws[headerCell].s = {
-              font: { bold: true },
-              alignment: { horizontal: 'center' },
-              fill: { fgColor: { rgb: "E6E6E6" } }
-            };
+          // Style headers - now with border and better formatting
+          const headerRowIndex = title ? 2 : 0;
+          for (let C = 0; C <= range.e.c; ++C) {
+            const headerCell = XLSX.utils.encode_cell({ r: headerRowIndex, c: C });
+            if (ws[headerCell]) {
+              ws[headerCell].s = {
+                font: { bold: true, color: { rgb: "333333" } },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                fill: { fgColor: { rgb: "E6E6E6" } },
+                border: {
+                  top: { style: 'thin', color: { rgb: "CCCCCC" } },
+                  bottom: { style: 'thin', color: { rgb: "CCCCCC" } },
+                  left: { style: 'thin', color: { rgb: "CCCCCC" } },
+                  right: { style: 'thin', color: { rgb: "CCCCCC" } }
+                }
+              };
+            }
           }
 
           // Style data cells
-          for (let R = (title ? 3 : 1); R <= range.e.r; ++R) {
+          for (let R = (headerRowIndex + 1); R <= range.e.r; ++R) {
             for (let C = 0; C <= range.e.c; ++C) {
-              const cell_address = { c: C, r: R };
-              const cell_ref = XLSX.utils.encode_cell(cell_address);
+              const cell_ref = XLSX.utils.encode_cell({ c: C, r: R });
 
               if (!ws[cell_ref]) continue;
 
-              // Get cell content to determine alignment
-              const cellContent = ws[cell_ref].v;
-              const isNumber = typeof cellContent === 'number';
-              const isDate = cellContent instanceof Date;
+              // Get cell content type
+              const cellType = ws[cell_ref].t || 's';
+              const cellValue = ws[cell_ref].v;
 
-              ws[cell_ref].s = {
-                alignment: {
-                  horizontal: isNumber || isDate ? 'right' : 'left',
-                  vertical: 'center'
-                }
+              // Basic style for all cells
+              const cellStyle = {
+                border: {
+                  top: { style: 'thin', color: { rgb: "CCCCCC" } },
+                  bottom: { style: 'thin', color: { rgb: "CCCCCC" } },
+                  left: { style: 'thin', color: { rgb: "CCCCCC" } },
+                  right: { style: 'thin', color: { rgb: "CCCCCC" } }
+                },
+                alignment: { vertical: 'center', wrapText: true }
               };
 
-              // Add number format for dates
-              if (isDate) {
-                ws[cell_ref].z = 'yyyy-mm-dd';
+              // Adjust alignment based on content type
+              if (cellType === 'n') {
+                // Numbers are right-aligned
+                cellStyle.alignment.horizontal = 'right';
+              } else if (cellType === 'd') {
+                // Dates are center-aligned
+                cellStyle.alignment.horizontal = 'center';
+              } else if (ws[cell_ref].f) {
+                // Formulas get special handling
+                cellStyle.font = { color: { rgb: "0000FF" } };
               }
+
+              // Add zebra striping for better readability
+              if (R % 2 === 1) {
+                cellStyle.fill = { fgColor: { rgb: "F9F9F9" } };
+              }
+
+              ws[cell_ref].s = cellStyle;
             }
           }
 
           XLSX.utils.book_append_sheet(wb, ws, "Tabel");
 
           // Use custom filename
-          const fileName = excelFileName.value || "tabel";
+          const fileName = excelFileName.value.trim() || "tabel";
           XLSX.writeFile(wb, `${fileName}.xlsx`);
 
           // Close modal
           excelModal.classList.add("hidden");
+
+          // Show success message
+          showToast("Excel on eksporditud!", "success");
         };
       };
 
-      // Export to PDF
+      // Export to PDF with improved styling and options
       exportPdf.onclick = () => {
+        // Close any existing modals
+        document.querySelectorAll('.fixed.inset-0.bg-black.bg-opacity-50').forEach(modal => {
+          modal.classList.add('hidden');
+        });
+
+        // Show PDF export modal with options
+        const pdfModal = document.getElementById("pdfExportModal") || createPdfExportModal();
+        pdfModal.classList.remove("hidden");
+
+        // Handle PDF export options
+        document.getElementById("confirmPdfExport").onclick = () => {
+          generateAndDownloadPdf();
+          pdfModal.classList.add("hidden");
+        };
+
+        document.getElementById("cancelPdfExport").onclick = () => {
+          pdfModal.classList.add("hidden");
+        };
+      };
+
+      // Create PDF export modal if it doesn't exist
+      function createPdfExportModal() {
+        const modal = document.createElement('div');
+        modal.id = "pdfExportModal";
+        modal.className = "fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden";
+
+        modal.innerHTML = `
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h3 class="text-2xl font-bold text-gray-900">PDF eksport</h3>
+                <button id="cancelPdfExport" class="text-gray-500 hover:text-gray-700">
+                  <i class="fas fa-times text-xl"></i>
+                </button>
+              </div>
+            </div>
+            <div class="p-6">
+              <div class="space-y-4">
+                <div>
+                  <label for="pdfFileName" class="block text-sm font-medium text-gray-700 mb-2">Faili nimi</label>
+                  <input type="text" id="pdfFileName" placeholder="tabel.pdf" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Paberiformaat</label>
+                  <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                      <input type="radio" name="pdfSize" value="a4" checked class="mr-2">
+                      <span>A4</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                      <input type="radio" name="pdfSize" value="letter" class="mr-2">
+                      <span>Letter</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Orientatsioon</label>
+                  <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                      <input type="radio" name="pdfOrientation" value="portrait" checked class="mr-2">
+                      <span>Portree</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                      <input type="radio" name="pdfOrientation" value="landscape" class="mr-2">
+                      <span>Maastik</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Valikud</label>
+                  <div class="space-y-2">
+                    <label class="flex items-center">
+                      <input type="checkbox" id="pdfIncludeHeader" checked class="mr-2">
+                      <span>Lisa tabeli päis</span>
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" id="pdfFitToPage" checked class="mr-2">
+                      <span>Mahuta lehele</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="p-6 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
+              <button id="cancelPdfExport" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">
+                Tühista
+              </button>
+              <button id="confirmPdfExport" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                Ekspordi PDF
+              </button>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+        return modal;
+      }
+
+      // Generate and download PDF with options
+      function generateAndDownloadPdf() {
+        // Get options from the form
+        const fileName = document.getElementById("pdfFileName").value.trim() || "tabel.pdf";
+        const format = document.querySelector('input[name="pdfSize"]:checked').value;
+        const orientation = document.querySelector('input[name="pdfOrientation"]:checked').value;
+        const includeHeader = document.getElementById("pdfIncludeHeader").checked;
+        const fitToPage = document.getElementById("pdfFitToPage").checked;
+
+        // Clone the table for manipulation
         const element = document.getElementById("dynamicTable").cloneNode(true);
         const title = document.getElementById("tableTitle").value;
+
+        // Create a container for the PDF content
         const container = document.createElement("div");
-        container.innerHTML = `<h2 class="text-xl font-bold mb-4">${title}</h2>`;
+        container.className = "pdf-container";
+
+        // Add styling for PDF
+        const style = document.createElement("style");
+        style.textContent = `
+          .pdf-container {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            max-width: 100%;
+          }
+          .pdf-container h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: center;
+          }
+          .pdf-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          .pdf-container th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #ddd;
+          }
+          .pdf-container td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+          }
+          .pdf-container tr:nth-child(even) td {
+            background-color: #f9f9f9;
+          }
+        `;
+        container.appendChild(style);
+
+        // Add title if present
+        if (title && includeHeader) {
+          const titleElem = document.createElement("h2");
+          titleElem.textContent = title;
+          container.appendChild(titleElem);
+        }
+
+        // Add the table (clone it to avoid modifying the original)
         container.appendChild(element);
 
+        // Remove delete buttons from the clone
+        container.querySelectorAll('.delete-row, .delete-col').forEach(el => el.remove());
+
+        // Create PDF generation options
         const opt = {
-          margin: 1,
-          filename: "tabel.pdf",
+          margin: 10,
+          filename: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            letterRendering: true
+          },
+          jsPDF: {
+            unit: "mm",
+            format: format,
+            orientation: orientation
+          }
         };
 
-        html2pdf().set(opt).from(container).save();
-      };
+        // Add fit to page option if selected
+        if (fitToPage) {
+          // Calculate the optimal scale based on the table size and page size
+          const tableWidth = element.offsetWidth;
+          const pageWidth = format === 'a4' ? 210 : 216; // A4 or Letter width in mm
+          const margin = 20; // 10mm margins on each side
+          const availableWidth = pageWidth - (margin * 2);
+
+          // Convert px to mm (approx 3.8px = 1mm)
+          const tableWidthMm = tableWidth / 3.8;
+          const scale = Math.min(1, availableWidth / tableWidthMm);
+
+          opt.html2canvas.scale = 2 * scale; // Adjust scale for high resolution
+        }
+
+        // Generate and download PDF
+        html2pdf()
+          .set(opt)
+          .from(container)
+          .save()
+          .then(() => {
+            showToast("PDF on eksporditud!", "success");
+          })
+          .catch(error => {
+            console.error("PDF generation error:", error);
+            showToast("Viga PDF-i loomisel", "error");
+          });
+      }
 
       // Toast notification function
       function showToast(message, type = "info") {
@@ -4133,7 +4860,7 @@
         <!-- Table Title -->
         <div>
           <label for="tableTitle" class="block text-sm font-medium text-gray-700 mb-2">Tabeli pealkiri</label>
-          <input type="text" id="tableTitle" placeholder="Sisesta tabeli pealkiri"
+          <input type="text" id="tableTitle" placeholder="Maksumuse esildis"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200">
         </div>
 
@@ -4157,7 +4884,7 @@
             <h4 class="text-lg font-medium text-gray-900">Tabeli eelvaade</h4>
             <div class="flex space-x-2">
               <button id="addColumn"
-                class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors">
+                class="hidden px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors">
                 <i class="fas fa-plus mr-1"></i> Lisa veerg
               </button>
               <button id="addRow"

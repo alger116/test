@@ -1762,6 +1762,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .align-middle {
   vertical-align: middle;
 }
+.font-mono {
+  font-family: var(--font-mono);
+}
 .text-2xl {
   font-size: var(--text-2xl);
   line-height: var(--tw-leading, var(--text-2xl--line-height));
@@ -3646,6 +3649,8 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 @layer theme, base, components, utilities;
 @layer theme {
   :root, :host {
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
     --color-red-50: oklch(97.1% 0.013 17.38);
     --color-red-100: oklch(93.6% 0.032 17.717);
     --color-red-200: oklch(88.5% 0.062 18.334);
