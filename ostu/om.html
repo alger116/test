@@ -3301,14 +3301,14 @@
               x-transition:leave-end="opacity-0 transform -translate-y-2">
               <div class="flex gap-2 mb-6">
                 <button @click="selectAllOptions"
-                  class="flex items-center text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg transition-colors">
+                  class="flex items-center text-sm bg-emer hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg transition-colors">
                   <i class="fas mr-1"
                     :class="form.sections.some(section => section.options.some(option => !option.checked)) ? 'fa-check-double' : 'fa-times'"></i>
                   <span
                     x-text="form.sections.some(section => section.options.some(option => !option.checked)) ? 'Lisa kõik' : 'Eemalda kõik'"></span>
                 </button>
                 <button @click="toggleAllSections"
-                  class="flex items-center text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
+                  class="flex items-center text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg transition-colors">
                   <i class="fas mr-1"
                     :class="form.sections.some(section => !section.open) ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
                   <span x-text="form.sections.some(section => !section.open) ? 'Ava kõik' : 'Sulge kõik'"></span>
@@ -3563,7 +3563,7 @@
             </div>
 
             <div id="pdfPreview"
-              class="border-0 card space-y-6 min-h-[70vh] max-h-[80vh] overflow-auto backdrop-blur-md transition-all scroll-smooth">
+              class="border-0 card rounded-2xl space-y-6 min-h-[70vh] max-h-[80vh] overflow-auto backdrop-blur-md transition-all scroll-smooth scrollbar-thin scrollbar-thumb-indigo-500 scrollbar-track-indigo-100">
               <!-- Header -->
               <div
                 class="bg-gradient-to-r from-indigo-600 to-indigo-800 backdrop-blur-sm text-white p-5 rounded-t-2xl -mx-6 -mt-6 mb-6">

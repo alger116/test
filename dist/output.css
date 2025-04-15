@@ -1873,6 +1873,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .text-emerald-600 {
   color: var(--color-emerald-600);
 }
+.text-emerald-700 {
+  color: var(--color-emerald-700);
+}
 .text-gray-200 {
   color: var(--color-gray-200);
 }
@@ -2705,6 +2708,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.hover\:bg-green-50 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-green-50);
+    }
+  }
+}
 .hover\:bg-green-100 {
   &:hover {
     @media (hover: hover) {
@@ -3037,6 +3047,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       color: var(--color-blue-600);
+    }
+  }
+}
+.hover\:text-blue-700 {
+  &:hover {
+    @media (hover: hover) {
+      color: var(--color-blue-700);
     }
   }
 }
