@@ -22,7 +22,7 @@ Or install it yourself as:
 
 The Benchmark module provides methods to measure and report the time used to execute Ruby code.
 
-Measure the time to construct the string given by the expression <code>"a"*1_000_000_000</code>:
+Measure the time to construct the string given by the expression <code>"a"\*1_000_000_000</code>:
 
 ```ruby
 require 'benchmark'
@@ -79,7 +79,7 @@ times:    1.000000   0.000000   1.000000 (  1.003611)
 upto:     1.030000   0.000000   1.030000 (  1.028098)
 ```
 
-The times for some benchmarks depend on the order in which items are run.  These differences are due to the cost of memory allocation and garbage collection. To avoid these discrepancies, the #bmbm method is provided.  For example, to compare ways to sort an array of floats:
+The times for some benchmarks depend on the order in which items are run. These differences are due to the cost of memory allocation and garbage collection. To avoid these discrepancies, the #bmbm method is provided. For example, to compare ways to sort an array of floats:
 
 ```ruby
 require 'benchmark'

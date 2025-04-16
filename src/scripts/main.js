@@ -4,7 +4,7 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
-} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+} from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
 import {
   getFirestore,
   doc,
@@ -13,65 +13,49 @@ import {
   collection,
   updateDoc,
   deleteDoc,
-} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+} from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
 
-document.addEventListener("DOMContentLoaded", function () {
-  document
-    .getElementById("dropdownButton")
-    .addEventListener("click", function () {
-      document.getElementById("dropdownMenu").classList.toggle("hidden");
-    });
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('dropdownButton').addEventListener('click', function () {
+    document.getElementById('dropdownMenu').classList.toggle('hidden');
+  });
 
-  document.getElementById("loginButton").addEventListener("click", function () {
+  document.getElementById('loginButton').addEventListener('click', function () {
     // Logic to open the login modal
   });
 
-  document
-    .getElementById("procurementForm")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-      // Logic to handle form submission
-    });
+  document.getElementById('procurementForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    // Logic to handle form submission
+  });
 
-  document.getElementById("clearFields").addEventListener("click", function () {
+  document.getElementById('clearFields').addEventListener('click', function () {
     // Logic to clear form fields
   });
 
-  document.getElementById("saveFields").addEventListener("click", function () {
+  document.getElementById('saveFields').addEventListener('click', function () {
     // Logic to save form fields
   });
 
-  document
-    .getElementById("refreshFields")
-    .addEventListener("click", function () {
-      // Logic to refresh form fields
-    });
+  document.getElementById('refreshFields').addEventListener('click', function () {
+    // Logic to refresh form fields
+  });
 
-  document
-    .getElementById("toggleDarkMode")
-    .addEventListener("change", function () {
-      // Logic to toggle dark mode
-    });
+  document.getElementById('toggleDarkMode').addEventListener('change', function () {
+    // Logic to toggle dark mode
+  });
 
-  document
-    .getElementById("showSavedSearches")
-    .addEventListener("click", function () {
-      document
-        .getElementById("savedSearchesContainer")
-        .classList.toggle("hidden");
-    });
+  document.getElementById('showSavedSearches').addEventListener('click', function () {
+    document.getElementById('savedSearchesContainer').classList.toggle('hidden');
+  });
 
-  document
-    .getElementById("settingsButton")
-    .addEventListener("click", function () {
-      document.getElementById("settingsContainer").classList.toggle("hidden");
-    });
+  document.getElementById('settingsButton').addEventListener('click', function () {
+    document.getElementById('settingsContainer').classList.toggle('hidden');
+  });
 
-  document
-    .getElementById("logoutButton")
-    .addEventListener("click", function () {
-      // Logic to handle logout
-    });
+  document.getElementById('logoutButton').addEventListener('click', function () {
+    // Logic to handle logout
+  });
 
   const auth = getAuth();
   const db = getFirestore();
@@ -85,65 +69,65 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   }; // Ensure procedureData is defined
   let internationalProcedureData = {}; // Ensure internationalProcedureData is defined
-  let resultContainerHTML = ""; // Ensure resultContainerHTML is defined
+  let resultContainerHTML = ''; // Ensure resultContainerHTML is defined
 
   // Login function
   window.login = async () => {
-    const email = document.getElementById("emailLogin").value;
-    const password = document.getElementById("passwordLogin").value;
+    const email = document.getElementById('emailLogin').value;
+    const password = document.getElementById('passwordLogin').value;
 
     if (!email || !password) {
-      alert("Palun sisesta e-post ja parool.");
+      alert('Palun sisesta e-post ja parool.');
       return;
     }
 
     try {
-      console.log("Attempting to sign in with email:", email);
+      console.log('Attempting to sign in with email:', email);
       await signInWithEmailAndPassword(auth, email, password);
-      alert("Sisselogimine õnnestus!");
+      alert('Sisselogimine õnnestus!');
       window.location.reload(); // ✅ Reload page to update UI
     } catch (error) {
-      console.error("Sisselogimine ebaõnnestus:", error);
-      alert("Sisselogimine ebaõnnestus: " + error.message);
+      console.error('Sisselogimine ebaõnnestus:', error);
+      alert('Sisselogimine ebaõnnestus: ' + error.message);
     }
   };
 
   // Register function
   window.register = async () => {
-    const email = document.getElementById("emailRegister").value;
-    const password = document.getElementById("passwordRegister").value;
+    const email = document.getElementById('emailRegister').value;
+    const password = document.getElementById('passwordRegister').value;
 
     if (!email || !password) {
-      alert("Palun sisesta e-post ja parool.");
+      alert('Palun sisesta e-post ja parool.');
       return;
     }
 
     try {
-      console.log("Attempting to register with email:", email);
+      console.log('Attempting to register with email:', email);
       await createUserWithEmailAndPassword(auth, email, password);
-      alert("Registreerimine õnnestus!");
-      window.location.href = "login.html"; // ✅ Redirect to login page after registration
+      alert('Registreerimine õnnestus!');
+      window.location.href = 'login.html'; // ✅ Redirect to login page after registration
     } catch (error) {
-      console.error("Registreerimine ebaõnnestus:", error);
-      alert("Registreerimine ebaõnnestus: " + error.message);
+      console.error('Registreerimine ebaõnnestus:', error);
+      alert('Registreerimine ebaõnnestus: ' + error.message);
     }
   };
 
   // Logout function
-  const logoutButton = document.getElementById("logoutButton");
+  const logoutButton = document.getElementById('logoutButton');
   if (logoutButton) {
-    logoutButton.addEventListener("click", async () => {
-      console.log("🔴 Logging out user...");
+    logoutButton.addEventListener('click', async () => {
+      console.log('🔴 Logging out user...');
       await signOut(auth);
-      window.location.href = "index.html";
+      window.location.href = 'index.html';
     });
   }
 
   // Redirect logged-in users to index.html
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, user => {
     if (user) {
-      console.log("✅ User is already logged in. Redirecting...");
-      window.location.href = "index.html";
+      console.log('✅ User is already logged in. Redirecting...');
+      window.location.href = 'index.html';
     }
   });
 
@@ -151,88 +135,84 @@ document.addEventListener("DOMContentLoaded", function () {
   function attachEventListener(buttonId, eventHandler) {
     const button = document.getElementById(buttonId);
     if (button) {
-      button.addEventListener("click", eventHandler);
+      button.addEventListener('click', eventHandler);
     } else {
       console.warn(`⚠️ ${buttonId} not found in DOM.`);
     }
   }
 
   // Login Button Click Event
-  attachEventListener("loginButton", async () => {
-    console.log("🟢 Login Button Clicked");
-    const email = document.getElementById("emailLogin").value;
-    const password = document.getElementById("passwordLogin").value;
+  attachEventListener('loginButton', async () => {
+    console.log('🟢 Login Button Clicked');
+    const email = document.getElementById('emailLogin').value;
+    const password = document.getElementById('passwordLogin').value;
 
     if (!email || !password) {
-      alert("Palun sisesta e-post ja parool.");
+      alert('Palun sisesta e-post ja parool.');
       return;
     }
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "index.html";
+      window.location.href = 'index.html';
     } catch (error) {
-      console.error("❌ Login error:", error);
-      alert("Login error: " + error.message);
+      console.error('❌ Login error:', error);
+      alert('Login error: ' + error.message);
     }
   });
 
   // Register Button Click Event
-  attachEventListener("registerButton", async () => {
-    console.log("🟢 Register Button Clicked");
-    const email = document.getElementById("emailRegister").value;
-    const password = document.getElementById("passwordRegister").value;
+  attachEventListener('registerButton', async () => {
+    console.log('🟢 Register Button Clicked');
+    const email = document.getElementById('emailRegister').value;
+    const password = document.getElementById('passwordRegister').value;
 
     if (!email || !password) {
-      alert("Palun sisesta e-post ja parool.");
+      alert('Palun sisesta e-post ja parool.');
       return;
     }
 
     try {
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-      await setDoc(doc(db, "users", user.uid), {
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      await setDoc(doc(db, 'users', user.uid), {
         email: email,
-        role: "active",
+        role: 'active',
         approved: false,
       });
 
-      alert("Registreerimine edukas! Oota admini kinnitust.");
-      window.location.href = "index.html";
+      alert('Registreerimine edukas! Oota admini kinnitust.');
+      window.location.href = 'index.html';
     } catch (error) {
-      console.error("❌ Registration error:", error);
-      alert("Registration error: " + error.message);
+      console.error('❌ Registration error:', error);
+      alert('Registration error: ' + error.message);
     }
   });
 
   // Logout Button Click Event
-  attachEventListener("logoutButton", async () => {
-    console.log("🔴 Logging out user...");
+  attachEventListener('logoutButton', async () => {
+    console.log('🔴 Logging out user...');
     await signOut(auth);
-    window.location.href = "index.html";
+    window.location.href = 'index.html';
   });
 
   // Load users for admin panel
   async function loadUsers() {
     try {
-      console.log("Fetching users from Firestore...");
+      console.log('Fetching users from Firestore...');
 
-      const usersCollection = collection(db, "users");
+      const usersCollection = collection(db, 'users');
       const userDocs = await getDocs(usersCollection);
 
-      console.log("Firestore Response:", userDocs.docs);
+      console.log('Firestore Response:', userDocs.docs);
 
-      const userTable = document.getElementById("userTable");
-      userTable.innerHTML = ""; // Clear table before loading
+      const userTable = document.getElementById('userTable');
+      userTable.innerHTML = ''; // Clear table before loading
 
-      userDocs.forEach((docSnapshot) => {
+      userDocs.forEach(docSnapshot => {
         const userData = docSnapshot.data();
-        console.log("User Loaded:", userData);
+        console.log('User Loaded:', userData);
 
-        const userRow = document.createElement("tr");
+        const userRow = document.createElement('tr');
         userRow.innerHTML = `
             <td class="border px-4 py-2">${userData.email}</td>
             <td class="border px-4 py-2">${userData.role}</td>
@@ -245,34 +225,34 @@ document.addEventListener("DOMContentLoaded", function () {
         userTable.appendChild(userRow);
       });
     } catch (error) {
-      console.error("Error loading users from Firestore:", error);
-      alert("Error loading user data. Check Firestore rules.");
+      console.error('Error loading users from Firestore:', error);
+      alert('Error loading user data. Check Firestore rules.');
     }
   }
 
-  window.approveUser = async (userId) => {
+  window.approveUser = async userId => {
     try {
-      const userRef = doc(db, "users", userId);
+      const userRef = doc(db, 'users', userId);
       await updateDoc(userRef, { approved: true });
 
-      alert("User approved!");
+      alert('User approved!');
       loadUsers(); // Refresh user list
     } catch (error) {
-      console.error("Error approving user:", error);
-      alert("Failed to approve user.");
+      console.error('Error approving user:', error);
+      alert('Failed to approve user.');
     }
   };
 
-  window.deleteUser = async (userId) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
+  window.deleteUser = async userId => {
+    if (!confirm('Are you sure you want to delete this user?')) return;
     try {
-      const userRef = doc(db, "users", userId);
+      const userRef = doc(db, 'users', userId);
       await deleteDoc(userRef);
-      alert("User deleted!");
+      alert('User deleted!');
       loadUsers(); // Refresh user list
     } catch (error) {
-      console.error("Error deleting user:", error);
-      alert("Failed to delete user.");
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user.');
     }
   };
 
@@ -280,97 +260,78 @@ document.addEventListener("DOMContentLoaded", function () {
   window.logoutAdmin = () => {
     signOut(auth)
       .then(() => {
-        alert("Logged out successfully.");
-        window.location.href = "/index.html";
+        alert('Logged out successfully.');
+        window.location.href = '/index.html';
       })
-      .catch((error) => {
-        console.error("Error logging out:", error);
-        alert("Logout failed.");
+      .catch(error => {
+        console.error('Error logging out:', error);
+        alert('Logout failed.');
       });
   };
 
   // Settings button toggle
-  const settingsButton = document.getElementById("settingsButton");
-  const settingsContainer = document.getElementById("settingsContainer");
+  const settingsButton = document.getElementById('settingsButton');
+  const settingsContainer = document.getElementById('settingsContainer');
 
   if (settingsButton && settingsContainer) {
-    settingsButton.addEventListener("click", () => {
-      settingsContainer.classList.toggle("hidden");
+    settingsButton.addEventListener('click', () => {
+      settingsContainer.classList.toggle('hidden');
     });
   }
 
   // Save settings
-  document
-    .getElementById("settingsForm")
-    .addEventListener("submit", function (event) {
-      event.preventDefault();
-      settings.documentPreparationDays = parseInt(
-        document.getElementById("documentPreparationDays").value,
-      );
-      settings.offerEvaluationDays = parseInt(
-        document.getElementById("offerEvaluationDays").value,
-      );
-      settings.decisionDays = parseInt(
-        document.getElementById("decisionDays").value,
-      );
-      settings.bidderEvaluationDays = parseInt(
-        document.getElementById("bidderEvaluationDays").value,
-      );
-      settings.successfulBidderDays = parseInt(
-        document.getElementById("successfulBidderDays").value,
-      );
-      settings.waitingPeriodDays = parseInt(
-        document.getElementById("waitingPeriodDays").value,
-      );
-    });
+  document.getElementById('settingsForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    settings.documentPreparationDays = parseInt(
+      document.getElementById('documentPreparationDays').value
+    );
+    settings.offerEvaluationDays = parseInt(document.getElementById('offerEvaluationDays').value);
+    settings.decisionDays = parseInt(document.getElementById('decisionDays').value);
+    settings.bidderEvaluationDays = parseInt(document.getElementById('bidderEvaluationDays').value);
+    settings.successfulBidderDays = parseInt(document.getElementById('successfulBidderDays').value);
+    settings.waitingPeriodDays = parseInt(document.getElementById('waitingPeriodDays').value);
+  });
 
-  const addProcedureTypeButton = document.getElementById(
-    "addProcedureTypeButton",
-  );
+  const addProcedureTypeButton = document.getElementById('addProcedureTypeButton');
   if (addProcedureTypeButton) {
-    addProcedureTypeButton.addEventListener("click", function () {
+    addProcedureTypeButton.addEventListener('click', function () {
       addProcedureType();
     });
   }
 
-  const procedureTypeSelect = document.getElementById("procedureTypeSelect");
+  const procedureTypeSelect = document.getElementById('procedureTypeSelect');
   if (procedureTypeSelect) {
-    procedureTypeSelect.addEventListener("change", function () {
+    procedureTypeSelect.addEventListener('change', function () {
       const selectedType = this.value;
       loadProcedureTypeSettings(selectedType);
     });
   }
 
   function loadSettings() {
-    document.getElementById("documentPreparationDays").value =
-      settings.documentPreparationDays;
-    document.getElementById("offerEvaluationDays").value =
-      settings.offerEvaluationDays;
-    document.getElementById("decisionDays").value = settings.decisionDays;
-    document.getElementById("bidderEvaluationDays").value =
-      settings.bidderEvaluationDays;
-    document.getElementById("successfulBidderDays").value =
-      settings.successfulBidderDays;
-    document.getElementById("waitingPeriodDays").value =
-      settings.waitingPeriodDays;
+    document.getElementById('documentPreparationDays').value = settings.documentPreparationDays;
+    document.getElementById('offerEvaluationDays').value = settings.offerEvaluationDays;
+    document.getElementById('decisionDays').value = settings.decisionDays;
+    document.getElementById('bidderEvaluationDays').value = settings.bidderEvaluationDays;
+    document.getElementById('successfulBidderDays').value = settings.successfulBidderDays;
+    document.getElementById('waitingPeriodDays').value = settings.waitingPeriodDays;
   }
 
   function saveSettings() {
-    localStorage.setItem("procurementSettings", JSON.stringify(settings));
+    localStorage.setItem('procurementSettings', JSON.stringify(settings));
   }
 
   function loadSavedSettings() {
-    const savedSettings = localStorage.getItem("procurementSettings");
+    const savedSettings = localStorage.getItem('procurementSettings');
     if (savedSettings) {
       settings = JSON.parse(savedSettings);
     }
   }
 
   function loadProcedureTypes() {
-    const select = document.getElementById("procedureTypeSelect");
-    select.innerHTML = "";
-    Object.keys(procedureData).forEach((type) => {
-      const option = document.createElement("option");
+    const select = document.getElementById('procedureTypeSelect');
+    select.innerHTML = '';
+    Object.keys(procedureData).forEach(type => {
+      const option = document.createElement('option');
       option.value = type;
       option.textContent = type;
       select.appendChild(option);
@@ -382,7 +343,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function loadProcedureTypeSettings(type) {
     const procedure = procedureData[type];
-    const container = document.getElementById("procedureTypeSettings");
+    const container = document.getElementById('procedureTypeSettings');
     container.innerHTML = `
             <div class="procedure-type">
                 <label for="procedureTypeName" class="block text-gray-700">Menetlusliik:</label>
@@ -392,7 +353,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <label for="offerDays" class="block text-gray-700">Pakkumuste esitamise päevad:</label>
                 <input type="number" id="offerDays" value="${procedure.pakkumusteAeg}" required><br><br>
                 <label for="useInternationalThreshold" class="block text-gray-700">Kasuta rahvusvahelisi tähtaegu:</label>
-                <input type="checkbox" id="useInternationalThreshold" ${procedure.useInternational ? "checked" : ""} onchange="toggleInternationalThreshold('${type}')"><br><br>
+                <input type="checkbox" id="useInternationalThreshold" ${procedure.useInternational ? 'checked' : ''} onchange="toggleInternationalThreshold('${type}')"><br><br>
                 <button onclick="deleteProcedureType('${type}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition transform hover:scale-105">Kustuta</button>
                 <button onclick="saveProcedureType('${type}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition transform hover:scale-105">Salvesta</button>
             </div>
@@ -400,7 +361,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function addProcedureType() {
-    const container = document.getElementById("procedureTypeSettings");
+    const container = document.getElementById('procedureTypeSettings');
     container.innerHTML = `
             <div class="procedure-type">
                 <label for="procedureTypeName" class="block text-gray-700">Menetlusliik:</label>
@@ -417,14 +378,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function toggleInternationalThreshold(type) {
-    const useInternational = document.getElementById(
-      "useInternationalThreshold",
-    ).checked;
-    const procedure = useInternational
-      ? internationalProcedureData[type]
-      : procedureData[type];
-    document.getElementById("requestDays").value = procedure.taotlusteAeg;
-    document.getElementById("offerDays").value = procedure.pakkumusteAeg;
+    const useInternational = document.getElementById('useInternationalThreshold').checked;
+    const procedure = useInternational ? internationalProcedureData[type] : procedureData[type];
+    document.getElementById('requestDays').value = procedure.taotlusteAeg;
+    document.getElementById('offerDays').value = procedure.pakkumusteAeg;
   }
 
   function deleteProcedureType(type) {
@@ -434,12 +391,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function saveProcedureType(oldType) {
-    const newType = document.getElementById("procedureTypeName").value;
-    const requestDays = parseInt(document.getElementById("requestDays").value);
-    const offerDays = parseInt(document.getElementById("offerDays").value);
-    const useInternational = document.getElementById(
-      "useInternationalThreshold",
-    ).checked;
+    const newType = document.getElementById('procedureTypeName').value;
+    const requestDays = parseInt(document.getElementById('requestDays').value);
+    const offerDays = parseInt(document.getElementById('offerDays').value);
+    const useInternational = document.getElementById('useInternationalThreshold').checked;
     delete procedureData[oldType];
     procedureData[newType] = {
       taotlusteAeg: requestDays,
@@ -452,12 +407,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function saveNewProcedureType() {
-    const newType = document.getElementById("procedureTypeName").value;
-    const requestDays = parseInt(document.getElementById("requestDays").value);
-    const offerDays = parseInt(document.getElementById("offerDays").value);
-    const useInternational = document.getElementById(
-      "useInternationalThreshold",
-    ).checked;
+    const newType = document.getElementById('procedureTypeName').value;
+    const requestDays = parseInt(document.getElementById('requestDays').value);
+    const offerDays = parseInt(document.getElementById('offerDays').value);
+    const useInternational = document.getElementById('useInternationalThreshold').checked;
     procedureData[newType] = {
       taotlusteAeg: requestDays,
       pakkumusteAeg: offerDays,
@@ -475,14 +428,14 @@ document.addEventListener("DOMContentLoaded", function () {
   async function saveAllSearchesToFirestore() {
     const user = auth.currentUser;
     if (!user) {
-      alert("You must be logged in to save searches.");
+      alert('You must be logged in to save searches.');
       return;
     }
 
     try {
-      const userRef = doc(db, "users", user.uid);
+      const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
-        savedSearches: savedSearches.map((search) => ({
+        savedSearches: savedSearches.map(search => ({
           name: search.name,
           cost: search.cost,
           procedureType: search.procedureType,
@@ -491,34 +444,26 @@ document.addEventListener("DOMContentLoaded", function () {
           procedureDuration: search.procedureDuration,
         })),
       });
-      alert("All searches saved to Firestore!");
+      alert('All searches saved to Firestore!');
     } catch (error) {
-      console.error("Error saving searches to Firestore:", error);
-      alert("Failed to save searches to Firestore.");
+      console.error('Error saving searches to Firestore:', error);
+      alert('Failed to save searches to Firestore.');
     }
   }
 
-  document
-    .getElementById("saveToFirestore")
-    .addEventListener("click", saveAllSearchesToFirestore);
+  document.getElementById('saveToFirestore').addEventListener('click', saveAllSearchesToFirestore);
 });
 
 class PublicProcurement {
   constructor(name, cost, procedureType, contractSigningDate) {
     // Ensure the date is valid before any conversion logic
-    if (
-      !contractSigningDate ||
-      isNaN(new Date(contractSigningDate).getTime())
-    ) {
-      console.error("Invalid contract signing date:", contractSigningDate);
+    if (!contractSigningDate || isNaN(new Date(contractSigningDate).getTime())) {
+      console.error('Invalid contract signing date:', contractSigningDate);
       this.contractSigningDate = null; // Avoid breaking further calculations
     } else {
       // Convert dd.mm.yyyy to YYYY-MM-DD if necessary
-      if (
-        typeof contractSigningDate === "string" &&
-        contractSigningDate.includes(".")
-      ) {
-        const parts = contractSigningDate.split(".");
+      if (typeof contractSigningDate === 'string' && contractSigningDate.includes('.')) {
+        const parts = contractSigningDate.split('.');
         if (parts.length === 3) {
           contractSigningDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
         }
@@ -538,16 +483,13 @@ class PublicProcurement {
 
   calculateProcedureDuration() {
     const procedure = this.procedureType[this.procedureType];
-    const internationalProcedure =
-      this.internationalProcedureType[this.procedureType];
+    const internationalProcedure = this.internationalProcedureType[this.procedureType];
     const internationalThreshold = internationalProcedure.piirmäär;
 
     let duration = 0;
 
     if (this.cost > internationalThreshold || procedure.useInternational) {
-      duration +=
-        internationalProcedure.taotlusteAeg +
-        internationalProcedure.pakkumusteAeg;
+      duration += internationalProcedure.taotlusteAeg + internationalProcedure.pakkumusteAeg;
     } else {
       duration += procedure.taotlusteAeg + procedure.pakkumusteAeg;
     }
@@ -564,8 +506,7 @@ class PublicProcurement {
 
   calculateProcedureDetails() {
     const procedure = procedureData[this.procedureType];
-    const internationalProcedure =
-      internationalProcedureData[this.procedureType];
+    const internationalProcedure = internationalProcedureData[this.procedureType];
     const internationalThreshold = internationalProcedure.piirmäär;
     let taotlusteAeg, pakkumusteAeg;
 
@@ -579,48 +520,42 @@ class PublicProcurement {
 
     const details = [
       {
-        step: "Riigihanke alusdokumentide koostamine",
+        step: 'Riigihanke alusdokumentide koostamine',
         days: ` ${settings.documentPreparationDays} päeva`,
       },
       {
-        step: "Taotluste esitamine RHRis",
-        days: taotlusteAeg ? `${taotlusteAeg} päeva` : "Ei kohaldu",
+        step: 'Taotluste esitamine RHRis',
+        days: taotlusteAeg ? `${taotlusteAeg} päeva` : 'Ei kohaldu',
       },
       {
-        step: "Pakkumuste esitamine RHRis",
-        days: pakkumusteAeg ? `${pakkumusteAeg} päeva` : "Ei kohaldu",
+        step: 'Pakkumuste esitamine RHRis',
+        days: pakkumusteAeg ? `${pakkumusteAeg} päeva` : 'Ei kohaldu',
       },
-      { step: "Hindamine 1", days: `${settings.offerEvaluationDays} päeva` },
-      { step: "Otsus 1", days: `${settings.decisionDays} päeva` },
-      { step: "Hindamine 2", days: `${settings.bidderEvaluationDays} päeva` },
-      { step: "Otsus 2", days: `${settings.successfulBidderDays} päeva` },
-      { step: "Ooteaeg", days: `${settings.waitingPeriodDays} päeva` },
+      { step: 'Hindamine 1', days: `${settings.offerEvaluationDays} päeva` },
+      { step: 'Otsus 1', days: `${settings.decisionDays} päeva` },
+      { step: 'Hindamine 2', days: `${settings.bidderEvaluationDays} päeva` },
+      { step: 'Otsus 2', days: `${settings.successfulBidderDays} päeva` },
+      { step: 'Ooteaeg', days: `${settings.waitingPeriodDays} päeva` },
     ];
     return details;
   }
 
   calculateRequestSubmissionDate() {
     // Step 1: Ensure contractSigningDate is in YYYY-MM-DD format
-    if (
-      typeof this.contractSigningDate === "string" &&
-      this.contractSigningDate.includes(".")
-    ) {
-      const parts = this.contractSigningDate.split(".");
+    if (typeof this.contractSigningDate === 'string' && this.contractSigningDate.includes('.')) {
+      const parts = this.contractSigningDate.split('.');
       if (parts.length === 3) {
         this.contractSigningDate =
-          typeof this.contractSigningDate === "string"
+          typeof this.contractSigningDate === 'string'
             ? `${parts[2]}-${parts[1]}-${parts[0]}`
             : this.contractSigningDate; // Convert dd.mm.yyyy → YYYY-MM-DD only if it's a string
       }
     }
 
     // Step 2: Validate contractSigningDate before using it
-    if (
-      !this.contractSigningDate ||
-      isNaN(new Date(this.contractSigningDate).getTime())
-    ) {
-      console.error("Invalid contract signing date:", this.contractSigningDate);
-      return "Invalid date"; // Prevent further errors
+    if (!this.contractSigningDate || isNaN(new Date(this.contractSigningDate).getTime())) {
+      console.error('Invalid contract signing date:', this.contractSigningDate);
+      return 'Invalid date'; // Prevent further errors
     }
 
     // Step 3: Calculate the request submission date
@@ -628,11 +563,11 @@ class PublicProcurement {
     if (!isNaN(this.procedureDuration)) {
       submissionDate.setDate(submissionDate.getDate() - this.procedureDuration);
       if (isNaN(submissionDate.getTime())) {
-        console.error("Invalid submission date:", submissionDate);
-        return "Invalid date"; // Prevents errors
+        console.error('Invalid submission date:', submissionDate);
+        return 'Invalid date'; // Prevents errors
       }
-      return submissionDate.toISOString().split("T")[0]; // Returns YYYY-MM-DD format
-      console.error("Invalid procedure duration:", this.procedureDuration);
+      return submissionDate.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
+      console.error('Invalid procedure duration:', this.procedureDuration);
     }
 
     // Step 4: Calculate expected quarter
@@ -640,7 +575,7 @@ class PublicProcurement {
     const year = submissionDate.getFullYear();
     this.expectedQuarter = `Q${Math.ceil(month / 3)} ${year}`;
 
-    return submissionDate.toISOString().split("T")[0]; // Returns YYYY-MM-DD format
+    return submissionDate.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
   }
 
   generateHTML() {
@@ -660,14 +595,14 @@ class PublicProcurement {
                             <div id="progress-${index}" class="progress-bar bg-blue-500 h-4 rounded-full transition-all duration-500" data-progress="0"></div>
                         </div>
                     </li>
-                `,
+                `
       )
-      .join("");
+      .join('');
 
     const errorMessage =
       new Date(this.requestSubmissionDate) < new Date()
         ? '<p class="error-message text-red-500 font-bold">NB! Oled hiljaks jäänud, palun tutvu menetlusele kuluva ajaga ja korrigeeri lepingu sõlmimise kuupäeva</p>'
-        : "";
+        : '';
 
     return `
                     <div class="result-card bg-white p-6 rounded max-w-lg">
@@ -715,167 +650,136 @@ function adjustDays(index, adjustment) {
   }
 
   let daysText = daysElement.innerText;
-  let days = parseInt(daysText.match(/\d+/)?.[0] || "0", 10); // Avoid NaN
+  let days = parseInt(daysText.match(/\d+/)?.[0] || '0', 10); // Avoid NaN
   days += adjustment;
   daysElement.innerText = daysText.replace(/\d+/, days);
 
   // Update total duration
-  const totalDurationElement = document.getElementById("totalDuration");
+  const totalDurationElement = document.getElementById('totalDuration');
   if (totalDurationElement) {
-    let totalDuration = parseInt(totalDurationElement.innerText || "0", 10);
+    let totalDuration = parseInt(totalDurationElement.innerText || '0', 10);
     totalDuration += adjustment;
     totalDurationElement.innerText = totalDuration;
   } else {
-    console.error("Element with id totalDuration not found");
+    console.error('Element with id totalDuration not found');
   }
 
   // Store updated total duration in the PublicProcurement object
-  const procurement = savedSearches.find(
-    (p) => p.name === document.getElementById("name").value,
-  );
+  const procurement = savedSearches.find(p => p.name === document.getElementById('name').value);
   if (procurement) {
-    procurement.procedureDuration = parseInt(
-      document.getElementById("totalDuration").innerText,
-    );
-    procurement.requestSubmissionDate =
-      procurement.calculateRequestSubmissionDate();
-    document.getElementById("requestSubmissionDate").innerText = formatDate(
-      procurement.requestSubmissionDate,
+    procurement.procedureDuration = parseInt(document.getElementById('totalDuration').innerText);
+    procurement.requestSubmissionDate = procurement.calculateRequestSubmissionDate();
+    document.getElementById('requestSubmissionDate').innerText = formatDate(
+      procurement.requestSubmissionDate
     );
   } else {
-    console.error("Could not find procurement object for real-time update.");
+    console.error('Could not find procurement object for real-time update.');
   }
 }
 
 const savedSearches = [];
 const history = [];
 
-document
-  .getElementById("procurementForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-    const name = document.getElementById("name").value;
-    const cost = parseFloat(document.getElementById("cost").value);
-    const procedureType = document.getElementById("procedureType").value;
-    const contractSigningDate = document.getElementById(
-      "contractSigningDate",
-    ).value;
+document.getElementById('procurementForm').addEventListener('submit', function (event) {
+  event.preventDefault();
+  const name = document.getElementById('name').value;
+  const cost = parseFloat(document.getElementById('cost').value);
+  const procedureType = document.getElementById('procedureType').value;
+  const contractSigningDate = document.getElementById('contractSigningDate').value;
 
-    const procurement = new PublicProcurement(
-      name,
-      cost,
-      procedureType,
-      contractSigningDate,
-    );
-    document.getElementById("result").innerHTML = procurement.generateHTML(); // Ensure the result is // Lisa puuduolev progressiribade uuendus
+  const procurement = new PublicProcurement(name, cost, procedureType, contractSigningDate);
+  document.getElementById('result').innerHTML = procurement.generateHTML(); // Ensure the result is // Lisa puuduolev progressiribade uuendus
 
-    function extractStepDays() {
-      return Array.from(document.querySelectorAll('[id^="days-"]')).map(
-        (el, index) => {
-          let daysText = el.innerText;
-          let days = parseInt(daysText.match(/\d+/)?.[0] || "0", 10);
-          return { index, element: el, days };
-        },
-      );
-    }
+  function extractStepDays() {
+    return Array.from(document.querySelectorAll('[id^="days-"]')).map((el, index) => {
+      let daysText = el.innerText;
+      let days = parseInt(daysText.match(/\d+/)?.[0] || '0', 10);
+      return { index, element: el, days };
+    });
+  }
 
-    function updateTotalDuration() {
-      const totalDurationElement = document.getElementById("totalDuration");
-      if (!totalDurationElement) return;
+  function updateTotalDuration() {
+    const totalDurationElement = document.getElementById('totalDuration');
+    if (!totalDurationElement) return;
 
-      const totalDays = extractStepDays().reduce(
-        (sum, step) => sum + step.days,
-        0,
-      );
-      totalDurationElement.innerText = totalDays;
+    const totalDays = extractStepDays().reduce((sum, step) => sum + step.days, 0);
+    totalDurationElement.innerText = totalDays;
 
-      updateProgressBars();
-    }
+    updateProgressBars();
+  }
 
-    function updateProgressBars() {
-      const stepData = extractStepDays();
-      const totalDurationElement = document.getElementById("totalDuration");
-      const totalDuration = parseInt(totalDurationElement?.innerText, 10) || 1; // Get total duration
+  function updateProgressBars() {
+    const stepData = extractStepDays();
+    const totalDurationElement = document.getElementById('totalDuration');
+    const totalDuration = parseInt(totalDurationElement?.innerText, 10) || 1; // Get total duration
 
-      stepData.forEach((step) => {
-        const progressBar = document.getElementById(`progress-${step.index}`);
-        if (progressBar) {
-          // Hide the progress bar if "Ei kohaldu"
-          if (step.element.innerText.includes("Ei kohaldu")) {
-            progressBar.style.display = "none";
-            return;
-          } else {
-            progressBar.style.display = "block";
-          }
-
-          // Scale width dynamically based on the total duration
-          let progressWidth = (step.days / totalDuration) * 100 * 1.25;
-          progressBar.dataset.progress = progressWidth.toFixed(2);
-
-          // 🚀 FORCE width and color immediately before animation
-          progressBar.style.width = `${progressWidth}%`;
-
-          // Apply colors dynamically based on percentage of total duration
-          progressBar.classList.remove(
-            "bg-blue-500",
-            "bg-green-500",
-            "bg-yellow-500",
-            "bg-red-500",
-          );
-          if (progressWidth >= 25) {
-            progressBar.classList.add("bg-red-500"); // Very long duration
-          } else if (progressWidth >= 14) {
-            progressBar.classList.add("bg-yellow-500"); // Medium duration
-          } else {
-            progressBar.classList.add("bg-green-500"); // Short duration
-          }
-          setTimeout(() => {
-            gsap.to(progressBar, {
-              width: `${progressWidth}%`,
-              duration: 0.8,
-              ease: "power2.out",
-            });
-          }, 10); // Small delay ensures colors are visible first
+    stepData.forEach(step => {
+      const progressBar = document.getElementById(`progress-${step.index}`);
+      if (progressBar) {
+        // Hide the progress bar if "Ei kohaldu"
+        if (step.element.innerText.includes('Ei kohaldu')) {
+          progressBar.style.display = 'none';
+          return;
+        } else {
+          progressBar.style.display = 'block';
         }
-      });
-    }
 
-    setTimeout(() => {
-      updateTotalDuration();
-      updateProgressBars();
-    }, 100);
+        // Scale width dynamically based on the total duration
+        let progressWidth = (step.days / totalDuration) * 100 * 1.25;
+        progressBar.dataset.progress = progressWidth.toFixed(2);
 
-    // Show the result container
-    document.getElementById("resultContainer").classList.remove("hidden");
+        // 🚀 FORCE width and color immediately before animation
+        progressBar.style.width = `${progressWidth}%`;
 
-    if (savedSearches.length < 15) {
-      savedSearches.push(procurement);
-      updateSavedSearchesTable();
-    } else {
-      alert("Maksimaalne salvestatud otsingute arv on 15.");
-    }
-  });
+        // Apply colors dynamically based on percentage of total duration
+        progressBar.classList.remove('bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500');
+        if (progressWidth >= 25) {
+          progressBar.classList.add('bg-red-500'); // Very long duration
+        } else if (progressWidth >= 14) {
+          progressBar.classList.add('bg-yellow-500'); // Medium duration
+        } else {
+          progressBar.classList.add('bg-green-500'); // Short duration
+        }
+        setTimeout(() => {
+          gsap.to(progressBar, {
+            width: `${progressWidth}%`,
+            duration: 0.8,
+            ease: 'power2.out',
+          });
+        }, 10); // Small delay ensures colors are visible first
+      }
+    });
+  }
 
-document.getElementById("clearFields").addEventListener("click", function () {
-  document.getElementById("procurementForm").reset();
-  document.getElementById("result").innerHTML = "";
-  document.getElementById("resultContainer").classList.add("hidden"); // Hide the result container
+  setTimeout(() => {
+    updateTotalDuration();
+    updateProgressBars();
+  }, 100);
+
+  // Show the result container
+  document.getElementById('resultContainer').classList.remove('hidden');
+
+  if (savedSearches.length < 15) {
+    savedSearches.push(procurement);
+    updateSavedSearchesTable();
+  } else {
+    alert('Maksimaalne salvestatud otsingute arv on 15.');
+  }
 });
 
-document.getElementById("saveFields").addEventListener("click", function () {
-  const name = document.getElementById("name").value;
-  const cost = parseFloat(document.getElementById("cost").value);
-  const procedureType = document.getElementById("procedureType").value;
-  const contractSigningDate = document.getElementById(
-    "contractSigningDate",
-  ).value;
+document.getElementById('clearFields').addEventListener('click', function () {
+  document.getElementById('procurementForm').reset();
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('resultContainer').classList.add('hidden'); // Hide the result container
+});
 
-  const procurement = new PublicProcurement(
-    name,
-    cost,
-    procedureType,
-    contractSigningDate,
-  );
+document.getElementById('saveFields').addEventListener('click', function () {
+  const name = document.getElementById('name').value;
+  const cost = parseFloat(document.getElementById('cost').value);
+  const procedureType = document.getElementById('procedureType').value;
+  const contractSigningDate = document.getElementById('contractSigningDate').value;
+
+  const procurement = new PublicProcurement(name, cost, procedureType, contractSigningDate);
 
   // Update procedure details with adjusted days
   procurement.procedureDetails.forEach((detail, index) => {
@@ -887,36 +791,35 @@ document.getElementById("saveFields").addEventListener("click", function () {
         let days = parseInt(match[0]);
         detail.days = `${days} päeva`;
       } else {
-        console.error("No days found in text:", daysText);
+        console.error('No days found in text:', daysText);
       }
     } else {
-      console.error("Element not found for index:", index);
+      console.error('Element not found for index:', index);
     }
   });
 
   // Capture the adjusted procedureDuration value
-  const totalDurationElement = document.getElementById("totalDuration");
+  const totalDurationElement = document.getElementById('totalDuration');
   if (totalDurationElement) {
     procurement.procedureDuration = parseInt(totalDurationElement.innerText);
   } else {
-    console.error("Total duration element not found");
+    console.error('Total duration element not found');
   }
 
-  procurement.requestSubmissionDate =
-    procurement.calculateRequestSubmissionDate();
+  procurement.requestSubmissionDate = procurement.calculateRequestSubmissionDate();
 
   // Update the displayed result
-  document.getElementById("result").innerHTML = procurement.generateHTML();
+  document.getElementById('result').innerHTML = procurement.generateHTML();
 
   // Save the updated procurement
-  const existingIndex = savedSearches.findIndex((p) => p.name === name);
+  const existingIndex = savedSearches.findIndex(p => p.name === name);
   if (existingIndex !== -1) {
     savedSearches[existingIndex] = procurement;
   } else {
     if (savedSearches.length < 15) {
       savedSearches.push(procurement);
     } else {
-      alert("Maksimaalne salvestatud otsingute arv on 15.");
+      alert('Maksimaalne salvestatud otsingute arv on 15.');
     }
   }
 
@@ -928,51 +831,48 @@ document.getElementById("saveFields").addEventListener("click", function () {
   saveHistory(); // Save history immediately
 });
 
-document.getElementById("refreshFields").addEventListener("click", function () {
+document.getElementById('refreshFields').addEventListener('click', function () {
   const procurement = new PublicProcurement(
-    document.getElementById("name").value,
-    parseFloat(document.getElementById("cost").value),
-    document.getElementById("procedureType").value,
-    document.getElementById("contractSigningDate").value,
+    document.getElementById('name').value,
+    parseFloat(document.getElementById('cost').value),
+    document.getElementById('procedureType').value,
+    document.getElementById('contractSigningDate').value
   );
 
-  procurement.procedureDuration = parseInt(
-    document.getElementById("totalDuration").innerText,
-  );
-  procurement.requestSubmissionDate =
-    procurement.calculateRequestSubmissionDate();
-  document.getElementById("requestSubmissionDate").innerText = formatDate(
-    procurement.requestSubmissionDate,
+  procurement.procedureDuration = parseInt(document.getElementById('totalDuration').innerText);
+  procurement.requestSubmissionDate = procurement.calculateRequestSubmissionDate();
+  document.getElementById('requestSubmissionDate').innerText = formatDate(
+    procurement.requestSubmissionDate
   );
   updateSavedSearchesTable();
 });
 
-document.getElementById("saveToExcel").addEventListener("click", function () {
+document.getElementById('saveToExcel').addEventListener('click', function () {
   if (savedSearches.length === 0) {
-    alert("Salvestatud otsinguid ei ole.");
+    alert('Salvestatud otsinguid ei ole.');
     return;
   }
 
   // Define column headers
   const headers = [
-    "Riigihanke Eseme Nimetus",
-    "Riigihanke Menetluse Liik",
-    "Riigihanke Korraldamise Eeldatav Aeg",
-    "Riigihanke Eeldatav Maksumus (ilma KM-ta)",
-    "Sõlmitava Lepingu Kehtivusaeg",
-    "Riigihanke Eest Vastutav Isik",
-    "Tehnilise Kirjelduse Eest Vastutav Isik",
+    'Riigihanke Eseme Nimetus',
+    'Riigihanke Menetluse Liik',
+    'Riigihanke Korraldamise Eeldatav Aeg',
+    'Riigihanke Eeldatav Maksumus (ilma KM-ta)',
+    'Sõlmitava Lepingu Kehtivusaeg',
+    'Riigihanke Eest Vastutav Isik',
+    'Tehnilise Kirjelduse Eest Vastutav Isik',
   ];
 
   // Prepare data rows
-  const data = savedSearches.map((procurement) => [
-    procurement.name || "",
-    procurement.procedureType || "",
-    getQuarter(procurement.requestSubmissionDate || "Määramata"),
-    procurement.cost || "",
-    "", // Empty field for contract duration
-    "", // Empty field for responsible person
-    "", // Empty field for technical responsible person
+  const data = savedSearches.map(procurement => [
+    procurement.name || '',
+    procurement.procedureType || '',
+    getQuarter(procurement.requestSubmissionDate || 'Määramata'),
+    procurement.cost || '',
+    '', // Empty field for contract duration
+    '', // Empty field for responsible person
+    '', // Empty field for technical responsible person
   ]);
 
   // Combine headers and data
@@ -983,24 +883,24 @@ document.getElementById("saveToExcel").addEventListener("click", function () {
   const ws = XLSX.utils.aoa_to_sheet(worksheetData);
 
   // Auto-width for columns
-  ws["!cols"] = headers.map(() => ({ wch: 25 }));
+  ws['!cols'] = headers.map(() => ({ wch: 25 }));
 
   // Apply table formatting
-  const range = XLSX.utils.decode_range(ws["!ref"]);
-  ws["!autofilter"] = { ref: XLSX.utils.encode_range(range) };
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  ws['!autofilter'] = { ref: XLSX.utils.encode_range(range) };
 
   // Add worksheet to workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Hankeplaan");
+  XLSX.utils.book_append_sheet(wb, ws, 'Hankeplaan');
 
   // Export to .xlsx file
-  XLSX.writeFile(wb, "hankeplaan.xlsx");
+  XLSX.writeFile(wb, 'hankeplaan.xlsx');
 });
 
-const getQuarter = (dateString) => {
-  if (!dateString || dateString === "Määramata") return "Määramata"; // If no date, return "Määramata"
+const getQuarter = dateString => {
+  if (!dateString || dateString === 'Määramata') return 'Määramata'; // If no date, return "Määramata"
 
-  const dateParts = dateString.split(".");
-  if (dateParts.length !== 3) return "Määramata"; // Expecting "dd.mm.yyyy" format
+  const dateParts = dateString.split('.');
+  if (dateParts.length !== 3) return 'Määramata'; // Expecting "dd.mm.yyyy" format
 
   const month = parseInt(dateParts[1], 10);
   const year = dateParts[2];
@@ -1010,63 +910,57 @@ const getQuarter = (dateString) => {
   if (month >= 7 && month <= 9) return `3. kvartal ${year}`;
   if (month >= 10 && month <= 12) return `4. kvartal ${year}`;
 
-  return "Määramata"; // Ensure a valid return value
+  return 'Määramata'; // Ensure a valid return value
 };
 
-document.getElementById("showForm").addEventListener("click", function () {
+document.getElementById('showForm').addEventListener('click', function () {
   closeAllTabs();
-  document.getElementById("formContainer").classList.remove("hidden");
+  document.getElementById('formContainer').classList.remove('hidden');
   if (resultContainerHTML) {
-    document.getElementById("resultContainer").innerHTML = resultContainerHTML;
-    document.getElementById("resultContainer").classList.remove("hidden");
+    document.getElementById('resultContainer').innerHTML = resultContainerHTML;
+    document.getElementById('resultContainer').classList.remove('hidden');
   }
   setActiveTab(this);
 });
 
-document
-  .getElementById("showSavedSearches")
-  .addEventListener("click", function () {
-    saveResultContainerHTML();
-    closeAllTabs();
-    document
-      .getElementById("savedSearchesContainer")
-      .classList.remove("hidden");
-    updateSavedSearchesTable();
-    setActiveTab(this);
-  });
+document.getElementById('showSavedSearches').addEventListener('click', function () {
+  saveResultContainerHTML();
+  closeAllTabs();
+  document.getElementById('savedSearchesContainer').classList.remove('hidden');
+  updateSavedSearchesTable();
+  setActiveTab(this);
+});
 
-document
-  .getElementById("settingsButton")
-  .addEventListener("click", function () {
-    saveResultContainerHTML();
-    closeAllTabs();
-    document.getElementById("settingsContainer").classList.remove("hidden");
-    loadSettings();
-    loadProcedureTypes();
-    setActiveTab(this);
-  });
+document.getElementById('settingsButton').addEventListener('click', function () {
+  saveResultContainerHTML();
+  closeAllTabs();
+  document.getElementById('settingsContainer').classList.remove('hidden');
+  loadSettings();
+  loadProcedureTypes();
+  setActiveTab(this);
+});
 
 function setActiveTab(button) {
-  const navButtons = document.querySelectorAll(".nav button");
-  navButtons.forEach((btn) => btn.classList.remove("active"));
-  button.classList.add("active");
+  const navButtons = document.querySelectorAll('.nav button');
+  navButtons.forEach(btn => btn.classList.remove('active'));
+  button.classList.add('active');
 }
 
 function saveResultContainerHTML() {
-  resultContainerHTML = document.getElementById("resultContainer").innerHTML;
+  resultContainerHTML = document.getElementById('resultContainer').innerHTML;
 }
 
 function closeAllTabs() {
-  document.getElementById("formContainer").classList.add("hidden");
-  document.getElementById("savedSearchesContainer").classList.add("hidden");
-  document.getElementById("settingsContainer").classList.add("hidden");
-  document.getElementById("resultContainer").classList.add("hidden");
+  document.getElementById('formContainer').classList.add('hidden');
+  document.getElementById('savedSearchesContainer').classList.add('hidden');
+  document.getElementById('settingsContainer').classList.add('hidden');
+  document.getElementById('resultContainer').classList.add('hidden');
 }
 
 function updateSavedSearchesTable() {
-  const tableBody = document.getElementById("savedSearchesTableBody");
+  const tableBody = document.getElementById('savedSearchesTableBody');
 
-  tableBody.innerHTML = ""; // Clear previous entries
+  tableBody.innerHTML = ''; // Clear previous entries
 
   savedSearches.forEach((search, index) => {
     const row = `
@@ -1099,87 +993,79 @@ function deleteSearch(index) {
 
 function editSearch(index) {
   const procurement = savedSearches[index];
-  document.getElementById("name").value = procurement.name;
-  document.getElementById("cost").value = procurement.cost;
-  document.getElementById("procedureType").value = procurement.procedureType;
-  document.getElementById("contractSigningDate").value =
-    procurement.contractSigningDate.toISOString().split("T")[0];
+  document.getElementById('name').value = procurement.name;
+  document.getElementById('cost').value = procurement.cost;
+  document.getElementById('procedureType').value = procurement.procedureType;
+  document.getElementById('contractSigningDate').value = procurement.contractSigningDate
+    .toISOString()
+    .split('T')[0];
   deleteSearch(index);
   closeAllTabs();
-  document.getElementById("formContainer").classList.remove("hidden");
-  setActiveTab(document.getElementById("showForm"));
+  document.getElementById('formContainer').classList.remove('hidden');
+  setActiveTab(document.getElementById('showForm'));
 }
 
 function refreshDuration(index) {
   const procurement = savedSearches[index];
-  procurement.procedureDuration = parseInt(
-    document.getElementById("totalDuration").innerText,
-  );
-  procurement.requestSubmissionDate =
-    procurement.calculateRequestSubmissionDate();
-  document.getElementById("requestSubmissionDate").innerText = formatDate(
-    procurement.requestSubmissionDate,
+  procurement.procedureDuration = parseInt(document.getElementById('totalDuration').innerText);
+  procurement.requestSubmissionDate = procurement.calculateRequestSubmissionDate();
+  document.getElementById('requestSubmissionDate').innerText = formatDate(
+    procurement.requestSubmissionDate
   );
   updateSavedSearchesTable();
 }
 
 function updateHistoryTable() {
-  const tableBody = document.getElementById("historyTableBody");
-  tableBody.innerHTML = "";
+  const tableBody = document.getElementById('historyTableBody');
+  tableBody.innerHTML = '';
   history.forEach((procurement, index) => {
-    console.log("Adding row for:", procurement); // Debugging statement
+    console.log('Adding row for:', procurement); // Debugging statement
     tableBody.innerHTML += procurement.generateTableRow(index);
   });
   populateFilterOptions();
 }
 
 function populateFilterOptions() {
-  const filterSelect = document.getElementById("filterByDate");
+  const filterSelect = document.getElementById('filterByDate');
   const dates = [
     ...new Set(
-      history.map(
-        (procurement) =>
-          procurement.contractSigningDate.toISOString().split("T")[0],
-      ),
+      history.map(procurement => procurement.contractSigningDate.toISOString().split('T')[0])
     ),
   ];
   filterSelect.innerHTML = '<option value="all">Kõik</option>';
-  dates.forEach((date) => {
+  dates.forEach(date => {
     filterSelect.innerHTML += `<option value="${date}">${date}</option>`;
   });
 }
 
-document.getElementById("filterByDate").addEventListener("change", function () {
+document.getElementById('filterByDate').addEventListener('change', function () {
   const selectedDate = this.value;
   const filteredHistory =
-    selectedDate === "all"
+    selectedDate === 'all'
       ? history
       : history.filter(
-          (procurement) =>
-            procurement.contractSigningDate.toISOString().split("T")[0] ===
-            selectedDate,
+          procurement =>
+            procurement.contractSigningDate.toISOString().split('T')[0] === selectedDate
         );
-  const tableBody = document.getElementById("historyTableBody");
-  tableBody.innerHTML = "";
+  const tableBody = document.getElementById('historyTableBody');
+  tableBody.innerHTML = '';
   filteredHistory.forEach((procurement, index) => {
     tableBody.innerHTML += procurement.generateTableRow(index);
   });
 
-  document
-    .getElementById("toggleDarkMode")
-    .addEventListener("click", function () {
-      document.body.classList.toggle("bg-gray-900");
-      document.body.classList.toggle("text-white");
-    });
+  document.getElementById('toggleDarkMode').addEventListener('click', function () {
+    document.body.classList.toggle('bg-gray-900');
+    document.body.classList.toggle('text-white');
+  });
 
   function adjustTableColumns() {
-    const tables = document.querySelectorAll("table");
-    tables.forEach((table) => {
-      const columns = table.querySelectorAll("th");
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      const columns = table.querySelectorAll('th');
       columns.forEach((column, index) => {
         let maxWidth = 0;
         const cells = table.querySelectorAll(`td:nth-child(${index + 1})`);
-        cells.forEach((cell) => {
+        cells.forEach(cell => {
           const cellWidth = cell.offsetWidth;
           if (cellWidth > maxWidth) {
             maxWidth = cellWidth;
@@ -1190,170 +1076,149 @@ document.getElementById("filterByDate").addEventListener("change", function () {
     });
   }
 
-  document
-    .getElementById("dropdownButton")
-    .addEventListener("click", function () {
-      const dropdownMenu = document.getElementById("dropdownMenu");
-      dropdownMenu.classList.toggle("hidden");
-    });
+  document.getElementById('dropdownButton').addEventListener('click', function () {
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    dropdownMenu.classList.toggle('hidden');
+  });
 
-  document.addEventListener("click", function (event) {
-    const dropdownButton = document.getElementById("dropdownButton");
-    const dropdownMenu = document.getElementById("dropdownMenu");
+  document.addEventListener('click', function (event) {
+    const dropdownButton = document.getElementById('dropdownButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
     if (!dropdownButton.contains(event.target)) {
-      dropdownMenu.classList.add("hidden");
+      dropdownMenu.classList.add('hidden');
     }
   });
 
   // Dark Mode Toggle
-  const darkModeToggle = document.getElementById("toggleDarkMode");
-  darkModeToggle.addEventListener("change", () => {
-    document.body.classList.toggle("bg-gray-900");
-    document.body.classList.toggle("text-white");
+  const darkModeToggle = document.getElementById('toggleDarkMode');
+  darkModeToggle.addEventListener('change', () => {
+    document.body.classList.toggle('bg-gray-900');
+    document.body.classList.toggle('text-white');
 
     // Navbar, header, and tab menu
     // Fix navbar & header gradient
-    const header = document.querySelector("header");
+    const header = document.querySelector('header');
     if (darkModeToggle.checked) {
-      header.classList.remove(
-        "bg-gradient-to-r",
-        "from-blue-500",
-        "to-indigo-600",
-      );
-      header.classList.add("bg-gray-800");
+      header.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-indigo-600');
+      header.classList.add('bg-gray-800');
     } else {
-      header.classList.remove("bg-gray-800");
-      header.classList.add(
-        "bg-gradient-to-r",
-        "from-blue-500",
-        "to-indigo-600",
-      );
+      header.classList.remove('bg-gray-800');
+      header.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-indigo-600');
     }
 
     // Ensure navbar links stay visible
-    document.querySelectorAll("nav a").forEach((el) => {
-      el.classList.toggle("text-gray-300");
-      el.classList.toggle("text-white");
+    document.querySelectorAll('nav a').forEach(el => {
+      el.classList.toggle('text-gray-300');
+      el.classList.toggle('text-white');
     });
 
-    document.querySelectorAll("header, nav, .tab-content").forEach((el) => {
-      el.classList.toggle("bg-gray-800");
-      el.classList.toggle("text-white");
+    document.querySelectorAll('header, nav, .tab-content').forEach(el => {
+      el.classList.toggle('bg-gray-800');
+      el.classList.toggle('text-white');
     });
 
     // Containers & content boxes
     document
-      .querySelectorAll(
-        ".container, .shadow, .rounded-lg, .bg-white, .bg-gray-100, .bg-gray-50",
-      )
-      .forEach((el) => {
-        el.classList.toggle("bg-gray-800");
-        el.classList.toggle("text-gray-200");
+      .querySelectorAll('.container, .shadow, .rounded-lg, .bg-white, .bg-gray-100, .bg-gray-50')
+      .forEach(el => {
+        el.classList.toggle('bg-gray-800');
+        el.classList.toggle('text-gray-200');
       });
 
     // Tables
-    document.querySelectorAll("table").forEach((el) => {
-      el.classList.toggle("bg-gray-700");
-      el.classList.toggle("text-gray-300");
+    document.querySelectorAll('table').forEach(el => {
+      el.classList.toggle('bg-gray-700');
+      el.classList.toggle('text-gray-300');
     });
 
     // Table headers
-    document.querySelectorAll("thead tr").forEach((el) => {
-      el.classList.toggle("bg-gray-600");
+    document.querySelectorAll('thead tr').forEach(el => {
+      el.classList.toggle('bg-gray-600');
     });
 
     // Buttons
-    document.querySelectorAll("button").forEach((el) => {
-      el.classList.toggle("shadow-lg");
-      el.classList.toggle("border-gray-700");
+    document.querySelectorAll('button').forEach(el => {
+      el.classList.toggle('shadow-lg');
+      el.classList.toggle('border-gray-700');
     });
 
     // Form Inputs & Select Boxes
-    document.querySelectorAll("input, select, textarea").forEach((el) => {
-      el.classList.toggle("bg-gray-700");
-      el.classList.toggle("text-white");
-      el.classList.toggle("border-gray-600");
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+      el.classList.toggle('bg-gray-700');
+      el.classList.toggle('text-white');
+      el.classList.toggle('border-gray-600');
     });
 
     // Save dark mode preference in localStorage
-    if (document.body.classList.contains("bg-gray-900")) {
-      localStorage.setItem("darkMode", "enabled");
+    if (document.body.classList.contains('bg-gray-900')) {
+      localStorage.setItem('darkMode', 'enabled');
     } else {
-      localStorage.setItem("darkMode", "disabled");
+      localStorage.setItem('darkMode', 'disabled');
     }
   });
 
   // Show Notification
   function showNotification(message, duration = 3000) {
-    const notification = document.getElementById("notification");
+    const notification = document.getElementById('notification');
     notification.textContent = message;
-    notification.classList.remove("hidden");
+    notification.classList.remove('hidden');
     setTimeout(() => {
-      notification.classList.add("hidden");
+      notification.classList.add('hidden');
     }, duration);
   }
 
-  document.getElementById("saveFields").addEventListener("click", function () {
+  document.getElementById('saveFields').addEventListener('click', function () {
     // Your save logic here
-    showNotification("Salvestatud edukalt!");
+    showNotification('Salvestatud edukalt!');
   });
 
-  document
-    .getElementById("refreshFields")
-    .addEventListener("click", function () {
-      // Your update logic here
-      showNotification("Uuendatud edukalt!");
-    });
+  document.getElementById('refreshFields').addEventListener('click', function () {
+    // Your update logic here
+    showNotification('Uuendatud edukalt!');
+  });
 
   function toggleChart() {
-    const chartContainer = document.getElementById("chartContainer");
-    chartContainer.classList.toggle("hidden");
+    const chartContainer = document.getElementById('chartContainer');
+    chartContainer.classList.toggle('hidden');
 
     // Ensure table has data before rendering
-    if (!chartContainer.classList.contains("hidden")) {
+    if (!chartContainer.classList.contains('hidden')) {
       setTimeout(() => {
-        if (
-          document.querySelectorAll("#savedSearchesTableBody tr").length > 0
-        ) {
+        if (document.querySelectorAll('#savedSearchesTableBody tr').length > 0) {
           renderChart();
         } else {
-          console.warn(
-            "⚠ No saved searches found, chart cannot be displayed.",
-          );
+          console.warn('⚠ No saved searches found, chart cannot be displayed.');
         }
       }, 300);
     }
   }
 
   function renderChart() {
-    const canvas = document.getElementById("procurementChart");
+    const canvas = document.getElementById('procurementChart');
     if (!canvas) {
-      console.error("❌ Chart canvas not found!");
+      console.error('❌ Chart canvas not found!');
       return;
     }
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
 
     // Destroy previous chart if it exists
-    if (
-      window.procurementChart &&
-      typeof window.procurementChart.destroy === "function"
-    ) {
+    if (window.procurementChart && typeof window.procurementChart.destroy === 'function') {
       window.procurementChart.destroy();
     }
 
     // Extract data from savedSearchesTableBody
-    const rows = document.querySelectorAll("#savedSearchesTableBody tr");
+    const rows = document.querySelectorAll('#savedSearchesTableBody tr');
     const labels = [];
     const costs = [];
     const totalDays = [];
 
-    rows.forEach((row) => {
-      const columns = row.querySelectorAll("td");
+    rows.forEach(row => {
+      const columns = row.querySelectorAll('td');
       if (columns.length >= 5) {
         // Ensure there are enough columns
         const name = columns[0].innerText.trim();
-        const cost = parseFloat(columns[2].innerText.replace("€", "").trim()); // Remove € sign
+        const cost = parseFloat(columns[2].innerText.replace('€', '').trim()); // Remove € sign
         const days = parseInt(columns[3].innerText.trim(), 10); // Convert to integer
 
         if (!isNaN(cost) && !isNaN(days)) {
@@ -1367,33 +1232,33 @@ document.getElementById("filterByDate").addEventListener("change", function () {
 
     // If no valid data, show a warning and prevent chart initialization
     if (labels.length === 0) {
-      console.warn("⚠ No valid data found for the chart.");
+      console.warn('⚠ No valid data found for the chart.');
       return;
     }
 
     // Create the chart
     window.procurementChart = new Chart(ctx, {
-      type: "bar",
+      type: 'bar',
       data: {
         labels: labels,
         datasets: [
           {
-            label: "Menetlusaeg (päevad)",
-            data: totalDays.map((days) => {
+            label: 'Menetlusaeg (päevad)',
+            data: totalDays.map(days => {
               const today = new Date();
               const submissionDate = new Date();
               submissionDate.setDate(today.getDate() + days);
               const timeDiff = submissionDate.getTime() - today.getTime();
               return Math.ceil(timeDiff / (1000 * 3600 * 24));
             }),
-            backgroundColor: "rgba(153, 102, 255, 0.6)",
-            borderColor: "rgba(153, 102, 255, 1)",
+            backgroundColor: 'rgba(153, 102, 255, 0.6)',
+            borderColor: 'rgba(153, 102, 255, 1)',
             borderWidth: 1,
           },
         ],
       },
       options: {
-        indexAxis: "y",
+        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
         scales: {
@@ -1408,56 +1273,49 @@ document.getElementById("filterByDate").addEventListener("change", function () {
   }
 
   // Attach event listeners to navbar buttons
-  document.addEventListener("DOMContentLoaded", function () {
-    const navTool = document.getElementById("showForm");
-    const navHanked = document.getElementById("showSavedSearches");
-    const navHistory = document.getElementById("showHistory");
-    const navSettings = document.getElementById("settingsButton");
+  document.addEventListener('DOMContentLoaded', function () {
+    const navTool = document.getElementById('showForm');
+    const navHanked = document.getElementById('showSavedSearches');
+    const navHistory = document.getElementById('showHistory');
+    const navSettings = document.getElementById('settingsButton');
 
-    if (navTool)
-      navTool.addEventListener("click", () => showTab("formContainer"));
-    if (navHanked)
-      navHanked.addEventListener("click", () =>
-        showTab("savedSearchesContainer"),
-      );
-    if (navHistory)
-      navHistory.addEventListener("click", () => showTab("historyContainer"));
+    if (navTool) navTool.addEventListener('click', () => showTab('formContainer'));
+    if (navHanked) navHanked.addEventListener('click', () => showTab('savedSearchesContainer'));
+    if (navHistory) navHistory.addEventListener('click', () => showTab('historyContainer'));
     function showTab(tabId) {
       closeAllTabs();
-      document.getElementById(tabId).classList.remove("hidden");
+      document.getElementById(tabId).classList.remove('hidden');
     }
     // Initialize Chart.js
     renderChart();
   });
   function toggleDashboard() {
-    const dashboard = document.getElementById("dashboard");
-    const recentCalculationsTable = document.getElementById(
-      "recentCalculationsTable",
-    );
-    dashboard.classList.toggle("hidden");
-    recentCalculationsTable.classList.toggle("hidden");
+    const dashboard = document.getElementById('dashboard');
+    const recentCalculationsTable = document.getElementById('recentCalculationsTable');
+    dashboard.classList.toggle('hidden');
+    recentCalculationsTable.classList.toggle('hidden');
   }
 
   // Ensure the container fades in on page load
-  document.addEventListener("DOMContentLoaded", () => {
-    gsap.from("body", { opacity: 0, duration: 0.3 });
+  document.addEventListener('DOMContentLoaded', () => {
+    gsap.from('body', { opacity: 0, duration: 0.3 });
     updateTotalDuration(); // Ensure total duration is calculated and progress bars are updated on load
   });
 
   function updateProgressBars() {
     const stepData = extractStepDays();
-    const totalDurationElement = document.getElementById("totalDuration");
+    const totalDurationElement = document.getElementById('totalDuration');
     const totalDuration = parseInt(totalDurationElement?.innerText, 10) || 1; // Get total durationtotal duration
 
-    stepData.forEach((step) => {
+    stepData.forEach(step => {
       const progressBar = document.getElementById(`progress-${step.index}`);
       if (progressBar) {
         // Hide the progress bar if "Ei kohaldu"
-        if (step.element.innerText.includes("Ei kohaldu")) {
-          progressBar.style.display = "none";
+        if (step.element.innerText.includes('Ei kohaldu')) {
+          progressBar.style.display = 'none';
           return;
         } else {
-          progressBar.style.display = "block";
+          progressBar.style.display = 'block';
         }
 
         // Scale width dynamically based on the total duration
@@ -1468,24 +1326,19 @@ document.getElementById("filterByDate").addEventListener("change", function () {
         progressBar.style.width = `${progressWidth}%`;
 
         // Apply colors dynamically based on percentage of total duration
-        progressBar.classList.remove(
-          "bg-blue-500",
-          "bg-green-500",
-          "bg-yellow-500",
-          "bg-red-500",
-        );
+        progressBar.classList.remove('bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500');
         if (progressWidth >= 25) {
-          progressBar.classList.add("bg-red-500"); // Very long duration
+          progressBar.classList.add('bg-red-500'); // Very long duration
         } else if (progressWidth >= 14) {
-          progressBar.classList.add("bg-yellow-500"); // Medium duration
+          progressBar.classList.add('bg-yellow-500'); // Medium duration
         } else {
-          progressBar.classList.add("bg-green-500"); // Short duration
+          progressBar.classList.add('bg-green-500'); // Short duration
         }
         setTimeout(() => {
           gsap.to(progressBar, {
             width: `${progressWidth}%`,
             duration: 0.8,
-            ease: "power2.out",
+            ease: 'power2.out',
           });
         }, 10); // Small delay ensures colors are visible first
       }
@@ -1493,30 +1346,25 @@ document.getElementById("filterByDate").addEventListener("change", function () {
   }
 
   function extractStepDays() {
-    return Array.from(document.querySelectorAll('[id^="days-"]')).map(
-      (el, index) => {
-        let daysText = el.innerText;
-        let days = parseInt(daysText.match(/\d+/)?.[0] || "0", 10);
-        return { index, element: el, days };
-      },
-    );
+    return Array.from(document.querySelectorAll('[id^="days-"]')).map((el, index) => {
+      let daysText = el.innerText;
+      let days = parseInt(daysText.match(/\d+/)?.[0] || '0', 10);
+      return { index, element: el, days };
+    });
   }
 
   function updateTotalDuration() {
-    const totalDurationElement = document.getElementById("totalDuration");
+    const totalDurationElement = document.getElementById('totalDuration');
     if (!totalDurationElement) return;
 
-    const totalDays = extractStepDays().reduce(
-      (sum, step) => sum + step.days,
-      0,
-    );
+    const totalDays = extractStepDays().reduce((sum, step) => sum + step.days, 0);
     totalDurationElement.innerText = totalDays;
 
     updateProgressBars();
   }
 
   function adjustDays(index, adjustment) {
-    const stepData = extractStepDays().find((step) => step.index === index);
+    const stepData = extractStepDays().find(step => step.index === index);
     if (!stepData) return;
 
     let newDays = Math.max(0, stepData.days + adjustment);
@@ -1526,26 +1374,21 @@ document.getElementById("filterByDate").addEventListener("change", function () {
     updateProgressBars(); // Update progress bars dynamically
 
     // Update the request submission date
-    const procurement = savedSearches.find(
-      (p) => p.name === document.getElementById("name").value,
-    );
+    const procurement = savedSearches.find(p => p.name === document.getElementById('name').value);
     if (procurement) {
-      procurement.procedureDuration = parseInt(
-        document.getElementById("totalDuration").innerText,
-      );
-      procurement.requestSubmissionDate =
-        procurement.calculateRequestSubmissionDate();
-      document.getElementById("requestSubmissionDate").innerText = formatDate(
-        procurement.requestSubmissionDate,
+      procurement.procedureDuration = parseInt(document.getElementById('totalDuration').innerText);
+      procurement.requestSubmissionDate = procurement.calculateRequestSubmissionDate();
+      document.getElementById('requestSubmissionDate').innerText = formatDate(
+        procurement.requestSubmissionDate
       );
     } else {
-      console.error("Could not find procurement object for real-time update.");
+      console.error('Could not find procurement object for real-time update.');
     }
   }
 
   function initializeAdjustButtons() {
-    document.querySelectorAll("button[data-adjust]").forEach((button) => {
-      button.addEventListener("click", function () {
+    document.querySelectorAll('button[data-adjust]').forEach(button => {
+      button.addEventListener('click', function () {
         const index = parseInt(this.dataset.index, 10);
         const adjustment = parseInt(this.dataset.adjust, 10);
         adjustDays(index, adjustment);
@@ -1553,39 +1396,36 @@ document.getElementById("filterByDate").addEventListener("change", function () {
     });
   }
 
-  document.addEventListener("readystatechange", function () {
-    if (document.readyState === "complete") {
-      console.log("Page fully loaded. Initializing scripts...");
+  document.addEventListener('readystatechange', function () {
+    if (document.readyState === 'complete') {
+      console.log('Page fully loaded. Initializing scripts...');
       initializeAdjustButtons();
       updateTotalDuration(); // 🔥 Ensures total duration starts correctly
       updateProgressBars(); // 🔥 Ensures progress bars scale correctly on load
     }
   });
   // Active Tab Highlighting
-  document.addEventListener("DOMContentLoaded", function () {
-    const navLinks = document.querySelectorAll(".nav-link");
+  document.addEventListener('DOMContentLoaded', function () {
+    const navLinks = document.querySelectorAll('.nav-link');
 
     function setActiveTab(event) {
-      navLinks.forEach((link) =>
-        link.classList.remove("border-b-2", "border-white"),
-      );
-      event.target.classList.add("border-b-2", "border-white");
+      navLinks.forEach(link => link.classList.remove('border-b-2', 'border-white'));
+      event.target.classList.add('border-b-2', 'border-white');
     }
 
-    navLinks.forEach((link) => {
-      link.addEventListener("click", setActiveTab);
+    navLinks.forEach(link => {
+      link.addEventListener('click', setActiveTab);
     });
   });
 
   //menetlusliigi nimi
-  document.addEventListener("DOMContentLoaded", function () {
-    const procedureSelect = document.getElementById("procedureType");
-    const procedureLabel = document.getElementById("procedureLabel");
+  document.addEventListener('DOMContentLoaded', function () {
+    const procedureSelect = document.getElementById('procedureType');
+    const procedureLabel = document.getElementById('procedureLabel');
 
     function updateProcedureLabel() {
-      const selectedOption =
-        procedureSelect.options[procedureSelect.selectedIndex];
-      const optgroup = selectedOption.closest("optgroup"); // Find parent optgroup
+      const selectedOption = procedureSelect.options[procedureSelect.selectedIndex];
+      const optgroup = selectedOption.closest('optgroup'); // Find parent optgroup
 
       if (optgroup) {
         procedureLabel.innerText = `${optgroup.label}`;
@@ -1595,7 +1435,7 @@ document.getElementById("filterByDate").addEventListener("change", function () {
           opacity: 1,
           y: 5,
           duration: 0.5,
-          ease: "power2.out",
+          ease: 'power2.out',
         });
       } else {
         gsap.to(procedureLabel, { opacity: 0, duration: 0.3 });
@@ -1603,40 +1443,35 @@ document.getElementById("filterByDate").addEventListener("change", function () {
     }
 
     // Update on selection change
-    procedureSelect.addEventListener("change", updateProcedureLabel);
+    procedureSelect.addEventListener('change', updateProcedureLabel);
 
     // Run once on page load to show the initially selected value
     updateProcedureLabel();
   });
 
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener('DOMContentLoaded', function () {
     function animateProgressBars() {
-      document.querySelectorAll(".progress-bar").forEach((bar) => {
+      document.querySelectorAll('.progress-bar').forEach(bar => {
         gsap.to(bar, {
-          width: bar.dataset.progress + "%",
+          width: bar.dataset.progress + '%',
           duration: 1.5,
-          ease: "power2.out",
+          ease: 'power2.out',
         });
       });
     }
 
     function extractStepDays() {
-      return Array.from(document.querySelectorAll('[id^="days-"]')).map(
-        (el, index) => {
-          let daysText = el.innerText;
-          let days = parseInt(daysText.match(/\d+/)?.[0] || "0", 10);
-          return { index, element: el, days };
-        },
-      );
+      return Array.from(document.querySelectorAll('[id^="days-"]')).map((el, index) => {
+        let daysText = el.innerText;
+        let days = parseInt(daysText.match(/\d+/)?.[0] || '0', 10);
+        return { index, element: el, days };
+      });
     }
     function updateTotalDuration() {
-      const totalDurationElement = document.getElementById("totalDuration");
+      const totalDurationElement = document.getElementById('totalDuration');
       if (!totalDurationElement) return;
 
-      const totalDays = extractStepDays().reduce(
-        (sum, step) => sum + step.days,
-        0,
-      );
+      const totalDays = extractStepDays().reduce((sum, step) => sum + step.days, 0);
       totalDurationElement.innerText = totalDays;
 
       updateProgressBars();
@@ -1650,7 +1485,7 @@ document.getElementById("filterByDate").addEventListener("change", function () {
       }
 
       let daysText = daysElement.innerText;
-      let days = parseInt(daysText.match(/\d+/)?.[0] || "0", 10);
+      let days = parseInt(daysText.match(/\d+/)?.[0] || '0', 10);
       days = Math.max(0, days + adjustment);
       daysElement.innerText = `${days} päeva`;
 
@@ -1659,7 +1494,7 @@ document.getElementById("filterByDate").addEventListener("change", function () {
       updateProgressBars();
 
       // Get the timeline modal
-      const timelineModal = document.getElementById("timelineModal");
+      const timelineModal = document.getElementById('timelineModal');
       if (timelineModal && timelineModal.__x) {
         // Force timeline recalculation by reopening the modal
         timelineModal.__x.$data.open = false;
@@ -1669,24 +1504,21 @@ document.getElementById("filterByDate").addEventListener("change", function () {
       }
 
       // Update the procurement object if it exists
-      const procurement = savedSearches.find(
-        (p) => p.name === document.getElementById("name").value,
-      );
+      const procurement = savedSearches.find(p => p.name === document.getElementById('name').value);
       if (procurement) {
         procurement.procedureDuration = parseInt(
-          document.getElementById("totalDuration").innerText,
+          document.getElementById('totalDuration').innerText
         );
-        procurement.requestSubmissionDate =
-          procurement.calculateRequestSubmissionDate();
-        document.getElementById("requestSubmissionDate").innerText = formatDate(
-          procurement.requestSubmissionDate,
+        procurement.requestSubmissionDate = procurement.calculateRequestSubmissionDate();
+        document.getElementById('requestSubmissionDate').innerText = formatDate(
+          procurement.requestSubmissionDate
         );
       }
     }
 
     function initializeAdjustButtons() {
-      document.querySelectorAll("button[data-adjust]").forEach((button) => {
-        button.addEventListener("click", function () {
+      document.querySelectorAll('button[data-adjust]').forEach(button => {
+        button.addEventListener('click', function () {
           const index = parseInt(this.dataset.index, 10);
           const adjustment = parseInt(this.dataset.adjust, 10);
           adjustDays(index, adjustment);
@@ -1694,29 +1526,27 @@ document.getElementById("filterByDate").addEventListener("change", function () {
       });
     }
 
-    document.addEventListener("readystatechange", function () {
-      if (document.readyState === "complete") {
-        console.log("Page fully loaded. Initializing scripts...");
+    document.addEventListener('readystatechange', function () {
+      if (document.readyState === 'complete') {
+        console.log('Page fully loaded. Initializing scripts...');
         initializeAdjustButtons();
         updateTotalDuration(); // 🔥 Ensures total duration starts correctly
         updateProgressBars(); // 🔥 Ensures progress bars scale correctly on load
         setTimeout(updateProgressBars, 500); // 🔥 Second pass to ensure visibility
       }
 
-      document.addEventListener("DOMContentLoaded", () => {
-        const settingsButton = document.getElementById("settingsButton");
-        const settingsContainer = document.getElementById("settingsContainer");
+      document.addEventListener('DOMContentLoaded', () => {
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsContainer = document.getElementById('settingsContainer');
 
         // ✅ Fix: Ensure elements exist before adding event listeners
         if (!settingsButton || !settingsContainer) {
-          console.error(
-            "❌ settingsButton or settingsContainer not found in the DOM!",
-          );
+          console.error('❌ settingsButton or settingsContainer not found in the DOM!');
           return;
         }
 
-        settingsButton.addEventListener("click", () => {
-          settingsContainer.classList.toggle("hidden");
+        settingsButton.addEventListener('click', () => {
+          settingsContainer.classList.toggle('hidden');
         });
       });
     });
@@ -1724,13 +1554,13 @@ document.getElementById("filterByDate").addEventListener("change", function () {
 });
 
 function formatDate(date) {
-  if (!date) return "Määramata";
+  if (!date) return 'Määramata';
   const d = new Date(date);
-  return `${d.getDate().toString().padStart(2, "0")}.${(d.getMonth() + 1)
+  return `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1)
     .toString()
-    .padStart(2, "0")}.${d.getFullYear()}`;
+    .padStart(2, '0')}.${d.getFullYear()}`;
 }
 
 function saveHistory() {
-  localStorage.setItem("procurementHistory", JSON.stringify(history));
+  localStorage.setItem('procurementHistory', JSON.stringify(history));
 }

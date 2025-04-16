@@ -13,7 +13,7 @@
    by your tests, return to step 4.
 9. Add documentation for your feature or bug fix.
 10. Run `bundle exec rake doc:yard`. If your changes are not 100% documented, go
-   back to step 8.
+    back to step 8.
 11. Add, commit, and push your changes. For documentation-only fixes, please
     add "[ci skip]" to your commit message to avoid needless CI builds.
 12. [Submit a pull request.][pr]

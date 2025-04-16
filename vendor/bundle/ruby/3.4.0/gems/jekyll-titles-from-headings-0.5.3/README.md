@@ -1,6 +1,6 @@
 # Jekyll Titles from Headings
 
-*A Jekyll plugin to pull the page title from the first Markdown heading when none is specified.*
+_A Jekyll plugin to pull the page title from the first Markdown heading when none is specified._
 
 [![Build Status](https://travis-ci.org/benbalter/jekyll-titles-from-headings.svg?branch=master)](https://travis-ci.org/benbalter/jekyll-titles-from-headings)
 
@@ -20,17 +20,18 @@ Additionally, this allows you to store the title semantically, in the document i
 
 1. Add the following to your site's Gemfile:
 
-  ```ruby
-  gem 'jekyll-titles-from-headings'
-  ```
+```ruby
+gem 'jekyll-titles-from-headings'
+```
 
 2. Add the following to your site's config file:
 
-  ```yml
-  plugins:
-    - jekyll-titles-from-headings
-  ```
-  Note: If you are using a Jekyll version less than 3.5.0, use the `gems` key instead of `plugins`.
+```yml
+plugins:
+  - jekyll-titles-from-headings
+```
+
+Note: If you are using a Jekyll version less than 3.5.0, use the `gems` key instead of `plugins`.
 
 ## Configuration
 
@@ -38,7 +39,7 @@ Configuration options are optional and placed in `_config.yml` under the `titles
 
 ```yml
 titles_from_headings:
-  enabled:     true
+  enabled: true
   strip_title: false
   collections: false
 ```

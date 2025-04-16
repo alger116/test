@@ -1,12 +1,12 @@
 # jekyll-commonmark
 
-*CommonMark Markdown converter for Jekyll*
+_CommonMark Markdown converter for Jekyll_
 
 [![Gem Version](https://img.shields.io/gem/v/jekyll-commonmark.svg)](https://rubygems.org/gems/jekyll-commonmark)
 [![Build Status](https://img.shields.io/travis/jekyll/jekyll-commonmark/master.svg)](https://travis-ci.org/jekyll/jekyll-commonmark)
 [![Windows Build status](https://img.shields.io/appveyor/ci/pathawks/jekyll-commonmark/master.svg?label=Windows%20build)](https://ci.appveyor.com/project/pathawks/jekyll-commonmark)
 
-Jekyll Markdown converter that uses [libcmark-gfm](https://github.com/github/cmark-gfm) (via [commonmarker](https://github.com/gjtorikian/commonmarker)). 
+Jekyll Markdown converter that uses [libcmark-gfm](https://github.com/github/cmark-gfm) (via [commonmarker](https://github.com/gjtorikian/commonmarker)).
 As a result, it is faster than Kramdown.
 
 GitHub Pages supports CommonMark through https://github.com/github/jekyll-commonmark-ghpages
@@ -33,6 +33,6 @@ To specify [extensions](https://github.com/gjtorikian/commonmarker#extensions) a
 
 ```yaml
 commonmark:
-  options: ["SMART", "FOOTNOTES"]
-  extensions: ["strikethrough", "autolink", "table"]
+  options: ['SMART', 'FOOTNOTES']
+  extensions: ['strikethrough', 'autolink', 'table']
 ```

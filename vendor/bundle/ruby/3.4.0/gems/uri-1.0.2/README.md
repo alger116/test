@@ -7,9 +7,9 @@ URI is a module providing classes to handle Uniform Resource Identifiers [RFC239
 
 ## Features
 
-* Uniform way of handling URIs.
-* Flexibility to introduce custom URI schemes.
-* Flexibility to have an alternate URI::Parser (or just different patterns and regexp's).
+- Uniform way of handling URIs.
+- Flexibility to introduce custom URI schemes.
+- Flexibility to have an alternate URI::Parser (or just different patterns and regexp's).
 
 ## Installation
 

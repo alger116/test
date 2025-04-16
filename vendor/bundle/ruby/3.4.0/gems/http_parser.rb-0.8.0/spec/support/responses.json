@@ -55,9 +55,7 @@
     "status_code": 404,
     "status": "Not Found",
     "num_headers": 0,
-    "headers": {
-
-    },
+    "headers": {},
     "body_size": 0,
     "body": "",
     "strict": true
@@ -73,9 +71,7 @@
     "status_code": 301,
     "status": "",
     "num_headers": 0,
-    "headers": {
-
-    },
+    "headers": {},
     "body": "",
     "strict": true
   },
@@ -238,9 +234,7 @@
     "status_code": 200,
     "status": "OK",
     "num_headers": 0,
-    "headers": {
-
-    },
+    "headers": {},
     "body": "",
     "strict": true
   },
@@ -308,9 +302,7 @@
     "status_code": 200,
     "status": "OK",
     "num_headers": 0,
-    "headers": {
-
-    },
+    "headers": {},
     "body_size": 0,
     "body": "",
     "strict": true
@@ -326,9 +318,7 @@
     "status_code": 204,
     "status": "No content",
     "num_headers": 0,
-    "headers": {
-
-    },
+    "headers": {},
     "body_size": 0,
     "body": "",
     "strict": true

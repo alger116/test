@@ -167,7 +167,7 @@ different class to create, e.g. `Array`, if you are expecting a particular class
 in your code from this option's value. The description is also optional, but
 it's highly recommended to include a description.
 
-#### `#alias` 
+#### `#alias`
 
 Specifies an alias for this command such that the alias may be used in place of
 the command during execution. Accepts one argument:
@@ -229,7 +229,7 @@ cmd.logger.fatal "I can't continue doing what I'm doing."
 Creates a new subcommand for the current command. Accepts two arguments:
 
 - `cmd_name` - the command name, as a Symbol
-- `block` -  the specification of the subcommand in a block
+- `block` - the specification of the subcommand in a block
 
 Example:
 

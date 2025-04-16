@@ -38,8 +38,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const tempAuth = getAuth(initializeApp(firebaseConfig, "temp"));
-
         window.db = db;
         window.collection = collection;
         window.getDocs = getDocs;

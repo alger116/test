@@ -9,25 +9,25 @@ Note that this document is broken into multiple sections, each of which describe
 <!-- toc -->
 
 - [Platform Releases](#platform-releases)
-  * [Default platform release ("ruby")](#default-platform-release-ruby)
-  * [Native LinuxⓇ platform releases ("x86_64-linux", "aarch64-linux", and "arm-linux")](#native-linux%E2%93%A1-platform-releases-x86_64-linux-aarch64-linux-and-arm-linux)
-  * [Native Darwin (macOSⓇ) platform releases ("x86_64-darwin" and "arm64-darwin")](#native-darwin-macos%E2%93%A1-platform-releases-x86_64-darwin-and-arm64-darwin)
-  * [Native WindowsⓇ platform releases ("x64-mingw-ucrt")](#native-windows%E2%93%A1-platform-releases-x64-mingw-ucrt)
-  * [JavaⓇ (JRuby) platform release ("java")](#java%E2%93%A1-jruby-platform-release-java)
+  - [Default platform release ("ruby")](#default-platform-release-ruby)
+  - [Native LinuxⓇ platform releases ("x86_64-linux", "aarch64-linux", and "arm-linux")](#native-linux%E2%93%A1-platform-releases-x86_64-linux-aarch64-linux-and-arm-linux)
+  - [Native Darwin (macOSⓇ) platform releases ("x86_64-darwin" and "arm64-darwin")](#native-darwin-macos%E2%93%A1-platform-releases-x86_64-darwin-and-arm64-darwin)
+  - [Native WindowsⓇ platform releases ("x64-mingw-ucrt")](#native-windows%E2%93%A1-platform-releases-x64-mingw-ucrt)
+  - [JavaⓇ (JRuby) platform release ("java")](#java%E2%93%A1-jruby-platform-release-java)
 - [Appendix: Dependencies' License Texts](#appendix-dependencies-license-texts)
-  * [libgumbo](#libgumbo)
-  * [libxml2](#libxml2)
-  * [libxslt](#libxslt)
-  * [zlib](#zlib)
-  * [libiconv](#libiconv)
-  * [isorelax:isorelax](#isorelaxisorelax)
-  * [net.sf.saxon:Saxon-HE](#netsfsaxonsaxon-he)
-  * [net.sourceforge.htmlunit:neko-htmlunit](#netsourceforgehtmlunitneko-htmlunit)
-  * [nu.validator:jing](#nuvalidatorjing)
-  * [org.nokogiri:nekodtd](#orgnokogirinekodtd)
-  * [xalan:serializer and xalan:xalan](#xalanserializer-and-xalanxalan)
-  * [xerces:xercesImpl](#xercesxercesimpl)
-  * [xml-apis:xml-apis](#xml-apisxml-apis)
+  - [libgumbo](#libgumbo)
+  - [libxml2](#libxml2)
+  - [libxslt](#libxslt)
+  - [zlib](#zlib)
+  - [libiconv](#libiconv)
+  - [isorelax:isorelax](#isorelaxisorelax)
+  - [net.sf.saxon:Saxon-HE](#netsfsaxonsaxon-he)
+  - [net.sourceforge.htmlunit:neko-htmlunit](#netsourceforgehtmlunitneko-htmlunit)
+  - [nu.validator:jing](#nuvalidatorjing)
+  - [org.nokogiri:nekodtd](#orgnokogirinekodtd)
+  - [xalan:serializer and xalan:xalan](#xalanserializer-and-xalanxalan)
+  - [xerces:xercesImpl](#xercesxercesimpl)
+  - [xml-apis:xml-apis](#xml-apisxml-apis)
 
 <!-- tocstop -->
 
@@ -37,73 +37,67 @@ You can double-check the dependencies in your gem file by examining the output o
 
 In particular, I'm sure somebody's lawyer, somewhere, is going to freak out that the LGPL appears in this file; and so I'd like to take special note that the dependency covered by LGPL, `libiconv`, is only being redistributed in the native Windows and native Darwin platform releases. It's not present in default, JavaⓇ, or native LinuxⓇ releases.
 
-
 ## Platform Releases
 
 ### Default platform release ("ruby")
 
 The default platform release distributes the following dependencies in source form:
 
-* [libxml2](#libxml2)
-* [libxslt](#libxslt)
-* [libgumbo](#libgumbo)
+- [libxml2](#libxml2)
+- [libxslt](#libxslt)
+- [libgumbo](#libgumbo)
 
 This distribution can be identified by inspecting the included Gem::Specification, which will have the value "ruby" for its "platform" attribute.
-
 
 ### Native LinuxⓇ platform releases ("x86_64-linux", "aarch64-linux", and "arm-linux")
 
 The native LinuxⓇ platform release distributes the following dependencies in source form:
 
-* [libxml2](#libxml2)
-* [libxslt](#libxslt)
-* [libgumbo](#libgumbo)
-* [zlib](#zlib)
+- [libxml2](#libxml2)
+- [libxslt](#libxslt)
+- [libgumbo](#libgumbo)
+- [zlib](#zlib)
 
 This distribution can be identified by inspecting the included Gem::Specification, which will have a value similar to "x86_64-linux" or "aarch64-linux" for its "platform.cpu" attribute.
-
 
 ### Native Darwin (macOSⓇ) platform releases ("x86_64-darwin" and "arm64-darwin")
 
 The native Darwin platform release distributes the following dependencies in source form:
 
-* [libxml2](#libxml2)
-* [libxslt](#libxslt)
-* [libgumbo](#libgumbo)
-* [zlib](#zlib)
-* [libiconv](#libiconv)
+- [libxml2](#libxml2)
+- [libxslt](#libxslt)
+- [libgumbo](#libgumbo)
+- [zlib](#zlib)
+- [libiconv](#libiconv)
 
 This distribution can be identified by inspecting the included Gem::Specification, which will have a value similar to "x86_64-darwin" or "arm64-darwin" for its "platform.cpu" attribute. Darwin is also known more familiarly as "OSX" or "macOSⓇ" and is the operating system for many AppleⓇ computers.
-
 
 ### Native WindowsⓇ platform releases ("x64-mingw-ucrt")
 
 The native WindowsⓇ platform release distributes the following dependencies in source form:
 
-* [libxml2](#libxml2)
-* [libxslt](#libxslt)
-* [libgumbo](#libgumbo)
-* [zlib](#zlib)
-* [libiconv](#libiconv)
+- [libxml2](#libxml2)
+- [libxslt](#libxslt)
+- [libgumbo](#libgumbo)
+- [zlib](#zlib)
+- [libiconv](#libiconv)
 
 This distribution can be identified by inspecting the included Gem::Specification, which will have a value similar to "x64-mingw-ucrt" for its "platform.cpu" attribute.
-
 
 ### JavaⓇ (JRuby) platform release ("java")
 
 The Java platform release distributes the following dependencies as compiled jar files:
 
-* [isorelax:isorelax](#isorelaxisorelax)
-* [net.sf.saxon:Saxon-HE](#netsfsaxonsaxon-he)
-* [net.sourceforge.htmlunit:neko-htmlunit](#netsourceforgehtmlunitneko-htmlunit)
-* [nu.validator:jing](#nuvalidatorjing)
-* [org.nokogiri:nekodtd](#orgnokogirinekodtd)
-* [xalan:serializer and xalan:xalan](#xalanserializer-and-xalanxalan)
-* [xerces:xercesImpl](#xercesxercesimpl)
-* [xml-apis:xml-apis](#xml-apisxml-apis)
+- [isorelax:isorelax](#isorelaxisorelax)
+- [net.sf.saxon:Saxon-HE](#netsfsaxonsaxon-he)
+- [net.sourceforge.htmlunit:neko-htmlunit](#netsourceforgehtmlunitneko-htmlunit)
+- [nu.validator:jing](#nuvalidatorjing)
+- [org.nokogiri:nekodtd](#orgnokogirinekodtd)
+- [xalan:serializer and xalan:xalan](#xalanserializer-and-xalanxalan)
+- [xerces:xercesImpl](#xercesxercesimpl)
+- [xml-apis:xml-apis](#xml-apisxml-apis)
 
 This distribution can be identified by inspecting the included Gem::Specification, which will have the value "java" for its "platform.os" attribute.
-
 
 ## Appendix: Dependencies' License Texts
 
@@ -111,13 +105,11 @@ This section contains a subsection for each potentially-distributed dependency, 
 
 Please see previous sections to understand which of these potential dependencies is actually distributed in the gem file you're downloading and using.
 
-
 ### libgumbo
 
 Apache 2.0
 
 https://github.com/sparklemotion/nokogiri/blob/main/gumbo-parser/src/README.md
-
 
                                      Apache License
                                Version 2.0, January 2004
@@ -296,7 +288,6 @@ https://github.com/sparklemotion/nokogiri/blob/main/gumbo-parser/src/README.md
 
        END OF TERMS AND CONDITIONS
 
-
 ### libxml2
 
 MIT
@@ -326,7 +317,6 @@ http://xmlsoft.org/
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-
 
 ### libxslt
 
@@ -388,7 +378,6 @@ http://xmlsoft.org/libxslt/
     ings in this Software without prior written authorization from him.
     ----------------------------------------------------------------------
 
-
 ### zlib
 
 zlib license
@@ -415,7 +404,6 @@ http://www.zlib.net/zlib_license.html
 
       Jean-loup Gailly        Mark Adler
       jloup@gzip.org          madler@alumni.caltech.edu
-
 
 ### libiconv
 
@@ -861,7 +849,6 @@ https://www.gnu.org/software/libiconv/
 
                  END OF TERMS AND CONDITIONS
 
-
 ### isorelax:isorelax
 
 MIT
@@ -889,7 +876,6 @@ http://iso-relax.sourceforge.net/
     LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 
 ### net.sf.saxon:Saxon-HE
 
@@ -1251,7 +1237,6 @@ http://www.saxonica.com/
     Secondary Licenses under the terms of this version of the License, the
     notice described in Exhibit B of this License must be attached.
 
-
 ### net.sourceforge.htmlunit:neko-htmlunit
 
 Apache 2.0
@@ -1435,7 +1420,6 @@ https://github.com/HtmlUnit/htmlunit-neko
 
        END OF TERMS AND CONDITIONS
 
-
 ### nu.validator:jing
 
 BSD-3-Clause
@@ -1475,7 +1459,6 @@ http://www.thaiopensource.com/relaxng/jing.html
     TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
     THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
-
 
 ### org.nokogiri:nekodtd
 
@@ -1660,7 +1643,6 @@ https://github.com/sparklemotion/nekodtd
 
        END OF TERMS AND CONDITIONS
 
-
 ### xalan:serializer and xalan:xalan
 
 Apache 2.0
@@ -1844,7 +1826,6 @@ https://xml.apache.org/xalan-j/
 
        END OF TERMS AND CONDITIONS
 
-
 ### xerces:xercesImpl
 
 Apache 2.0
@@ -2027,7 +2008,6 @@ https://xerces.apache.org/xerces2-j/
           of your accepting any such warranty or additional liability.
 
        END OF TERMS AND CONDITIONS
-
 
 ### xml-apis:xml-apis
 

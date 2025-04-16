@@ -5,7 +5,6 @@
 [![Build Status](https://github.com/weppos/publicsuffix-ruby/actions/workflows/tests.yml/badge.svg)](https://github.com/weppos/publicsuffix-ruby/actions/workflows/tests.yml)
 [![Tidelift dependencies](https://tidelift.com/badges/package/rubygems/public_suffix)](https://tidelift.com/subscription/pkg/rubygems-public-suffix?utm_source=rubygems-public-suffix&utm_medium=referral&utm_campaign=enterprise)
 
-
 ## Links
 
 - [Homepage](https://simonecarletti.com/code/publicsuffix-ruby)
@@ -13,11 +12,9 @@
 - [API Documentation](https://rubydoc.info/gems/public_suffix)
 - [Introducing the Public Suffix List library for Ruby](https://simonecarletti.com/blog/2010/06/public-suffix-list-library-for-ruby/)
 
-
 ## Requirements
 
 <tt>PublicSuffix</tt> requires **Ruby >= 2.6**. For an older versions of Ruby use a previous release.
-
 
 ## Installation
 
@@ -100,13 +97,12 @@ PublicSuffix.valid?("example.tldnotlisted")
 # => true
 ```
 
-Strict validation (without applying the default * rule):
+Strict validation (without applying the default \* rule):
 
 ```ruby
 PublicSuffix.valid?("example.tldnotlisted", default_rule: nil)
 # => false
 ```
-
 
 ## Fully Qualified Domain Names
 
@@ -166,7 +162,6 @@ The Public Suffix List is an initiative of the Mozilla Project, but is maintaine
 
 A "public suffix" is one under which Internet users can directly register names. Some examples of public suffixes are ".com", ".co.uk" and "pvt.k12.wy.us". The Public Suffix List is a list of all known public suffixes.
 
-
 ## Why the Public Suffix List is better than any available Regular Expression parser?
 
 Previously, browsers used an algorithm which basically only denied setting wide-ranging cookies for top-level domains with no dots (e.g. com or org). However, this did not work for top-level domains where only third-level registrations are allowed (e.g. co.uk). In these cases, websites could set a cookie for co.uk which will be passed onto every website registered under co.uk.
@@ -181,11 +176,9 @@ Source: https://wiki.mozilla.org/Public_Suffix_List
 
 Not convinced yet? Check out [this real world example](https://stackoverflow.com/q/288810/123527).
 
-
 ## Does <tt>PublicSuffix</tt> make requests to Public Suffix List website?
 
 No. <tt>PublicSuffix</tt> comes with a bundled list. It does not make any HTTP requests to parse or validate a domain.
-
 
 ## Support
 
@@ -196,16 +189,13 @@ Library documentation is auto-generated from the [README](https://github.com/wep
 
 [Consider subscribing to Tidelift which provides Enterprise support for this project](https://tidelift.com/subscription/pkg/rubygems-public-suffix?utm_source=rubygems-public-suffix&utm_medium=referral&utm_campaign=readme) as part of the Tidelift Subscription. Tidelift subscriptions also help the maintainers by funding the project, which in turn allows us to ship releases, bugfixes, and security updates more often.
 
-
 ## Security and Vulnerability Reporting
 
 Full information and description of our security policy please visit [`SECURITY.md`](SECURITY.md)
 
-
 ## Changelog
 
 See the [CHANGELOG.md](CHANGELOG.md) file for details.
-
 
 ## License
 

@@ -4,10 +4,10 @@ Logger is a simple but powerful logging utility to output messages in your Ruby 
 
 Logger has the following features:
 
- * Print messages to different levels such as `info` and `error`
- * Auto-rolling of log files
- * Setting the format of log messages
- * Specifying a program name in conjunction with the message
+- Print messages to different levels such as `info` and `error`
+- Auto-rolling of log files
+- Setting the format of log messages
+- Specifying a program name in conjunction with the message
 
 ## Installation
 

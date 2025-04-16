@@ -1,13 +1,13 @@
-require("dotenv").config();
-const express = require("express");
-const path = require("path");
+require('dotenv').config();
+const express = require('express');
+const path = require('path');
 const app = express();
 
 // Serve static files
-app.use(express.static(path.join(__dirname, "..")));
+app.use(express.static(path.join(__dirname, '..')));
 
 // Endpoint to get Firebase config (with limited exposure)
-app.get("/api/config", (req, res) => {
+app.get('/api/config', (req, res) => {
   res.json({
     firebase: {
       apiKey: process.env.FIREBASE_API_KEY,

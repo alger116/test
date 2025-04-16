@@ -13,9 +13,8 @@ patron**](https://www.patreon.com/gettalong) - thanks!
 
 Sponsors:
 
-* **GROSSWEBER** provides <a href="http://grossweber.com/b/kramdown" target="_blank">software
+- **GROSSWEBER** provides <a href="http://grossweber.com/b/kramdown" target="_blank">software
   development consulting and training services</a>.
-
 
 ## Introduction
 
@@ -30,8 +29,8 @@ The kramdown library is mainly written to support the kramdown-to-HTML conversio
 due to its flexibility (by creating an internal AST) it supports other input and output formats as
 well. Here is a list of the supported formats:
 
-* input formats: kramdown (a Markdown superset), Markdown, GFM, HTML
-* output formats: HTML, kramdown, LaTeX (and therefore PDF), PDF via Prawn
+- input formats: kramdown (a Markdown superset), Markdown, GFM, HTML
+- output formats: HTML, kramdown, LaTeX (and therefore PDF), PDF via Prawn
 
 All the documentation on the available input and output formats is available in the **doc/**
 directory and online at <http://kramdown.gettalong.org>.
@@ -42,7 +41,6 @@ number on the introduction of new features and the patch number on everything el
 
 For information about changes between versions, have a look at
 <http://kramdown.gettalong.org/news.html> or the commit history!
-
 
 ## Usage
 
@@ -62,7 +60,6 @@ API documentation for kramdown probably don't provide the complete documentation
 There are also some third-party libraries that extend the functionality of kramdown -- see the
 kramdown Wiki at <https://github.com/gettalong/kramdown/wiki>.
 
-
 ## Development
 
 Just clone the git repository as described in **doc/installation.page** and you are good to go. You
@@ -70,7 +67,6 @@ probably want to install `rake` so that you can use the provided rake tasks.
 
 If you want to run the tests, the development dependencies are needed as well as some additional
 programs like `tidy` and `latex`. See the `.travis.yml` file for more information.
-
 
 ## License
 

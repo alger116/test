@@ -73,8 +73,6 @@ Modernne ja funktsionaalne ostumenetluse kutse süsteem koos dashboardiga.
 - Font Awesome - Ikoonid
 - Inter font - Tüpograafia
 
-
-
 ## Litsents
 
 License: Proprietary – usage by written permission only. Contact viljarpartel@gmail.com

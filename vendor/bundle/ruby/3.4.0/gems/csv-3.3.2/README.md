@@ -30,8 +30,8 @@ end
 
 ## Documentation
 
-- [API](https://ruby.github.io/csv/):  all classes, methods, and constants.
-- [Recipes](https://ruby.github.io/csv/doc/csv/recipes/recipes_rdoc.html):  specific code for specific tasks.
+- [API](https://ruby.github.io/csv/): all classes, methods, and constants.
+- [Recipes](https://ruby.github.io/csv/doc/csv/recipes/recipes_rdoc.html): specific code for specific tasks.
 
 ## Development
 

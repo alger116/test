@@ -996,7 +996,8 @@
             const initializePermissions = httpsCallable(functions, 'initializeUserPermissions');
 
             // Create a separate auth instance for user creation
-            const tempAuth = getAuth(initializeApp(firebaseConfig, "temp"));
+            const tempApp = initializeApp(firebaseConfig, "temp");
+            const tempAuth = getAuth(tempApp);
 
             // Make Firebase functions available globally
             window.db = db;
@@ -2613,7 +2614,13 @@
 
                         const userRow = document.createElement("tr");
                         userRow.className = "hover:bg-gray-50 cursor-pointer"; // Add hover effect and cursor
-                        userRow.onclick = () => openUserDetailsModal(docSnapshot.id, userData); // Add click handler
+                        userRow.onclick = (e) => {
+                            // Don't open modal if clicking on a button or checkbox
+                            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('button') || e.target.closest('select')) {
+                                return;
+                            }
+                            openUserDetailsModal(docSnapshot.id, userData);
+                        };
 
                         userRow.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -2686,7 +2693,7 @@
                                     <i class="fas fa-key mr-1"></i>
                                     Parool
                                 </button>
-                                <button onclick="deleteUser('${docSnapshot.id}')" 
+                                <button onclick="deleteUser('${docSnapshot.id}', event)" 
                                     class="px-2 py-1 rounded-md text-xs bg-red-100 text-red-700 hover:bg-red-200 transition-colors">
                                     <i class="fas fa-trash mr-1"></i>
                                     Kustuta
@@ -2862,7 +2869,12 @@
                 }
             };
 
-            window.deleteUser = async (userId) => {
+            window.deleteUser = async (userId, event) => {
+                // Prevent the click event from bubbling up to the row
+                if (event) {
+                    event.stopPropagation();
+                }
+
                 if (!confirm("Kas oled kindel, et soovid selle kasutaja kustutada?")) return;
                 try {
                     // Get current user's role
@@ -2893,29 +2905,51 @@
 
                     const userData = userDoc.data();
 
-                    // Delete the user document
+                    // Delete the user from Firebase Authentication
+                    try {
+                        // Create a new auth instance for the admin
+                        const adminAuth = getAuth();
+
+                        // Get the user by email
+                        const userCredential = await signInWithEmailAndPassword(adminAuth, userData.email, generateRandomPassword());
+
+                        // Delete the user
+                        await deleteUser(userCredential.user);
+
+                        // Sign out
+                        await signOut(adminAuth);
+                    } catch (authError) {
+                        console.error("Error deleting auth user:", authError);
+                        // Continue with Firestore deletion even if auth deletion fails
+                    }
+
+                    // Delete the user document from Firestore
                     await deleteDoc(userRef);
 
-                    // Log the deletion
-                    await addDoc(collection(db, "auditLog"), {
-                        action: "user_deleted",
-                        userId: userId,
-                        userEmail: userData.email,
-                        performedBy: auth.currentUser.uid,
-                        performedByEmail: auth.currentUser.email,
-                        timestamp: new Date()
+                    // Close any open modals and remove backdrops
+                    const modals = ['userDetailsModal', 'addUserContainer'];
+                    const backdrops = ['addUserBackdrop'];
+
+                    modals.forEach(modalId => {
+                        const modal = document.getElementById(modalId);
+                        if (modal) modal.classList.add('hidden');
                     });
 
-                    showNotification("Kasutaja kustutatud!", "success");
-                    loadUsers(); // Refresh user list
+                    backdrops.forEach(backdropId => {
+                        const backdrop = document.getElementById(backdropId);
+                        if (backdrop) backdrop.classList.add('hidden');
+                    });
+
+                    // Reset body overflow
+                    document.body.style.overflow = '';
+
+                    // Refresh the user list
+                    loadUsers();
+
+                    showNotification("Kasutaja edukalt kustutatud!", "success");
                 } catch (error) {
                     console.error("Error deleting user:", error);
-
-                    if (error.code === "permission-denied") {
-                        showNotification("Sul ei ole õigusi kasutaja kustutamiseks!", "error");
-                    } else {
-                        showNotification("Viga kasutaja kustutamisel: " + error.message, "error");
-                    }
+                    showNotification("Viga kasutaja kustutamisel!", "error");
                 }
             };
 
@@ -3079,9 +3113,30 @@
                 }
             }
 
+            // Helper function to clean up temp auth
+            async function cleanupTempAuth() {
+                try {
+                    await signOut(tempAuth);
+                    // Reset the auth state
+                    await tempAuth.updateCurrentUser(null);
+                } catch (error) {
+                    console.error("Error cleaning up temp auth:", error);
+                }
+            }
+
             // Handle add user form submission
+            const addUserForm = document.getElementById("addUserForm");
+            let isSubmitting = false; // Flag to prevent duplicate submissions
+
             addUserForm.addEventListener("submit", async function (event) {
                 event.preventDefault();
+
+                if (isSubmitting) return; // Prevent duplicate submissions
+                isSubmitting = true;
+
+                // Disable the form to prevent double submission
+                const submitButton = addUserForm.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
 
                 const email = document.getElementById("userEmail").value;
                 const password = document.getElementById("userPassword").value;
@@ -3089,56 +3144,18 @@
                 const approved = document.getElementById("userApproved").checked;
 
                 try {
-                    // Show in-progress notification
+                    // Check if user already exists
+                    const userExists = await checkUserExists(email);
+                    if (userExists) {
+                        showNotification("See e-posti aadress on juba kasutusel!", "error");
+                        return;
+                    }
+
                     showNotification("Kasutaja loomine...", "info");
-
-                    // Create the user using the temporary auth instance
-                    const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
-                    const firebaseUser = userCredential.user;
-
-                    // Create the user document in Firestore
-                    const userRef = doc(db, "users", firebaseUser.uid);
-                    await setDoc(userRef, {
-                        email: email,
-                        role: role,
-                        approved: approved,
-                        createdAt: new Date(),
-                        lastLogin: null,
-                        status: approved ? 'active' : 'pending',
-                        uid: firebaseUser.uid,
-                        emailVerified: false,
-                        lastUpdated: new Date(),
-                        createdBy: auth.currentUser.uid,
-                        createdByEmail: auth.currentUser.email,
-                        customPermissions: {
-                            formManagement: {
-                                createPresets: role === 'mainAdmin',
-                                viewPresets: true,
-                                editPresets: role === 'mainAdmin',
-                                deletePresets: role === 'mainAdmin',
-                                backupSettings: role === 'mainAdmin',
-                                applyPresets: true,
-                                manageStandardFields: role === 'mainAdmin'
-                            }
-                        }
-                    });
-
-                    // Add audit log
-                    await addDoc(collection(db, "auditLog"), {
-                        action: "user_created",
-                        userId: firebaseUser.uid,
-                        email: email,
-                        role: role,
-                        approved: approved,
-                        performedBy: auth.currentUser.uid,
-                        performedByEmail: auth.currentUser.email,
-                        timestamp: new Date()
-                    });
-
-                    // Sign out from the temporary auth instance
-                    await signOut(tempAuth);
-
+                    await createUserWithPermissions(email, password, role, approved);
                     showNotification("Kasutaja lisatud edukalt!", "success");
+
+                    // Close modal and reset form
                     closeAddUserModal();
 
                     // Refresh the user list
@@ -3156,6 +3173,10 @@
                     }
 
                     showNotification(errorMessage, "error");
+                } finally {
+                    // Re-enable the form and reset submission flag
+                    submitButton.disabled = false;
+                    isSubmitting = false;
                 }
             });
 
@@ -4844,6 +4865,15 @@
             // Modify the user creation code to include permissions
             async function createUserWithPermissions(email, password, role, approved) {
                 try {
+                    // Clean up temp auth before starting
+                    await cleanupTempAuth();
+
+                    // Check if user exists in both Auth and Firestore
+                    const methods = await fetchSignInMethodsForEmail(auth, email);
+                    if (methods.length > 0) {
+                        throw { code: "auth/email-already-in-use", message: "The email address is already in use by another account." };
+                    }
+
                     // Create the user using the temporary auth instance
                     const userCredential = await createUserWithEmailAndPassword(tempAuth, email, password);
                     const firebaseUser = userCredential.user;
@@ -4966,8 +4996,12 @@
             });
 
             // Replace the existing addUserForm event listener with this new version
-            addUserForm.addEventListener("submit", async function (event) {
+            const formSubmitHandler = async function (event) {
                 event.preventDefault();
+
+                // Disable the submit button to prevent multiple submissions
+                const submitButton = addUserForm.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
 
                 const email = document.getElementById("userEmail").value;
                 const password = document.getElementById("userPassword").value;
@@ -4982,26 +5016,29 @@
                     await createUserWithPermissions(email, password, role, approved);
 
                     showNotification("Kasutaja lisatud edukalt!", "success");
-                    closeAddUserModal();
+
+                    // Ensure modal is closed and backdrop is removed
+                    addUserContainer.classList.add("hidden");
+                    addUserBackdrop.classList.add("hidden");
+                    addUserForm.reset();
 
                     // Refresh the user list
                     loadUsers();
                 } catch (error) {
-                    console.error("Error in user creation process:", error);
-                    let errorMessage = "Viga kasutaja loomisel!";
-
-                    if (error.code === "auth/email-already-in-use") {
-                        errorMessage = "See e-posti aadress on juba kasutusel!";
-                    } else if (error.code === "auth/invalid-email") {
-                        errorMessage = "Vigane e-posti aadress!";
-                    } else if (error.code === "auth/weak-password") {
-                        errorMessage = "Parool on liiga nõrk!";
-                    }
-
-                    showNotification(errorMessage, "error");
+                    console.error("Error creating user:", error);
+                    showNotification(error.message || "Viga kasutaja loomisel!", "error");
+                } finally {
+                    // Re-enable the submit button
+                    submitButton.disabled = false;
                 }
-            });
-            // ... existing code ...
+            };
+
+            // Remove any existing event listeners
+            const newForm = addUserForm.cloneNode(true);
+            addUserForm.parentNode.replaceChild(newForm, addUserForm);
+
+            // Add the new event listener
+            newForm.addEventListener("submit", formSubmitHandler);
 
             // Function to update all users with correct permissions
             async function updateAllUserPermissions() {

@@ -1,6 +1,6 @@
 # Jekyll Sitemap Generator Plugin
 
-*Jekyll plugin to silently generate a sitemaps.org compliant sitemap for your Jekyll site*
+_Jekyll plugin to silently generate a sitemaps.org compliant sitemap for your Jekyll site_
 
 [![Build Status](https://travis-ci.org/jekyll/jekyll-sitemap.svg?branch=master)](https://travis-ci.org/jekyll/jekyll-sitemap)
 
@@ -10,7 +10,7 @@
 2. Add the following to your site's `_config.yml`:
 
 ```yml
-url: "http://example.com" # the base hostname & protocol for your site
+url: 'http://example.com' # the base hostname & protocol for your site
 plugins:
   - jekyll-sitemap
 ```
@@ -20,28 +20,30 @@ plugins:
 If all gem plugins have the same `priority`, they will be executed in the
 order they are required, generally. Thus, if you have other plugins which
 generate content and store that content in `site.pages`, `site.posts`, or
-`site.collections`, be sure to require `jekyll-sitemap` either *after*
-those other gems if you *want* the sitemap to include the generated
-content, or *before* those other gems if you *don't want* the sitemap to
-include the generated content from the gems. (Programming is *hard*.)
+`site.collections`, be sure to require `jekyll-sitemap` either _after_
+those other gems if you _want_ the sitemap to include the generated
+content, or _before_ those other gems if you _don't want_ the sitemap to
+include the generated content from the gems. (Programming is _hard_.)
 
 Because the sitemap is added to `site.pages`, you may have to modify any
 templates that iterate through all pages (for example, to build a menu of
 all of the site's content).
 
 ## Note on Use with GitHub Pages Gem
-The GitHub Pages gem ignores all plugins included in the Gemfile. If you only include `jekyll-sitemap` in the Gemfile without also including it in the `_config.yml` *the plugin will not work*. This can be confusing because the official Jekyll docs state that plugins can be included in either the Gemfile or `_config.yml`.
+
+The GitHub Pages gem ignores all plugins included in the Gemfile. If you only include `jekyll-sitemap` in the Gemfile without also including it in the `_config.yml` _the plugin will not work_. This can be confusing because the official Jekyll docs state that plugins can be included in either the Gemfile or `_config.yml`.
 
 When building a site that uses the GitHub Pages gem, follow the instructions above and ensure that `jekyll-sitemap` is listed in the `plugins` array in `_config.yml`.
 
 :warning: If you are using Jekyll < 3.5.0 use the `gems` key instead of `plugins`.
 
 ## `<lastmod>` tag
+
 The `<lastmod>` tag in the `sitemap.xml` will reflect by priority:
 
-1.   The modified date of the file as reported by the filesystem if you have `jekyll-last-modified-at` plugin installed (not compatible with GitHub Pages auto building)
-2.   A personalised date if you add the variable `last_modified_at:` with a date in the Front Matter
-3.   The creation date of your post (corresponding to the `post.date` variable)
+1.  The modified date of the file as reported by the filesystem if you have `jekyll-last-modified-at` plugin installed (not compatible with GitHub Pages auto building)
+2.  A personalised date if you add the variable `last_modified_at:` with a date in the Front Matter
+3.  The creation date of your post (corresponding to the `post.date` variable)
 
 ## Exclusions
 
@@ -54,15 +56,14 @@ sitemap: false
 
 To exclude files from your sitemap. It can be achieved with configuration using [Jekyll v3.7.2 and jekyll-sitemap v1.2.0](https://github.com/jekyll/jekyll/commit/776433109b96cb644938ffbf9caf4923bdde4d7f).
 
-Add a glob config to your `_config.yml` file. 
+Add a glob config to your `_config.yml` file.
 
 ```yml
 defaults:
-  -
-    scope:
-      path:            "assets/**/*.pdf"
+  - scope:
+      path: 'assets/**/*.pdf'
     values:
-      sitemap:         false
+      sitemap: false
 ```
 
 ## Override default development settings
@@ -71,8 +72,8 @@ defaults:
 
 ## Developing locally
 
-* Use `script/bootstrap` to bootstrap your local development environment.
-* Use `script/console` to load a local IRB console with the Gem.
+- Use `script/bootstrap` to bootstrap your local development environment.
+- Use `script/console` to load a local IRB console with the Gem.
 
 ## Testing
 

@@ -5,9 +5,9 @@
 
 Very simple & usable Mac OSX FSEvents API
 
-* Signals are working (really)
-* Tested on MRI 2.4.1, RBX 3.72, JRuby 1.7.26 and 9.1.8.0
-* Tested on 10.8
+- Signals are working (really)
+- Tested on MRI 2.4.1, RBX 3.72, JRuby 1.7.26 and 9.1.8.0
+- Tested on 10.8
 
 ## HFS+ filename corruption bug
 
@@ -15,7 +15,7 @@ There is a _very_ long-standing (since 2011) OSX bug where sometimes the filenam
 
 Please note that this doesn't repair the underlying issue on disk. Other apps and libraries using fsevents will continue to break with no warning. There may be other issues unrelated to fsevents.
 
-__This bug is resolved in MacOS 10.12 and all users are strongly encouraged to upgrade.__
+**This bug is resolved in MacOS 10.12 and all users are strongly encouraged to upgrade.**
 
 ## Install
 
@@ -23,17 +23,17 @@ __This bug is resolved in MacOS 10.12 and all users are strongly encouraged to u
 
 ### re-compilation
 
-rb-fsevent comes with a pre-compiled fsevent\_watch binary supporting x86\_64 on 10.9 and above. The binary is codesigned with my (Travis Tilley) Developer ID as an extra precaution when distributing pre-compiled code and contains an embedded plist describing its build environment. This should be sufficient for most users, but if you need to use rb-fsevent on 10.8 or lower then recompilation is necessary. This can be done by entering the installed gem's ext directory and running:
+rb-fsevent comes with a pre-compiled fsevent_watch binary supporting x86_64 on 10.9 and above. The binary is codesigned with my (Travis Tilley) Developer ID as an extra precaution when distributing pre-compiled code and contains an embedded plist describing its build environment. This should be sufficient for most users, but if you need to use rb-fsevent on 10.8 or lower then recompilation is necessary. This can be done by entering the installed gem's ext directory and running:
 
     MACOSX_DEPLOYMENT_TARGET="10.7" rake replace_exe
 
 The following ENV vars are recognized:
 
-* CC
-* CFLAGS
-* ARCHFLAGS
-* MACOSX\_DEPLOYMENT\_TARGET
-* FWDEBUG (enables debug mode, printing an obscene number of informational
+- CC
+- CFLAGS
+- ARCHFLAGS
+- MACOSX_DEPLOYMENT_TARGET
+- FWDEBUG (enables debug mode, printing an obscene number of informational
   messages to STDERR)
 
 ### embedded plist
@@ -63,7 +63,7 @@ If, for some perverse reason, you prefer to look at the xml... it can be retriev
 
 ### codesign
 
-You can verify code signing information for a specific fsevent\_watch via:
+You can verify code signing information for a specific fsevent_watch via:
 
     codesign -d -vvv ./bin/fsevent_watch
 
@@ -151,55 +151,55 @@ fsevent.run
 
 ## Options
 
-When defining options using a hash or hash-like object, it gets checked for validity and converted to the appropriate fsevent\_watch commandline arguments array when the FSEvent class is instantiated. This is obviously the safest and preferred method of passing in options.
+When defining options using a hash or hash-like object, it gets checked for validity and converted to the appropriate fsevent_watch commandline arguments array when the FSEvent class is instantiated. This is obviously the safest and preferred method of passing in options.
 
-You may, however, choose to pass in an array of commandline arguments as your options value and it will be passed on, unmodified, to the fsevent\_watch binary when called.
+You may, however, choose to pass in an array of commandline arguments as your options value and it will be passed on, unmodified, to the fsevent_watch binary when called.
 
 So far, the following options are supported:
 
-* :latency => 0.5 # in seconds
-* :no\_defer => true
-* :watch\_root => true
-* :since\_when => 18446744073709551615 # an FSEventStreamEventId
-* :file\_events => true
+- :latency => 0.5 # in seconds
+- :no_defer => true
+- :watch_root => true
+- :since_when => 18446744073709551615 # an FSEventStreamEventId
+- :file_events => true
 
 ### Latency
 
 The :latency parameter determines how long the service should wait after the first event before passing that information along to the client. If your latency is set to 4 seconds, and 300 changes occur in the first three, then the callback will be fired only once. If latency is set to 0.1 in the exact same scenario, you will see that callback fire somewhere closer to between 25 and 30 times.
 
-Setting a higher latency value allows for more effective temporal coalescing, resulting in fewer callbacks and greater overall efficiency... at the cost of apparent responsiveness. Setting this to a reasonably high value (and NOT setting :no\_defer) is particularly well suited for background, daemon, or batch processing applications.
+Setting a higher latency value allows for more effective temporal coalescing, resulting in fewer callbacks and greater overall efficiency... at the cost of apparent responsiveness. Setting this to a reasonably high value (and NOT setting :no_defer) is particularly well suited for background, daemon, or batch processing applications.
 
 Implementation note: It appears that FSEvents will only coalesce events from a maximum of 32 distinct subpaths, making the above completely accurate only when events are to fewer than 32 subpaths. Creating 300 files in one directory, for example, or 30 files in 10 subdirectories, but not 300 files within 300 subdirectories. In the latter case, you may receive 31 callbacks in one go after the latency period. As this appears to be an implementation detail, the number could potentially differ across OS revisions. It is entirely possible that this number is somehow configurable, but I have not yet discovered an accepted method of doing so.
 
 ### NoDefer
 
-The :no\_defer option changes the behavior of the latency parameter completely. Rather than waiting for $latency period of time before sending along events in an attempt to coalesce a potential deluge ahead of time, that first event is sent along to the client immediately and is followed by a $latency period of silence before sending along any additional events that occurred within that period.
+The :no_defer option changes the behavior of the latency parameter completely. Rather than waiting for $latency period of time before sending along events in an attempt to coalesce a potential deluge ahead of time, that first event is sent along to the client immediately and is followed by a $latency period of silence before sending along any additional events that occurred within that period.
 
 This behavior is particularly useful for interactive applications where that feeling of apparent responsiveness is most important, but you still don't want to get overwhelmed by a series of events that occur in rapid succession.
 
 ### WatchRoot
 
-The :watch\_root option allows for catching the scenario where you start watching "~/src/demo\_project" and either it is later renamed to "~/src/awesome\_sauce\_3000" or the path changes in such a manner that the original directory is now at "~/clients/foo/iteration4/demo\_project".
+The :watch_root option allows for catching the scenario where you start watching "~/src/demo_project" and either it is later renamed to "~/src/awesome_sauce_3000" or the path changes in such a manner that the original directory is now at "~/clients/foo/iteration4/demo_project".
 
-Unfortunately, while this behavior is somewhat supported in the fsevent\_watch binary built as part of this project, support for passing across detailed metadata is not (yet). As a result, you would not receive the appropriate RootChanged event and be able to react appropriately. Also, since the C code doesn't open watched directories and retain that file descriptor as part of path-specific callback metadata, we are unable to issue an F\_GETPATH fcntl() to determine the directory's new path.
+Unfortunately, while this behavior is somewhat supported in the fsevent_watch binary built as part of this project, support for passing across detailed metadata is not (yet). As a result, you would not receive the appropriate RootChanged event and be able to react appropriately. Also, since the C code doesn't open watched directories and retain that file descriptor as part of path-specific callback metadata, we are unable to issue an F_GETPATH fcntl() to determine the directory's new path.
 
 Please do not use this option until proper support is added (or, even better, add it and submit a pull request).
 
 ### SinceWhen
 
-The FSEventStreamEventId passed in to :since\_when is used as a base for reacting to historic events. Unfortunately, not only is the metadata for transitioning from historic to live events not currently passed along, but it is incorrectly passed as a change event on the root path, and only per-host event streams are currently supported. When using per-host event streams, the event IDs are not guaranteed to be unique or contiguous when shared volumes (firewire/USB/net/etc) are used on multiple macs.
+The FSEventStreamEventId passed in to :since_when is used as a base for reacting to historic events. Unfortunately, not only is the metadata for transitioning from historic to live events not currently passed along, but it is incorrectly passed as a change event on the root path, and only per-host event streams are currently supported. When using per-host event streams, the event IDs are not guaranteed to be unique or contiguous when shared volumes (firewire/USB/net/etc) are used on multiple macs.
 
 Please do not use this option until proper support is added, unless it's acceptable for you to receive that one fake event that's handled incorrectly when events transition from historical to live. Even in that scenario, there's no metadata available for determining the FSEventStreamEventId of the last received event.
 
-WARNING: passing in 0 as the parameter to :since\_when will return events for every directory modified since "the beginning of time".
+WARNING: passing in 0 as the parameter to :since_when will return events for every directory modified since "the beginning of time".
 
-### FileEvents ###
+### FileEvents
 
-Prepare yourself for an obscene number of callbacks. Realistically, an "Atomic Save" could easily fire maybe 6 events for the combination of creating the new file, changing metadata/permissions, writing content, swapping out the old file for the new may itself result in multiple events being fired, and so forth. By the time you get the event for the temporary file being created as part of the atomic save, it will already be gone and swapped with the original file. This and issues of a similar nature have prevented me from adding the option to the ruby code despite the fsevent\_watch binary supporting file level events for quite some time now. Mountain Lion seems to be better at coalescing needless events, but that might just be my imagination.
+Prepare yourself for an obscene number of callbacks. Realistically, an "Atomic Save" could easily fire maybe 6 events for the combination of creating the new file, changing metadata/permissions, writing content, swapping out the old file for the new may itself result in multiple events being fired, and so forth. By the time you get the event for the temporary file being created as part of the atomic save, it will already be gone and swapped with the original file. This and issues of a similar nature have prevented me from adding the option to the ruby code despite the fsevent_watch binary supporting file level events for quite some time now. Mountain Lion seems to be better at coalescing needless events, but that might just be my imagination.
 
 ## Debugging output
 
-If the gem is re-compiled with the environment variable FWDEBUG set, then fsevent\_watch will be built with its various DEBUG sections defined, and the output to STDERR is truly verbose (and hopefully helpful in debugging your application and not just fsevent\_watch itself). If enough people find this to be directly useful when developing code that makes use of rb-fsevent, then it wouldn't be hard to clean this up and make it a feature enabled by a commandline argument instead. Until somebody files an issue, however, I will assume otherwise.
+If the gem is re-compiled with the environment variable FWDEBUG set, then fsevent_watch will be built with its various DEBUG sections defined, and the output to STDERR is truly verbose (and hopefully helpful in debugging your application and not just fsevent_watch itself). If enough people find this to be directly useful when developing code that makes use of rb-fsevent, then it wouldn't be hard to clean this up and make it a feature enabled by a commandline argument instead. Until somebody files an issue, however, I will assume otherwise.
 
     append_path called for: /tmp/moo/cow/
       resolved path to: /private/tmp/moo/cow
@@ -239,11 +239,10 @@ If the gem is re-compiled with the environment variable FWDEBUG set, then fseven
       event ID: 1023812
       [etc]
 
-
 ## Development
 
-* Source hosted at [GitHub](http://github.com/thibaudgg/rb-fsevent)
-* Report issues/Questions/Feature requests on [GitHub Issues](http://github.com/thibaudgg/rb-fsevent/issues)
+- Source hosted at [GitHub](http://github.com/thibaudgg/rb-fsevent)
+- Report issues/Questions/Feature requests on [GitHub Issues](http://github.com/thibaudgg/rb-fsevent/issues)
 
 Pull requests are quite welcome! Please ensure that your commits are in a topic branch for each individual changeset that can be reasonably isolated. It is also important to ensure that your changes are well tested... whether that means new tests, modified tests, or fixing a scenario where the existing tests currently fail. If you have rbenv and ruby-build, we have a helper task for running the testsuite in all of them:
 
@@ -255,6 +254,6 @@ The list of tested targets is currently:
 
 ## Authors
 
-* [Travis Tilley](http://github.com/ttilley)
-* [Thibaud Guillaume-Gentil](http://github.com/thibaudgg)
-* [Andrey Tarantsov](https://github.com/andreyvit)
+- [Travis Tilley](http://github.com/ttilley)
+- [Thibaud Guillaume-Gentil](http://github.com/thibaudgg)
+- [Andrey Tarantsov](https://github.com/andreyvit)

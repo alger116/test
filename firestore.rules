@@ -18,16 +18,23 @@ service cloud.firestore {
       return userData.customPermissions.formManagement[permission] == true;
     }
 
+    // Helper function to check if user is main admin
+    function isMainAdmin() {
+      return isAuthenticated() && getUserData().role == 'mainAdmin';
+    }
+
     // Users collection
     match /users/{userId} {
-      allow read: if isAuthenticated() && (request.auth.uid == userId || getUserData().role == 'mainAdmin');
-      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
+      allow create: if isAuthenticated() && isMainAdmin();
+      allow update, delete: if isAuthenticated() && isMainAdmin();
     }
 
     // Audit Log collection
     match /auditLog/{logId} {
-      allow read: if isAuthenticated() && getUserData().role == 'mainAdmin';
-      allow write: if false; // This is handled by Cloud Functions
+      allow read: if isAuthenticated() && isMainAdmin();
+      allow create: if isAuthenticated() && isMainAdmin();
+      allow update, delete: if false; // Prevent updates and deletes
     }
 
     // System settings
@@ -206,6 +213,32 @@ service cloud.firestore {
     match /formSettingsLogs/{document} {
       allow read: if true;
       allow write: if getUserData().role == 'mainAdmin';
+    }
+
+    // PDF Invitations collection
+    match /pdfInvitations/{invitationId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        getUserData().role == 'mainAdmin'
+      );
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        getUserData().role == 'mainAdmin'
+      );
+    }
+
+    // Tenders collection
+    match /tenders/{tenderId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        getUserData().role == 'mainAdmin'
+      );
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        getUserData().role == 'mainAdmin'
+      );
     }
   }
 }

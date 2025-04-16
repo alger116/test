@@ -1,9 +1,9 @@
 # CHANGELOG
 
 ## 1.8.0
- 
+
 - Unicode 14.0 (last release of 1.x)
- 
+
 ## 1.7.0
 
 - Unicode 13
@@ -22,7 +22,7 @@
 
 ## 1.4.1
 
-- Only bundle required lib/* and data/* files in actual rubygem, patch by @tas50
+- Only bundle required lib/_ and data/_ files in actual rubygem, patch by @tas50
 
 ## 1.4.0
 
@@ -126,11 +126,9 @@
 - Don't build index table automatically when not available
 - Don't include EastAsianWidth.txt in gem (only index)
 
-
 ## 0.1.0
 
 - Fix github issue #1
-
 
 ## 0.1.0
 

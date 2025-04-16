@@ -1,11 +1,11 @@
 # Net::HTTP
 
 Net::HTTP provides a rich library which can be used to build HTTP
-user-agents.  For more details about HTTP see
+user-agents. For more details about HTTP see
 [RFC9110 HTTP Semantics](https://www.ietf.org/rfc/rfc9110.html) and
 [RFC9112 HTTP/1.1](https://www.ietf.org/rfc/rfc9112.html).
 
-Net::HTTP is designed to work closely with URI.  URI::HTTP#host,
+Net::HTTP is designed to work closely with URI. URI::HTTP#host,
 URI::HTTP#port and URI::HTTP#request_uri are designed to work with
 Net::HTTP.
 
@@ -38,7 +38,7 @@ require 'net/http'
 This will also require 'uri' so you don't need to require it separately.
 
 The Net::HTTP methods in the following section do not persist
-connections.  They are not recommended if you are performing many HTTP
+connections. They are not recommended if you are performing many HTTP
 requests.
 
 ### GET
@@ -56,7 +56,7 @@ Net::HTTP.get(uri) # => String
 
 ### GET with Dynamic Parameters
 
-```ruby 
+```ruby
 uri = URI('http://example.com/index.html')
 params = { :limit => 10, :page => 3 }
 uri.query = URI.encode_www_form(params)
@@ -90,4 +90,3 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/ruby/net-http.
-

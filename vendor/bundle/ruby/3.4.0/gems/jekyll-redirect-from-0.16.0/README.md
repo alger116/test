@@ -124,8 +124,8 @@ If you want to customize the redirect template, you can. Simply create a layout 
 
 Your layout will get the following variables:
 
-* `page.redirect.from` - the relative path to the redirect page
-* `page.redirect.to` - the absolute URL (where available) to the target page
+- `page.redirect.from` - the relative path to the redirect page
+- `page.redirect.to` - the absolute URL (where available) to the target page
 
 ## Configuration
 

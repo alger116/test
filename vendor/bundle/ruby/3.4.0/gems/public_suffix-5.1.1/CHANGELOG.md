@@ -6,7 +6,6 @@ This project uses [Semantic Versioning 2.0.0](https://semver.org/).
 
 No significant changes. Releasing a mini version to address 5.1.0 release with major ruby requirement change (GH-315).
 
-
 ## 5.0.5
 
 ### Changed
@@ -38,7 +37,6 @@ No significant changes. Releasing a mini version to address 5.1.0 release with m
 
 - Updated definitions.
 
-
 ## 5.0.0
 
 ### Changed
@@ -46,7 +44,6 @@ No significant changes. Releasing a mini version to address 5.1.0 release with m
 - Minimum Ruby version is 2.6
 
 - Updated definitions.
-
 
 ## 4.0.7
 
@@ -58,13 +55,11 @@ No significant changes. Releasing a mini version to address 5.1.0 release with m
 
 - Updated definitions.
 
-
 ## 4.0.6
 
 ### Changed
 
 - Updated definitions.
-
 
 ## 4.0.5
 
@@ -72,13 +67,11 @@ No significant changes. Releasing a mini version to address 5.1.0 release with m
 
 - Updated definitions.
 
-
 ## 4.0.4
 
 ### Changed
 
 - Updated definitions.
-
 
 ## 4.0.3
 
@@ -86,13 +79,11 @@ No significant changes. Releasing a mini version to address 5.1.0 release with m
 
 - Fixed 2.7 deprecations and warnings (GH-167). [Thanks @BrianHawley]
 
-
 ## 4.0.2
 
 ### Changed
 
 - Updated definitions.
-
 
 ## 4.0.1
 
@@ -100,13 +91,11 @@ No significant changes. Releasing a mini version to address 5.1.0 release with m
 
 - Updated definitions.
 
-
 ## 4.0.0
 
 ### Changed
 
 - Minimum Ruby version is 2.3
-
 
 ## Release 3.1.1
 
@@ -115,29 +104,24 @@ No significant changes. Releasing a mini version to address 5.1.0 release with m
 
 IMPORTANT: 3.x is the latest version compatible with Ruby 2.1 and Ruby 2.2.
 
-
 ## Release 3.1.0
 
 - CHANGED: Updated definitions.
 - CHANGED: Minimum Ruby version is 2.3
 - CHANGED: Upgraded to Bundler 2.x
 
-
 ## Release 3.0.3
 
 - CHANGED: Updated definitions.
-
 
 ## Release 3.0.2
 
 - CHANGED: Updated definitions.
 
-
 ## Release 3.0.1
 
 - CHANGED: Updated definitions.
 - CHANGED: Improve performance and avoid allocation (GH-146). [Thanks @robholland]
-
 
 ## Release 3.0.0
 
@@ -155,12 +139,10 @@ and/or removed. You can find more information at GH-133.
 - CHANGED: `PublicSuffix::List` no longer implements Enumerable. Instead, use `#each` to loop over, or get an Enumerator.
 - CHANGED: Redesigned internal list storage and lookup algorithm to achieve O(1) lookup time (see GH-133).
 
-
 ## Release 2.0.5
 
 - CHANGED: Updated definitions.
 - CHANGED: Initialization performance improvements (GH-128). [Thanks @casperisfine]
-
 
 ## Release 2.0.4
 
@@ -168,21 +150,17 @@ and/or removed. You can find more information at GH-133.
 
 - CHANGED: Updated definitions.
 
-
 ## Release 2.0.3
 
 - CHANGED: Updated definitions.
-
 
 ## Release 2.0.2
 
 - CHANGED: Updated definitions.
 
-
 ## Release 2.0.1
 
 - FIXED: Fix bug that prevented .valid? to reset the default rule
-
 
 ## Release 2.0.0
 
@@ -192,7 +170,7 @@ and/or removed. You can find more information at GH-133.
 - CHANGED: Considerable performance improvements (GH-92)
 - CHANGED: Updated definitions.
 - CHANGED: Removed deprecated PublicSuffix::InvalidDomain exception
-- CHANGED: If the suffix is now listed, then the prevaling rule is "*" as defined by the PSL algorithm (GH-91)
+- CHANGED: If the suffix is now listed, then the prevaling rule is "\*" as defined by the PSL algorithm (GH-91)
 - CHANGED: Input validation is performed only if you call `PublicSuffix.parse` or `PublicSuffix.list`
 - CHANGED: Input with leading dot is invalid per PSL acceptance tests
 - CHANGED: Removed `private_domains` class-level attribute. It is replaced by the `private_domains: false` option in the list parse method.
@@ -200,18 +178,15 @@ and/or removed. You can find more information at GH-133.
 
 - REMOVED: Removed futile utility helpers such as `Domain#rule`, `Domain#is_a_domain?`, `Domain#is_a_subdomain?`, `Domain#valid?`. You can easily obtain the same result by having a custom method that reconstructs the logic, and/or calling `PublicSuffix.{domain|parse}(domain.to_s)`.
 
-
 ## Release 1.5.3
 
 - FIXED: Don't duplicate rule indices when creating index (GH-77). [Thanks @ags]
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.5.2
 
 - CHANGED: Updated definitions.
-
 
 ## Release 1.5.1
 
@@ -219,43 +194,35 @@ and/or removed. You can find more information at GH-133.
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.5.0
 
 - CHANGED: Dropped support for Ruby < 2.0
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.4.6
 
 - CHANGED: Updated definitions.
-
 
 ## Release 1.4.5
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.4.4
 
 - CHANGED: Updated definitions.
-
 
 ## Release 1.4.3
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.4.2
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.4.1
 
 - CHANGED: Updated definitions.
-
 
 ## Release 1.4.0
 
@@ -263,21 +230,17 @@ and/or removed. You can find more information at GH-133.
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.3.3
 
 - CHANGED: Updated definitions.
-
 
 ## Release 1.3.2
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.3.1
 
 - CHANGED: Updated definitions.
-
 
 ## Release 1.3.0
 
@@ -285,11 +248,9 @@ and/or removed. You can find more information at GH-133.
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.2.1
 
 - CHANGED: Updated definitions.
-
 
 ## Release 1.2.0
 
@@ -299,21 +260,17 @@ and/or removed. You can find more information at GH-133.
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.1.3
 
 - CHANGED: Updated definitions.
-
 
 ## Release 1.1.2
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.1.1
 
 - CHANGED: Updated definitions.
-
 
 ## Release 1.1.0
 
@@ -323,16 +280,13 @@ and/or removed. You can find more information at GH-133.
 
 - CHANGED: Removed deprecatd PublicSuffixService::RuleList.
 
-
 ## Release 1.0.0
 
 - CHANGED: Updated definitions.
 
-
 ## Release 1.0.0.rc1
 
 The library is now known as PublicSuffix.
-
 
 ## Release 0.9.1
 
@@ -344,19 +298,16 @@ The library is now known as PublicSuffix.
 
 - CHANGED: Updated definitions.
 
-
 ## Release 0.9.0
 
 - CHANGED: Minimum Ruby version increased to Ruby 1.8.7.
 
-- CHANGED: rake/gempackagetask is deprecated.  Use rubygems/package_task instead.
-
+- CHANGED: rake/gempackagetask is deprecated. Use rubygems/package_task instead.
 
 ## Release 0.8.4
 
 - FIXED: Reverted bugfix for issue #12 for Ruby 1.8.6.
   This is the latest version compatible with Ruby 1.8.6.
-
 
 ## Release 0.8.3
 
@@ -366,7 +317,6 @@ The library is now known as PublicSuffix.
 
 - CHANGED: Renamed definitions.txt to definitions.dat.
 
-
 ## Release 0.8.2
 
 - NEW: Added support for rubygems-test.
@@ -375,18 +325,15 @@ The library is now known as PublicSuffix.
 
 - CHANGED: Updated definitions.
 
-
 ## Release 0.8.1
 
 - FIXED: The files in the release 0.8.0 have wrong permission 600 and can't be loaded (#10).
-
 
 ## Release 0.8.0
 
 - CHANGED: Update public suffix list to d1a5599b49fa 2010-10-25 15:10 +0100 (#9)
 
 - NEW: Add support for Fully Qualified Domain Names (#7)
-
 
 ## Release 0.7.0
 
@@ -396,10 +343,9 @@ The library is now known as PublicSuffix.
 
 - FIXED: PublicSuffixService.valid? should return false if the domain is not defined or not allowed (#4, #5)
 
-
 ## Release 0.6.0
 
-- NEW:  PublicSuffixService.parse raises DomainNotAllowed when trying to parse a domain name
+- NEW: PublicSuffixService.parse raises DomainNotAllowed when trying to parse a domain name
   which exists, but is not allowed by the current definition list (#3)
 
         PublicSuffixService.parse("nic.do")
@@ -407,16 +353,13 @@ The library is now known as PublicSuffix.
 
 - CHANGED: Renamed PublicSuffixService::InvalidDomain to PublicSuffixService::DomainInvalid
 
-
 ## Release 0.5.2
 
 - CHANGED: Update public suffix list to 248ea690d671 2010-09-16 18:02 +0100
 
-
 ## Release 0.5.1
 
 - CHANGED: Update public suffix list to 14dc66dd53c1 2010-09-15 17:09 +0100
-
 
 ## Release 0.5.0
 
@@ -424,16 +367,13 @@ The library is now known as PublicSuffix.
 
 - CHANGED: Performance improvements (#2).
 
-
 ## Release 0.4.0
 
 - CHANGED: Rename library from DomainName to PublicSuffixService to reduce the probability of name conflicts.
 
-
 ## Release 0.3.1
 
 - Deprecated DomainName library.
-
 
 ## Release 0.3.0
 
@@ -445,7 +385,6 @@ The library is now known as PublicSuffix.
 
 - CHANGED: Refactoring the entire DomainName API. Removed the internal on-the-fly parsing. Added a bunch of new methods to check and validate the DomainName.
 
-
 ## Release 0.2.0
 
 - NEW: DomainName#valid?
@@ -455,7 +394,6 @@ The library is now known as PublicSuffix.
 - NEW: DomainName#valid_domain? and DomainName#valid_subdomain?
 
 - CHANGED: Make sure RuleList lookup is only performed once.
-
 
 ## Release 0.1.0
 

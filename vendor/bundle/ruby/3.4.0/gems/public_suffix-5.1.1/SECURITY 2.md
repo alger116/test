@@ -11,14 +11,12 @@ Exceptionally, we may support previous minor versions upon request if there are 
 
 Older major versions are no longer supported.
 
-
 ## Reporting a Vulnerability
 
 To make a report, please email weppos@weppos.net.
 
 > [!IMPORTANT]  
 > Please consider encrypting your report with GPG using the key [0x420da82a989398df](https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x420da82a989398df).
-
 
 ## Tracking Security Updates
 

@@ -1,13 +1,13 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js';
 import {
   getAuth,
   setPersistence,
   browserSessionPersistence,
   onAuthStateChanged,
   signOut,
-} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-import { firebaseConfig } from "./firebase-config-generated.js";
+} from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
+import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
+import { firebaseConfig } from './firebase-config-generated.js';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -23,12 +23,12 @@ let sessionTimeoutId;
 // Function to handle session timeout
 const handleSessionTimeout = () => {
   signOut(auth).then(() => {
-    window.location.href = "login.html";
+    window.location.href = 'login.html';
   });
 };
 
 // Setup auth state listener
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, user => {
   if (user) {
     // Clear any existing timeout
     if (sessionTimeoutId) clearTimeout(sessionTimeoutId);
@@ -43,7 +43,7 @@ onAuthStateChanged(auth, (user) => {
     };
 
     // Reset timeout on user activity
-    ["mousedown", "keydown", "scroll", "touchstart"].forEach((event) => {
+    ['mousedown', 'keydown', 'scroll', 'touchstart'].forEach(event => {
       document.addEventListener(event, resetTimeout);
     });
   }

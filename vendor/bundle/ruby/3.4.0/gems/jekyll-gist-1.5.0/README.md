@@ -38,7 +38,7 @@ Use the tag as follows in your Jekyll pages, posts and collections:
 This will create the associated script tag:
 
 ```html
-<script src="https://gist.github.com/parkr/c08ee0f2726fd0e3909d.js"> </script>
+<script src="https://gist.github.com/parkr/c08ee0f2726fd0e3909d.js"></script>
 ```
 
 You may optionally specify a `filename` after the `gist_id`:

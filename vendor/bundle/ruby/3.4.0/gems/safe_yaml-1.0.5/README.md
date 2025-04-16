@@ -1,5 +1,4 @@
-SafeYAML
-========
+# SafeYAML
 
 [![Build Status](https://travis-ci.org/dtao/safe_yaml.png)](http://travis-ci.org/dtao/safe_yaml)
 [![Gem Version](https://badge.fury.io/rb/safe_yaml.png)](http://badge.fury.io/rb/safe_yaml)
@@ -8,8 +7,7 @@ The **SafeYAML** gem provides an alternative implementation of `YAML.load` suita
 
 **If you encounter any issues with SafeYAML, check out the 'Common Issues' section below.** If you don't see anything that addresses the problem you're experiencing, by all means, [create an issue](https://github.com/dtao/safe_yaml/issues/new)!
 
-Installation
-------------
+## Installation
 
 Add this line to your application's Gemfile:
 
@@ -17,16 +15,15 @@ Add this line to your application's Gemfile:
 gem "safe_yaml"
 ```
 
-Configuration
--------------
+## Configuration
 
-If *all you do* is add SafeYAML to your project, then `YAML.load` will operate in "safe" mode, which means it won't deserialize arbitrary objects. However, it will issue a warning the first time you call it because you haven't explicitly specified whether you want safe or unsafe behavior by default. To specify this behavior (e.g., in a Rails initializer):
+If _all you do_ is add SafeYAML to your project, then `YAML.load` will operate in "safe" mode, which means it won't deserialize arbitrary objects. However, it will issue a warning the first time you call it because you haven't explicitly specified whether you want safe or unsafe behavior by default. To specify this behavior (e.g., in a Rails initializer):
 
 ```ruby
 SafeYAML::OPTIONS[:default_mode] = :safe # or :unsafe
 ```
 
-Another important option you might want to specify on startup is whether or not to allow *symbols* to be deserialized. The default setting is `false`, since symbols are not garbage collected in Ruby and so deserializing them from YAML may render your application vulnerable to a DOS (denial of service) attack. To allow symbol deserialization by default:
+Another important option you might want to specify on startup is whether or not to allow _symbols_ to be deserialized. The default setting is `false`, since symbols are not garbage collected in Ruby and so deserializing them from YAML may render your application vulnerable to a DOS (denial of service) attack. To allow symbol deserialization by default:
 
 ```ruby
 SafeYAML::OPTIONS[:deserialize_symbols] = true
@@ -34,8 +31,7 @@ SafeYAML::OPTIONS[:deserialize_symbols] = true
 
 For more information on these and other options, see the "Usage" section down below.
 
-What is this gem for, exactly?
-------------------------------
+## What is this gem for, exactly?
 
 Suppose your application were to use a popular open source library which contained code like this:
 
@@ -79,8 +75,7 @@ With SafeYAML, the same attacker would be thwarted:
     > YAML.load(yaml, :safe => true)
     => {"foo; end; puts %(I'm in yr system!); def bar"=>"baz"}
 
-Usage
------
+## Usage
 
 When you require the safe_yaml gem in your project, `YAML.load` is patched to accept one additional (optional) `options` parameter. This changes the method signature as follows:
 
@@ -99,8 +94,7 @@ The most important option is the `:safe` option (default: `true`), which control
 
 All of the above options can be set at the global level via `SafeYAML::OPTIONS`. You can also set each one individually per call to `YAML.load`; an option explicitly passed to `load` will take precedence over an option specified globally.
 
-What if I don't *want* to patch `YAML`?
----------------------------------------
+## What if I don't _want_ to patch `YAML`?
 
 [Excellent question](https://github.com/dtao/safe_yaml/issues/47)! You can also get the methods `SafeYAML.load` and `SafeYAML.load_file` without touching the `YAML` module at all like this:
 
@@ -108,10 +102,9 @@ What if I don't *want* to patch `YAML`?
 require "safe_yaml/load" # instead of require "safe_yaml"
 ```
 
-This way, you can use `SafeYAML.load` to parse YAML that *you* don't trust, without affecting the rest of an application (if you're developing a library, for example).
+This way, you can use `SafeYAML.load` to parse YAML that _you_ don't trust, without affecting the rest of an application (if you're developing a library, for example).
 
-Supported Types
----------------
+## Supported Types
 
 The way that SafeYAML works is by restricting the kinds of objects that can be deserialized via `YAML.load`. More specifically, only the following types of objects can be deserialized by default:
 
@@ -126,8 +119,7 @@ The way that SafeYAML works is by restricting the kinds of objects that can be d
 
 Again, deserialization of symbols can be enabled globally by setting `SafeYAML::OPTIONS[:deserialize_symbols] = true`, or in a specific call to `YAML.load([some yaml], :deserialize_symbols => true)`.
 
-Whitelisting Trusted Types
---------------------------
+## Whitelisting Trusted Types
 
 SafeYAML supports whitelisting certain YAML tags for trusted types. This is handy when your application uses YAML to serialize and deserialize certain types not listed above, which you know to be free of any deserialization-related vulnerabilities.
 
@@ -137,7 +129,7 @@ The easiest way to whitelist types is by calling `SafeYAML.whitelist!`, which ca
 SafeYAML.whitelist!(Foo, Bar)
 ```
 
-You can also whitelist YAML *tags* via the `:whitelisted_tags` option:
+You can also whitelist YAML _tags_ via the `:whitelisted_tags` option:
 
 ```ruby
 # Using Syck
@@ -147,13 +139,13 @@ SafeYAML::OPTIONS[:whitelisted_tags] = ["tag:ruby.yaml.org,2002:object:OpenStruc
 SafeYAML::OPTIONS[:whitelisted_tags] = ["!ruby/object:OpenStruct"]
 ```
 
-And in case you were wondering: no, this feature will *not* allow would-be attackers to embed untrusted types within trusted types:
+And in case you were wondering: no, this feature will _not_ allow would-be attackers to embed untrusted types within trusted types:
 
 ```ruby
 yaml = <<-EOYAML
---- !ruby/object:OpenStruct 
-table: 
-  :backdoor: !ruby/hash:ClassBuilder 
+--- !ruby/object:OpenStruct
+table:
+  :backdoor: !ruby/hash:ClassBuilder
     "foo; end; puts %(I'm in yr system!); def bar": "baz"
 EOYAML
 ```
@@ -161,8 +153,7 @@ EOYAML
     > YAML.safe_load(yaml)
     => #<OpenStruct :backdoor={"foo; end; puts %(I'm in yr system!); def bar"=>"baz"}>
 
-Known Issues
-------------
+## Known Issues
 
 If you add SafeYAML to your project and start seeing any errors about missing keys, or you notice mysterious strings that look like `":foo"` (i.e., start with a colon), it's likely you're seeing errors from symbols being saved in YAML format. If you are able to modify the offending code, you might want to consider changing your YAML content to use plain vanilla strings instead of symbols. If not, you may need to set the `:deserialize_symbols` option to `true`, either in calls to `YAML.load` or---as a last resort---globally, with `SafeYAML::OPTIONS[:deserialize_symbols]`.
 
@@ -178,13 +169,11 @@ Also be aware that some Ruby libraries, particularly those requiring inter-proce
 
 The above list will grow over time, as more issues are discovered.
 
-Versioning
-----------
+## Versioning
 
 SafeYAML will follow [semantic versioning](http://semver.org/) so any updates to the first major version will maintain backwards compatability. So expect primarily bug fixes and feature enhancements (if anything!) from here on out... unless it makes sense to break the interface at some point and introduce a version 2.0, which I honestly think is unlikely.
 
-Requirements
-------------
+## Requirements
 
 SafeYAML requires Ruby 1.8.7 or newer and works with both [Syck](http://www.ruby-doc.org/stdlib-1.8.7/libdoc/yaml/rdoc/YAML.html) and [Psych](http://github.com/tenderlove/psych).
 

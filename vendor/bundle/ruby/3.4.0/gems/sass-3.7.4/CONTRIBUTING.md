@@ -2,13 +2,13 @@ Contributions are welcomed. Please see the following site for guidelines:
 
 [https://sass-lang.com/community#Contribute](https://sass-lang.com/community#Contribute)
 
-* [Branches](#main-development-branches)
-  * [Feature Branches](#feature-branches)
-  * [Experimental Branches](#experimental-branches)
-  * [Old Stable Branches](#old-stable-branches)
-* [Versioning](#versioning)
-  * [Making Breaking Changes](#making-breaking-changes)
-  * [Exceptional Breakages](#exceptional-breakages)
+- [Branches](#main-development-branches)
+  - [Feature Branches](#feature-branches)
+  - [Experimental Branches](#experimental-branches)
+  - [Old Stable Branches](#old-stable-branches)
+- [Versioning](#versioning)
+  - [Making Breaking Changes](#making-breaking-changes)
+  - [Exceptional Breakages](#exceptional-breakages)
 
 ## Branches
 
@@ -17,17 +17,17 @@ a different line of releases (see [versioning](#versioning) below). Each branch
 is regularly merged into the one below: `stable` into `next`, `next` into
 `master`.
 
-* The `stable` branch is the default—it's what GitHub shows if you go to
+- The `stable` branch is the default—it's what GitHub shows if you go to
   [sass/ruby-sass](https://github.com/sass/ruby-sass), and it's the default place for pull
   requests to go. This branch is where we work on the next patch release. Bug
   fixes and documentation improvements belong here, but not new features.
 
-* The `next` branch is where we work on the next minor release. It's where most
+- The `next` branch is where we work on the next minor release. It's where most
   new features go, as long as they're not breaking changes. Very occasionally
   breaking changes will go here as well—see
   [exceptional breakages](#exceptional-breakages) below for details.
 
-* The `master` branch is where we work on the next major release. It's where
+- The `master` branch is where we work on the next major release. It's where
   breaking changes go. We also occasionally decide that a non-breaking feature
   is big enough to warrant saving until the next major release, in which case it
   will also be developed here.
@@ -124,7 +124,7 @@ the following process for this:
 
 2. If possible, make `sass-convert` (also in `stable`) convert the deprecated
    behavior into a non-deprecated form. This allows users to run `sass-convert
-   -R -i` to automatically update their stylesheets.
+-R -i` to automatically update their stylesheets.
 
 3. Implement the new behavior in `master`. The sooner this happens, the better:
    it may be unclear exactly what needs to be deprecated until the new

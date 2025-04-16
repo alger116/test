@@ -15,14 +15,15 @@ making it easier to build sophisticated API clients or web service libraries tha
 the details of how HTTP requests are made.
 
 Faraday comes with a lot of features out of the box, such as:
-* Support for multiple adapters (Net::HTTP, Typhoeus, Patron, Excon, HTTPClient, and more)
-* Persistent connections (keep-alive)
-* Parallel requests
-* Automatic response parsing (JSON, XML, YAML)
-* Customization of the request/response cycle with middleware
-* Support for streaming responses
-* Support for uploading files
-* And much more!
+
+- Support for multiple adapters (Net::HTTP, Typhoeus, Patron, Excon, HTTPClient, and more)
+- Persistent connections (keep-alive)
+- Parallel requests
+- Automatic response parsing (JSON, XML, YAML)
+- Customization of the request/response cycle with middleware
+- Support for streaming responses
+- Support for uploading files
+- And much more!
 
 ## Getting Started
 

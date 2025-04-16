@@ -1,5 +1,5 @@
-connection\_pool
-=================
+# connection_pool
+
 [![Build Status](https://github.com/mperham/connection_pool/actions/workflows/ci.yml/badge.svg)](https://github.com/mperham/connection_pool/actions/workflows/ci.yml)
 
 Generic connection pooling for Ruby.
@@ -8,18 +8,17 @@ MongoDB has its own connection pool.
 ActiveRecord has its own connection pool.
 This is a generic connection pool that can be used with anything, e.g. Redis, Dalli and other Ruby network clients.
 
-Usage
------
+## Usage
 
 Create a pool of objects to share amongst the fibers or threads in your Ruby application:
 
-``` ruby
+```ruby
 $memcached = ConnectionPool.new(size: 5, timeout: 5) { Dalli::Client.new }
 ```
 
 Then use the pool in your application:
 
-``` ruby
+```ruby
 $memcached.with do |conn|
   conn.get('some-count')
 end
@@ -40,7 +39,7 @@ $redis.then { |r| r.set 'foo' 'bar' }
 
 Optionally, you can specify a timeout override using the with-block semantics:
 
-``` ruby
+```ruby
 $memcached.with(timeout: 2.0) do |conn|
   conn.get('some-count')
 end
@@ -56,7 +55,7 @@ This is not implemented in the `ConnectionPool::Wrapper` class.
 
 You can use `ConnectionPool::Wrapper` to wrap a single global connection, making it easier to migrate existing connection code over time:
 
-``` ruby
+```ruby
 $redis = ConnectionPool::Wrapper.new(size: 5, timeout: 3) { Redis.new }
 $redis.sadd('foo', 1)
 $redis.smembers('foo')
@@ -65,7 +64,7 @@ $redis.smembers('foo')
 The wrapper uses `method_missing` to checkout a connection, run the requested method and then immediately check the connection back into the pool.
 It's **not** high-performance so you'll want to port your performance sensitive code to use `with` as soon as possible.
 
-``` ruby
+```ruby
 $redis.with do |conn|
   conn.sadd('foo', 1)
   conn.smembers('foo')
@@ -73,7 +72,6 @@ end
 ```
 
 Once you've ported your entire system to use `with`, you can simply remove `Wrapper` and use the simpler and faster `ConnectionPool`.
-
 
 ## Shutdown
 
@@ -148,8 +146,7 @@ end
 cp.idle # => 1
 ```
 
-Notes
------
+## Notes
 
 - Connections are lazily created as needed.
 - There is no provision for repairing or checking the health of a connection;
@@ -160,8 +157,6 @@ Notes
   and cannot be used correctly, ever. Use proper socket timeout options as
   exposed by Net::HTTP, Redis, Dalli, etc.
 
-
-Author
-------
+## Author
 
 Mike Perham, [@getajobmike](https://twitter.com/getajobmike), <https://www.mikeperham.com>

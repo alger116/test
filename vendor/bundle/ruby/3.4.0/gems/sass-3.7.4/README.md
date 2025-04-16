@@ -81,9 +81,9 @@ and get small stylesheets up and running quickly,
 particularly with the help of
 [the Compass style library](http://compass-style.org).
 
-[vars]:    https://sass-lang.com/documentation/file.SASS_REFERENCE.html#variables_
-[nested]:  https://sass-lang.com/documentation/file.SASS_REFERENCE.html#nested_rules
-[mixins]:  https://sass-lang.com/documentation/file.SASS_REFERENCE.html#mixins
+[vars]: https://sass-lang.com/documentation/file.SASS_REFERENCE.html#variables_
+[nested]: https://sass-lang.com/documentation/file.SASS_REFERENCE.html#nested_rules
+[mixins]: https://sass-lang.com/documentation/file.SASS_REFERENCE.html#mixins
 [imports]: https://sass-lang.com/documentation/file.SASS_REFERENCE.html#import
 
 Sass has two syntaxes.
@@ -106,7 +106,9 @@ The same thing works for properties.
 ```scss
 table.hl {
   margin: 2em 0;
-  td.ln { text-align: right; }
+  td.ln {
+    text-align: right;
+  }
 }
 
 li {
@@ -145,7 +147,7 @@ $margin: 16px;
 Even more powerful than variables,
 mixins allow you to re-use whole chunks of CSS,
 properties or selectors.
-You can even give them arguments. 
+You can even give them arguments.
 
 ```scss
 @mixin table-scaffolding {
@@ -153,7 +155,10 @@ You can even give them arguments.
     text-align: center;
     font-weight: bold;
   }
-  td, th { padding: 2px; }
+  td,
+  th {
+    padding: 2px;
+  }
 }
 
 @mixin left($dist) {
@@ -228,8 +233,8 @@ tax-deductible donation to a non-profit organization and then
 [let us know on twitter](http://twitter.com/SassCSS), so that we can
 thank you. Here's a few that we endorse:
 
-* [Trans Justice Funding Project](http://www.transjusticefundingproject.org/)
-* [United Mitochondrial Disease Foundation](http://umdf.org/compass)
-* [Girl Develop It](https://www.girldevelopit.com/donate)
+- [Trans Justice Funding Project](http://www.transjusticefundingproject.org/)
+- [United Mitochondrial Disease Foundation](http://umdf.org/compass)
+- [Girl Develop It](https://www.girldevelopit.com/donate)
 
 Sass is licensed under the MIT License.

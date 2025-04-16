@@ -1,6 +1,6 @@
 # jekyll-commonmark-ghpages
 
-*GitHub Flavored Markdown converter for Jekyll, based on [`jekyll-commonmark`](https://github.com/jekyll/jekyll-commonmark)*
+_GitHub Flavored Markdown converter for Jekyll, based on [`jekyll-commonmark`](https://github.com/jekyll/jekyll-commonmark)_
 
 [![Gem Version](https://img.shields.io/gem/v/jekyll-commonmark-ghpages.svg)](https://rubygems.org/gems/jekyll-commonmark-ghpages)
 [![Build Status](https://github.com/github/jekyll-commonmark-ghpages/actions/workflows/cibuild.yaml/badge.svg)](https://github.com/github/jekyll-commonmark-ghpages/actions/workflows/cibuild.yaml)
@@ -29,8 +29,8 @@ To specify extensions and options for use in converting Markdown to HTML, supply
 
 ```yaml
 commonmark:
-  options: ["UNSAFE", "SMART", "FOOTNOTES"]
-  extensions: ["strikethrough", "autolink", "table", "tagfilter"]
+  options: ['UNSAFE', 'SMART', 'FOOTNOTES']
+  extensions: ['strikethrough', 'autolink', 'table', 'tagfilter']
 ```
 
 ⚠ The `UNSAFE` option is required for HTML rendering.

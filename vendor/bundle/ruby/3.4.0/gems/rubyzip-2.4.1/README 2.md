@@ -14,11 +14,12 @@ Rubyzip 2.4 is intended to be the last release in the 2.x series. Please get rea
 ### Updating to version 3.0
 
 The public API of some classes has been modernized to use named parameters for optional arguments. Also some methods have been changed or removed. Please check your usage of the following Rubyzip classes:
-* `File`
-* `Entry`
-* `InputStream`
-* `OutputStream`
-* `DOSTime`
+
+- `File`
+- `Entry`
+- `InputStream`
+- `OutputStream`
+- `DOSTime`
 
 **Please see [Updating to version 3.x](https://github.com/rubyzip/rubyzip/wiki/Updating-to-version-3.x) in the wiki for details.**
 
@@ -290,11 +291,12 @@ end
 ```
 
 If you need to extract zip files that report incorrect uncompressed sizes and you really trust them not too be too large, you can disable this setting with
+
 ```ruby
 Zip.validate_entry_sizes = false
 ```
 
-Note that if you use the lower level `Zip::InputStream` interface, `rubyzip` does *not* check the entry `size`s. In this case, the caller is responsible for making sure it does not read more data than expected from the input stream.
+Note that if you use the lower level `Zip::InputStream` interface, `rubyzip` does _not_ check the entry `size`s. In this case, the caller is responsible for making sure it does not read more data than expected from the input stream.
 
 ### Default Compression
 

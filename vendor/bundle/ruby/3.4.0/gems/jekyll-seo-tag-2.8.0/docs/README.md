@@ -8,13 +8,13 @@ A Jekyll plugin to add metadata tags for search engines and social networks to b
 
 Jekyll SEO Tag adds the following meta tags to your site:
 
-* Page title, with site title or description appended
-* Page description
-* Canonical URL
-* Next and previous URLs on paginated pages
-* [JSON-LD Site and post metadata](https://developers.google.com/search/docs/guides/intro-structured-data) for richer indexing
-* [Open Graph](https://ogp.me/) title, description, site title, and URL (for Facebook, LinkedIn, etc.)
-* [Twitter Summary Card](https://dev.twitter.com/cards/overview) metadata
+- Page title, with site title or description appended
+- Page description
+- Canonical URL
+- Next and previous URLs on paginated pages
+- [JSON-LD Site and post metadata](https://developers.google.com/search/docs/guides/intro-structured-data) for richer indexing
+- [Open Graph](https://ogp.me/) title, description, site title, and URL (for Facebook, LinkedIn, etc.)
+- [Twitter Summary Card](https://dev.twitter.com/cards/overview) metadata
 
 While you could theoretically add the necessary metadata tags yourself, Jekyll SEO Tag provides a battle-tested template of crowdsourced best-practices.
 
@@ -28,6 +28,6 @@ Jekyll SEO tag isn't designed to accommodate every possible use case. It should 
 
 For more information, see:
 
-* [Installation](installation.md)
-* [Usage](usage.md)
-* [Advanced usage](advanced-usage.md)
+- [Installation](installation.md)
+- [Usage](usage.md)
+- [Advanced usage](advanced-usage.md)

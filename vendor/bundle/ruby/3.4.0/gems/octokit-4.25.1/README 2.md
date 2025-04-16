@@ -155,8 +155,8 @@ When the API returns an error response, Octokit will raise a Ruby exception.
 A range of different exceptions can be raised depending on the error returned
 by the API - for example:
 
-* A `400 Bad Request` response will lead to an `Octokit::BadRequest` error 
-* A `403 Forbidden` error with a "rate limited exceeded" message will lead
+- A `400 Bad Request` response will lead to an `Octokit::BadRequest` error
+- A `403 Forbidden` error with a "rate limited exceeded" message will lead
   to a `Octokit::TooManyRequests` error
 
 All of the different exception classes inherit from `Octokit::Error` and
@@ -740,11 +740,11 @@ when writing new specs.
 This library aims to support and is [tested against][actions] the following Ruby
 implementations:
 
-* Ruby 2.5
-* Ruby 2.6
-* Ruby 2.7
-* Ruby 3.0
-* Ruby 3.1
+- Ruby 2.5
+- Ruby 2.6
+- Ruby 2.7
+- Ruby 3.0
+- Ruby 3.1
 
 If something doesn't work on one of these Ruby versions, it's a bug.
 

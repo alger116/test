@@ -8,15 +8,14 @@ previous, please visit
 [![Continuous Integration](https://github.com/flavorjones/mini_portile/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/flavorjones/mini_portile/actions/workflows/ci.yml)
 [![Tidelift dependencies](https://tidelift.com/badges/package/rubygems/mini_portile2)](https://tidelift.com/subscription/pkg/rubygems-mini.portile2?utm_source=undefined&utm_medium=referral&utm_campaign=readme)
 
-* Documentation: http://www.rubydoc.info/github/flavorjones/mini_portile
-* Source Code: https://github.com/flavorjones/mini_portile
-* Bug Reports: https://github.com/flavorjones/mini_portile/issues
+- Documentation: http://www.rubydoc.info/github/flavorjones/mini_portile
+- Source Code: https://github.com/flavorjones/mini_portile
+- Bug Reports: https://github.com/flavorjones/mini_portile/issues
 
 This project is a minimalistic implementation of a port/recipe system
 **for developers**.
 
 Because _"Works on my machine"_ is unacceptable for a library maintainer.
-
 
 ## Not Another Package Management System
 
@@ -42,8 +41,6 @@ rake compile LIBICONV_VERSION=1.13.1
 (For your homework, you can make libiconv version be taken from the
 appropriate `ENV` variables.)
 
-
-
 ## Sounds easy, but where's the catch?
 
 At this time `mini_portile2` only supports **autoconf**- or
@@ -54,7 +51,6 @@ autoconf-based libraries do.)
 As of v2.2.0, there is experimental support for **CMake**-based
 projects. We welcome your feedback on this, particularly for Windows
 platforms.
-
 
 ### How to use (for autoconf projects)
 
@@ -103,7 +99,7 @@ The C++ compiler is similarly configuratble, and in order of preference will use
 
 You can pass your compiler commands to the MiniPortile constructor:
 
-``` ruby
+```ruby
 MiniPortile.new("libiconv", "1.13.1", cc_command: "clang", cxx_command: "clang++")
 ```
 
@@ -120,7 +116,7 @@ The configuration/make command that is used is configurable, and in order of pre
 
 You can pass it in like so:
 
-``` ruby
+```ruby
 MiniPortile.new("libiconv", "1.13.1", make_command: "nmake")
 ```
 
@@ -129,10 +125,9 @@ MiniPortile.new("libiconv", "1.13.1", make_command: "nmake")
 By default, when downloading source archives, MiniPortile will use a timeout value of 10
 seconds. This can be overridden by passing a different value (in seconds):
 
-``` ruby
+```ruby
 MiniPortile.new("libiconv", "1.13.1", open_timeout: 99, read_timeout: 2)
 ```
-
 
 ### How to use (for cmake projects)
 
@@ -152,7 +147,7 @@ The cmake command used is configurable, and in order of preference will use:
 
 You can pass it in like so:
 
-``` ruby
+```ruby
 MiniPortileCMake.new("libfoobar", "1.3.5", cmake_command: "cmake3")
 ```
 
@@ -166,7 +161,7 @@ The cmake build type is configurable as of v2.8.5, and in order of preference wi
 
 You can pass it in like so:
 
-``` ruby
+```ruby
 MiniPortileCMake.new("libfoobar", "1.3.5", cmake_build_type: "Debug")
 ```
 
@@ -175,7 +170,7 @@ MiniPortileCMake.new("libfoobar", "1.3.5", cmake_build_type: "Debug")
 Instead of downloading a remote file, you can also point mini_portile2 at a local source
 directory. In particular, this may be useful for testing or debugging:
 
-``` ruby
+```ruby
 gem "mini_portile2", "~> 2.0.0" # NECESSARY if used in extconf.rb. see below.
 require "mini_portile2"
 recipe = MiniPortile.new("libiconv", "1.13.1")
@@ -259,20 +254,22 @@ end
 
 The above example will:
 
-* **download** and verify integrity the sources only once
-* **compile** the library only once (using a timestamp file)
-* ensure compiled library is **activated**
-* make the compile task depend upon compiled library activation
+- **download** and verify integrity the sources only once
+- **compile** the library only once (using a timestamp file)
+- ensure compiled library is **activated**
+- make the compile task depend upon compiled library activation
 
 As an exercise for the reader, you could specify the libiconv version
 in an environment variable or a configuration file.
 
 ### Download verification
+
 MiniPortile supports HTTPS, HTTP, FTP and FILE sources for download.
 The integrity of the downloaded file can be verified per hash value or PGP signature.
 This is particular important for untrusted sources (non-HTTPS).
 
 #### Hash digest verification
+
 MiniPortile can verify the integrity of the downloaded file per SHA256, SHA1 or MD5 hash digest.
 
 ```ruby
@@ -283,6 +280,7 @@ MiniPortile can verify the integrity of the downloaded file per SHA256, SHA1 or 
 ```
 
 #### PGP signature verification
+
 MiniPortile can also verify the integrity of the downloaded file per PGP signature.
 
 ```ruby
@@ -325,29 +323,25 @@ Depending on your usage of `rake-compiler`, you will need to use
 
 Please refer to the examples directory for simplified and practical usage.
 
-
 ### Supported Scenarios
 
 As mentioned before, `MiniPortile` requires a GCC compiler
 toolchain. This has been tested against Ubuntu, OSX and even Windows
 (RubyInstaller with DevKit)
 
-
 ## Support
 
 The bug tracker is available here:
 
-* https://github.com/flavorjones/mini_portile/issues
+- https://github.com/flavorjones/mini_portile/issues
 
 Consider subscribing to [Tidelift][tidelift] which provides license assurances and timely security notifications for your open source dependencies, including Loofah. [Tidelift][tidelift] subscriptions also help the Loofah maintainers fund our [automated testing](https://ci.nokogiri.org) which in turn allows us to ship releases, bugfixes, and security updates more often.
 
-  [tidelift]: https://tidelift.com/subscription/pkg/rubygems-mini.portile2?utm_source=rubygems-mini.portile2&utm_medium=referral&utm_campaign=enterprise
-
+[tidelift]: https://tidelift.com/subscription/pkg/rubygems-mini.portile2?utm_source=rubygems-mini.portile2&utm_medium=referral&utm_campaign=enterprise
 
 ## Security
 
 See [`SECURITY.md`](SECURITY.md) for vulnerability reporting details.
-
 
 ## License
 

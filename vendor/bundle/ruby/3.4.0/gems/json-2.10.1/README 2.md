@@ -8,14 +8,14 @@ This is an implementation of the JSON specification according to RFC 7159
 http://www.ietf.org/rfc/rfc7159.txt .
 
 The JSON generator generate UTF-8 character sequences by default.
-If an :ascii\_only option with a true value is given, they escape all
+If an :ascii_only option with a true value is given, they escape all
 non-ASCII and control characters with \uXXXX escape sequences, and support
 UTF-16 surrogate pairs in order to be able to generate the whole range of
 unicode code points.
 
 All strings, that are to be encoded as JSON strings, should be UTF-8 byte
 sequences on the Ruby side. To encode raw binary strings, that aren't UTF-8
-encoded, please use the to\_json\_raw\_object method of String (which produces
+encoded, please use the to_json_raw_object method of String (which produces
 an object, that contains a byte array) and decode the result on the receiving
 endpoint.
 
@@ -44,6 +44,7 @@ JSON.parse(document)
 ```
 
 If you want to generate a JSON document from a ruby data structure call
+
 ```ruby
 JSON.generate(data)
 ```
@@ -259,10 +260,10 @@ Ruby License, see https://www.ruby-lang.org/en/about/license.txt.
 
 The latest version of this library can be downloaded at
 
-* https://rubygems.org/gems/json
+- https://rubygems.org/gems/json
 
 Online Documentation should be located at
 
-* https://www.rubydoc.info/gems/json
+- https://www.rubydoc.info/gems/json
 
 [Ragel]: http://www.colm.net/open-source/ragel/
