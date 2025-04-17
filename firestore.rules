@@ -28,6 +28,18 @@ service cloud.firestore {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
       allow create: if isAuthenticated() && isMainAdmin();
       allow update, delete: if isAuthenticated() && isMainAdmin();
+      
+      // Add rules for pdfs subcollection
+      match /pdfs/{pdfId} {
+        allow read: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
+        allow create, update, delete: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
+      }
+      
+      // Add rules for savedSearches subcollection
+      match /savedSearches/{searchId} {
+        allow read: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
+        allow create, update, delete: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
+      }
     }
 
     // Audit Log collection
