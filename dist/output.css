@@ -272,8 +272,14 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .left-0\.5 {
   left: calc(var(--spacing) * 0.5);
 }
+.left-1 {
+  left: calc(var(--spacing) * 1);
+}
 .left-1\/2 {
   left: calc(1/2 * 100%);
+}
+.left-2 {
+  left: calc(var(--spacing) * 2);
 }
 .left-3 {
   left: calc(var(--spacing) * 3);

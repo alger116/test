@@ -22,37 +22,49 @@ service cloud.firestore {
     function isMainAdmin() {
       return isAuthenticated() && getUserData().role == 'mainAdmin';
     }
+    
+    function isAdmin() {
+      return isAuthenticated() && (getUserData().role == 'admin' || getUserData().role == 'mainAdmin');
+    }
+
+    // Modify the permissions helper function to be more granular
+    function hasAdminPermission(permission) {
+      let userData = getUserData();
+      return isAdmin() && userData.customPermissions.adminAccess[permission] == true;
+    }
 
     // Users collection
     match /users/{userId} {
-      allow read: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
-      allow create: if isAuthenticated() && isMainAdmin();
-      allow update, delete: if isAuthenticated() && isMainAdmin();
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create, update, delete: if isAuthenticated() && isMainAdmin();
       
       // Add rules for pdfs subcollection
       match /pdfs/{pdfId} {
-        allow read: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
+        allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
         allow create, update, delete: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
       }
       
       // Add rules for savedSearches subcollection
       match /savedSearches/{searchId} {
-        allow read: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
+        allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
         allow create, update, delete: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
       }
     }
 
     // Audit Log collection
     match /auditLog/{logId} {
-      allow read: if isAuthenticated() && isMainAdmin();
+      allow read: if isAuthenticated() && isAdmin();
       allow create: if isAuthenticated() && isMainAdmin();
       allow update, delete: if false; // Prevent updates and deletes
     }
 
-    // System settings
+    // System settings - Allow admins to read and potentially update certain settings
     match /system/{document=**} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+      allow write: if isAuthenticated() && (
+        getUserData().role == 'mainAdmin' || 
+        (isAdmin() && hasAdminPermission('systemSettings'))
+      );
     }
 
     // API keys
@@ -67,10 +79,13 @@ service cloud.firestore {
       allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
     }
 
-    // Document templates
+    // Document templates - Allow admins to manage templates
     match /documentTemplates/{templateId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+      allow write: if isAuthenticated() && (
+        getUserData().role == 'mainAdmin' ||
+        (isAdmin() && hasAdminPermission('documentTemplates'))
+      );
     }
 
     // Workflows
@@ -105,22 +120,27 @@ service cloud.firestore {
       );
     }
 
-    // Error logs
+    // Error logs - Allow admins to view errors
     match /errorLogs/{logId} {
-      allow read, write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+      allow read: if isAuthenticated() && isAdmin();
+      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
     }
     
-    // Settings collection
+    // Settings collection - Give admins access to certain settings
     match /settings/{settingId} {
-      allow read: if isAuthenticated();  // Any authenticated user can read settings
+      allow read: if isAuthenticated();
       allow write: if 
-        ((settingId == "maintenance" || settingId == "procurement") && getUserData().role == 'mainAdmin') ||  // Both admin and mainAdmin can write these
-        (settingId == "sessionTimeout" && getUserData().role == 'mainAdmin');  // Only mainAdmin can write session timeout
+        ((settingId == "maintenance" || settingId == "procurement") && isAdmin()) ||
+        (settingId == "sessionTimeout" && getUserData().role == 'mainAdmin');
     }
     
-    // Procurements collection
+    // Procurements collection - Allow admins to view and potentially manage
     match /procurements/{procurementId} {
-      allow read, write: if getUserData().role == 'mainAdmin';
+      allow read: if isAuthenticated() && isAdmin();
+      allow write: if isAuthenticated() && (
+        getUserData().role == 'mainAdmin' ||
+        (isAdmin() && hasAdminPermission('procurementManagement'))
+      );
     }
 
     // Statistika kollektsioonid ja OM komponendid
@@ -180,7 +200,10 @@ service cloud.firestore {
     
     match /formSettings/{document} {
       allow read: if true;
-      allow write: if getUserData().role == 'mainAdmin' && hasPermission('backupSettings');
+      allow write: if isAuthenticated() && (
+        getUserData().role == 'mainAdmin' ||
+        (isAdmin() && hasAdminPermission('formSettings'))
+      );
     }
    
     match /formSettingsBackup/{document} {
@@ -227,29 +250,29 @@ service cloud.firestore {
       allow write: if getUserData().role == 'mainAdmin';
     }
 
-    // PDF Invitations collection
+    // PDF Invitations - Allow admins to manage all invitations
     match /pdfInvitations/{invitationId} {
       allow read: if isAuthenticated() && (
         resource.data.userId == request.auth.uid ||
-        getUserData().role == 'mainAdmin'
+        isAdmin()
       );
       allow create: if isAuthenticated();
       allow update, delete: if isAuthenticated() && (
         resource.data.userId == request.auth.uid ||
-        getUserData().role == 'mainAdmin'
+        isAdmin()
       );
     }
 
-    // Tenders collection
+    // Tenders - Allow admins to manage all tenders
     match /tenders/{tenderId} {
       allow read: if isAuthenticated() && (
         resource.data.userId == request.auth.uid ||
-        getUserData().role == 'mainAdmin'
+        isAdmin()
       );
       allow create: if isAuthenticated();
       allow update, delete: if isAuthenticated() && (
         resource.data.userId == request.auth.uid ||
-        getUserData().role == 'mainAdmin'
+        isAdmin()
       );
     }
   }
