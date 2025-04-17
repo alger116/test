@@ -1,0 +1,29 @@
+[x-cloak] {
+  display: none !important;
+}
+
+/* Fix table alignment issues */
+#userTable tr {
+  height: 4.5rem;
+}
+
+#userTable td {
+  vertical-align: middle;
+}
+
+/* Hide any debug output at the bottom of the page */
+body > :not(.min-h-full):not(script):not(#resetPasswordModal) {
+  display: none !important;
+}
+
+/* Improve table cell alignment */
+#userTable .whitespace-nowrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Consistent button sizes */
+#userTable button {
+  min-width: 5rem;
+}

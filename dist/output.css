@@ -212,9 +212,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .top-2 {
   top: calc(var(--spacing) * 2);
 }
-.top-2\.5 {
-  top: calc(var(--spacing) * 2.5);
-}
 .top-4 {
   top: calc(var(--spacing) * 4);
 }
@@ -698,9 +695,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .w-100 {
   width: calc(var(--spacing) * 100);
 }
-.w-\[800px\] {
-  width: 800px;
-}
 .w-full {
   width: 100%;
 }
@@ -1031,13 +1025,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     margin-inline-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-x-reverse)));
   }
 }
-.space-x-8 {
-  :where(& > :not(:last-child)) {
-    --tw-space-x-reverse: 0;
-    margin-inline-start: calc(calc(var(--spacing) * 8) * var(--tw-space-x-reverse));
-    margin-inline-end: calc(calc(var(--spacing) * 8) * calc(1 - var(--tw-space-x-reverse)));
-  }
-}
 .gap-y-1 {
   row-gap: calc(var(--spacing) * 1);
 }
@@ -1171,9 +1158,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .border-blue-500 {
   border-color: var(--color-blue-500);
-}
-.border-blue-600 {
-  border-color: var(--color-blue-600);
 }
 .border-emerald-100 {
   border-color: var(--color-emerald-100);
@@ -1321,9 +1305,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .bg-gray-900 {
   background-color: var(--color-gray-900);
-}
-.bg-gray-900\/50 {
-  background-color: color-mix(in oklab, var(--color-gray-900) 50%, transparent);
 }
 .bg-green-100 {
   background-color: var(--color-green-100);
@@ -2366,54 +2347,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     outline-style: none;
   }
 }
-.file\:mr-4 {
-  &::file-selector-button {
-    margin-right: calc(var(--spacing) * 4);
-  }
-}
-.file\:rounded-full {
-  &::file-selector-button {
-    border-radius: calc(infinity * 1px);
-  }
-}
-.file\:border-0 {
-  &::file-selector-button {
-    border-style: var(--tw-border-style);
-    border-width: 0px;
-  }
-}
-.file\:bg-blue-50 {
-  &::file-selector-button {
-    background-color: var(--color-blue-50);
-  }
-}
-.file\:px-4 {
-  &::file-selector-button {
-    padding-inline: calc(var(--spacing) * 4);
-  }
-}
-.file\:py-2 {
-  &::file-selector-button {
-    padding-block: calc(var(--spacing) * 2);
-  }
-}
-.file\:text-sm {
-  &::file-selector-button {
-    font-size: var(--text-sm);
-    line-height: var(--tw-leading, var(--text-sm--line-height));
-  }
-}
-.file\:font-semibold {
-  &::file-selector-button {
-    --tw-font-weight: var(--font-weight-semibold);
-    font-weight: var(--font-weight-semibold);
-  }
-}
-.file\:text-blue-700 {
-  &::file-selector-button {
-    color: var(--color-blue-700);
-  }
-}
 .after\:absolute {
   &::after {
     content: var(--tw-content);
@@ -3105,13 +3038,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
-.hover\:text-blue-900 {
-  &:hover {
-    @media (hover: hover) {
-      color: var(--color-blue-900);
-    }
-  }
-}
 .hover\:text-gray-500 {
   &:hover {
     @media (hover: hover) {
@@ -3255,14 +3181,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
-.hover\:shadow-xl {
-  &:hover {
-    @media (hover: hover) {
-      --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
-      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-    }
-  }
-}
 .hover\:shadow-emerald-500\/30 {
   &:hover {
     @media (hover: hover) {
@@ -3281,15 +3199,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       --tw-shadow-color: color-mix(in oklab, var(--color-red-500) 30%, transparent);
-    }
-  }
-}
-.hover\:file\:bg-blue-100 {
-  &:hover {
-    @media (hover: hover) {
-      &::file-selector-button {
-        background-color: var(--color-blue-100);
-      }
     }
   }
 }
@@ -3425,21 +3334,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     margin-top: calc(var(--spacing) * 0);
   }
 }
-.sm\:mt-5 {
-  @media (width >= 40rem) {
-    margin-top: calc(var(--spacing) * 5);
-  }
-}
-.sm\:mr-3 {
-  @media (width >= 40rem) {
-    margin-right: calc(var(--spacing) * 3);
-  }
-}
-.sm\:mb-6 {
-  @media (width >= 40rem) {
-    margin-bottom: calc(var(--spacing) * 6);
-  }
-}
 .sm\:ml-3 {
   @media (width >= 40rem) {
     margin-left: calc(var(--spacing) * 3);
@@ -3465,19 +3359,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     display: inline-block;
   }
 }
-.sm\:h-12 {
-  @media (width >= 40rem) {
-    height: calc(var(--spacing) * 12);
-  }
-}
 .sm\:h-screen {
   @media (width >= 40rem) {
     height: 100vh;
-  }
-}
-.sm\:w-12 {
-  @media (width >= 40rem) {
-    width: calc(var(--spacing) * 12);
   }
 }
 .sm\:w-auto {
@@ -3495,11 +3379,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     max-width: var(--container-lg);
   }
 }
-.sm\:flex-row {
-  @media (width >= 40rem) {
-    flex-direction: row;
-  }
-}
 .sm\:flex-row-reverse {
   @media (width >= 40rem) {
     flex-direction: row-reverse;
@@ -3508,24 +3387,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .sm\:items-start {
   @media (width >= 40rem) {
     align-items: flex-start;
-  }
-}
-.sm\:space-y-8 {
-  @media (width >= 40rem) {
-    :where(& > :not(:last-child)) {
-      --tw-space-y-reverse: 0;
-      margin-block-start: calc(calc(var(--spacing) * 8) * var(--tw-space-y-reverse));
-      margin-block-end: calc(calc(var(--spacing) * 8) * calc(1 - var(--tw-space-y-reverse)));
-    }
-  }
-}
-.sm\:space-x-3 {
-  @media (width >= 40rem) {
-    :where(& > :not(:last-child)) {
-      --tw-space-x-reverse: 0;
-      margin-inline-start: calc(calc(var(--spacing) * 3) * var(--tw-space-x-reverse));
-      margin-inline-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-x-reverse)));
-    }
   }
 }
 .sm\:space-x-8 {
@@ -3537,24 +3398,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
-.sm\:rounded-2xl {
-  @media (width >= 40rem) {
-    border-radius: var(--radius-2xl);
-  }
-}
-.sm\:rounded-xl {
-  @media (width >= 40rem) {
-    border-radius: var(--radius-xl);
-  }
-}
 .sm\:p-0 {
   @media (width >= 40rem) {
     padding: calc(var(--spacing) * 0);
-  }
-}
-.sm\:p-2 {
-  @media (width >= 40rem) {
-    padding: calc(var(--spacing) * 2);
   }
 }
 .sm\:p-6 {
@@ -3562,24 +3408,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     padding: calc(var(--spacing) * 6);
   }
 }
-.sm\:p-8 {
-  @media (width >= 40rem) {
-    padding: calc(var(--spacing) * 8);
-  }
-}
-.sm\:px-4 {
-  @media (width >= 40rem) {
-    padding-inline: calc(var(--spacing) * 4);
-  }
-}
 .sm\:px-6 {
   @media (width >= 40rem) {
     padding-inline: calc(var(--spacing) * 6);
-  }
-}
-.sm\:py-2 {
-  @media (width >= 40rem) {
-    padding-block: calc(var(--spacing) * 2);
   }
 }
 .sm\:pb-4 {
@@ -3597,28 +3428,10 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     vertical-align: middle;
   }
 }
-.sm\:text-2xl {
-  @media (width >= 40rem) {
-    font-size: var(--text-2xl);
-    line-height: var(--tw-leading, var(--text-2xl--line-height));
-  }
-}
-.sm\:text-base {
-  @media (width >= 40rem) {
-    font-size: var(--text-base);
-    line-height: var(--tw-leading, var(--text-base--line-height));
-  }
-}
 .sm\:text-sm {
   @media (width >= 40rem) {
     font-size: var(--text-sm);
     line-height: var(--tw-leading, var(--text-sm--line-height));
-  }
-}
-.sm\:text-xl {
-  @media (width >= 40rem) {
-    font-size: var(--text-xl);
-    line-height: var(--tw-leading, var(--text-xl--line-height));
   }
 }
 .md\:top-24 {
@@ -3861,7 +3674,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-700: oklch(48.8% 0.243 264.376);
     --color-blue-800: oklch(42.4% 0.199 265.638);
-    --color-blue-900: oklch(37.9% 0.146 265.522);
     --color-indigo-50: oklch(96.2% 0.018 272.314);
     --color-indigo-100: oklch(93% 0.034 272.788);
     --color-indigo-200: oklch(87% 0.065 274.039);
