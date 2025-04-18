@@ -116,6 +116,14 @@
                             class="fas fa-edit w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
                         <span class="ml-3">Tingimused</span>
                     </button>
+
+                    <button id="departmentManagementButton"
+                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-all duration-200 group hover:text-blue-400"
+                        onclick="window.open('../auth/departments/department-management.html', '_blank')">
+                        <i
+                            class="fas fa-building w-5 text-gray-400 group-hover:text-blue-400 transition-colors duration-200"></i>
+                        <span class="ml-3">Departments</span>
+                    </button>
                 </nav>
                 <div class="p-4 border-t border-gray-800">
                     <button id="updatePermissionsButton"
@@ -252,7 +260,7 @@
                             </div>
                         </div>
                         <button id="adminSettingsButton"
-                            class="hidden px-3 py-1.5 ml-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg flex items-center gap-1"
+                            class="hidden px-3 py-1.5 ml-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg items-center gap-1"
                             onclick="openRoles()">
                             <i class="fas fa-user-cog"></i>
                             <span>Rollide Seaded</span>
@@ -3570,9 +3578,11 @@
                     // Initialize the page
                     initializePage();
                 } else {
-                    console.log('User is signed out');
-                    // Redirect to login page
-                    window.location.href = '/auth/login.html';
+                    // Only redirect if we're not already on the login page
+                    if (!window.location.pathname.includes('login.html')) {
+                        console.log('User is signed out, redirecting to login');
+                        window.location.href = 'login.html';
+                    }
                 }
             });
 

@@ -19,17 +19,29 @@ setPersistence(auth, browserSessionPersistence);
 // Session timeout duration (30 minutes in milliseconds)
 const SESSION_TIMEOUT = 30 * 60 * 1000;
 let sessionTimeoutId;
+let isSessionActive = false;
+let lastActivityTime = Date.now();
 
 // Function to handle session timeout
 const handleSessionTimeout = () => {
-  signOut(auth).then(() => {
-    window.location.href = 'login.html';
-  });
+  const currentTime = Date.now();
+  const timeSinceLastActivity = currentTime - lastActivityTime;
+
+  if (isSessionActive && timeSinceLastActivity >= SESSION_TIMEOUT) {
+    signOut(auth).then(() => {
+      if (!window.location.pathname.includes('login.html')) {
+        window.location.href = 'login.html';
+      }
+    });
+  }
 };
 
 // Setup auth state listener
 onAuthStateChanged(auth, user => {
   if (user) {
+    isSessionActive = true;
+    lastActivityTime = Date.now();
+
     // Clear any existing timeout
     if (sessionTimeoutId) clearTimeout(sessionTimeoutId);
 
@@ -38,14 +50,21 @@ onAuthStateChanged(auth, user => {
 
     // Add activity listeners to reset timeout
     const resetTimeout = () => {
+      lastActivityTime = Date.now();
       if (sessionTimeoutId) clearTimeout(sessionTimeoutId);
       sessionTimeoutId = setTimeout(handleSessionTimeout, SESSION_TIMEOUT);
     };
 
     // Reset timeout on user activity
     ['mousedown', 'keydown', 'scroll', 'touchstart'].forEach(event => {
-      document.addEventListener(event, resetTimeout);
+      document.addEventListener(event, resetTimeout, { once: true });
     });
+  } else {
+    isSessionActive = false;
+    if (sessionTimeoutId) {
+      clearTimeout(sessionTimeoutId);
+      sessionTimeoutId = null;
+    }
   }
 });
 

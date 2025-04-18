@@ -33,6 +33,18 @@ service cloud.firestore {
       return isAdmin() && userData.customPermissions.adminAccess[permission] == true;
     }
 
+    // Helper function to check if user is department admin
+    function isDepartmentAdmin(departmentId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/departmentMemberships/$(request.auth.uid + '_' + departmentId + '_admin'));
+    }
+
+    // Helper function to check if user is department member
+    function isDepartmentMember(departmentId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/departmentMemberships/$(request.auth.uid + '_' + departmentId));
+    }
+
     // Users collection
     match /users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
@@ -273,6 +285,77 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated() && (
         resource.data.userId == request.auth.uid ||
         isAdmin()
+      );
+    }
+
+    // Department Management Rules
+    match /departments/{departmentId} {
+      allow read: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement') ||
+        isDepartmentMember(departmentId)
+      );
+      allow create: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement')
+      );
+      allow update, delete: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement') ||
+        isDepartmentAdmin(departmentId)
+      );
+
+      // Department templates subcollection
+      match /templates/{templateId} {
+        allow read: if isAuthenticated() && (
+          isMainAdmin() ||
+          hasAdminPermission('departmentManagement') ||
+          isDepartmentMember(departmentId)
+        );
+        allow create, update, delete: if isAuthenticated() && (
+          isMainAdmin() ||
+          hasAdminPermission('departmentManagement') ||
+          isDepartmentAdmin(departmentId)
+        );
+      }
+    }
+
+    // Department Memberships
+    match /departmentMemberships/{membershipId} {
+      allow read: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement') ||
+        request.auth.uid == membershipId.split('_')[0]
+      );
+      allow create, update, delete: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement')
+      );
+    }
+
+    // Members collection
+    match /members/{memberId} {
+      allow read: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement') ||
+        request.auth.uid == memberId
+      );
+      allow create, update, delete: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement')
+      );
+    }
+
+    // Templates collection
+    match /templates/{templateId} {
+      allow read: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement') ||
+        resource.data.accessRoles.hasAny(getUserData().roles)
+      );
+      allow create, update, delete: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement')
       );
     }
   }

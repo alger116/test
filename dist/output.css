@@ -212,6 +212,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .top-2 {
   top: calc(var(--spacing) * 2);
 }
+.top-3 {
+  top: calc(var(--spacing) * 3);
+}
 .top-4 {
   top: calc(var(--spacing) * 4);
 }
@@ -272,14 +275,8 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .left-0\.5 {
   left: calc(var(--spacing) * 0.5);
 }
-.left-1 {
-  left: calc(var(--spacing) * 1);
-}
 .left-1\/2 {
   left: calc(1/2 * 100%);
-}
-.left-2 {
-  left: calc(var(--spacing) * 2);
 }
 .left-3 {
   left: calc(var(--spacing) * 3);
@@ -293,9 +290,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .-z-10 {
   z-index: calc(10 * -1);
 }
-.z-1 {
-  z-index: 1;
-}
 .z-10 {
   z-index: 10;
 }
@@ -307,9 +301,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .z-60 {
   z-index: 60;
-}
-.z-100 {
-  z-index: 100;
 }
 .\!container {
   width: 100% !important;
@@ -419,9 +410,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .mr-4 {
   margin-right: calc(var(--spacing) * 4);
 }
-.-mb-px {
-  margin-bottom: -1px;
-}
 .mb-0 {
   margin-bottom: calc(var(--spacing) * 0);
 }
@@ -466,6 +454,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .ml-8 {
   margin-left: calc(var(--spacing) * 8);
+}
+.ml-16 {
+  margin-left: calc(var(--spacing) * 16);
+}
+.ml-64 {
+  margin-left: calc(var(--spacing) * 64);
 }
 .ml-auto {
   margin-left: auto;
@@ -596,9 +590,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .h-40 {
   height: calc(var(--spacing) * 40);
 }
-.h-48 {
-  height: calc(var(--spacing) * 48);
-}
 .h-96 {
   height: calc(var(--spacing) * 96);
 }
@@ -610,6 +601,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .h-full {
   height: 100%;
+}
+.h-screen {
+  height: 100vh;
 }
 .max-h-60 {
   max-height: calc(var(--spacing) * 60);
@@ -625,9 +619,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .max-h-\[90vh\] {
   max-height: 90vh;
-}
-.max-h-\[400px\] {
-  max-height: 400px;
 }
 .max-h-\[500px\] {
   max-height: 500px;
@@ -730,9 +721,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .w-100 {
   width: calc(var(--spacing) * 100);
-}
-.w-\[800px\] {
-  width: 800px;
 }
 .w-\[900px\] {
   width: 900px;
@@ -1181,10 +1169,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .border-t-2 {
   border-top-style: var(--tw-border-style);
   border-top-width: 2px;
-}
-.border-r {
-  border-right-style: var(--tw-border-style);
-  border-right-width: 1px;
 }
 .border-b {
   border-bottom-style: var(--tw-border-style);
@@ -1702,9 +1686,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .px-6 {
   padding-inline: calc(var(--spacing) * 6);
 }
-.px-7 {
-  padding-inline: calc(var(--spacing) * 7);
-}
 .px-8 {
   padding-inline: calc(var(--spacing) * 8);
 }
@@ -1737,6 +1718,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .py-6 {
   padding-block: calc(var(--spacing) * 6);
+}
+.py-8 {
+  padding-block: calc(var(--spacing) * 8);
 }
 .py-12 {
   padding-block: calc(var(--spacing) * 12);
@@ -1983,6 +1967,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .text-purple-300 {
   color: var(--color-purple-300);
+}
+.text-purple-500 {
+  color: var(--color-purple-500);
 }
 .text-purple-600 {
   color: var(--color-purple-600);
@@ -3111,6 +3098,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.hover\:text-blue-700 {
+  &:hover {
+    @media (hover: hover) {
+      color: var(--color-blue-700);
+    }
+  }
+}
 .hover\:text-blue-800 {
   &:hover {
     @media (hover: hover) {
@@ -3364,11 +3358,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .focus\:ring-emerald-500 {
   &:focus {
     --tw-ring-color: var(--color-emerald-500);
-  }
-}
-.focus\:ring-gray-500 {
-  &:focus {
-    --tw-ring-color: var(--color-gray-500);
   }
 }
 .focus\:ring-green-500 {
