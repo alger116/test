@@ -290,6 +290,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .isolate {
   isolation: isolate;
 }
+.-z-10 {
+  z-index: calc(10 * -1);
+}
+.z-1 {
+  z-index: 1;
+}
 .z-10 {
   z-index: 10;
 }
@@ -301,6 +307,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .z-60 {
   z-index: 60;
+}
+.z-100 {
+  z-index: 100;
 }
 .\!container {
   width: 100% !important;
@@ -728,6 +737,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .w-\[900px\] {
   width: 900px;
 }
+.w-auto {
+  width: auto;
+}
 .w-full {
   width: 100%;
 }
@@ -829,6 +841,10 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .translate-y-0 {
   --tw-translate-y: calc(var(--spacing) * 0);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+}
+.translate-y-1 {
+  --tw-translate-y: calc(var(--spacing) * 1);
   translate: var(--tw-translate-x) var(--tw-translate-y);
 }
 .translate-y-1\/2 {
@@ -3102,6 +3118,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.hover\:text-blue-900 {
+  &:hover {
+    @media (hover: hover) {
+      color: var(--color-blue-900);
+    }
+  }
+}
 .hover\:text-gray-500 {
   &:hover {
     @media (hover: hover) {
@@ -3218,6 +3241,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       text-decoration-line: underline;
+    }
+  }
+}
+.hover\:opacity-100 {
+  &:hover {
+    @media (hover: hover) {
+      opacity: 100%;
     }
   }
 }
@@ -3738,6 +3768,7 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-700: oklch(48.8% 0.243 264.376);
     --color-blue-800: oklch(42.4% 0.199 265.638);
+    --color-blue-900: oklch(37.9% 0.146 265.522);
     --color-indigo-50: oklch(96.2% 0.018 272.314);
     --color-indigo-100: oklch(93% 0.034 272.788);
     --color-indigo-200: oklch(87% 0.065 274.039);

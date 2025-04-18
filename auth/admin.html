@@ -11,39 +11,52 @@
     <!-- Add Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        /* Fix table alignment issues */
+        #userTable tr {
+            height: 4.5rem;
+        }
+
+        #userTable td {
+            vertical-align: middle;
+        }
+
+        /* Hide any debug output at the bottom of the page */
+        body> :not(.min-h-full):not(script):not(#resetPasswordModal) {
+            display: none !important;
+        }
+
+        /* Improve table cell alignment */
+        #userTable .whitespace-nowrap {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Consistent button sizes */
+        #userTable button {
+            min-width: 5rem;
+        }
+
+        /* Add these styles in the head section */
+        .tooltip-wrapper {
+            position: relative;
+        }
+
+        .role-tooltip {
+            position: absolute;
+            left: 0;
+            transform: translateY(100%);
+            z-index: 50;
+            pointer-events: none;
+        }
+    </style>
+
 </head>
-
-<style>
-    [x-cloak] {
-        display: none !important;
-    }
-
-    /* Fix table alignment issues */
-    #userTable tr {
-        height: 4.5rem;
-    }
-
-    #userTable td {
-        vertical-align: middle;
-    }
-
-    /* Hide any debug output at the bottom of the page */
-    body> :not(.min-h-full):not(script):not(#resetPasswordModal) {
-        display: none !important;
-    }
-
-    /* Improve table cell alignment */
-    #userTable .whitespace-nowrap {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* Consistent button sizes */
-    #userTable button {
-        min-width: 5rem;
-    }
-</style>
 
 <body class="h-full">
     <div class="min-h-full">
@@ -163,72 +176,6 @@
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Role dropdown -->
-                        <div x-data="{ roleOpen: false, selectedRole: '' }" @click.away="roleOpen = false"
-                            class="relative">
-                            <label class="block text-sm font-medium text-gray-700">Roll</label>
-                            <button @click="roleOpen = !roleOpen" type="button"
-                                class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <span x-text="selectedRole || 'Kõik rollid'">Kõik rollid</span>
-                                <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </span>
-                            </button>
-                            <div x-show="roleOpen" x-cloak x-transition
-                                class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                                <button @click="selectedRole = 'Kõik rollid'; roleOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Kõik
-                                    rollid</button>
-                                <button @click="selectedRole = 'Peaadministraator'; roleOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Peaadministraator</button>
-                                <button @click="selectedRole = 'Administraator'; roleOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Administraator</button>
-                                <button @click="selectedRole = 'Ostumaailm Kasutaja'; roleOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ostumaailm
-                                    Kasutaja</button>
-                                <button @click="selectedRole = 'Hankemaailm Kasutaja'; roleOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Hankemaailm
-                                    Kasutaja</button>
-                                <button @click="selectedRole = 'Tavakasutaja'; roleOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Tavakasutaja</button>
-                            </div>
-                        </div>
-
-                        <!-- Status dropdown -->
-                        <div x-data="{ statusOpen: false, selectedStatus: '' }" @click.away="statusOpen = false"
-                            class="relative">
-                            <label class="block text-sm font-medium text-gray-700">Olek</label>
-                            <button @click="statusOpen = !statusOpen" type="button"
-                                class="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <span x-text="selectedStatus || 'Kõik olekud'">Kõik olekud</span>
-                                <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </span>
-                            </button>
-                            <div x-show="statusOpen" x-cloak x-transition
-                                class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                                <button @click="selectedStatus = 'Kõik olekud'; statusOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Kõik
-                                    olekud</button>
-                                <button @click="selectedStatus = 'Aktiivne'; statusOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Aktiivne</button>
-                                <button @click="selectedStatus = 'Mitteaktiivne'; statusOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mitteaktiivne</button>
-                                <button @click="selectedStatus = 'Ootel'; statusOpen = false"
-                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Ootel</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -293,9 +240,16 @@
                     <div class="flex items-center gap-2">
                         <h2 class="text-lg font-semibold text-gray-800">Kasutajad</h2>
                         <div id="mainAdminIndicator"
-                            class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full items-center gap-1 tooltip">
+                            class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full items-center gap-1 relative group">
                             <i class="fas fa-crown text-yellow-500"></i>
                             <span>Peaadministraator</span>
+                            <div
+                                class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                                Ainult Peaadministraatorile
+                                <div
+                                    class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900">
+                                </div>
+                            </div>
                         </div>
                         <button id="adminSettingsButton"
                             class="hidden px-3 py-1.5 ml-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg flex items-center gap-1"
@@ -383,12 +337,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="mt-4 flex justify-end">
-                        <button onclick="applyFilters()"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                            Rakenda filtrid
-                        </button>
-                    </div>
+
                 </div>
 
                 <!-- Users Table -->
@@ -429,51 +378,86 @@
                     <h2 class="text-lg font-semibold text-gray-800">Süsteemi seaded</h2>
                 </div>
 
-                <!-- Maintenance Mode -->
-                <div class="bg-white rounded-lg shadow p-6 mb-6">
-                    <h3 class="text-md font-medium text-gray-900 mb-4">Hooldusrežiim</h3>
-                    <div class="flex items-center space-x-4">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="maintenanceMode" class="sr-only peer"
-                                onchange="toggleMaintenanceMode(this.checked)">
+                <!-- Settings Dropdown -->
+                <div class="space-y-4">
+                    <!-- Maintenance Mode Dropdown -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="relative">
+                            <button class="w-auto px-6 py-4 flex items-center justify-between relative"
+                                onclick="toggleDropdown('maintenanceDropdown')">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-tools text-gray-500"></i>
+                                    <span class="text-md font-medium text-gray-900">Hooldusrežiim</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-gray-500 transition-transform duration-200 ml-4"
+                                    id="maintenanceDropdownIcon"></i>
+                            </button>
                             <div
-                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                class="absolute inset-0 bg-gray-50 opacity-0 hover:opacity-100 transition-opacity duration-200 -z-10">
                             </div>
-                            <span class="ml-3 text-sm font-medium text-gray-900">Hooldusrežiim</span>
-                        </label>
-                        <input type="text" id="maintenanceMessage"
-                            class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Hooldusrežiimi sõnum">
+                        </div>
+                        <div id="maintenanceDropdown" class="hidden px-6 pb-4">
+                            <div class="flex items-center space-x-4">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="maintenanceMode" class="sr-only peer"
+                                        onchange="toggleMaintenanceMode(this.checked)">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                    </div>
+                                    <span class="ml-3 text-sm font-medium text-gray-900">Hooldusrežiim</span>
+                                </label>
+                                <input type="text" id="maintenanceMessage"
+                                    class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Hooldusrežiimi sõnum">
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Session Timeout Settings -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-md font-medium text-gray-900">Sessiooni Aegumine</h3>
-                        <div id="mainAdminSessionIndicator"
-                            class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full items-center gap-1">
-                            <i class="fas fa-crown text-yellow-500"></i>
-                            <span>Ainult Peaadministraatorile</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="sessionTimeoutEnabled" class="sr-only peer" disabled>
+                    <!-- Session Timeout Dropdown -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="relative">
+                            <button class="w-auto px-6 py-4 flex items-center justify-between relative"
+                                onclick="toggleDropdown('sessionDropdown')">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-clock text-gray-500"></i>
+                                    <span class="text-md font-medium text-gray-900">Sessiooni Aegumine</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-gray-500 transition-transform duration-200 ml-4"
+                                    id="sessionDropdownIcon"></i>
+                            </button>
                             <div
-                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                class="absolute inset-0 bg-gray-50 opacity-0 hover:opacity-100 transition-opacity duration-200 -z-10">
                             </div>
-                            <span class="ml-3 text-sm font-medium text-gray-900">Sessiooni aegumine</span>
-                        </label>
-                        <div class="flex items-center space-x-2">
-                            <input type="number" id="sessionTimeoutMinutes" min="1" max="1440"
-                                class="w-20 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="30" disabled>
-                            <span class="text-sm text-gray-600">minutit</span>
+                        </div>
+                        <div id="sessionDropdown" class="hidden px-6 pb-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-md font-medium text-gray-900">Sessiooni Aegumine</h3>
+                                <div id="mainAdminSessionIndicator"
+                                    class="hidden px-2 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 rounded-full items-center gap-1">
+                                    <i class="fas fa-crown text-yellow-500"></i>
+                                    <span>Ainult Peaadministraatorile</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="sessionTimeoutEnabled" class="sr-only peer" disabled>
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                    </div>
+                                    <span class="ml-3 text-sm font-medium text-gray-900">Sessiooni aegumine</span>
+                                </label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" id="sessionTimeoutMinutes" min="1" max="1440"
+                                        class="w-20 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="30" disabled>
+                                    <span class="text-sm text-gray-600">minutit</span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Kasutaja logitakse automaatselt välja pärast määratud
+                                aja
+                                möödumist.</p>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-2">Kasutaja logitakse automaatselt välja pärast määratud aja
-                        möödumist.</p>
                 </div>
             </div>
         </div>
@@ -1037,6 +1021,12 @@
                     <form id="resetPasswordForm" class="space-y-4">
                         <input type="hidden" id="resetUserId">
                         <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700">Kasutajanimi</label>
+                            <input type="text" id="username" name="username" autocomplete="username"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                aria-hidden="true" tabindex="-1">
+                        </div>
+                        <div>
                             <label for="newPassword" class="block text-sm font-medium text-gray-700">Uus
                                 parool</label>
                             <input type="password" id="newPassword" required autocomplete="new-password"
@@ -1289,15 +1279,34 @@
             // Update the role selection in the user table
             function generateUserTableRow(userData) {
                 const roleSelect = `
-                <select class="form-select text-sm" 
-                    onchange="updateUserRole('${userData.uid}', this.value)"
-                    ${userData.role === 'mainAdmin' ? 'disabled' : ''}>
-                    ${Object.entries(roles).map(([roleKey, roleData]) => `
-                        <option value="${roleKey}" ${userData.role === roleKey ? 'selected' : ''}>
-                            ${roleData.name}
-                        </option>
-                    `).join('')}
-                </select>
+                <div class="relative" x-data="{ showTooltip: false }">
+                    <select class="form-select text-sm" 
+                        onchange="updateUserRole('${userData.uid}', this.value)"
+                        ${userData.role === 'mainAdmin' ? 'disabled' : ''}
+                        @mouseenter="showTooltip = true" 
+                        @mouseleave="showTooltip = false">
+                        ${Object.entries(roles).map(([roleKey, roleData]) => `
+                            <option value="${roleKey}" ${userData.role === roleKey ? 'selected' : ''}>
+                                ${roleData.name}
+                            </option>
+                        `).join('')}
+                    </select>
+                    <!-- Role Tooltip -->
+                    <div x-show="showTooltip"
+                        class="absolute z-50 w-64 p-2 mt-1 text-sm text-white bg-gray-900 rounded-lg shadow-lg"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 translate-y-1"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 translate-y-1">
+                        ${userData.role === 'mainAdmin' ?
+                        'Peaadministraatori rolli ei saa muuta.' :
+                        roles[userData.role]?.permissions?.fullAccess ?
+                            'Täielikud õigused süsteemis.' :
+                            'Piiratud õigused vastavalt rollile.'}
+                    </div>
+                </div>
             `;
                 // ... rest of the row generation code ...
             }
@@ -5562,6 +5571,219 @@
             document.addEventListener('DOMContentLoaded', () => {
                 initializeUserDetailsModal();
             });
+        </script>
+
+        <!-- Add this new function to handle the search input event -->
+        <script>
+            // ... existing code ...
+            // Add event listener for search input
+            document.addEventListener('DOMContentLoaded', () => {
+                const searchInput = document.getElementById('userSearch');
+                let searchTimeout;
+
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        clearTimeout(searchTimeout);
+                        searchTimeout = setTimeout(() => {
+                            const searchTerm = e.target.value.trim();
+                            const roleFilter = document.querySelector('[x-data]').__x.$data.selectedRole;
+                            loadUsers(1, searchTerm, roleFilter);
+                        }, 300); // Debounce search by 300ms
+                    });
+                }
+            });
+
+            async function loadUsers(page = 1, searchTerm = '', roleFilter = '') {
+                try {
+                    console.log("Fetching users from Firestore...");
+
+                    // Check if user is authenticated
+                    if (!auth.currentUser) {
+                        showNotification("Sa ei ole sisse loginud! Palun logi uuesti sisse.", "error");
+                        setTimeout(() => {
+                            window.location.href = "/auth/login.html";
+                        }, 2000);
+                        return;
+                    }
+
+                    // Force token refresh to ensure permissions are up-to-date
+                    try {
+                        await auth.currentUser.getIdToken(true);
+                    } catch (tokenError) {
+                        console.error("Failed to refresh auth token:", tokenError);
+                    }
+
+                    const usersPerPage = 10;
+                    const usersRef = collection(db, "users");
+                    let queryRef = usersRef;
+
+                    // Apply search filter
+                    if (searchTerm) {
+                        queryRef = query(queryRef,
+                            where("email", ">=", searchTerm),
+                            where("email", "<=", searchTerm + '\uf8ff')
+                        );
+                    }
+
+                    // Apply role filter
+                    if (roleFilter && roleFilter !== 'Kõik rollid') {
+                        queryRef = query(queryRef, where("role", "==", roleFilter));
+                    }
+
+                    // Apply pagination
+                    queryRef = query(queryRef, limit(usersPerPage));
+
+                    const userDocs = await getDocs(queryRef);
+
+                    const userTable = document.getElementById("userTable");
+                    if (!userTable) {
+                        console.error("User table not found in DOM");
+                        return;
+                    }
+
+                    userTable.innerHTML = ""; // Clear table before loading
+
+                    // Check if we got any users
+                    if (userDocs.empty) {
+                        const emptyRow = document.createElement("tr");
+                        emptyRow.innerHTML = `
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                        Kasutajaid ei leitud
+                                    </td>
+                                `;
+                        userTable.appendChild(emptyRow);
+                        return;
+                    }
+
+                    userDocs.forEach(docSnapshot => {
+                        const userData = docSnapshot.data();
+                        console.log("User Loaded:", userData);
+
+                        const userRow = document.createElement("tr");
+                        userRow.className = "hover:bg-gray-50 cursor-pointer";
+                        userRow.onclick = (e) => {
+                            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('button') || e.target.closest('select')) {
+                                return;
+                            }
+                            openUserDetailsModal(docSnapshot.id, userData);
+                        };
+
+                        userRow.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <input type="checkbox" value="${docSnapshot.id}" class="rounded text-blue-600">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${userData.email}</div>
+                                    <div class="text-sm text-gray-500">${userData.emailVerified ? 'Verifitseeritud' : 'Verifitseerimata'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="relative group">
+                                <select onchange="updateUserRole('${docSnapshot.id}', this.value)" 
+                                    class="text-sm border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                    ${userData.role === 'admin' ? 'bg-blue-50 border-blue-200' : ''} 
+                                    ${userData.role === 'mainAdmin' ? 'bg-purple-50 border-purple-200 font-semibold' : ''}"
+                                    ${userData.role === 'mainAdmin' ? 'disabled' : ''}>
+                                    ${Object.entries(roles).map(([roleId, role]) => `
+                                        <option value="${roleId}" ${userData.role === roleId ? 'selected' : ''}>
+                                            ${role.name} ${roleId === 'admin' || roleId === 'mainAdmin' ? '👑' : ''}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                                ${userData.role === 'admin' || userData.role === 'mainAdmin' ?
+                                `<div style="left: -150px; width: 320px;" class="absolute top-full mt-2 hidden group-hover:block z-50 bg-black/90 backdrop-blur-md text-white text-xs p-4 rounded-md shadow-lg whitespace-nowrap border border-gray-700">
+                                    <div class="font-medium mb-1 text-center">Rolli info:</div>
+                                    <div class="text-center">
+                                        ${userData.role === 'mainAdmin' ?
+                                    '<span class="font-semibold text-purple-300">Peaadministraatori</span> rolli ei saa muuta.' :
+                                    '<span class="font-semibold text-blue-300">Administraatori</span> rolli saab muuta ainult Peaadministraator.'}
+                                    </div>
+                                </div>` : ''}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                ${userData.status === 'active' ? 'bg-green-100 text-green-800' :
+                                userData.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-red-100 text-red-800'}">
+                                ${userData.status === 'active' ? 'Aktiivne' :
+                                userData.status === 'pending' ? 'Ootel' :
+                                    'Mitteaktiivne'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${userData.lastLogin ? new Date(userData.lastLogin.seconds * 1000).toLocaleString() : 'Pole sisse logitud'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="resetUserPassword('${docSnapshot.id}')" class="text-blue-600 hover:text-blue-900 mr-2">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            <button onclick="deleteUser('${docSnapshot.id}')" class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                        userTable.appendChild(userRow);
+                    });
+                } catch (error) {
+                    console.error("Error loading users:", error);
+                    showNotification("Viga kasutajate laadimisel!", "error");
+                }
+            }
+        </script>
+
+        <script>
+            // Debounce function to limit how often a function can be called
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            // Handle user search with debouncing
+            const handleUserSearch = debounce((searchTerm) => {
+                const roleFilter = document.getElementById('roleFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+                const verificationFilter = document.getElementById('verificationFilter').value;
+                loadUsers(1, searchTerm, roleFilter, statusFilter, verificationFilter);
+            }, 300);
+
+            // Apply all filters
+            function applyFilters() {
+                const searchTerm = document.getElementById('userSearch').value;
+                const roleFilter = document.getElementById('roleFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+                const verificationFilter = document.getElementById('verificationFilter').value;
+                loadUsers(1, searchTerm, roleFilter, statusFilter, verificationFilter);
+            }
+        </script>
+
+        <script>
+            // ... existing code ...
+
+            function toggleDropdown(dropdownId) {
+                const dropdown = document.getElementById(dropdownId);
+                const icon = document.getElementById(`${dropdownId}Icon`);
+
+                if (dropdown.classList.contains('hidden')) {
+                    dropdown.classList.remove('hidden');
+                    icon.classList.add('rotate-180');
+                } else {
+                    dropdown.classList.add('hidden');
+                    icon.classList.remove('rotate-180');
+                }
+            }
+
+            // ... existing code ...
         </script>
 </body>
 
