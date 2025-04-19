@@ -38,6 +38,8 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        const tempAuth = getAuth(initializeApp(firebaseConfig, "temp"));
+
         window.db = db;
         window.collection = collection;
         window.getDocs = getDocs;
@@ -838,7 +840,7 @@
                                                 ]
                                             },
                                             {
-                                                title: "3. Nõuded pakkumusele",
+                                                title: "3 Nõuded pakkumusele",
                                                 enabled: true,
                                                 open: false,
                                                 options: [
@@ -873,7 +875,7 @@
                                                 ]
                                             },
                                             {
-                                                title: "4. Pakkumuste kontroll, hindamine ja eduka pakkumuse valik",
+                                                title: "4 Pakkumuste kontroll, hindamine ja eduka pakkumuse valik",
                                                 enabled: true,
                                                 open: false,
                                                 options: [
@@ -900,7 +902,7 @@
                                                 ]
                                             },
                                             {
-                                                title: "5. Läbirääkimiste pidamine",
+                                                title: "5 Läbirääkimiste pidamine",
                                                 enabled: true,
                                                 open: false,
                                                 options: [
@@ -923,7 +925,7 @@
                                                 ]
                                             },
                                             {
-                                                title: "6. Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine",
+                                                title: "6 Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine",
                                                 enabled: true,
                                                 open: false,
                                                 options: [
@@ -942,7 +944,7 @@
                                                 ]
                                             },
                                             {
-                                                title: "7. Lisad",
+                                                title: "7 Lisad",
                                                 enabled: true,
                                                 open: false,
                                                 options: [
