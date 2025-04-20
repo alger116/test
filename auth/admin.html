@@ -61,6 +61,7 @@
 
 <body class="h-full">
     <div class="min-h-full">
+
         <!-- Dark Sidebar -->
         <div class="fixed inset-y-0 left-0 w-64 bg-gray-900 shadow-xl z-50">
             <div class="flex flex-col h-full">
@@ -140,6 +141,7 @@
                 </div>
             </div>
         </div>
+
 
 
 
@@ -253,7 +255,7 @@
                             </div>
                         </div>
                         <button id="adminSettingsButton"
-                            class="hidden px-3 py-1.5 ml-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg flex items-center gap-1"
+                            class="hidden px-3 py-1.5 ml-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg items-center gap-1"
                             onclick="openRoles()">
                             <i class="fas fa-user-cog"></i>
                             <span>Rollide Seaded</span>
@@ -481,133 +483,23 @@
                             <div class="mb-6">
                                 <div class="flex items-center space-x-4">
                                     <div class="flex-1">
-                                        <label for="newGroupName" class="block text-sm font-medium text-gray-700">Uue
-                                            grupi nimi</label>
+                                        <label for="newGroupName"
+                                            class="block text-sm font-medium text-gray-700">Sisesta uue grupi
+                                            nimi</label>
                                         <input type="text" id="newGroupName"
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     </div>
                                     <button id="createGroup"
                                         class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                        Lisa grupp
+                                        Lisa
                                     </button>
                                 </div>
-                            </div>
 
-                            <!-- Groups List -->
-                            <div class="space-y-4">
-                                <h4 class="text-md font-medium text-gray-900">Olemasolevad grupid</h4>
-                                <div id="groupsList" class="space-y-2">
-                                    <!-- Groups will be loaded here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Settings Modal -->
-            <div id="settingsBackdrop"
-                class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity z-50"></div>
-            <div id="settingsContainer" class="hidden fixed inset-0 z-50 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4">
-                    <div class="relative w-full max-w-4xl bg-white rounded-lg shadow-xl">
-                        <!-- Modal Header -->
-                        <div class="flex items-center justify-between p-6 border-b">
-                            <h2 class="text-2xl font-bold text-gray-900">Seaded</h2>
-                            <button id="closeSettings" class="text-gray-400 hover:text-gray-500">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-
-                        <!-- Modal Content -->
-                        <div class="p-6">
-                            <!-- General Settings -->
-                            <div class="mb-8">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Üldised seaded</h3>
-                                <form id="settingsForm" class="space-y-6">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <label for="documentPreparationDays"
-                                                class="block text-sm font-medium text-gray-700 mb-1">
-                                                📄 Riigihanke alusdokumentide koostamine
-                                            </label>
-                                            <input type="number" id="documentPreparationDays"
-                                                name="documentPreparationDays"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="Päevad" required min="0">
-                                        </div>
-                                        <div>
-                                            <label for="offerEvaluationDays"
-                                                class="block text-sm font-medium text-gray-700 mb-1">
-                                                🧐 Pakkumuste hindamine
-                                            </label>
-                                            <input type="number" id="offerEvaluationDays" name="offerEvaluationDays"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="Päevad" required min="0">
-                                        </div>
-                                        <div>
-                                            <label for="decisionDays"
-                                                class="block text-sm font-medium text-gray-700 mb-1">
-                                                ✅ Vastavaks ja edukaks tunnistamise otsus
-                                            </label>
-                                            <input type="number" id="decisionDays" name="decisionDays"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="Päevad" required min="0">
-                                        </div>
-                                        <div>
-                                            <label for="bidderEvaluationDays"
-                                                class="block text-sm font-medium text-gray-700 mb-1">
-                                                📊 Pakkujate hindamine
-                                            </label>
-                                            <input type="number" id="bidderEvaluationDays" name="bidderEvaluationDays"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="Päevad" required min="0">
-                                        </div>
-                                        <div>
-                                            <label for="successfulBidderDays"
-                                                class="block text-sm font-medium text-gray-700 mb-1">
-                                                🏆 Eduka kõrvaldamata jätmine ja kval
-                                            </label>
-                                            <input type="number" id="successfulBidderDays" name="successfulBidderDays"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="Päevad" required min="0">
-                                        </div>
-                                        <div>
-                                            <label for="waitingPeriodDays"
-                                                class="block text-sm font-medium text-gray-700 mb-1">
-                                                ⏳ Ooteaeg
-                                            </label>
-                                            <input type="number" id="waitingPeriodDays" name="waitingPeriodDays"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="Päevad" required min="0">
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-end">
-                                        <button type="submit"
-                                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                                            <i class="fas fa-save mr-2"></i>Salvesta
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <!-- Procedure Types -->
-                            <div>
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3 class="text-lg font-semibold text-gray-900">🛠️ Menetlusliigid</h3>
-                                    <button id="addProcedureTypeButton"
-                                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
-                                        <i class="fas fa-plus mr-2"></i>Lisa Menetlusliik
-                                    </button>
-                                </div>
+                                <!-- Groups List -->
                                 <div class="space-y-4">
-                                    <select id="procedureTypeSelect"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <!-- Options will be populated dynamically -->
-                                    </select>
-                                    <div id="procedureTypeSettings" class="mt-4">
-                                        <!-- Procedure type settings will be displayed here -->
+                                    <h4 class="text-md font-medium text-gray-900">Grupid</h4>
+                                    <div id="groupsList" class="space-y-2">
+                                        <!-- Groups will be loaded here -->
                                     </div>
                                 </div>
                             </div>
@@ -617,10 +509,121 @@
             </div>
         </div>
 
+
+        <!-- Settings Modal -->
+        <div id="settingsBackdrop"
+            class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity z-50"></div>
+        <div id="settingsContainer" class="hidden fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-4xl bg-white rounded-lg shadow-xl">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b">
+                        <h2 class="text-2xl font-bold text-gray-900">Seaded</h2>
+                        <button id="closeSettings" class="text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Content -->
+                    <div class="p-6">
+                        <!-- General Settings -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Üldised seaded</h3>
+                            <form id="settingsForm" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="documentPreparationDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            📄 Riigihanke alusdokumentide koostamine
+                                        </label>
+                                        <input type="number" id="documentPreparationDays" name="documentPreparationDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="offerEvaluationDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            🧐 Pakkumuste hindamine
+                                        </label>
+                                        <input type="number" id="offerEvaluationDays" name="offerEvaluationDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="decisionDays" class="block text-sm font-medium text-gray-700 mb-1">
+                                            ✅ Vastavaks ja edukaks tunnistamise otsus
+                                        </label>
+                                        <input type="number" id="decisionDays" name="decisionDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="bidderEvaluationDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            📊 Pakkujate hindamine
+                                        </label>
+                                        <input type="number" id="bidderEvaluationDays" name="bidderEvaluationDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="successfulBidderDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            🏆 Eduka kõrvaldamata jätmine ja kval
+                                        </label>
+                                        <input type="number" id="successfulBidderDays" name="successfulBidderDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                    <div>
+                                        <label for="waitingPeriodDays"
+                                            class="block text-sm font-medium text-gray-700 mb-1">
+                                            ⏳ Ooteaeg
+                                        </label>
+                                        <input type="number" id="waitingPeriodDays" name="waitingPeriodDays"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Päevad" required min="0">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                        <i class="fas fa-save mr-2"></i>Salvesta
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Procedure Types -->
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">🛠️ Menetlusliigid</h3>
+                                <button id="addProcedureTypeButton"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+                                    <i class="fas fa-plus mr-2"></i>Lisa Menetlusliik
+                                </button>
+                            </div>
+                            <div class="space-y-4">
+                                <select id="procedureTypeSelect"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <!-- Options will be populated dynamically -->
+                                </select>
+                                <div id="procedureTypeSettings" class="mt-4">
+                                    <!-- Procedure type settings will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <!-- Loading Overlay -->
         <div id="loadingOverlay" class="hidden fixed inset-0 bg-white/50 z-50 backdrop-blur-sm">
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent">
+                </div>
             </div>
         </div>
 
@@ -676,7 +679,8 @@
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-sm text-blue-600 font-medium">Aktiivsed Rollid</p>
-                                            <p class="text-2xl font-bold text-blue-700 mt-1" id="activeRolesCount">0</p>
+                                            <p class="text-2xl font-bold text-blue-700 mt-1" id="activeRolesCount">0
+                                            </p>
                                         </div>
                                         <div class="bg-blue-100 p-3 rounded-full shadow-sm">
                                             <i class="fas fa-users text-blue-600"></i>
@@ -688,7 +692,8 @@
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-sm text-green-600 font-medium">Kasutajad</p>
-                                            <p class="text-2xl font-bold text-green-700 mt-1" id="totalUsersCount">0</p>
+                                            <p class="text-2xl font-bold text-green-700 mt-1" id="totalUsersCount">0
+                                            </p>
                                         </div>
                                         <div class="bg-green-100 p-3 rounded-full shadow-sm">
                                             <i class="fas fa-user-check text-green-600"></i>
@@ -788,11 +793,13 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Kasutuse limiidid</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kasutuse
+                                    limiidid</label>
                                 <div class="space-y-3" id="usageLimitsList">
                                     <div class="flex items-center gap-3">
                                         <div class="w-1/2">
-                                            <label for="searchLimit" class="text-xs text-gray-600">Otsingute arv</label>
+                                            <label for="searchLimit" class="text-xs text-gray-600">Otsingute
+                                                arv</label>
                                             <input type="number" id="searchLimit" name="searchLimit" min="0" max="999"
                                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                                                 placeholder="Piiramatu">
@@ -886,7 +893,8 @@
                             </div>
                             <div class="flex items-center space-x-2">
                                 <input type="checkbox" id="userApproved" class="rounded text-blue-600">
-                                <label for="userApproved" class="text-sm text-gray-700">Kasutaja on kinnitatud</label>
+                                <label for="userApproved" class="text-sm text-gray-700">Kasutaja on
+                                    kinnitatud</label>
                             </div>
                             <div class="flex justify-end space-x-2 pt-4">
                                 <button type="button" onclick="closeAddUserModal()"
@@ -1131,7 +1139,7 @@
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
             import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-            import { getFirestore, doc, getDoc, setDoc, orderBy, collection, query, where, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove, Timestamp, onSnapshot, serverTimestamp, addDoc, limit, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+            import { getFirestore, doc, getDoc, setDoc, orderBy, collection, query, where, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove, Timestamp, onSnapshot, serverTimestamp, addDoc, limit, writeBatch, increment, deleteField } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
             import { firebaseConfig } from "./firebase-config-generated.js";
             import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-functions.js";
 
@@ -1169,7 +1177,7 @@
             window.signInWithEmailAndPassword = signInWithEmailAndPassword;
             window.updatePassword = updatePassword;
             window.onAuthStateChanged = onAuthStateChanged;
-
+            window.deleteField = deleteField;
             // Store unsubscribe functions
             const unsubscribeFunctions = [];
 
@@ -4987,8 +4995,7 @@
                 });
             });
 
-            // ... existing code ...
-            // Add this function after the existing permission check functions
+
             async function initializeAllUserPermissions() {
                 try {
                     console.log("Starting permission initialization for all users...");
@@ -5046,7 +5053,7 @@
                 }
             }
 
-            // Modify the user creation code to include permissions
+
             async function createUserWithPermissions(email, password, role, approved) {
                 try {
                     // Clean up temp auth before starting
@@ -5293,7 +5300,6 @@
                 });
             });
 
-            // ... existing code ...
             // Add event listener for saving permissions
             const userDetailsModal = document.getElementById('userDetailsModal');
             if (userDetailsModal) {
@@ -5325,7 +5331,7 @@
                     }
                 });
             }
-            // ... existing code ...
+
 
             function handleUserSearch(searchTerm) {
                 const rows = document.querySelectorAll('#userTable tr');
@@ -5404,15 +5410,21 @@
                     modal.classList.add('hidden');
                 }
             }
-
-
         </script>
 
-        <!-- Add these new functions to handle the enhanced modal functionality -->
         <script>
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div')
+                notification.className = `fixed top-20 right-4 p-4 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`
+                notification.innerHTML = `<div class="flex items-center space-x-2"><i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i><span>${message}</span></div>`
+                document.body.appendChild(notification)
 
+                // Remove notification after 3 seconds
+                setTimeout(() => {
+                    notification.remove()
+                }, 3000)
+            }
 
-            // Add these new functions to handle the enhanced modal functionality
             function initializeUserDetailsModal() {
                 const modal = document.getElementById('userDetailsModal');
                 const closeButton = document.getElementById('closeUserDetails');
@@ -5466,7 +5478,15 @@
                 // Refresh buttons functionality
                 refreshButtons.pdfs.addEventListener('click', () => loadUserPdfs());
                 refreshButtons.searches.addEventListener('click', () => loadUserSearches());
-                refreshButtons.groups.addEventListener('click', () => loadUserGroups());
+                refreshButtons.groups.addEventListener('click', () => {
+                    const modal = document.getElementById('userDetailsModal');
+                    const userId = modal?.dataset?.userId;
+                    if (userId) {
+                        loadUserGroups(userId);
+                    } else {
+                        console.error('No user ID found in modal dataset');
+                    }
+                });
             }
 
             async function loadUserPdfs() {
@@ -5731,7 +5751,7 @@
                     // Add new group
                     groups.push({
                         id: groupId,
-                        name: `Grupp ${groups.length + 1}` // You can replace this with actual group name
+                        name: `Grupp ${groups.length + 1}`
                     });
 
                     // Update user document
@@ -5810,52 +5830,55 @@
             // Call this function when the page loads
             document.addEventListener('DOMContentLoaded', () => {
                 initializeUserDetailsModal();
+                loadGroups();
 
 
             });
 
             // Function to load user groups
             async function loadUserGroups(userId) {
-                const groupsList = document.getElementById('userGroupsList');
-                const groupsCount = document.getElementById('groupsCount');
-                if (!groupsList) return;
-
                 try {
-                    groupsList.innerHTML = '<div class="text-gray-500">Laen...</div>';
+                    const userRef = doc(db, "users", userId);
+                    const userDoc = await getDoc(userRef);
 
-                    // Get all groups
-                    const groupsSnapshot = await getDocs(collection(db, "groups"));
-                    const groups = groupsSnapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-
-                    // Get user's current groups
-                    const userGroupsSnapshot = await getDocs(query(
-                        collection(db, "userGroups"),
-                        where("userId", "==", userId)
-                    ));
-                    const userGroupIds = userGroupsSnapshot.docs.map(doc => doc.data().groupId);
-
-                    // Render groups with checkboxes
-                    groupsList.innerHTML = groups.map(group => `
-                        <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
-                            <input type="checkbox" 
-                                   id="group-${group.id}" 
-                                   value="${group.id}"
-                                   ${userGroupIds.includes(group.id) ? 'checked' : ''}
-                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                            <label for="group-${group.id}" class="text-sm text-gray-700 flex-grow">${group.name}</label>
-                        </div>
-                    `).join('');
-
-                    // Update groups count
-                    if (groupsCount) {
-                        groupsCount.textContent = `${userGroupIds.length}/${groups.length} gruppi valitud`;
+                    if (!userDoc.exists()) {
+                        console.error('User not found');
+                        return;
                     }
+
+                    const userData = userDoc.data();
+                    const userGroups = userData.userGroups || [];
+
+
+                    const groupsSnapshot = await getDocs(collection(db, "userGroups"));
+                    const groupsList = document.getElementById('userGroupsList');
+
+                    if (!groupsList) return;
+
+
+                    groupsList.innerHTML = '';
+
+                    groupsSnapshot.forEach((groupDoc) => {
+                        const groupData = groupDoc.data();
+                        const isChecked = userGroups.includes(groupDoc.id);
+
+                        const groupItem = document.createElement('div');
+                        groupItem.className = 'flex items-center p-2 hover:bg-gray-100';
+
+                        groupItem.innerHTML = `
+    <input type="checkbox"
+        id="group_${groupDoc.id}" 
+        value="${groupDoc.id}"
+        ${isChecked ? 'checked' : ''}
+        class="mr-2">
+    <label for="group_${groupDoc.id}" class="flex-grow">${groupData.name}</label>
+                            
+                        `;
+
+                        groupsList.appendChild(groupItem);
+                    });
                 } catch (error) {
-                    console.error('Error loading groups:', error);
-                    groupsList.innerHTML = '<div class="text-red-500">Viga gruppide laadimisel</div>';
+                    console.error('Error loading user groups:', error);
                 }
             }
 
@@ -5871,7 +5894,6 @@
                 if (!saveButton) return;
 
                 try {
-                    // Disable save button and show loading state
                     saveButton.disabled = true;
                     saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Salvestan...';
 
@@ -5881,37 +5903,45 @@
                         .filter(checkbox => checkbox.checked)
                         .map(checkbox => checkbox.value);
 
-                    // Delete existing user-group associations
-                    const existingGroups = await getDocs(query(
-                        collection(db, "userGroups"),
-                        where("userId", "==", userId)
-                    ));
+                    // Get the user's current groups
+                    const userRef = doc(db, "users", userId);
+                    const userDoc = await getDoc(userRef);
+                    const currentGroups = userDoc.data()?.userGroups || [];
 
-                    const deletePromises = existingGroups.docs.map(doc => deleteDoc(doc.ref));
-                    await Promise.all(deletePromises);
+                    // Find groups to remove (groups that were in currentGroups but not in selectedGroups)
+                    const groupsToRemove = currentGroups.filter(groupId => !selectedGroups.includes(groupId));
 
-                    // Create new user-group associations
-                    const createPromises = selectedGroups.map(groupId =>
-                        addDoc(collection(db, "userGroups"), {
-                            userId,
-                            groupId,
-                            createdAt: serverTimestamp()
-                        })
-                    );
-                    await Promise.all(createPromises);
+                    // Update the user document with selected groups
+                    await updateDoc(userRef, {
+                        userGroups: selectedGroups,
+                        updatedAt: new Date().toISOString()
+                    });
 
-                    // Show success message
+                    // Remove user from unselected groups
+                    await Promise.all(groupsToRemove.map(async groupId => {
+                        const groupRef = doc(db, "userGroups", groupId);
+                        await updateDoc(groupRef, {
+                            [`users.${userId}`]: deleteField(), // Use deleteField() to remove the field
+                            updatedAt: new Date().toISOString()
+                        });
+                    }));
+
+                    // Add user to selected groups
+                    await Promise.all(selectedGroups.map(async groupId => {
+                        const groupRef = doc(db, "userGroups", groupId);
+                        await updateDoc(groupRef, {
+                            [`users.${userId}`]: true,
+                            updatedAt: new Date().toISOString()
+                        });
+                    }));
+
                     alert('Kasutajagrupid edukalt uuendatud!');
-
-                    // Refresh the groups list
-                    await loadUserGroups(userId);
                 } catch (error) {
                     console.error('Error saving user groups:', error);
                     alert('Viga kasutajagruppide salvestamisel: ' + error.message);
                 } finally {
-                    // Reset save button state
                     saveButton.disabled = false;
-                    saveButton.innerHTML = 'Salvesta muudatused';
+                    saveButton.innerHTML = 'Salvesta';
                 }
             }
 
@@ -5940,14 +5970,7 @@
                 // Load user groups
                 loadUserGroups(userId);
             }
-        </script>
 
-        </script>
-
-        <!-- Add this new function to handle the search input event -->
-        <script>
-            // ... existing code ...
-            // Add event listener for search input
             document.addEventListener('DOMContentLoaded', () => {
                 const searchInput = document.getElementById('userSearch');
                 let searchTimeout;
@@ -6104,10 +6127,7 @@
                     showNotification("Viga kasutajate laadimisel!", "error");
                 }
             }
-        </script>
 
-        <script>
-            // Debounce function to limit how often a function can be called
             function debounce(func, wait) {
                 let timeout;
                 return function executedFunction(...args) {
@@ -6136,10 +6156,7 @@
                 const verificationFilter = document.getElementById('verificationFilter').value;
                 loadUsers(1, searchTerm, roleFilter, statusFilter, verificationFilter);
             }
-        </script>
 
-        <script>
-            // ... existing code ...
 
             function toggleDropdown(dropdownId) {
                 const dropdown = document.getElementById(dropdownId);
@@ -6154,83 +6171,164 @@
                 }
             }
 
-            // ... existing code ...
-        </script>
-
-        <script>
-            // ... existing code ...
-
-            // User Groups Management Functions
-            async function loadGroups() {
-                const groupsList = document.getElementById('groupsList');
-                groupsList.innerHTML = '<div class="text-center py-4 text-gray-500">Laen...</div>';
-
+            async function loadGroupUsers(groupId) {
                 try {
-                    const groupsSnapshot = await getDocs(collection(db, "userGroups"));
-                    if (groupsSnapshot.empty) {
-                        groupsList.innerHTML = '<div class="text-center py-4 text-gray-500">Gruppe ei leitud</div>';
+                    const groupRef = doc(db, "userGroups", groupId);
+                    const groupDoc = await getDoc(groupRef);
+
+                    if (!groupDoc.exists()) {
+                        console.error('Group not found');
                         return;
                     }
 
+                    const groupData = groupDoc.data();
+                    const users = groupData.users || {};
+
+                    // Get user details for each user in the group
+                    const userPromises = Object.keys(users).map(async (userId) => {
+                        const userRef = doc(db, "users", userId);
+                        const userDoc = await getDoc(userRef);
+                        return userDoc.exists() ? userDoc.data() : null;
+                    });
+
+                    const userDetails = await Promise.all(userPromises);
+                    const validUsers = userDetails.filter(user => user !== null);
+
+                    // Update the UI to show users in the group
+                    const usersList = document.getElementById(`groupUsers_${groupId}`);
+                    if (usersList) {
+                        usersList.innerHTML = validUsers.map(user => `
+                <div class="flex items-center justify-between p-2 hover:bg-gray-100">
+                    <span>${user.name || user.email}</span>
+                    <button onclick="removeUserFromGroup('${groupId}', '${user.uid}')" 
+                            class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+                    }
+                } catch (error) {
+                    console.error('Error loading group users:', error);
+                }
+            }
+
+            async function loadGroups() {
+                try {
+                    const groupsList = document.getElementById('groupsList');
+                    if (!groupsList) return;
+
+                    // Get all groups from Firestore
+                    const groupsSnapshot = await getDocs(collection(db, "userGroups"));
+
+                    // Clear existing list
                     groupsList.innerHTML = '';
-                    groupsSnapshot.forEach((doc) => {
-                        const group = doc.data();
-                        const groupElement = document.createElement('div');
-                        groupElement.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg';
-                        groupElement.innerHTML = `
-                            <div class="flex items-center space-x-4">
-                                <span class="text-sm font-medium text-gray-900">${group.name}</span>
-                                <span class="text-sm text-gray-500">${group.memberCount || 0} kasutajat</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button class="viewGroupMembers p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <i class="fas fa-users"></i>
-                                </button>
-                                <button class="editGroup p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="deleteGroup p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `;
 
-                        // Add event listeners
-                        const viewButton = groupElement.querySelector('.viewGroupMembers');
-                        const editButton = groupElement.querySelector('.editGroup');
-                        const deleteButton = groupElement.querySelector('.deleteGroup');
+                    groupsSnapshot.forEach((groupDoc) => {
+                        const groupData = groupDoc.data();
+                        const groupItem = document.createElement('div');
+                        groupItem.className = 'flex items-center justify-between p-4 border-b';
 
-                        viewButton.addEventListener('click', () => viewGroupMembers(doc.id));
-                        editButton.addEventListener('click', () => editGroup(doc.id, group.name));
-                        deleteButton.addEventListener('click', () => deleteGroup(doc.id));
+                        // Create the main content div
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'flex-1';
+                        contentDiv.innerHTML = `
+                                <h3 class="font-semibold">${groupData.name}</h3>
+                                <div id="groupUsers_${groupDoc.id}" class="mt-2">
+                                    <!-- Users will be listed here -->
+                                </div>
+                            `;
 
-                        groupsList.appendChild(groupElement);
+                        // Create the buttons container
+                        const buttonsDiv = document.createElement('div');
+                        buttonsDiv.className = 'flex items-center space-x-2';
+
+                        // Create view users button
+                        const viewUsersButton = document.createElement('button');
+                        viewUsersButton.className = 'text-blue-500 hover:text-blue-700';
+                        viewUsersButton.innerHTML = '<i class="fas fa-users"></i>';
+                        viewUsersButton.onclick = () => loadGroupUsers(groupDoc.id);
+
+                        // Create edit button
+                        const editButton = document.createElement('button');
+                        editButton.className = 'text-yellow-500 hover:text-yellow-700';
+                        editButton.innerHTML = '<i class="fas fa-edit"></i>';
+                        editButton.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            editGroupName(groupDoc.id, groupData.name);
+                        };
+
+                        // Create delete button
+                        const deleteButton = document.createElement('button');
+                        deleteButton.className = 'text-red-500 hover:text-red-700';
+                        deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                        deleteButton.onclick = () => deleteGroup(groupDoc.id);
+
+                        // Append buttons to buttons container
+                        buttonsDiv.appendChild(viewUsersButton);
+                        buttonsDiv.appendChild(editButton);
+                        buttonsDiv.appendChild(deleteButton);
+
+                        // Append content and buttons to group item
+                        groupItem.appendChild(contentDiv);
+                        groupItem.appendChild(buttonsDiv);
+
+                        // Append group item to list
+                        groupsList.appendChild(groupItem);
                     });
                 } catch (error) {
                     console.error('Error loading groups:', error);
-                    groupsList.innerHTML = '<div class="text-center py-4 text-red-500">Viga gruppide laadimisel</div>';
+                    alert('Viga gruppide laadimisel');
+                }
+            }
+
+            // Add this function to remove users from groups
+            async function removeUserFromGroup(groupId, userId) {
+                try {
+                    // Remove user from group
+                    const groupRef = doc(db, "userGroups", groupId);
+                    await updateDoc(groupRef, {
+                        [`users.${userId}`]: deleteField()
+                    });
+
+                    // Remove group from user
+                    const userRef = doc(db, "users", userId);
+                    const userDoc = await getDoc(userRef);
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        const updatedGroups = (userData.userGroups || []).filter(id => id !== groupId);
+                        await updateDoc(userRef, {
+                            userGroups: updatedGroups
+                        });
+                    }
+
+                    // Refresh the UI
+                    await loadGroupUsers(groupId);
+                } catch (error) {
+                    console.error('Error removing user from group:', error);
+                    alert('Error removing user from group: ' + error.message);
                 }
             }
 
             async function createGroup() {
                 const groupName = document.getElementById('newGroupName').value.trim();
                 if (!groupName) {
-                    alert('Palun sisesta grupi nimi');
+                    showNotification('Palun sisesta grupi nimi', 'error');
                     return;
                 }
                 try {
                     await addDoc(collection(db, "userGroups"), {
                         name: groupName,
                         createdAt: new Date(),
-                        memberCount: 0
+                        users: {} // Initialize empty users object
                     });
 
                     document.getElementById('newGroupName').value = '';
                     await loadGroups();
-                    alert('Grupp on edukalt loodud');
+                    showNotification('Grupp on edukalt loodud', 'success');
                 } catch (error) {
                     console.error('Error creating group:', error);
-                    alert('Viga grupi loomisel: ' + error.message);
+                    showNotification('Viga grupi loomisel: ' + error.message, 'error');
                 }
             }
 
@@ -6240,16 +6338,18 @@
                 }
 
                 try {
-                    // First, remove all user-group associations
-                    const userGroupsSnapshot = await getDocs(query(
-                        collection(db, "userGroups"),
-                        where("groupId", "==", groupId)
-                    ));
-
+                    // First, remove the group from all users
+                    const usersSnapshot = await getDocs(collection(db, "users"));
                     const batch = writeBatch(db);
-                    userGroupsSnapshot.forEach((doc) => {
-                        batch.delete(doc.ref);
+
+                    usersSnapshot.forEach((userDoc) => {
+                        const userData = userDoc.data();
+                        if (userData.userGroups && userData.userGroups.includes(groupId)) {
+                            const updatedGroups = userData.userGroups.filter(id => id !== groupId);
+                            batch.update(userDoc.ref, { userGroups: updatedGroups });
+                        }
                     });
+
                     await batch.commit();
 
                     // Then delete the group
@@ -6261,6 +6361,102 @@
                     alert('Viga grupi kustutamisel');
                 }
             }
+
+            async function editGroupName(groupId, currentName) {
+                const timestamp = Date.now();
+                const modalId = `editGroupModal_${timestamp}`;
+                const inputId = `editGroupInput_${timestamp}`;
+                const errorId = `editGroupError_${timestamp}`;
+
+                // Create a wrapper div with min-h-full class to prevent it from being hidden
+                const wrapper = document.createElement('div');
+                wrapper.className = 'min-h-full';
+
+                const modal = document.createElement('div');
+                modal.id = modalId;
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[1001]';
+
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg shadow-2xl w-full max-w-md mx-2" onclick="event.stopPropagation()">
+                        <div class="p-6 relative">
+                            <button type="button" class="closeModal absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-full">
+                                <i class="fas fa-times text-gray-500"></i>
+                            </button>
+                            <h3 class="text-xl font-semibold mb-4">Muuda grupi nime</h3>
+                            <input
+                                type="text"
+                                id="${inputId}"
+                                class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                value="${currentName.replace(/"/g, '&quot;')}"
+                            />
+                            <div id="${errorId}" class="hidden text-red-500 text-sm mt-2"></div>
+                            <div class="flex justify-end space-x-3 mt-6">
+                                <button type="button" class="cancelBtn px-5 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+                                    Tühista
+                                </button>
+                                <button type="button" class="saveBtn px-5 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg">
+                                    Salvesta
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+
+                // Remove any existing edit modals
+                document.querySelectorAll('[id^="editGroupModal_"]').forEach(el => el.remove());
+
+                // Add the modal to the wrapper and the wrapper to the main content div
+                wrapper.appendChild(modal);
+
+                // Find the main content div and append the wrapper there instead of body
+                const mainContent = document.querySelector('.min-h-full');
+                if (mainContent) {
+                    mainContent.appendChild(wrapper);
+                } else {
+                    // Fallback to body if main content div not found
+                    document.body.appendChild(wrapper);
+                }
+
+                document.documentElement.style.overflow = 'hidden';
+
+                const input = document.getElementById(inputId);
+                if (input) {
+                    setTimeout(() => input.focus(), 100);
+                }
+
+                const closeModal = () => {
+                    wrapper.remove();
+                    document.documentElement.style.overflow = '';
+                };
+
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeModal();
+                    }
+                });
+
+                modal.querySelector('.closeModal').addEventListener('click', closeModal);
+                modal.querySelector('.cancelBtn').addEventListener('click', closeModal);
+                modal.querySelector('.saveBtn').addEventListener('click', async () => {
+                    const newName = document.getElementById(inputId)?.value.trim();
+                    if (!newName) {
+                        alert('Palun sisesta grupi nimi');
+                        return;
+                    }
+
+                    try {
+                        await updateDoc(doc(db, "userGroups", groupId), {
+                            name: newName
+                        });
+                        await loadGroups();
+                        closeModal();
+                        alert('Grupi nimi on edukalt muudetud');
+                    } catch (error) {
+                        console.error('Error updating group name:', error);
+                        alert('Viga grupi nime muutmisel');
+                    }
+                });
+            }
+
 
             async function viewGroupMembers(groupId) {
                 const modal = document.createElement('div');
@@ -6345,7 +6541,7 @@
                     await deleteDoc(doc(db, "userGroups", userGroupId));
 
                     // Update group member count
-                    const groupRef = doc(db, "groups", groupId);
+                    const groupRef = doc(db, "userGroups", groupId);
                     await updateDoc(groupRef, {
                         memberCount: increment(-1)
                     });
@@ -6364,7 +6560,7 @@
             // Load groups when user groups dropdown is opened
             document.getElementById('userGroupsDropdown').addEventListener('click', loadGroups);
         </script>
-        // ... existing code ...
+
 </body>
 
 </html>

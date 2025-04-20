@@ -212,9 +212,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .top-2 {
   top: calc(var(--spacing) * 2);
 }
-.top-3 {
-  top: calc(var(--spacing) * 3);
-}
 .top-4 {
   top: calc(var(--spacing) * 4);
 }
@@ -302,6 +299,12 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .z-60 {
   z-index: 60;
 }
+.z-\[1000\] {
+  z-index: 1000;
+}
+.z-\[1001\] {
+  z-index: 1001;
+}
 .\!container {
   width: 100% !important;
   @media (width >= 40rem) {
@@ -346,6 +349,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .-mx-\[-5px\] {
   margin-inline: calc(-5px * -1);
+}
+.mx-2 {
+  margin-inline: calc(var(--spacing) * 2);
 }
 .mx-4 {
   margin-inline: calc(var(--spacing) * 4);
@@ -410,9 +416,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .mr-4 {
   margin-right: calc(var(--spacing) * 4);
 }
-.-mb-px {
-  margin-bottom: -1px;
-}
 .mb-0 {
   margin-bottom: calc(var(--spacing) * 0);
 }
@@ -457,12 +460,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .ml-8 {
   margin-left: calc(var(--spacing) * 8);
-}
-.ml-16 {
-  margin-left: calc(var(--spacing) * 16);
-}
-.ml-64 {
-  margin-left: calc(var(--spacing) * 64);
 }
 .ml-auto {
   margin-left: auto;
@@ -605,9 +602,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .h-full {
   height: 100%;
 }
-.h-screen {
-  height: 100vh;
-}
 .max-h-60 {
   max-height: calc(var(--spacing) * 60);
 }
@@ -694,9 +688,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .w-20 {
   width: calc(var(--spacing) * 20);
-}
-.w-32 {
-  width: calc(var(--spacing) * 32);
 }
 .w-40 {
   width: calc(var(--spacing) * 40);
@@ -1692,9 +1683,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .px-6 {
   padding-inline: calc(var(--spacing) * 6);
 }
-.px-7 {
-  padding-inline: calc(var(--spacing) * 7);
-}
 .px-8 {
   padding-inline: calc(var(--spacing) * 8);
 }
@@ -1727,9 +1715,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .py-6 {
   padding-block: calc(var(--spacing) * 6);
-}
-.py-8 {
-  padding-block: calc(var(--spacing) * 8);
 }
 .py-12 {
   padding-block: calc(var(--spacing) * 12);
@@ -1976,9 +1961,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .text-purple-300 {
   color: var(--color-purple-300);
-}
-.text-purple-500 {
-  color: var(--color-purple-500);
 }
 .text-purple-600 {
   color: var(--color-purple-600);
@@ -2751,13 +2733,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
-.hover\:bg-gray-600 {
-  &:hover {
-    @media (hover: hover) {
-      background-color: var(--color-gray-600);
-    }
-  }
-}
 .hover\:bg-gray-700 {
   &:hover {
     @media (hover: hover) {
@@ -2769,13 +2744,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       background-color: var(--color-gray-800);
-    }
-  }
-}
-.hover\:bg-green-50 {
-  &:hover {
-    @media (hover: hover) {
-      background-color: var(--color-green-50);
     }
   }
 }
@@ -3170,13 +3138,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
-.hover\:text-gray-900 {
-  &:hover {
-    @media (hover: hover) {
-      color: var(--color-gray-900);
-    }
-  }
-}
 .hover\:text-green-300 {
   &:hover {
     @media (hover: hover) {
@@ -3258,6 +3219,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       color: var(--color-white);
+    }
+  }
+}
+.hover\:text-yellow-700 {
+  &:hover {
+    @media (hover: hover) {
+      color: var(--color-yellow-700);
     }
   }
 }
@@ -3390,11 +3358,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --tw-ring-color: var(--color-emerald-500);
   }
 }
-.focus\:ring-gray-300 {
-  &:focus {
-    --tw-ring-color: var(--color-gray-300);
-  }
-}
 .focus\:ring-green-500 {
   &:focus {
     --tw-ring-color: var(--color-green-500);
@@ -3445,16 +3408,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:focus {
     --tw-outline-style: none;
     outline-style: none;
-  }
-}
-.disabled\:cursor-not-allowed {
-  &:disabled {
-    cursor: not-allowed;
-  }
-}
-.disabled\:bg-gray-100 {
-  &:disabled {
-    background-color: var(--color-gray-100);
   }
 }
 .sm\:my-8 {
