@@ -299,9 +299,6 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .z-60 {
   z-index: 60;
 }
-.z-\[1000\] {
-  z-index: 1000;
-}
 .z-\[1001\] {
   z-index: 1001;
 }
@@ -1761,6 +1758,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .pb-4 {
   padding-bottom: calc(var(--spacing) * 4);
 }
+.pb-6 {
+  padding-bottom: calc(var(--spacing) * 6);
+}
 .pb-20 {
   padding-bottom: calc(var(--spacing) * 20);
 }
@@ -2334,10 +2334,24 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     }
   }
 }
+.group-hover\:bg-indigo-100 {
+  &:is(:where(.group):hover *) {
+    @media (hover: hover) {
+      background-color: var(--color-indigo-100);
+    }
+  }
+}
 .group-hover\:text-blue-400 {
   &:is(:where(.group):hover *) {
     @media (hover: hover) {
       color: var(--color-blue-400);
+    }
+  }
+}
+.group-hover\:text-gray-600 {
+  &:is(:where(.group):hover *) {
+    @media (hover: hover) {
+      color: var(--color-gray-600);
     }
   }
 }
@@ -2389,6 +2403,11 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:is(:where(.peer):focus ~ *) {
     --tw-outline-style: none;
     outline-style: none;
+  }
+}
+.placeholder\:text-gray-400 {
+  &::placeholder {
+    color: var(--color-gray-400);
   }
 }
 .after\:absolute {
@@ -2569,6 +2588,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
       --tw-scale-y: 105%;
       --tw-scale-z: 105%;
       scale: var(--tw-scale-x) var(--tw-scale-y);
+    }
+  }
+}
+.hover\:border-gray-200 {
+  &:hover {
+    @media (hover: hover) {
+      border-color: var(--color-gray-200);
     }
   }
 }
