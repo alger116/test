@@ -288,8 +288,8 @@
                     <p class="text-gray-600 mb-4">
                         Siin saate salvestada erinevaid vormimalle, mida kasutajad saavad kasutada oma vormide
                         loomiseks.
-                        Mallid muudavad ainult vormi sektsioone ja sissejuhatuse teksti, kuid jätavad kasutaja väljad
-                        puutumatuks.
+                        Mallid muudavad ainult vormi sektsioone ja sissejuhatuse teksti, kuid jätavad kasutaja
+                        salvestatud väljad muutmata.
                     </p>
 
                     <!-- Preset Manager -->
@@ -303,8 +303,7 @@
                             },
                             viewMode: 'list',  // 'list' or 'create'
                             selectedPreset: null,
-                            
-                            // Initialize the data structure
+
                             initializeSelectedSections() {
                                 if (typeof this.selectedSections !== 'object') {
                                     this.selectedSections = {};
@@ -312,14 +311,15 @@
                                 if (!this.selectedSections.sectionOptions) {
                                     this.selectedSections.sectionOptions = {};
                                 }
-                            }
+                            },
+                        
                         }" x-init="initializeSelectedSections()">
 
                         <!-- View Selector -->
                         <div class="flex space-x-2 mb-4">
                             <button @click="viewMode = 'list'; selectedPreset = null"
                                 class="py-2 px-4 rounded-md text-center transition-colors duration-200"
-                                :class="viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'">
+                                :class="viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-blue-300'">
                                 Mallide nimekiri
                             </button>
                             <button @click="viewMode = 'create'; showForm = true"
@@ -458,6 +458,11 @@
                             <div x-data="{ 
                                 presets: [], 
                                 isLoading: false,
+                                showUsergroupModal: false,
+                                selectedPresetId: null,
+                                usergroups: [],
+                                selectedUsergroups: [],
+
                                 loadPresets() {
                                     if (!window.collection || !window.db || !window.getDocs) {
                                         console.error('Firebase functions not initialized yet');
@@ -471,14 +476,25 @@
                                             const presets = [];
                                             snapshot.forEach(doc => {
                                                 const data = doc.data();
-                                                presets.push({
-                                                    id: doc.id,
-                                                    name: data.name || 'Nimetu mall',
-                                                    description: data.description || '',
-                                                    createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : null,
-                                                    createdBy: data.createdBy || 'Admin',
-                                                    hasContent: data.form && (data.form.sections || data.form.intro)
-                                                });
+                                                // Check if preset should be visible to current user
+                                                const presetUsergroups = data.usergroups || [];
+                                                const userGroups = window.userData?.userGroups || [];
+                                                
+                                                // Show preset if:
+                                                // 1. No usergroups are specified (visible to all)
+                                                // 2. User has at least one of the required usergroups
+                                                if (presetUsergroups.length === 0 || 
+                                                    presetUsergroups.some(group => userGroups.includes(group))) {
+                                                    presets.push({
+                                                        id: doc.id,
+                                                        name: data.name || 'Nimetu mall',
+                                                        description: data.description || '',
+                                                        createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : null,
+                                                        createdBy: data.createdBy || 'Admin',
+                                                        hasContent: data.form && (data.form.sections || data.form.intro),
+                                                        usergroups: data.usergroups || []
+                                                    });
+                                                }
                                             });
                                             this.presets = presets;
                                         })
@@ -488,8 +504,68 @@
                                         })
                                         .finally(() => {
                                             this.isLoading = false;
+                                        });                      
+                                },
+
+                                async loadUsergroups() {
+                                    const snapshot = await window.getDocs(window.collection(window.db, 'userGroups'));
+                                    this.usergroups = [];
+                                    snapshot.forEach(doc => {
+                                        this.usergroups.push({
+                                            id: doc.id,
+                                            name: doc.data().name
                                         });
+                                    });
+                                },
+
+                                async openUsergroupModal(presetId) {
+                                    this.selectedPresetId = presetId;
+                                    this.showUsergroupModal = true;
+                                    
+                                    // Load usergroups if not loaded
+                                    if (this.usergroups.length === 0) {
+                                        await this.loadUsergroups();
+                                    }
+                                    
+                                    // Load preset's current usergroups
+                                    const presetDoc = await window.getDoc(window.doc(window.db, 'formPresets', presetId));
+                                    this.selectedUsergroups = presetDoc.data().usergroups || [];
+                                },
+
+                                toggleUsergroup(groupId) {
+                                    const index = this.selectedUsergroups.indexOf(groupId);
+                                    if (index === -1) {
+                                        this.selectedUsergroups.push(groupId);
+                                    } else {
+                                        this.selectedUsergroups.splice(index, 1);
+                                    }
+                                },
+
+                                async saveUsergroups() {
+                                    try {
+                                        await window.updateDoc(window.doc(window.db, 'formPresets', this.selectedPresetId), {
+                                            usergroups: this.selectedUsergroups
+                                        });
+                                        this.showUsergroupModal = false;
+                                        const toast = document.createElement('div');
+                                        toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                                        toast.textContent = 'Kasutajagrupid on salvestatud!';
+                                        document.body.appendChild(toast);
+                                        
+                                        setTimeout(() => {
+                                            toast.style.opacity = '0';
+                                            toast.style.transform = 'translateX(100px)';
+                                            setTimeout(() => toast.remove(), 300);
+                                        }, 3000);
+                                        // Reload presets to update the view
+                                        await this.loadPresets();
+                                    } catch (error) {
+                                        console.error('Error saving usergroups:', error);
+                                        alert('Viga kasutajagruppide salvestamisel: ' + error.message);
+                                    }
                                 }
+
+
                             }" x-init="setTimeout(() => loadPresets(), 1500)">
                                 <div x-show="isLoading" class="text-center py-4">
                                     <div
@@ -557,15 +633,61 @@
                                                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
                                                     </button>
+                                                    <button @click="openUsergroupModal(preset.id)"
+                                                        class="text-purple-500 hover:text-purple-900 p-1 rounded">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
                                     </template>
+                                    <!-- Usergroup Modal -->
+                                    <div x-show="showUsergroupModal"
+                                        class="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/30">
+                                        <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full relative"
+                                            @click.away="showUsergroupModal = false">
+
+                                            <h3 class="text-lg font-semibold mb-4">Kasutajagruppide seaded</h3>
+                                            <div class="mb-4">
+                                                <p class="text-sm text-gray-600 mb-2">Vali kasutajagrupid, kes näevad
+                                                    seda
+                                                    vormimalli:</p>
+                                                <div class="space-y-2 max-h-60 overflow-y-auto">
+                                                    <template x-for="group in usergroups" :key="group.id">
+                                                        <div class="flex items-center">
+                                                            <input type="checkbox" :id="group.id"
+                                                                :checked="selectedUsergroups.includes(group.id)"
+                                                                @change="toggleUsergroup(group.id)"
+                                                                class="form-checkbox h-4 w-4 text-blue-600">
+                                                            <label :for="group.id" class="ml-2 text-sm text-gray-700"
+                                                                x-text="group.name"></label>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <div class="flex justify-end space-x-2">
+                                                <button @click="showUsergroupModal = false"
+                                                    class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                                                    Tühista
+                                                </button>
+                                                <button @click="saveUsergroups()"
+                                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                                    Salvesta
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Save and Backup Buttons -->
                 <div class="mt-6 flex space-x-4">
@@ -810,7 +932,7 @@
                                                         checked: false
                                                     },
                                                     {
-                                                        text: "Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamiseks ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.",
+                                                        text: "Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamise ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.",
                                                         checked: false
                                                     },
                                                     {
@@ -911,7 +1033,7 @@
                                                         checked: false
                                                     },
                                                     {
-                                                        text: "Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja. Iga pakkujaga peetakse läbirääkimisi eraldi. Läbirääkimisi võib pidada kirjalikku taasesitamist võimaldavas vormis (nt e-kiri) või suuliselt. Suuliselt peetud läbirääkimised protokollitakse. Läbirääkimised on konfidentsiaalsed. Hankija tagab läbirääkimiste käigus pakkujate võrdse kohtlemise.",
+                                                        text: "Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja. Iga pakkujaga peetakse läbirääkimisi eraldi. Läbirääkimised võib pidada kirjalikku taasesitamist võimaldavas vormis (nt e-kiri) või suuliselt. Suuliselt peetud läbirääkimised protokollitakse. Läbirääkimised on konfidentsiaalsed. Hankija tagab läbirääkimiste käigus pakkujate võrdse kohtlemise.",
                                                         checked: false
                                                     },
                                                     {
@@ -1463,14 +1585,41 @@
                                     });
                                 }
 
-                                alert("Vormimalli redigeerimine on avatud. Tehke vajalikud muudatused ja salvestage.");
+                                const toast = document.createElement('div');
+                                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                                toast.textContent = "Vormimalli redigeerimine on avatud. Tehke vajalikud muudatused ja salvestage.";
+                                document.body.appendChild(toast);
+
+                                setTimeout(() => {
+                                    toast.style.opacity = '0';
+                                    toast.style.transform = 'translateX(100px)';
+                                    setTimeout(() => toast.remove(), 300);
+                                }, 3000);
                             } else {
-                                alert("Vormimalli ei leitud!");
+                                const toast = document.createElement('div');
+                                toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                                toast.textContent = "Vormimalli ei leitud!";
+                                document.body.appendChild(toast);
+
+                                setTimeout(() => {
+                                    toast.style.opacity = '0';
+                                    toast.style.transform = 'translateX(100px)';
+                                    setTimeout(() => toast.remove(), 300);
+                                }, 3000);
                             }
                         })
                         .catch(error => {
                             console.error("Vormimalli laadimise viga:", error);
-                            alert("Vormimalli laadimise viga: " + error.message);
+                            const toast = document.createElement('div');
+                            toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                            toast.textContent = "Vormimalli laadimise viga: " + error.message;
+                            document.body.appendChild(toast);
+
+                            setTimeout(() => {
+                                toast.style.opacity = '0';
+                                toast.style.transform = 'translateX(100px)';
+                                setTimeout(() => toast.remove(), 300);
+                            }, 3000);
                         });
                 },
                 selectAllOptionsInSection(sectionIndex) {

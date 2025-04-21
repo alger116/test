@@ -1962,6 +1962,9 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 .text-purple-300 {
   color: var(--color-purple-300);
 }
+.text-purple-500 {
+  color: var(--color-purple-500);
+}
 .text-purple-600 {
   color: var(--color-purple-600);
 }
@@ -2132,6 +2135,10 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
 }
 .blur {
   --tw-blur: blur(8px);
+  filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
+}
+.blur-2xl {
+  --tw-blur: blur(var(--blur-2xl));
   filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
 }
 .grayscale {
@@ -2644,6 +2651,13 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       background-color: color-mix(in oklab, var(--color-blue-200) 70%, transparent);
+    }
+  }
+}
+.hover\:bg-blue-300 {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--color-blue-300);
     }
   }
 }
@@ -3196,6 +3210,20 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
   &:hover {
     @media (hover: hover) {
       color: var(--color-indigo-900);
+    }
+  }
+}
+.hover\:text-purple-700 {
+  &:hover {
+    @media (hover: hover) {
+      color: var(--color-purple-700);
+    }
+  }
+}
+.hover\:text-purple-900 {
+  &:hover {
+    @media (hover: hover) {
+      color: var(--color-purple-900);
     }
   }
 }
@@ -3810,6 +3838,7 @@ button, input:where([type='button'], [type='reset'], [type='submit']), ::file-se
     --color-purple-600: oklch(55.8% 0.288 302.321);
     --color-purple-700: oklch(49.6% 0.265 301.924);
     --color-purple-800: oklch(43.8% 0.218 303.724);
+    --color-purple-900: oklch(38.1% 0.176 304.987);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
