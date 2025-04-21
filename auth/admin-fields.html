@@ -483,9 +483,9 @@
                                                 // Show preset if:
                                                 // 1. No usergroups are specified (visible to all)
                                                 // 2. User has at least one of the required usergroups
-                                                if (presetUsergroups.length === 0 || 
-                                                    presetUsergroups.some(group => userGroups.includes(group))) {
-                                                    presets.push({
+                                                if ((presetUsergroups.length === 0 && window.userData) ||
+                                                presetUsergroups.some(group => userGroups.includes(group))) {
+                                                presets.push({
                                                         id: doc.id,
                                                         name: data.name || 'Nimetu mall',
                                                         description: data.description || '',
