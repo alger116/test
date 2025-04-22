@@ -5846,10 +5846,26 @@
                             groups: groups
                         });
 
-                        alert('Kasutajagrupid on edukalt salvestatud');
+                        const toast = document.createElement('div');
+                        toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                        toast.textContent = 'Kasutajagrupid on edukalt salvestatud';
+                        document.body.appendChild(toast);
+
+                        setTimeout(() => {
+                            toast.style.opacity = '0';
+                            setTimeout(() => toast.remove(), 300);
+                        }, 2000);
                     } catch (error) {
                         console.error('Error saving user groups:', error);
-                        alert('Viga kasutajagruppide salvestamisel');
+                        const errorToast = document.createElement('div');
+                        errorToast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                        errorToast.textContent = 'Viga kasutajagruppide salvestamisel';
+                        document.body.appendChild(errorToast);
+
+                        setTimeout(() => {
+                            errorToast.style.opacity = '0';
+                            setTimeout(() => errorToast.remove(), 300);
+                        }, 2000);
                     }
                 });
 
@@ -5961,10 +5977,26 @@
                             });
                         }));
 
-                        alert('Kasutajagrupid edukalt uuendatud!');
+                        const toast = document.createElement('div');
+                        toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                        toast.textContent = 'Kasutajagrupid edukalt uuendatud!';
+                        document.body.appendChild(toast);
+
+                        setTimeout(() => {
+                            toast.style.opacity = '0';
+                            setTimeout(() => toast.remove(), 300);
+                        }, 2000);
                     } catch (error) {
                         console.error('Error saving user groups:', error);
-                        alert('Viga kasutajagruppide salvestamisel: ' + error.message);
+                        const errorToast = document.createElement('div');
+                        errorToast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                        errorToast.textContent = 'Viga kasutajagruppide salvestamisel: ' + error.message;
+                        document.body.appendChild(errorToast);
+
+                        setTimeout(() => {
+                            errorToast.style.opacity = '0';
+                            setTimeout(() => errorToast.remove(), 300);
+                        }, 2000);
                     } finally {
                         saveButton.disabled = false;
                         saveButton.innerHTML = 'Salvesta';
@@ -6304,7 +6336,7 @@
                         });
                     } catch (error) {
                         console.error('Error loading groups:', error);
-                        alert('Viga gruppide laadimisel');
+                        showNotification('Viga gruppide laadimisel', 'error');
                     }
                 }
 
@@ -6475,10 +6507,10 @@
                             });
                             await loadGroups();
                             closeModal();
-                            alert('Grupi nimi on edukalt muudetud');
+                            showNotification('Grupi nimi on edukalt muudetud', 'success');
                         } catch (error) {
                             console.error('Error updating group name:', error);
-                            alert('Viga grupi nime muutmisel');
+                            showNotification('Viga grupi nime muutmisel', 'error');
                         }
                     });
                 }

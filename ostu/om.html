@@ -2529,6 +2529,13 @@
               this.isLoadingPresets = true;
               console.log("Loading form presets from Firestore...");
 
+              // Get current user's usergroups if user is logged in
+              let userGroups = [];
+              if (window.auth.currentUser) {
+                const userDoc = await window.getDoc(window.doc(window.db, "users", window.auth.currentUser.uid));
+                userGroups = userDoc.exists() ? userDoc.data().usergroups || [] : [];
+              }
+
               // Lae eelsätted Firestore'ist
               const presetsSnapshot = await window.getDocs(
                 window.collection(window.db, "formPresets")
@@ -2537,14 +2544,24 @@
               const presets = [];
               presetsSnapshot.forEach(doc => {
                 const preset = doc.data();
-                presets.push({
-                  id: doc.id,
-                  name: preset.name || `Preset ${doc.id}`,
-                  description: preset.description || '',
-                  createdBy: preset.createdBy || 'Admin',
-                  createdAt: preset.createdAt ? new Date(preset.createdAt.seconds * 1000).toLocaleDateString() : 'Teadmata',
-                  data: preset.form || {}
-                });
+
+                // Check if preset has usergroup restrictions
+                const presetUsergroups = preset.usergroups || [];
+
+                // Show preset if:
+                // 1. It has no usergroup restrictions (empty array), or
+                // 2. User belongs to at least one of the allowed usergroups
+                if (presetUsergroups.length === 0 ||
+                  presetUsergroups.some(group => userGroups.includes(group))) {
+                  presets.push({
+                    id: doc.id,
+                    name: preset.name || `Preset ${doc.id}`,
+                    description: preset.description || '',
+                    createdBy: preset.createdBy || 'Admin',
+                    createdAt: preset.createdAt ? new Date(preset.createdAt.seconds * 1000).toLocaleDateString() : 'Teadmata',
+                    data: preset.form || {}
+                  });
+                }
               });
 
               this.formPresets = presets;

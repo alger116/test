@@ -463,49 +463,40 @@
                                 usergroups: [],
                                 selectedUsergroups: [],
 
-                                loadPresets() {
-                                    if (!window.collection || !window.db || !window.getDocs) {
-                                        console.error('Firebase functions not initialized yet');
-                                        setTimeout(() => this.loadPresets(), 1000);
-                                        return;
-                                    }
-                                    
-                                    this.isLoading = true;
-                                    window.getDocs(window.collection(window.db, 'formPresets'))
-                                        .then(snapshot => {
-                                            const presets = [];
-                                            snapshot.forEach(doc => {
-                                                const data = doc.data();
-                                                // Check if preset should be visible to current user
-                                                const presetUsergroups = data.usergroups || [];
-                                                const userGroups = window.userData?.userGroups || [];
-                                                
-                                                // Show preset if:
-                                                // 1. No usergroups are specified (visible to all)
-                                                // 2. User has at least one of the required usergroups
-                                                if ((presetUsergroups.length === 0 && window.userData) ||
-                                                presetUsergroups.some(group => userGroups.includes(group))) {
-                                                presets.push({
-                                                        id: doc.id,
-                                                        name: data.name || 'Nimetu mall',
-                                                        description: data.description || '',
-                                                        createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : null,
-                                                        createdBy: data.createdBy || 'Admin',
-                                                        hasContent: data.form && (data.form.sections || data.form.intro),
-                                                        usergroups: data.usergroups || []
-                                                    });
-                                                }
+                            loadPresets() {
+                                if (!window.collection || !window.db || !window.getDocs) {
+                                    console.error('Firebase functions not initialized yet');
+                                    setTimeout(() => this.loadPresets(), 1000);
+                                    return;
+                                }
+                                
+                                this.isLoading = true;
+                                window.getDocs(window.collection(window.db, 'formPresets'))
+                                    .then(snapshot => {
+                                        const presets = [];
+                                        snapshot.forEach(doc => {
+                                            const data = doc.data();
+                                            // Remove usergroup filtering here - all presets should be visible in admin view
+                                            presets.push({
+                                                id: doc.id,
+                                                name: data.name || 'Nimetu mall',
+                                                description: data.description || '',
+                                                createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : null,
+                                                createdBy: data.createdBy || 'Admin',
+                                                hasContent: data.form && (data.form.sections || data.form.intro),
+                                                usergroups: data.usergroups || []
                                             });
-                                            this.presets = presets;
-                                        })
-                                        .catch(error => {
-                                            console.error('Error loading presets:', error);
-                                            alert('Vormimallide laadimine ebaõnnestus: ' + error.message);
-                                        })
-                                        .finally(() => {
-                                            this.isLoading = false;
-                                        });                      
-                                },
+                                        });
+                                        this.presets = presets;
+                                    })
+                                    .catch(error => {
+                                        console.error('Error loading presets:', error);
+                                        alert('Vormimallide laadimine ebaõnnestus: ' + error.message);
+                                    })
+                                    .finally(() => {
+                                        this.isLoading = false;
+                                    });                      
+                            },
 
                                 async loadUsergroups() {
                                     const snapshot = await window.getDocs(window.collection(window.db, 'userGroups'));
