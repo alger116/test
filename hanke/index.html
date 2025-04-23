@@ -1655,12 +1655,12 @@
                             <span class="w-3/4">${detail.step}:</span>
                             <span id="days-${index}" class="w-16 text-center font-medium whitespace-nowrap">${detail.days}</span>
                             <div class="flex gap-1 ml-6">
-                                <button onclick="adjustDays(${index}, -1)" class="adjustDays bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-800 transition transform hover:scale-105">-</button>
-                                <button onclick="adjustDays(${index}, 1)" class="adjustDays bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-600 transition transform hover:scale-105">+</button>
+                                <button onclick="adjustDays(${index}, -1)" class="adjustDays bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-900 transition transform hover:scale-105">-</button>
+                                <button onclick="adjustDays(${index}, 1)" class="adjustDays bg-sky-500 text-white px-3 py-1 rounded text-xs hover:bg-sky-900 transition transform hover:scale-105">+</button>
                             </div>
                         </div>
-                        <div class="w-full bg-gray-200/20 rounded-full h-4 overflow-hidden mt-1">
-                            <div id="progress-${index}" class="progress-bar bg-blue-500 h-4 rounded-full transition-all duration-500" data-progress="0"></div>
+                        <div class="w-full bg-gray-200/20 rounded-full h-3 overflow-hidden mt-1">
+                            <div id="progress-${index}" class="progress-bar bg-blue-500 h-3 rounded-full transition-all duration-500" data-progress="0"></div>
                         </div>
                     </li>
                 `,
@@ -1674,8 +1674,17 @@
 
           return `
                 <div class="result-card p-0 rounded max-w-md rounded-md">
-                    <p><strong>Riigihanke taotluse esitamise kuupäev:</strong> 
+                    <p class="flex items-center gap-1">
+                        <strong>Riigihanke taotluse esitamise kuupäev:</strong>
                         <span id="requestSubmissionDate">${formatDate(this.requestSubmissionDate)}</span>
+                        <button 
+                            onclick="openInfoModal()"
+                            class="info-button rounded-full bg-gray-100 hover:bg-gray-200 p-1 transition-colors"
+                            aria-label="Ava lisainfo">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
                     </p>
                     ${errorMessage}
                     <p><strong>Nimi:</strong> ${this.name}</p>
@@ -4612,6 +4621,82 @@
 
         return { r, g, b };
       }
+    </script>
+    <div id="infoModal" class="fixed top-20 right-4 hidden z-50">
+      <div class="bg-white/40 backdrop-blur-sm rounded-lg p-6 w-96 shadow-lg">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold">Lisainfo</h3>
+          <button onclick="closeInfoModal()" class="text-gray-500 hover:text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div id="modalContent" class="mb-4">
+          <!-- Content will be inserted here -->
+        </div>
+        <div id="adminControls" class="hidden">
+          <textarea id="messageEditor" class="w-full p-2 border rounded mb-2 min-h-[100px]"
+            placeholder="Sisesta sõnum siia..."></textarea>
+          <button onclick="saveMessage()"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+            Salvesta
+          </button>
+        </div>
+      </div>
+    </div>
+    <script>
+      const isAdmin = true;
+      let infoMessage = localStorage.getItem('submissionDateInfo') || 'Siia tuleb lisainfo riigihanke taotluse esitamise kuupäeva kohta.';
+
+      function openInfoModal() {
+        const modal = document.getElementById('infoModal');
+        const modalContent = document.getElementById('modalContent');
+        const adminControls = document.getElementById('adminControls');
+        const messageEditor = document.getElementById('messageEditor');
+
+        modal.style.display = 'block';  // Changed from flex to block
+
+        modalContent.textContent = infoMessage;
+
+        if (isAdmin) {
+          adminControls.classList.remove('hidden');
+          messageEditor.value = infoMessage;
+        }
+      }
+
+      function closeInfoModal() {
+        const modal = document.getElementById('infoModal');
+        modal.style.display = 'none';  // Changed from using classList
+      }
+
+      function saveMessage() {
+        const messageEditor = document.getElementById('messageEditor');
+        const modalContent = document.getElementById('modalContent');
+        const newMessage = messageEditor.value.trim();
+
+        if (newMessage) {
+          infoMessage = newMessage;
+          localStorage.setItem('submissionDateInfo', newMessage);
+          modalContent.textContent = newMessage;
+        }
+      }
+
+      // Close modal when clicking outside
+      document.getElementById('infoModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('infoModal')) {
+          closeInfoModal();
+        }
+      });
+
+      // Handle escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeInfoModal();
+        }
+      })
+
     </script>
   </main>
 </body>
