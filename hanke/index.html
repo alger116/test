@@ -1188,35 +1188,16 @@
 
           if (settingsDoc.exists()) {
             const firestoreSettings = settingsDoc.data();
-            // Update the defaultSettings object with Firestore values
-            Object.assign(defaultSettings, {
-              documentPreparationDays:
-                firestoreSettings.documentPreparationDays ||
-                defaultSettings.documentPreparationDays,
-              offerEvaluationDays:
-                firestoreSettings.offerEvaluationDays ||
-                defaultSettings.offerEvaluationDays,
-              decisionDays:
-                firestoreSettings.decisionDays ||
-                defaultSettings.decisionDays,
-              bidderEvaluationDays:
-                firestoreSettings.bidderEvaluationDays ||
-                defaultSettings.bidderEvaluationDays,
-              successfulBidderDays:
-                firestoreSettings.successfulBidderDays ||
-                defaultSettings.successfulBidderDays,
-              waitingPeriodDays:
-                firestoreSettings.waitingPeriodDays ||
-                defaultSettings.waitingPeriodDays,
-            });
-            console.log(
-              "✅ Default settings loaded from Firestore:",
-              defaultSettings,
-            );
+            // Update both defaultSettings and settings objects
+            Object.assign(defaultSettings, firestoreSettings);
+            Object.assign(settings, firestoreSettings);
+
+            // Update the UI with new settings
+            loadSettings();
+
+            console.log("✅ Default settings loaded from Firestore:", defaultSettings);
           } else {
-            console.log(
-              "⚠️ No default settings found in Firestore, using local defaults",
-            );
+            console.log("⚠️ No default settings found in Firestore, using local defaults");
           }
         } catch (error) {
           console.error("❌ Error loading default settings:", error);
@@ -1352,17 +1333,13 @@
         });
 
       function loadSettings() {
-        document.getElementById("documentPreparationDays").value =
-          settings.documentPreparationDays;
-        document.getElementById("offerEvaluationDays").value =
-          settings.offerEvaluationDays;
-        document.getElementById("decisionDays").value = settings.decisionDays;
-        document.getElementById("bidderEvaluationDays").value =
-          settings.bidderEvaluationDays;
-        document.getElementById("successfulBidderDays").value =
-          settings.successfulBidderDays;
-        document.getElementById("waitingPeriodDays").value =
-          settings.waitingPeriodDays;
+        // Use settings object which now contains the Firestore values
+        document.getElementById("documentPreparationDays").value = settings.documentPreparationDays || defaultSettings.documentPreparationDays;
+        document.getElementById("offerEvaluationDays").value = settings.offerEvaluationDays || defaultSettings.offerEvaluationDays;
+        document.getElementById("decisionDays").value = settings.decisionDays || defaultSettings.decisionDays;
+        document.getElementById("bidderEvaluationDays").value = settings.bidderEvaluationDays || defaultSettings.bidderEvaluationDays;
+        document.getElementById("successfulBidderDays").value = settings.successfulBidderDays || defaultSettings.successfulBidderDays;
+        document.getElementById("waitingPeriodDays").value = settings.waitingPeriodDays || defaultSettings.waitingPeriodDays;
       }
 
       function saveSettings() {
