@@ -1,0 +1,372 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to get user data
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Helper function to check if user has specific permission
+    function hasPermission(permission) {
+      let userData = getUserData();
+      return userData.customPermissions.formManagement[permission] == true;
+    }
+
+    // Helper function to check if user is main admin
+    function isMainAdmin() {
+      return isAuthenticated() && getUserData().role == 'mainAdmin';
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && (getUserData().role == 'admin' || getUserData().role == 'mainAdmin');
+    }
+
+    // Modify the permissions helper function to be more granular
+    function hasAdminPermission(permission) {
+      let userData = getUserData();
+      return isAdmin() && userData.customPermissions.adminAccess[permission] == true;
+    }
+
+    // Helper function to check if user is department admin
+    function isDepartmentAdmin(departmentId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/departmentMemberships/$(request.auth.uid + '_' + departmentId + '_admin'));
+    }
+
+    // Helper function to check if user is department member
+    function isDepartmentMember(departmentId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/departmentMemberships/$(request.auth.uid + '_' + departmentId));
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create, update, delete: if isAuthenticated() && isMainAdmin();
+      
+      // Add rules for pdfs subcollection
+      match /pdfs/{pdfId} {
+        allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+        allow create, update, delete: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
+      }
+      
+      // Add rules for savedSearches subcollection
+      match /savedSearches/{searchId} {
+        allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+        allow create, update, delete: if isAuthenticated() && (request.auth.uid == userId || isMainAdmin());
+      }
+    }
+
+    // Audit Log collection
+    match /auditLog/{logId} {
+      allow read: if isAuthenticated() && isAdmin();
+      allow create: if isAuthenticated() && isMainAdmin();
+      allow update, delete: if false; // Prevent updates and deletes
+    }
+
+    // System settings - Allow admins to read and potentially update certain settings
+    match /system/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (
+        getUserData().role == 'mainAdmin' || 
+        (isAdmin() && hasAdminPermission('systemSettings'))
+      );
+    }
+
+    // API keys
+    match /apiKeys/{keyId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAuthenticated() && getUserData().role == 'mainAdmin';
+    }
+
+    // Email templates
+    match /emailTemplates/{templateId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+    }
+
+    // Document templates - Allow admins to manage templates
+    match /documentTemplates/{templateId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (
+        getUserData().role == 'mainAdmin' ||
+        (isAdmin() && hasAdminPermission('documentTemplates'))
+      );
+    }
+
+    // Workflows
+    match /workflows/{workflowId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+    }
+
+    // Permissions
+    match /permissions/{permissionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+    }
+
+    // Expiration rules
+    match /expirationRules/{ruleId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+    }
+
+    // Documents collection
+    match /documents/{documentId} {
+      allow read: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        resource.data.sharedWith[request.auth.uid] == true ||
+        getUserData().role == 'mainAdmin'
+      );
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        getUserData().role == 'mainAdmin'
+      );
+    }
+
+    // Error logs - Allow admins to view errors
+    match /errorLogs/{logId} {
+      allow read: if isAuthenticated() && isAdmin();
+      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+    }
+    
+    // Settings collection - Give admins access to certain settings
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if 
+        ((settingId == "maintenance" || settingId == "procurement") && isAdmin()) ||
+        (settingId == "sessionTimeout" && getUserData().role == 'mainAdmin');
+    }
+    
+    // Procurements collection - Allow admins to view and potentially manage
+    match /procurements/{procurementId} {
+      allow read: if isAuthenticated() && isAdmin();
+      allow write: if isAuthenticated() && (
+        getUserData().role == 'mainAdmin' ||
+        (isAdmin() && hasAdminPermission('procurementManagement'))
+      );
+    }
+
+    // Statistika kollektsioonid ja OM komponendid
+    
+    // Põhiväljad
+    match /omStandardFields/{fieldId} {
+      allow read: if true;  // Kõik võivad lugeda
+      allow write: if getUserData().role == 'mainAdmin';  // Ainult mainadmin võib muuta
+    }
+
+    // Peatükid
+    match /omSections/{sectionId} {
+      allow read: if true;
+      allow write: if getUserData().role == 'mainAdmin';
+      
+      match /options/{optionId} {
+        allow read: if true;
+        allow write: if getUserData().role == 'mainAdmin';
+      }
+    }
+
+    // Näidistingimused
+    match /omTemplates/{templateId} {
+      allow read: if request.auth != null && 
+                 resource.data.accessRoles.hasAny(getUserData().roles);
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+
+    // Ajalugu
+    match /omHistory/{historyId} {
+      allow read: if getUserData().role == 'mainAdmin';
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+
+    // Varundused
+    match /omBackups/{backupId} {
+      allow read: if getUserData().role == 'mainAdmin';
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+  
+    // FIELD SETTINGS
+    match /fieldSettings/{docId} {
+      allow read: if getUserData().role == 'mainAdmin';
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+
+    // BACKUP & LOGID
+    match /fieldSettingsBackup/{docId} {
+      allow read: if getUserData().role == 'mainAdmin';
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+
+    match /fieldSettingsLogs/{docId} {
+      allow read: if getUserData().role == 'mainAdmin';
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+    
+    match /formSettings/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated() && (
+        getUserData().role == 'mainAdmin' ||
+        (isAdmin() && hasAdminPermission('formSettings'))
+      );
+    }
+   
+    match /formSettingsBackup/{document} {
+      allow read: if true;
+      allow write: if getUserData().role == 'mainAdmin' && hasPermission('backupSettings');
+    }
+    
+    match /purchaseForms/{document} {
+      allow read: if isAuthenticated();
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+    
+    // Vormimallid (formPresets)
+    match /formPresets/{presetId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && hasPermission('createPresets');
+      allow update: if isAuthenticated() && hasPermission('editPresets');
+      allow delete: if isAuthenticated() && hasPermission('deletePresets');
+    }
+    
+    match /loadPresets/{document} {
+      allow read: if isAuthenticated();
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+    
+    match /deletePresets/{document} {
+      allow read: if isAuthenticated();
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+    
+    // loadformpreset
+    match /loadFormPresets/{document} {
+      allow read: if isAuthenticated();
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+    
+    match /editPreset/{document} {
+      allow read: if isAuthenticated();
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+   
+    match /formSettingsLogs/{document} {
+      allow read: if true;
+      allow write: if getUserData().role == 'mainAdmin';
+    }
+
+    // PDF Invitations - Allow admins to manage all invitations
+    match /pdfInvitations/{invitationId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // Tenders - Allow admins to manage all tenders
+    match /tenders/{tenderId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // Department Management Rules
+    match /departments/{departmentId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'mainAdmin' ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow update, delete: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement') ||
+        isDepartmentAdmin(departmentId)
+      );
+
+      // Department templates subcollection
+      match /templates/{templateId} {
+        allow read: if isAuthenticated() && (
+          isMainAdmin() ||
+          hasAdminPermission('departmentManagement') ||
+          isDepartmentMember(departmentId)
+        );
+        allow create, update, delete: if isAuthenticated() && (
+          isMainAdmin() ||
+          hasAdminPermission('departmentManagement') ||
+          isDepartmentAdmin(departmentId)
+        );
+      }
+    }
+
+    // Department Memberships
+    match /departmentMemberships/{membershipId} {
+      allow read: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement') ||
+        request.auth.uid == membershipId.split('_')[0]
+      );
+      allow create, update, delete: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement')
+      );
+    }
+
+    // Members collection
+    match /members/{memberId} {
+      allow read: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement') ||
+        request.auth.uid == memberId
+      );
+      allow create, update, delete: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement')
+      );
+    }
+
+    // Templates collection
+    match /templates/{templateId} {
+      allow read: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement') ||
+        resource.data.accessRoles.hasAny(getUserData().roles)
+      );
+      allow create, update, delete: if isAuthenticated() && (
+        isMainAdmin() ||
+        hasAdminPermission('departmentManagement')
+      );
+    }
+
+    // Groups collection
+    match /groups/{groupId} {
+      allow read: if isAuthenticated() && isAdmin();
+      allow write: if isAuthenticated() && getUserData().role == 'mainAdmin';
+    }
+
+    // User Groups collection
+    match /userGroups/{userGroupId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId ||
+        isAdmin()
+      );
+      allow create, update, delete: if isAuthenticated() && isAdmin();
+    }
+  }
+}

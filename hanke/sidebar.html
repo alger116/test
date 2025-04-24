@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<aside x-data :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class=hidden fixed inset-y-0 left-0 w-56
+        rounded-md text-black-500 flex flex-col transition-all duration-300">
+
+        <div class="flex items-center justify-between px-4 py-3 rounded-t-md">
+                <h2 class="text-lg font-semibold"></h2>
+                <button @mouseenter="sidebarOpen = true"
+                        @mouseleave="sidebarOpen = false; localStorage.setItem('sidebarOpen', sidebarOpen)"
+                        class="text-gray-400 hover:text-black transition transform hover:scale-105">
+                        <i class=""></i>
+                </button>
+        </div>
+
+        <nav class="flex-1 w-52 rounded-xl border-white/20 p-2 mt-8">
+                <ul class="mt-2 space-y-2">
+
+                        <li>
+                                <a href="summeerimine.html" class="block px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-cyan-700 transition-all duration-300 ease-in-out">
+                                        Summerimine
+                                </a>
+                        </li>
+                        <li>
+                                <a href="excel.html" class="hidden px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
+                                        📂 Excel
+                                </a>
+                        </li>
+                        <li>
+                                <a href="pdf.html" class="hidden px-6 py-3 text-md font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
+                        hover:scale-105 hover:shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out">
+                                        📄 PDF
+                                </a>
+                        </li>
+                        <li>
+                                <a href="/auth/admin.html"
+                                        class="block px-6 py-3 text-lg font-bold text-black bg-gradient-to-r bg-gray/40 rounded-lg shadow-md 
+                                                hover:scale-105 hover:shadow-lg hover:bg-cyan-700 transition-all duration-300 ease-in-out">
+                                        Admin</a>
+                        </li>
+                </ul>
+        </nav>
+</aside>

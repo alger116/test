@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <script>
+        if (sessionStorage.getItem('loggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hankest.ee - Riigihangete portaal</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="dist/output.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.0/themes.css" rel="stylesheet" type="text/css" />
+    <style>
+        :root {
+            --hanke-blue: #0ea5e9;
+            --ostu-red: #6366f1;
+            --accent-gold: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-image: url('src/tornid_ja_linnamuur_kaupo_kalda_2016.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .portal-container {
+            display: flex;
+            gap: 40px;
+            max-width: 1000px;
+            width: 100%;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .portal-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            justify-content: center;
+            will-change: transform;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .portal-card:hover::before {
+            opacity: 1;
+        }
+
+        #hankemaailm::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        #ostumaailm::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .portal-card:hover::after {
+            opacity: 1;
+        }
+
+        .portal-card h2 {
+            font-size: 2.2em;
+            font-weight: 600;
+            margin: 0;
+            color: #000000;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .portal-card:hover h2 {
+            transform: translateY(-5px);
+        }
+
+        .highlight-points {
+            list-style: none;
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 20px;
+        }
+
+        .portal-card:hover .highlight-points {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .highlight-points li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            margin: 16px 0;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .highlight-points li .icon {
+            font-size: 1.2em;
+            opacity: 0.8;
+        }
+
+        .highlight-points li:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .highlight-points li:hover .icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .highlight-points li:nth-child(1) {
+            transition-delay: 0.1s;
+        }
+
+        .highlight-points li:nth-child(2) {
+            transition-delay: 0.2s;
+        }
+
+        .highlight-points li:nth-child(3) {
+            transition-delay: 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .portal-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .portal-card {
+                min-height: 240px;
+                padding: 30px;
+            }
+        }
+
+        /* Optimize for reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+
+            .portal-card,
+            .portal-card h2,
+            .highlight-points,
+            .highlight-points li,
+            .highlight-points li .icon {
+                transition: none;
+            }
+        }
+
+        /* Page Transition Styles */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 9999;
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-transition.active {
+            transform: scaleY(1);
+        }
+
+        /* Loading Indicator */
+        .loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            display: none;
+        }
+
+        .loading-indicator.active {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--hanke-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Optimize card click behavior */
+        .portal-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Add these styles to your existing style section */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .login-modal {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .login-modal input[type="email"],
+        .login-modal input[type="password"] {
+            width: 100%;
+
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin-top: 4px;
+            margin-bottom: 16px;
+        }
+
+        .login-modal label {
+            display: block;
+            margin-bottom: 4px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .login-modal .close-button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .login-modal .close-button:hover {
+            color: #e53e3e;
+        }
+
+        .login-modal .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .login-modal .remember-me input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .login-button:hover {
+            background-color: #0284c7;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Toast Notification System */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            padding: 12px 24px;
+            border-radius: 8px;
+            background: white;
+            color: #1a202c;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            transform: translateY(100%);
+            animation: toast-in-out 3s ease forwards;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.success {
+            background: #10B981;
+            color: white;
+        }
+
+        .toast.error {
+            background: #EF4444;
+            color: white;
+        }
+
+        .toast.info {
+            background: #3B82F6;
+            color: white;
+        }
+
+        @keyframes toast-in-out {
+            0% {
+                opacity: 0;
+                transform: translateY(100%);
+            }
+
+            10% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-100%);
+            }
+        }
+
+        .portal-card:focus-visible {
+            outline: 2px solid var(--hanke-blue);
+            outline-offset: 2px;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+</head>
+
+<body class="backdrop-blur-2xl min-h-screen flex flex-col">
+    <!-- Page Transition Overlay -->
+    <div class="page-transition"></div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-indicator">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="portal-container">
+        <div class="portal-card bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all duration-300"
+            id="hankemaailm" data-href="hanke/index.html" role="button" tabindex="0" aria-label="Riigihange portaal"
+            onkeydown="handleCardKeydown(event)">
+            <div class="card-content">
+                <h2 class="text-black text-2xl font-semibold mb-4">Riigihange</h2>
+                <ul class="highlight-points">
+                    <li class="text-black bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300">
+                        <span class="icon">📋</span>
+                        Hanke planeerimine
+                    </li>
+                    <li class="text-black bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300">
+                        <span class="icon">📊</span>
+                        Menetluse visualiseerimine
+                    </li>
+                    <li class="text-black bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300">
+                        <span class="icon">📈</span>
+                        Ülevaate loomine
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="portal-card bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all duration-300"
+            id="ostumaailm" data-href="ostu/om.html" role="button" tabindex="0" aria-label="Ostumenetluse portaal"
+            onkeydown="handleCardKeydown(event)">
+            <div class="card-content">
+                <h2 class="text-black text-2xl font-semibold mb-4">Ostumenetlus</h2>
+                <ul class="highlight-points">
+                    <li class="text-black bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300">
+                        <span class="icon">✉️</span>
+                        Koosta kutse mõne minutiga
+                    </li>
+                    <li class="text-black bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300">
+                        <span class="icon">⚙️</span>
+                        Tingimuste mugav muutmine
+                    </li>
+                    <li class="text-black bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-300">
+                        <span class="icon">📥</span>
+                        Lae alla PDF ja saada kutse välja
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer class="fixed bottom-0 w-full text-right p-4">
+        <div class="flex justify-end gap-4">
+            <button id="loginButton" onclick="showLoginModal()"
+                class="bg-blue-500/1 text-black border-none px-4 py-2 rounded-lg cursor-pointer hover:bg-amber-700 transition-colors duration-300">
+                Logi sisse
+            </button>
+            <button id="adminButton" onclick="handleAdminClick()"
+                class="bg-blue-500/1 text-black border-none px-4 py-2 rounded-lg cursor-pointer hover:bg-emerald-500 transition-colors duration-300 hidden">
+                Admin
+            </button>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-backdrop hidden" role="dialog" aria-labelledby="loginTitle" aria-modal="true">
+        <div class="login-modal">
+            <button onclick="hideLoginModal()" class="close-button" aria-label="Close login modal">✖</button>
+            <h2 id="loginTitle" class="text-2xl font-semibold mb-5 text-gray-800">Logi sisse</h2>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div class="form-group">
+                    <label for="emailLogin" class="block text-sm font-medium text-gray-700">E-post</label>
+                    <div class="relative">
+                        <input type="email" id="emailLogin" name="email" autocomplete="email"
+                            placeholder="Sisesta oma e-post" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10"
+                            aria-required="true" />
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="passwordLogin" class="block text-sm font-medium text-gray-700">Parool</label>
+                    <div class="relative">
+                        <input type="password" id="passwordLogin" name="password" autocomplete="current-password"
+                            placeholder="Sisesta oma parool" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10"
+                            aria-required="true" />
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                        <button type="button" onclick="togglePasswordVisibility()"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            aria-label="Toggle password visibility">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd"
+                                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="rememberMe"
+                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Pea meeles mind</label>
+                    </div>
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800"
+                        onclick="handleForgotPassword()">Unustasid parooli?</a>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-300">
+                    Logi sisse
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        // Firebase Configuration and Initialization
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyT8XLIwrmsYgMYalK9I_lp6OfQucBLR0",
+            authDomain: "kalkulaator-9f3d1.firebaseapp.com",
+            projectId: "kalkulaator-9f3d1",
+            storageBucket: "kalkulaator-9f3d1.appspot.com",
+            messagingSenderId: "127234313724",
+            appId: "1:127234313724:web:1f333fb8f3ff2995bcb679",
+            measurementId: "G-91VSY43W50"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Add these functions before the existing handleLogin function
+        window.togglePasswordVisibility = function () {
+            const passwordInput = document.getElementById('passwordLogin');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+        };
+
+        window.handleForgotPassword = async function () {
+            const email = document.getElementById('emailLogin').value;
+            if (!email) {
+                showToast('Palun sisesta oma e-posti aadress', 'error');
+                return;
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showToast('Parooli lähtestamise link on saadetud teie e-postile', 'success');
+            } catch (error) {
+                console.error('Password reset error:', error);
+                showToast(getErrorMessage(error.code), 'error');
+            }
+        };
+
+        // Update the existing handleLogin function to include loading state
+        window.handleLogin = async function (event) {
+            event.preventDefault();
+            const email = document.getElementById('emailLogin').value;
+            const password = document.getElementById('passwordLogin').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const submitButton = event.target.querySelector('button[type="submit"]');
+
+            // Add loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="animate-spin mr-2">⟳</span> Logimine...';
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Get user data from Firestore
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userDocRef);
+                const userData = userDoc.data();
+
+                // Handle remember me
+                if (rememberMe) {
+                    localStorage.setItem('rememberedUser', JSON.stringify({
+                        email: email,
+                        password: password
+                    }));
+                } else {
+                    localStorage.removeItem('rememberedUser');
+                }
+
+                // Store current user in localStorage
+                localStorage.setItem('currentUser', JSON.stringify({
+                    id: user.uid,
+                    email: user.email,
+                    role: userData?.role || 'user'
+                }));
+
+                // Update UI
+                document.getElementById('loginButton').textContent = 'Logi välja';
+                document.getElementById('loginButton').onclick = window.handleLogout;
+                window.hideLoginModal();
+
+                showToast('Edukalt sisse logitud', 'success');
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast(getErrorMessage(error.code), 'error');
+            } finally {
+                // Reset loading state
+                submitButton.disabled = false;
+                submitButton.textContent = 'Logi sisse';
+            }
+        };
+
+        window.handleLogout = async function () {
+            try {
+                await signOut(auth);
+                localStorage.removeItem('currentUser');
+                if (!document.getElementById('rememberMe')?.checked) {
+                    localStorage.removeItem('rememberedUser');
+                }
+                document.getElementById('loginButton').textContent = 'Logi sisse';
+                document.getElementById('loginButton').onclick = window.showLoginModal;
+                showToast('Edukalt välja logitud', 'info');
+            } catch (error) {
+                console.error('Logout error:', error);
+                showToast('Välja logimisel tekkis viga', 'error');
+            }
+        };
+
+        window.showLoginModal = function () {
+            document.getElementById('loginModal').classList.remove('hidden');
+        };
+
+        window.hideLoginModal = function () {
+            document.getElementById('loginModal').classList.add('hidden');
+        };
+
+        window.handleAdminClick = function () {
+            if (window.userRole === 'admin' || window.userRole === 'mainAdmin') {
+                handlePageTransition('auth/admin.html');
+            } else {
+                alert('Teil puudub administraatori õigused');
+            }
+        };
+
+        // Helper functions
+        function getErrorMessage(errorCode) {
+            const errorMessages = {
+                'auth/invalid-email': 'Vigane e-posti aadress',
+                'auth/user-disabled': 'Kasutaja on deaktiveeritud',
+                'auth/user-not-found': 'Kasutajat ei leitud',
+                'auth/wrong-password': 'Vale parool',
+                'auth/too-many-requests': 'Liiga palju katsetusi. Palun proovige hiljem uuesti',
+                'auth/network-request-failed': 'Võrgu viga. Palun kontrollige oma internetiühendust'
+            };
+            return errorMessages[errorCode] || 'Sisselogimisel tekkis viga';
+        }
+
+        function handlePageTransition(url) {
+            const transition = document.querySelector('.page-transition');
+            const loadingIndicator = document.querySelector('.loading-indicator');
+
+            transition.classList.add('active');
+            loadingIndicator.classList.add('active');
+
+            setTimeout(() => {
+                window.location.href = url;
+            }, 500);
+        }
+
+        function preloadPage(url) {
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = url;
+            document.head.appendChild(link);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            preloadPage('hanke/index.html');
+            preloadPage('ostu/om.html');
+
+            // Handle card clicks
+            document.querySelectorAll('.portal-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const url = card.getAttribute('data-href');
+                    handlePageTransition(url);
+                });
+            });
+
+            checkRememberedLogin();
+        });
+
+        // Check authentication state and user role
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const userDocRef = doc(db, "users", user.uid);
+                    const userDoc = await getDoc(userDocRef);
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        window.userRole = userData.role;
+
+                        // Update localStorage with current role
+                        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                        currentUser.role = userData.role;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                        // Update UI
+                        document.getElementById('loginButton').textContent = 'Logi välja';
+                        document.getElementById('loginButton').onclick = window.handleLogout;
+
+                        // Show/hide admin button based on user role
+                        const adminButton = document.getElementById('adminButton');
+                        if (userData.role === 'admin' || userData.role === 'mainAdmin') {
+                            adminButton.style.display = 'block';
+                        } else {
+                            adminButton.style.display = 'none';
+                        }
+                    } else {
+                        console.error("No user document found in Firestore for UID:", user.uid);
+                        document.getElementById('adminButton').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error("Error fetching user role:", error);
+                    document.getElementById('adminButton').style.display = 'none';
+                }
+            } else {
+                window.userRole = null;
+                localStorage.removeItem('currentUser');
+                document.getElementById('loginButton').textContent = 'Logi sisse';
+                document.getElementById('loginButton').onclick = window.showLoginModal;
+                document.getElementById('adminButton').style.display = 'none';
+            }
+        });
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            // Add icon based on type
+            let icon = '';
+            switch (type) {
+                case 'success':
+                    icon = '✓';
+                    break;
+                case 'error':
+                    icon = '✕';
+                    break;
+                case 'info':
+                    icon = 'ℹ';
+                    break;
+            }
+
+            toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+            container.appendChild(toast);
+
+            // Remove toast after animation
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Add function to check for remembered login
+        function checkRememberedLogin() {
+            const remembered = localStorage.getItem('rememberedUser');
+            if (remembered) {
+                const { email, password } = JSON.parse(remembered);
+                document.getElementById('emailLogin').value = email;
+                document.getElementById('passwordLogin').value = password;
+                document.getElementById('rememberMe').checked = true;
+            }
+        }
+
+        // Add these functions before the existing handleLogin function
+        window.handleCardKeydown = function (event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                const card = event.currentTarget;
+                const url = card.getAttribute('data-href');
+                handlePageTransition(url);
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Väljade ja Näidistingimuste Haldus</title>
+    <!-- Kasuta samu stiile ja Alpine.js nagu admin.html-s -->
+    <link href="../dist/output.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            padding: 16px;
+        }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword, deleteUser, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, orderBy, collection, query, where, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove, Timestamp, onSnapshot, serverTimestamp, addDoc, limit, writeBatch } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { firebaseConfig } from "./firebase-config-generated.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const tempAuth = getAuth(initializeApp(firebaseConfig, "temp"));
+
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.addDoc = addDoc;
+        window.setDoc = setDoc;
+        window.signOut = signOut;
+        window.auth = auth;
+        window.query = query;
+        window.where = where;
+        window.limit = limit;
+        window.writeBatch = writeBatch;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.updatePassword = updatePassword;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.serverTimestamp = serverTimestamp;
+
+        // Add permission check function
+        function hasFormPermission(userData, permission) {
+            if (!userData) return false;
+
+            // First check if user has custom permissions
+            if (userData.customPermissions && userData.customPermissions.formManagement) {
+                const customPerms = userData.customPermissions.formManagement;
+                if (customPerms[permission] !== undefined) {
+                    return customPerms[permission];
+                }
+            }
+
+            // Fallback to role-based permissions if custom permissions not set
+            if (userData.role === 'mainAdmin') {
+                return true;
+            }
+
+            // Default permissions based on role
+            const rolePermissions = {
+                'admin': {
+                    createPresets: true,
+                    viewPresets: true,
+                    editPresets: true,
+                    deletePresets: true,
+                    backupSettings: true,
+                    applyPresets: true,
+                    manageStandardFields: true
+                },
+                'tavakasutaja': {
+                    createPresets: false,
+                    viewPresets: true,
+                    editPresets: false,
+                    deletePresets: false,
+                    backupSettings: false,
+                    applyPresets: true,
+                    manageStandardFields: false
+                }
+            };
+
+            return rolePermissions[userData.role]?.[permission] || false;
+        }
+
+        window.hasFormPermission = hasFormPermission;
+
+        // Add auth state listener
+        onAuthStateChanged(auth, async (user) => {
+            console.log("Auth state changed:", user ? "User logged in" : "No user");
+            if (user) {
+                // User is signed in
+                window.currentUser = {
+                    uid: user.uid,
+                    email: user.email,
+                };
+                // Load user data from Firestore
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
+
+                if (userDoc.exists()) {
+                    window.userData = userDoc.data();
+                    console.log("User data loaded:", window.userData);
+
+                    // Check if user has any permissions
+                    if (!window.userData.customPermissions) {
+                        // Initialize permissions if they don't exist
+                        const permissions = {
+                            formManagement: {
+                                createPresets: window.userData.role === 'mainAdmin',
+                                viewPresets: true,
+                                editPresets: window.userData.role === 'mainAdmin',
+                                deletePresets: window.userData.role === 'mainAdmin',
+                                backupSettings: window.userData.role === 'mainAdmin',
+                                applyPresets: true,
+                                manageStandardFields: window.userData.role === 'mainAdmin'
+                            }
+                        };
+
+                        await updateDoc(userDocRef, { customPermissions: permissions });
+                        window.userData.customPermissions = permissions;
+                    }
+                } else {
+                    console.log("No user data found, initializing with defaults");
+                    window.userData = {
+                        settings: {},
+                        pdfHistory: [],
+                    };
+                }
+            } else {
+                window.currentUser = null;
+                window.userData = null;
+            }
+        });
+    </script>
+</head>
+
+<body class="bg-gray-100" x-data="formManager()">
+    <div class="max-w-6xl mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6">Ostumenetluse tingimuste haldamine</h1>
+
+        <!-- Main Content and Sidebar Layout -->
+        <div class="grid-layout">
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Form Sections -->
+                <div class="mb-8 bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-2xl font-semibold mb-4">Vormi peatükid</h2>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sissejuhatus</label>
+                        <textarea class="w-full border p-2 rounded" x-model="form.intro" rows="3"></textarea>
+                    </div>
+
+                    <!-- Enhanced Sections List with Accordion Style -->
+                    <div class="space-y-4">
+                        <template x-for="(section, index) in form.sections" :key="index">
+                            <div class="bg-white rounded-lg shadow overflow-hidden">
+                                <!-- Section Header -->
+                                <div class="flex items-center justify-between p-4 bg-gray-50 border-b cursor-pointer"
+                                    @click="section.isOpen = section.isOpen === undefined ? true : !section.isOpen">
+                                    <div class="flex-1">
+                                        <div class="flex items-center">
+                                            <input type="text"
+                                                class="text-xl font-semibold border-none bg-transparent w-full focus:ring-2 focus:ring-blue-500"
+                                                x-model="section.title" placeholder="Peatüki pealkiri" @click.stop>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <span class="mr-2 text-sm text-gray-600">Aktiivne</span>
+                                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600"
+                                                x-model="section.enabled" @click.stop>
+                                        </label>
+                                        <button @click.stop="removeSection(index)"
+                                            class="text-red-500 hover:text-red-700 p-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            @click.stop="section.isOpen = section.isOpen === undefined ? true : !section.isOpen">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                class="h-6 w-6 transition-transform duration-200"
+                                                :class="section.isOpen ? 'transform rotate-180' : ''" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Section Content -->
+                                <div class="p-4 bg-white" x-show="section.isOpen" x-transition>
+                                    <!-- Options List -->
+                                    <div class="space-y-3">
+                                        <template x-for="(option, oIndex) in section.options" :key="oIndex">
+                                            <div class="border rounded-md p-3 hover:bg-gray-50">
+                                                <div class="flex flex-col space-y-2">
+                                                    <div class="flex-1">
+                                                        <textarea class="w-full border rounded p-2 text-sm"
+                                                            x-model="option.text" rows="3"
+                                                            placeholder="Valiku tekst"></textarea>
+                                                    </div>
+                                                    <div class="flex items-center justify-between mt-2">
+                                                        <div class="flex items-center space-x-4">
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <span class="mr-2 text-sm text-gray-600">Vaikimisi
+                                                                    valitud</span>
+                                                                <input type="checkbox"
+                                                                    class="form-checkbox h-4 w-4 text-blue-600"
+                                                                    x-model="option.checked">
+                                                            </label>
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <span class="mr-2 text-sm text-gray-600">Muudetav</span>
+                                                                <input type="checkbox"
+                                                                    class="form-checkbox h-4 w-4 text-blue-600"
+                                                                    x-model="option.editable">
+                                                            </label>
+                                                        </div>
+                                                        <button @click="removeOption(index, oIndex)"
+                                                            class="text-red-500 hover:text-red-700 p-1">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <!-- Add Option Button -->
+                                        <button @click="addOption(index)"
+                                            class="w-full py-2 px-4 border border-dashed border-blue-500 rounded-md text-blue-600 hover:bg-blue-50 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4v16m8-8H4" />
+                                            </svg>
+                                            Lisa uus tingimus
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Add Section Button -->
+                        <button @click="addSection()"
+                            class="w-full py-3 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center justify-center transition-colors duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                            Lisa uus peatükk
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Presets Section -->
+                <div class="mb-8 bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-2xl font-semibold mb-4">Vormimallid</h2>
+                    <p class="text-gray-600 mb-4">
+                        Siin saate salvestada erinevaid vormimalle, mida kasutajad saavad kasutada oma vormide
+                        loomiseks.
+                        Mallid muudavad ainult vormi sektsioone ja sissejuhatuse teksti, kuid jätavad kasutaja
+                        salvestatud väljad muutmata.
+                    </p>
+
+                    <!-- Preset Manager -->
+                    <div class="mb-6" x-data="{ 
+                            showForm: false, 
+                            presetName: '', 
+                            presetDescription: '',
+                            selectedSections: {
+                                includeIntro: false,
+                                sectionOptions: {}
+                            },
+                            viewMode: 'list',  // 'list' or 'create'
+                            selectedPreset: null,
+
+                            initializeSelectedSections() {
+                                if (typeof this.selectedSections !== 'object') {
+                                    this.selectedSections = {};
+                                }
+                                if (!this.selectedSections.sectionOptions) {
+                                    this.selectedSections.sectionOptions = {};
+                                }
+                            },
+                        
+                        }" x-init="initializeSelectedSections()">
+
+                        <!-- View Selector -->
+                        <div class="flex space-x-2 mb-4">
+                            <button @click="viewMode = 'list'; selectedPreset = null"
+                                class="py-2 px-4 rounded-md text-center transition-colors duration-200"
+                                :class="viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-blue-300'">
+                                Mallide nimekiri
+                            </button>
+                            <button @click="viewMode = 'create'; showForm = true"
+                                class="py-2 px-4 rounded-md text-center transition-colors duration-200"
+                                :class="viewMode === 'create' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'">
+                                Lisa uus mall
+                            </button>
+                        </div>
+
+                        <!-- Create/Edit Form -->
+                        <div x-show="viewMode === 'create'" class="bg-white rounded-lg shadow-md overflow-hidden"
+                            x-transition>
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-xl font-semibold mb-4">Uue vormimalli loomine</h3>
+
+                                <!-- Basic Info -->
+                                <div class="space-y-4 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Vormimalli nimi
+                                            *</label>
+                                        <input type="text" x-model="presetName" class="w-full border p-3 rounded-md"
+                                            placeholder="Sisesta vormimalli nimi...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Vormimalli
+                                            kirjeldus</label>
+                                        <textarea x-model="presetDescription" class="w-full border p-3 rounded-md"
+                                            rows="2" placeholder="Sisesta vormimalli lühikirjeldus..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Section Selection -->
+                                <div class="mb-6">
+                                    <h4 class="text-lg font-medium mb-3">Vali vormimalli sisu</h4>
+                                    <p class="text-gray-600 mb-3">Vali, millised sektsioonid ja tingimused lisatakse
+                                        sellesse
+                                        vormimalli:</p>
+
+                                    <div class="border rounded-md divide-y">
+                                        <!-- Intro Selection -->
+                                        <div class="p-4">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600"
+                                                    x-model="selectedSections.includeIntro">
+                                                <span class="ml-2 text-gray-700 font-medium">Kasuta sissejuhatust</span>
+                                            </label>
+                                            <p class="mt-2 text-sm text-gray-600"
+                                                x-show="selectedSections.includeIntro">
+                                                Lisatakse praegune sissejuhatuse tekst
+                                            </p>
+                                        </div>
+
+                                        <!-- Sections Selection -->
+                                        <template x-for="(section, index) in form.sections" :key="index">
+                                            <div class="p-4 hover:bg-gray-50 border-b">
+                                                <div class="flex items-start">
+                                                    <div>
+                                                        <input type="checkbox"
+                                                            class="form-checkbox h-5 w-5 text-blue-600 mt-1"
+                                                            x-model="selectedSections[index]" @change="
+                                                                initializeSelectedSections();
+                                                                if(selectedSections[index]) {
+                                                                    if(!selectedSections.sectionOptions[index]) {
+                                                                        selectedSections.sectionOptions[index] = {};
+                                                                    }
+                                                                } else {
+                                                                    delete selectedSections.sectionOptions[index];
+                                                                }
+                                                            ">
+                                                    </div>
+                                                    <div class="ml-3 flex-1">
+                                                        <p class="font-medium" x-text="section.title"></p>
+                                                        <p class="text-sm text-gray-600 mt-1"
+                                                            x-show="selectedSections[index]">
+                                                            <span x-text="section.options.length"></span> tingimust
+                                                        </p>
+
+                                                        <!-- Individual Option Selection (visible when section is selected) -->
+                                                        <div x-show="selectedSections[index]"
+                                                            class="mt-3 ml-1 pl-3 border-l-2 border-blue-200"
+                                                            x-init="if(!selectedSections.sectionOptions[index]) selectedSections.sectionOptions[index] = {}">
+                                                            <p class="text-sm font-medium text-gray-700 mb-2">Vali
+                                                                tingimused,
+                                                                mida soovid lisada:</p>
+                                                            <div class="space-y-2">
+                                                                <template x-for="(option, optIndex) in section.options"
+                                                                    :key="optIndex">
+                                                                    <div class="flex items-start">
+                                                                        <input type="checkbox"
+                                                                            class="form-checkbox h-4 w-4 text-blue-500 mt-1"
+                                                                            @click="if(!selectedSections.sectionOptions[index]) selectedSections.sectionOptions[index] = {}; selectedSections.sectionOptions[index][optIndex] = !selectedSections.sectionOptions[index][optIndex]"
+                                                                            :checked="selectedSections.sectionOptions[index] && selectedSections.sectionOptions[index][optIndex]">
+                                                                        <div class="ml-2 flex-1">
+                                                                            <p class="text-sm text-gray-800 line-clamp-2"
+                                                                                x-text="option.text.length > 80 ? option.text.substring(0, 80) + '...' : option.text">
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                            <div class="mt-2 flex justify-end space-x-2">
+                                                                <button @click="selectAllOptionsInSection(index)"
+                                                                    class="text-xs text-blue-600 hover:text-blue-800 py-1 px-2">
+                                                                    Vali kõik
+                                                                </button>
+                                                                <button @click="deselectAllOptionsInSection(index)"
+                                                                    class="text-xs text-gray-600 hover:text-gray-800 py-1 px-2">
+                                                                    Tühista valik
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex justify-end space-x-3">
+                                    <button @click="viewMode = 'list'; showForm = false"
+                                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+                                        Tühista
+                                    </button>
+                                    <button
+                                        @click="saveFormPresetWithContent(presetName, presetDescription, selectedSections)"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                        Salvesta vormimall
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preset List -->
+                        <div x-show="viewMode === 'list'" x-transition>
+                            <div x-data="{ 
+                                presets: [], 
+                                isLoading: false,
+                                showUsergroupModal: false,
+                                selectedPresetId: null,
+                                usergroups: [],
+                                selectedUsergroups: [],
+
+                            loadPresets() {
+                                if (!window.collection || !window.db || !window.getDocs) {
+                                    console.error('Firebase functions not initialized yet');
+                                    setTimeout(() => this.loadPresets(), 1000);
+                                    return;
+                                }
+                                
+                                this.isLoading = true;
+                                window.getDocs(window.collection(window.db, 'formPresets'))
+                                    .then(snapshot => {
+                                        const presets = [];
+                                        snapshot.forEach(doc => {
+                                            const data = doc.data();
+                                            // Remove usergroup filtering here - all presets should be visible in admin view
+                                            presets.push({
+                                                id: doc.id,
+                                                name: data.name || 'Nimetu mall',
+                                                description: data.description || '',
+                                                createdAt: data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : null,
+                                                createdBy: data.createdBy || 'Admin',
+                                                hasContent: data.form && (data.form.sections || data.form.intro),
+                                                usergroups: data.usergroups || []
+                                            });
+                                        });
+                                        this.presets = presets;
+                                    })
+                                    .catch(error => {
+                                        console.error('Error loading presets:', error);
+                                        alert('Vormimallide laadimine ebaõnnestus: ' + error.message);
+                                    })
+                                    .finally(() => {
+                                        this.isLoading = false;
+                                    });                      
+                            },
+
+                                async loadUsergroups() {
+                                    const snapshot = await window.getDocs(window.collection(window.db, 'userGroups'));
+                                    this.usergroups = [];
+                                    snapshot.forEach(doc => {
+                                        this.usergroups.push({
+                                            id: doc.id,
+                                            name: doc.data().name
+                                        });
+                                    });
+                                },
+
+                                async openUsergroupModal(presetId) {
+                                    this.selectedPresetId = presetId;
+                                    this.showUsergroupModal = true;
+                                    
+                                    // Load usergroups if not loaded
+                                    if (this.usergroups.length === 0) {
+                                        await this.loadUsergroups();
+                                    }
+                                    
+                                    // Load preset's current usergroups
+                                    const presetDoc = await window.getDoc(window.doc(window.db, 'formPresets', presetId));
+                                    this.selectedUsergroups = presetDoc.data().usergroups || [];
+                                },
+
+                                toggleUsergroup(groupId) {
+                                    const index = this.selectedUsergroups.indexOf(groupId);
+                                    if (index === -1) {
+                                        this.selectedUsergroups.push(groupId);
+                                    } else {
+                                        this.selectedUsergroups.splice(index, 1);
+                                    }
+                                },
+
+                                async saveUsergroups() {
+                                    try {
+                                        await window.updateDoc(window.doc(window.db, 'formPresets', this.selectedPresetId), {
+                                            usergroups: this.selectedUsergroups
+                                        });
+                                        this.showUsergroupModal = false;
+                                        const toast = document.createElement('div');
+                                        toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                                        toast.textContent = 'Kasutajagrupid on salvestatud!';
+                                        document.body.appendChild(toast);
+                                        
+                                        setTimeout(() => {
+                                            toast.style.opacity = '0';
+                                            toast.style.transform = 'translateX(100px)';
+                                            setTimeout(() => toast.remove(), 300);
+                                        }, 3000);
+                                        // Reload presets to update the view
+                                        await this.loadPresets();
+                                    } catch (error) {
+                                        console.error('Error saving usergroups:', error);
+                                        alert('Viga kasutajagruppide salvestamisel: ' + error.message);
+                                    }
+                                }
+
+
+                            }" x-init="setTimeout(() => loadPresets(), 1500)">
+                                <div x-show="isLoading" class="text-center py-4">
+                                    <div
+                                        class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500">
+                                    </div>
+                                    <p class="mt-2 text-gray-600">Laen vormimalle...</p>
+                                </div>
+
+                                <div x-show="!isLoading && presets.length === 0"
+                                    class="p-4 bg-gray-100 text-center rounded">
+                                    <p class="text-gray-600">Ühtegi vormimalli pole veel loodud</p>
+                                </div>
+
+                                <div x-show="!isLoading && presets.length > 0" class="space-y-4">
+                                    <template x-for="preset in presets" :key="preset.id">
+                                        <div
+                                            class="p-5 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+                                            <div class="flex justify-between">
+                                                <div>
+                                                    <h3 class="text-lg font-semibold" x-text="preset.name"></h3>
+                                                    <p class="text-gray-600 text-sm mt-1"
+                                                        x-text="preset.description || 'Kirjeldus puudub'"></p>
+                                                    <div class="mt-2 flex gap-4 text-sm text-gray-500">
+                                                        <span
+                                                            x-text="'Loodud: ' + (preset.createdAt || 'Teadmata')"></span>
+                                                        <span x-text="'Autor: ' + (preset.createdBy || 'Admin')"></span>
+                                                    </div>
+                                                    <div class="mt-3" x-show="preset.hasContent">
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            Sisaldab vormingu sisu
+                                                        </span>
+                                                    </div>
+                                                    <div class="mt-3" x-show="!preset.hasContent">
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                            Puudub vormingu sisu
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-start space-x-2">
+                                                    <button @click="applyPreset(preset.id)"
+                                                        class="text-blue-600 hover:text-blue-800 p-1 rounded">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </button>
+                                                    <button @click="editPreset(preset.id)"
+                                                        class="text-gray-600 hover:text-gray-800 p-1 rounded">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                    </button>
+                                                    <button @click="deleteFormPreset(preset.id)"
+                                                        class="text-red-500 hover:text-red-700 p-1 rounded">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                    <button @click="openUsergroupModal(preset.id)"
+                                                        class="text-purple-500 hover:text-purple-900 p-1 rounded">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <!-- Usergroup Modal -->
+                                    <div x-show="showUsergroupModal"
+                                        class="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-white/30">
+                                        <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full relative"
+                                            @click.away="showUsergroupModal = false">
+
+                                            <h3 class="text-lg font-semibold mb-4">Kasutajagruppide seaded</h3>
+                                            <div class="mb-4">
+                                                <p class="text-sm text-gray-600 mb-2">Vali kasutajagrupid, kes näevad
+                                                    seda
+                                                    vormimalli:</p>
+                                                <div class="space-y-2 max-h-60 overflow-y-auto">
+                                                    <template x-for="group in usergroups" :key="group.id">
+                                                        <div class="flex items-center">
+                                                            <input type="checkbox" :id="group.id"
+                                                                :checked="selectedUsergroups.includes(group.id)"
+                                                                @change="toggleUsergroup(group.id)"
+                                                                class="form-checkbox h-4 w-4 text-blue-600">
+                                                            <label :for="group.id" class="ml-2 text-sm text-gray-700"
+                                                                x-text="group.name"></label>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <div class="flex justify-end space-x-2">
+                                                <button @click="showUsergroupModal = false"
+                                                    class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                                                    Tühista
+                                                </button>
+                                                <button @click="saveUsergroups()"
+                                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                                    Salvesta
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Save and Backup Buttons -->
+                <div class="mt-6 flex space-x-4">
+                    <button class="px-6 py-3 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition flex-grow"
+                        @click="saveChanges()">
+                        Salvesta muudatused
+                    </button>
+                    <button class="px-6 py-3 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition flex-grow"
+                        @click="backupSettings()">
+                        Tee varundus
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Navigation Section -->
+                <div class="mb-6">
+                    <h3 class="font-medium text-gray-800 mb-3"></h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button @click="navigateToAdmin()"
+                            class="px-4 py-3 bg-indigo-600 text-white text-sm text-center rounded hover:bg-indigo-700 transition flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Admin paneel
+                        </button>
+                        <button @click="navigateToOm()"
+                            class="px-4 py-3 bg-green-600 text-white text-sm text-center rounded hover:bg-green-700 transition flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            Kutse koostamine
+                        </button>
+                    </div>
+                </div>
+
+                <h2 class="text-xl font-semibold mb-4">Tööriistad</h2>
+
+                <!-- Standard Fields Section -->
+                <div class="mb-6">
+                    <h3 class="font-medium text-gray-800 mb-3">Standardväljad</h3>
+                    <p class="text-sm text-gray-600 mb-3">
+                        Standardväljad on põhiväljad, mida kõik kasutajad näevad vormil. Neid näidatakse enne vormi
+                        sektsioone.
+                    </p>
+
+                    <div class="space-y-3 mb-4">
+                        <template x-for="(field, index) in standardFields" :key="index">
+                            <div class="p-3 bg-gray-50 rounded border">
+                                <div class="flex justify-between items-center mb-2">
+                                    <input type="text" class="text-sm font-medium border p-1 w-full"
+                                        x-model="field.label" placeholder="Välja pealkiri">
+                                </div>
+                                <input type="text" class="text-sm border p-1 w-full" x-model="field.placeholder"
+                                    placeholder="Placeholder tekst">
+                                <button class="mt-2 text-xs text-red-500 hover:text-red-700"
+                                    @click="removeStandardField(index)">
+                                    Kustuta väli
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+
+                    <button
+                        class="w-full mb-2 px-4 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition"
+                        @click="addStandardField()">
+                        Lisa uus standardväli
+                    </button>
+                </div>
+
+                <div class="border-t border-gray-200 my-4 pt-4">
+                    <h3 class="font-medium text-gray-800 mb-3">Andmebaasi toimingud</h3>
+                    <p class="text-sm text-gray-600 mb-3">
+                        Firestore dokumendi loomine salvestab praeguse vormi konfiguratsiooni andmebaasi.
+                    </p>
+                    <button class="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition"
+                        @click="handleCreateDefaultFormDocument" aria-label="Loo Firestore dokument" tabindex="0"
+                        @keydown.enter="handleCreateDefaultFormDocument">
+                        Loo Firestore dokument
+                    </button>
+                </div>
+
+                <!-- Firestore permissions section -->
+                <div class="border-t border-gray-200 my-4 pt-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-medium text-gray-800">Firestore õigused</h3>
+                        <span x-show="window.currentUser"
+                            :class="Object.values(collectionStatus).every(s => s) ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
+                            class="px-2 py-1 text-xs rounded-full">
+                            <span
+                                x-text="Object.values(collectionStatus).every(s => s) ? 'Õigused olemas' : 'Õigused puudulikud'"></span>
+                        </span>
+                    </div>
+
+                    <div x-show="window.currentUser" class="mb-3">
+                        <p class="text-sm text-gray-600 mb-2">Kasutaja: <span class="font-medium"
+                                x-text="window.currentUser?.email || 'Pole teada'"></span></p>
+                        <p class="text-sm text-gray-600">Roll: <span class="font-medium"
+                                x-text="window.userData?.role || 'Pole teada'"></span></p>
+                    </div>
+
+                    <div x-show="Object.keys(collectionStatus).length > 0" class="bg-gray-50 p-3 rounded border mb-3">
+                        <p class="text-sm font-medium text-gray-700 mb-2">õiguste kontroll:</p>
+                        <ul class="space-y-1">
+                            <template x-for="(status, collection) in collectionStatus">
+                                <li class="flex justify-between text-sm">
+                                    <span x-text="collection"></span>
+                                    <span :class="status ? 'text-green-600' : 'text-red-500'"
+                                        x-text="status ? '✓' : '✗'"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+
+                    <button @click="testCollectionAccess()"
+                        class="w-full px-4 py-2 bg-gray-600 text-white text-sm rounded hover:bg-gray-700 transition">
+                        Kontrolli õigusi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formManager() {
+            return {
+                standardFields: [],
+                form: {
+                    name: "",
+                    intro: "",
+                    fields: {},
+                    sections: []
+                },
+                currentUser: null,
+                collectionStatus: {
+                    'formSettings': false,
+                    'formSettingsBackup': false,
+                    'purchaseForms': false,
+                    'formSettingsLogs': false
+                },
+                init() {
+                    // Proovi taastada sessioon, kui kasutaja andmed on sessionStorage'is
+                    try {
+                        const storedUserData = sessionStorage.getItem('authUserData');
+                        if (storedUserData && !window.currentUser) {
+                            const parsedUserData = JSON.parse(storedUserData);
+                            console.log("Taastatud kasutaja andmed sessionStorage'ist:", parsedUserData);
+
+                            // Kui window.currentUser pole veel seatud (Firebase autentimine pole töötanud),
+                            // siis kasutame salvestatud andmeid
+                            if (!window.currentUser) {
+                                window.currentUser = {
+                                    uid: parsedUserData.uid,
+                                    email: parsedUserData.email
+                                };
+                                window.userData = parsedUserData.userData;
+                                console.log("Kasutaja sessioon taastatud sessionStorage'ist");
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Sessiooni taastamisel tekkis viga:", error);
+                    }
+
+                    // Veendume, et window.db on olemas enne selle kasutamist
+                    setTimeout(() => {
+                        this.currentUser = window.currentUser;
+                        this.loadSettings();
+                        this.initializeDefaultData();
+
+                        // Kontrolli õigusi pärast andmete laadimist
+                        setTimeout(() => {
+                            this.testCollectionAccess();
+                        }, 2000);
+
+                        // Kui kasutaja on sisselogitud, testida õigusi automaatselt
+                        if (window.currentUser && window.userData && (window.userData.isAdmin === 'true' || window.userData.role === 'mainAdmin')) {
+                            this.testCollectionAccess();
+                        }
+                    }, 1000); // Anname rohkem aega Firebase'i initsialiseerimiseks
+                },
+                testCollectionAccess() {
+                    if (!window.auth.currentUser) {
+                        alert("Õiguste testimiseks peate olema sisse logitud.");
+                        return;
+                    }
+
+                    console.log("Kasutajaandmed:", window.userData);
+
+                    // Kontrolli täpset kasutajarolli
+                    if (window.userData) {
+                        console.log("Kasutaja roll:", window.userData.role);
+                        console.log("Kasutaja isAdmin:", window.userData.isAdmin);
+                        console.log("Kasutaja isMainAdmin:", window.userData.isMainAdmin);
+                        console.log("Täiskasutaja andmed:", JSON.stringify(window.userData, null, 2));
+                    }
+
+                    // Testi iga kollektsiooni eraldi
+                    Object.keys(this.collectionStatus).forEach(collName => {
+                        // Proovi lugeda
+                        window.getDocs(window.collection(window.db, collName))
+                            .then(() => {
+                                this.collectionStatus[collName] = true;
+                                console.log(`Ligipääs kollektsioonile ${collName} olemas`);
+                            })
+                            .catch(err => {
+                                this.collectionStatus[collName] = false;
+                                console.error(`Ligipääs kollektsioonile ${collName} puudub: ${err.message}`);
+                            });
+                    });
+                },
+                initializeDefaultData() {
+                    if (!window.db) {
+                        console.error("Firebase db ei ole initsialiseeritud");
+                        return;
+                    }
+
+                    window.getDoc(window.doc(window.db, "formSettings", "main"))
+                        .then(doc => {
+                            if (!doc.exists()) {
+                                // Add default form data if it doesn't exist
+                                const defaultFormData = {
+                                    standardFields: [],
+                                    form: {
+                                        name: "",
+                                        intro: 'Lisa hankija nimi teeb Teile ettepaneku esitada pakkumus "Lisa ostetav ese/teenus" ostumenetluse kutses sätestatud tingimustele. Ostumenetluse eesmärk on... ',
+                                        fields: {},
+                                        sections: [
+                                            {
+                                                title: "1. Üldtingimused",
+                                                enabled: true,
+                                                open: false,
+                                                options: [
+                                                    {
+                                                        text: "Ettevõtjatel on õigus küsida kutse kohta selgitusi, esitades küsimused e-posti teel ostumenetluse eest vastutavale isikule. Hankija vastab ettevõtja küsimustele kolme tööpäeva jooksul. Hankija edastab esitatud küsimused ja antud vastused samaaegselt kõigile ettevõtjatele, kellele tehti ettepanek pakkumuse esitamiseks. Telefoni teel esitatud küsimustele ei vastata.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Hankijal on õigus enne pakkumuste esitamise tähtaega muuta vajadusel kutset. Kutse muutmisel teavitab hankija sellest kõiki ettevõtjaid, kellele on tehtud ettepanek pakkumuste esitamise ja edastab ettevõtjatele muudetud kutse. Hankija võib pikendada pakkumuste esitamise tähtaega.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: 'Iga viidet, mille hankija teeb kutses mõnele standardile, tehnilisele tunnusele, kontrollsüsteemile, ostuallikale, protsessile, kaubamärgile, patendile, tüübile, päritolule või tootmisviisile, tuleb lugeda selliselt, et see on täiendatud märkega "või sellega samaväärne".',
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Hankija ei sõlmi hankelepingut pakkujaga, kellel on maksuvõlg (kohalikud maksud Tallinna linnale ja riiklik maksuvõlg). Enne hankelepingu sõlmimist kontrollib hankija pakkujal maksuvõla puudumist. Kui pakkujal esineb maksuvõlg, siis teavitab hankija sellest pakkujat ja annab pakkujale kaks tööpäeva maksuvõla tasumiseks või täies ulatuses ajatamiseks. Hankija võib anda ka pikema tähtaja maksuvõla tasumiseks või täies ulatuses ajatamiseks. Kui hankija poolt antud tähtaja jooksul pakkuja maksuvõlga ei tasu või täies ulatuses ei ajata, siis kõrvaldab hankija pakkuja ostumenetluselt. ",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Arve maksetähtaeg peab olema vähemalt 21 päeva.",
+                                                        checked: true
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                title: "2. Tehniline kirjeldus",
+                                                enabled: true,
+                                                open: false,
+                                                options: [
+                                                    {
+                                                        text: '"Hankija lisab siia tehnilise kirjelduse" - Lisada kas viide eraldi failile kui TK on eraldi või kopeerida siia lihtsalt tehniline kirjeldus teenuse/asja kohta, mida soovitakse osta.',
+                                                        checked: false,
+                                                        editable: true
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                title: "3 Nõuded pakkumusele",
+                                                enabled: true,
+                                                open: false,
+                                                options: [
+                                                    {
+                                                        text: "Pakkumus on pakkuja tahteavaldus tellimuse täitmiseks ja on selle esitamisel pakkujale siduv alates esitamisest kuni pakkumuse jõusoleku minimaalse tähtaja lõpuni. Hankijal on õigus teha ettepanek pakkumuse jõusoleku tähtaja pikendamiseks. Tingimusliku pakkumuse esitamine on keelatud.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Hilinenud pakkumusi hankija vastu ei võta.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Pakkumus peab sisaldama pakkumuse maksumust vastavalt lisale 1.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Pakkumus peab sisaldama pakkumuse kirjeldust, mis võimaldab hankijal kontrollida kutse punktis 2 sätestatud tingimustele vastavust.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Pakkuja kannab kõik pakkumuse ettevalmistamise ja esitamisega seotud kulud ning pakkumuse tähtaegse esitamise riski.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Pakkumus on konfidentsiaalne kuni tellimuse tegemiseni.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Pakkuja märgib pakkumuses, milline teave pakkumusest on ärisaladus ning põhjendab ärisaladuseks määramist. Ärisaladusena ei või märkida pakkumuse maksumust (sh osamaksumusi kui need on hindamise aluseks) (RHS § 46 1 ). Kui põhjendust pakkumuses ei sisaldu, siis eeldab hankija, et ärisaladus puudub. Hankija ei avalikusta pakkumuse sisu ärisaladusega kaetud osas.",
+                                                        checked: false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                title: "4 Pakkumuste kontroll, hindamine ja eduka pakkumuse valik",
+                                                enabled: true,
+                                                open: false,
+                                                options: [
+                                                    {
+                                                        text: "Hankija kontrollib tähtaegselt esitatud pakkumuste vastavust kutses esitatud tingimustele. Juhul, kui pakkumus ei vasta kutses esitatud tingimustele, lükkab hankija pakkumuse tagasi.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Hankijal on õigus küsida pakkujalt esitatud pakkumuse kohta täpsustavaid andmeid ja täpsustavaid selgitusi.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Kutses esitatud tingimustele vastavate pakkumuste seast valib hankija eduka pakkumuse välja madalaima hinna alusel. Juhul, kui esitatud maksumused on võrdsed, korraldab hankija eduka pakkumuse väljaselgitamiseks liisuheitmise, võimaldades võrdse pakkumuse esitanud pakkujatel liisuheitmise juures viibida.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Kui edukas pakkuja võtab hankijast mitteolenevatel põhjustel oma pakkumuse tagasi, ei allkirjasta hankija antud tähtaja jooksul hankelepingut või ei asu nõustumuse andmisega sõlmitud hankelepingut pakkujast tulenevatel põhjustel hankija määratud aja jooksul täitma, hindab hankija kõiki ülejäänud pakkumusi uuesti ja tunnistab edukaks pakkumuse, mis on vastavaks tunnistatud pakkumustest majanduslikult soodsaim.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Hankija ei ole kohustatud korra punktis 4.5 nimetatud alusel pakkumusi uuesti hindama ja võib tunnistada edukaks esialgsel hindamisel leitud järjestuselt teise pakkumuse juhul, kui edukaks tunnistatud pakkumuse äralangemine ei saa mõjutada ülejäänud pakkumuste omavahelist järjestust.",
+                                                        checked: false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                title: "5 Läbirääkimiste pidamine",
+                                                enabled: true,
+                                                open: false,
+                                                options: [
+                                                    {
+                                                        text: "Hankijal on õigus pidada läbirääkimisi esitatud pakkumuse sisu, maksumuse ning ostukutsest sätestatud tingimuste üle.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Vastavalt läbirääkimiste pidamise vajadusele teatab hankija pakkujatele läbirääkimiste aja. Iga pakkujaga peetakse läbirääkimisi eraldi. Läbirääkimised võib pidada kirjalikku taasesitamist võimaldavas vormis (nt e-kiri) või suuliselt. Suuliselt peetud läbirääkimised protokollitakse. Läbirääkimised on konfidentsiaalsed. Hankija tagab läbirääkimiste käigus pakkujate võrdse kohtlemise.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Pärast läbirääkimiste toimumist esitab pakkuja vajadusel uue kohandatud pakkumuse, mis esitatakse läbirääkimistel kokku lepitud tähtajaks.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Hankija ei ole kohustatud läbirääkimisi pidama.",
+                                                        checked: false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                title: "6 Pakkumuste tagasi lükkamine ja kehtetuks tunnistamine",
+                                                enabled: true,
+                                                open: false,
+                                                options: [
+                                                    {
+                                                        text: "Hankijal on õigus kõik esitatud või kutses toodud tingimustele vastavad pakkumused tagasi lükata igal ajal enne lepingu sõlmimist või tellimuse tegemist, kui esitatud pakkumuste maksumused ületavad eeldatavat maksumust. Hankija teavitab pakkujaid kõigi pakkumuste tagasilükkamisest.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Kui hankijal on tekkinud vajadus pärast pakkumuste esitamise tähtpäeva kutses esitatud tingimusi olulisel määral muuta või kui ostumenetluse läbiviimise aluseks olevad tingimused on oluliselt muutunud ja seetõttu osutub ostumenetluse esemeks oleva asja või teenuse tellimine mittevajalikuks, saadab hankija pakkujatele sellekohase teavituse.",
+                                                        checked: false
+                                                    },
+                                                    {
+                                                        text: "Hankija võib ostumenetluse kehtetuks tunnistada, kui hankija tuvastab peale pakkumuste esitamise tähtpäeva, et on teinud ostumenetluse kutses vea, mida ei ole võimalik enam antud etapis seaduspäraselt parandada.",
+                                                        checked: false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                title: "7 Lisad",
+                                                enabled: true,
+                                                open: false,
+                                                options: [
+                                                    {
+                                                        text: "Lisa 1. ",
+                                                        checked: false,
+                                                        editable: true
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                };
+
+                                window.setDoc(window.doc(window.db, "formSettings", "main"), defaultFormData)
+                                    .then(() => {
+                                        console.log("Default form data initialized in Firestore");
+                                        this.loadSettings(); // Reload the data after initialization
+                                    })
+                                    .catch(error => {
+                                        console.error("Error initializing default form data:", error);
+                                    });
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error checking form settings:", error);
+                        });
+                },
+                loadSettings() {
+                    if (!window.db) {
+                        console.error("Firebase db ei ole initsialiseeritud");
+                        return;
+                    }
+
+                    window.getDoc(window.doc(window.db, "formSettings", "main"))
+                        .then(doc => {
+                            if (doc.exists()) {
+                                const data = doc.data();
+                                this.standardFields = data.standardFields || [];
+                                this.form = data.form || {
+                                    name: "",
+                                    intro: "",
+                                    fields: {},
+                                    sections: []
+                                };
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Vormi seadete laadimine ebaõnnestus:", error);
+                        });
+                },
+                saveChanges() {
+                    if (!window.auth.currentUser) {
+                        alert("Seadete salvestamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to save settings
+                    if (!hasFormPermission(window.userData, 'backupSettings')) {
+                        alert("Teil pole õigusi seadete salvestamiseks");
+                        return;
+                    }
+
+                    this.backupSettings().then(() => {
+                        window.setDoc(window.doc(window.db, "formSettings", "main"), {
+                            standardFields: this.standardFields,
+                            form: this.form,
+                            lastUpdated: new Date().toISOString()
+                        })
+                            .then(() => {
+                                alert("Seaded salvestatud!");
+                                window.addDoc(window.collection(window.db, "formSettingsLogs"), {
+                                    user: window.auth.currentUser ? window.auth.currentUser.email : "unknown",
+                                    action: "Updated form settings",
+                                    timestamp: new Date().toISOString()
+                                });
+                            })
+                            .catch(error => {
+                                console.error("Seadete salvestamine ebaõnnestus:", error);
+                                alert("Seadete salvestamise viga: " + error.message);
+                            });
+                    });
+                },
+                backupSettings() {
+                    if (!window.auth.currentUser) {
+                        alert("Varunduse tegemiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to backup settings
+                    if (!hasFormPermission(window.userData, 'backupSettings')) {
+                        alert("Teil pole õigusi varunduse tegemiseks");
+                        return;
+                    }
+
+                    return window.setDoc(window.doc(window.db, "formSettingsBackup", "main_backup"), {
+                        standardFields: this.standardFields,
+                        form: this.form,
+                        backupTime: new Date().toISOString()
+                    })
+                        .then(() => {
+                            console.log("Varundus tehtud");
+                        })
+                        .catch(error => {
+                            console.error("Varundamise viga:", error);
+                            alert("Varundamise viga: " + error.message);
+                        });
+                },
+                addStandardField() {
+                    if (!window.auth.currentUser) {
+                        alert("Standardväljade lisamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to manage standard fields
+                    if (!hasFormPermission(window.userData, 'manageStandardFields')) {
+                        alert("Teil pole õigusi standardväljade haldamiseks");
+                        return;
+                    }
+
+                    this.standardFields.push({
+                        key: "",
+                        label: "",
+                        placeholder: ""
+                    });
+                },
+                removeStandardField(index) {
+                    if (!window.auth.currentUser) {
+                        alert("Standardväljade kustutamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to manage standard fields
+                    if (!hasFormPermission(window.userData, 'manageStandardFields')) {
+                        alert("Teil pole õigusi standardväljade haldamiseks");
+                        return;
+                    }
+
+                    if (confirm("Kas soovid välja kustutada?")) {
+                        this.standardFields.splice(index, 1);
+                    }
+                },
+                addSection() {
+                    this.form.sections.push({
+                        title: "Uus peatükk",
+                        enabled: true,
+                        open: false,
+                        options: []
+                    });
+                },
+                removeSection(index) {
+                    if (confirm("Kas soovid peatüki kustutada?")) {
+                        this.form.sections.splice(index, 1);
+                    }
+                },
+                addOption(sectionIndex) {
+                    this.form.sections[sectionIndex].options.push({
+                        text: "Uus valik",
+                        checked: false,
+                        editable: false
+                    });
+                },
+                removeOption(sectionIndex, optionIndex) {
+                    if (confirm("Kas soovid valikut kustutada?")) {
+                        this.form.sections[sectionIndex].options.splice(optionIndex, 1);
+                    }
+                },
+                handleCreateDefaultFormDocument() {
+                    // Kontrolli, kas kasutaja on autenditud
+                    if (!window.auth.currentUser) {
+                        alert("Dokumendi loomine ebaõnnestus: Palun logige sisse.");
+                        return;
+                    }
+
+                    // Kontrolli, kas kasutajal on mainAdmin roll
+                    if (!window.userData || window.userData.role !== 'mainAdmin') {
+                        console.error("Teil pole õigusi dokumendi loomiseks - nõutud on mainAdmin roll");
+                        alert("Dokumendi loomine ebaõnnestus: Teil pole vajalikke õigusi. Teie praegune roll: " +
+                            (window.userData ? window.userData.role : "tundmatu") +
+                            ". Vajalik roll: mainAdmin");
+                        return;
+                    }
+
+                    // Logi kasutaja roll ja õigused
+                    console.log("Dokumendi looja: ", window.auth.currentUser.email);
+                    console.log("Kasutaja roll: ", window.userData.role);
+                    console.log("On MainAdmin: ", window.userData.role === 'mainAdmin');
+
+                    // Vaata, kas on õigused andmete lisamiseks
+                    window.setDoc(window.doc(window.db, "purchaseForms", "test_permissions"), {
+                        test: true,
+                        createdBy: window.auth.currentUser.email,
+                        role: window.userData.role,
+                        timestamp: new Date().toISOString()
+                    }, { merge: true })
+                        .then(() => {
+                            console.log("Õiguste kontroll õnnestus!");
+                            // Õigused on olemas, kustuta testandmed
+                            window.deleteDoc(window.doc(window.db, "purchaseForms", "test_permissions"));
+
+                            // Nüüd lisa päris dokument
+                            const defaultForm = {
+                                standardFields: this.standardFields,
+                                form: this.form,
+                                createdAt: window.serverTimestamp(),
+                                updatedAt: window.serverTimestamp(),
+                                createdBy: window.auth.currentUser.email,
+                                createdByRole: window.userData.role
+                            };
+
+                            window.addDoc(window.collection(window.db, "purchaseForms"), defaultForm)
+                                .then((docRef) => {
+                                    alert("Vaikimisi vorm loodud, ID: " + docRef.id);
+                                })
+                                .catch((error) => {
+                                    console.error("Vormi loomisel tekkis viga: ", error);
+                                });
+                        })
+                        .catch((error) => {
+                            console.error("Õiguste kontroll ebaõnnestus: ", error);
+                        });
+                },
+                saveFormPreset(name, description) {
+                    if (!name || name.trim() === '') {
+                        alert("Palun sisestage vormimalli nimi");
+                        return;
+                    }
+
+                    if (!window.auth.currentUser) {
+                        alert("Vormimalli salvestamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to create presets
+                    if (!hasFormPermission(window.userData, 'createPresets')) {
+                        alert("Teil pole õigusi vormimallide loomiseks");
+                        return;
+                    }
+
+                    // Loome malli objekti
+                    const preset = {
+                        name: name.trim(),
+                        description: description || '',
+                        form: {
+                            intro: this.form.intro,
+                            sections: this.form.sections
+                        },
+                        createdBy: window.auth.currentUser.email,
+                        createdAt: window.serverTimestamp()
+                    };
+
+                    // Salvestame Firestore'i
+                    window.addDoc(window.collection(window.db, "formPresets"), preset)
+                        .then(() => {
+                            alert("Vormimall on edukalt salvestatud!");
+                            // Uuendame mallide nimekirja
+                            try {
+                                const presetsComponent = document.querySelector('[x-data*="presets"]')?.__x?.$data;
+                                if (presetsComponent && typeof presetsComponent.loadPresets === 'function') {
+                                    presetsComponent.loadPresets();
+                                } else {
+                                    console.warn("Vormimallide komponenti ei leitud või loadPresets funktsioon puudub");
+                                    setTimeout(() => window.location.reload(), 1000);
+                                }
+                            } catch (err) {
+                                console.error("Vormimallide uuendamisel tekkis viga:", err);
+                                setTimeout(() => window.location.reload(), 1000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Vormimalli salvestamine ebaõnnestus:", error);
+                            alert("Vormimalli salvestamine ebaõnnestus: " + error.message);
+                        });
+                },
+                deleteFormPreset(presetId) {
+                    if (!confirm("Kas olete kindel, et soovite selle vormimalli kustutada?")) {
+                        return;
+                    }
+
+                    if (!window.auth.currentUser) {
+                        alert("Vormimalli kustutamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to delete presets
+                    if (!hasFormPermission(window.userData, 'deletePresets')) {
+                        alert("Teil pole õigusi vormimallide kustutamiseks");
+                        return;
+                    }
+
+                    // Kustutame malli Firestore'ist
+                    window.deleteDoc(window.doc(window.db, "formPresets", presetId))
+                        .then(() => {
+                            alert("Vormimall on edukalt kustutatud!");
+                            // Uuendame mallide nimekirja
+                            try {
+                                const presetsComponent = document.querySelector('[x-data*="presets"]')?.__x?.$data;
+                                if (presetsComponent && typeof presetsComponent.loadPresets === 'function') {
+                                    presetsComponent.loadPresets();
+                                } else {
+                                    console.warn("Vormimallide komponenti ei leitud või loadPresets funktsioon puudub");
+                                    setTimeout(() => window.location.reload(), 1000);
+                                }
+                            } catch (err) {
+                                console.error("Vormimallide uuendamisel tekkis viga:", err);
+                                setTimeout(() => window.location.reload(), 1000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Vormimalli kustutamine ebaõnnestus:", error);
+                            alert("Vormimalli kustutamine ebaõnnestus: " + error.message);
+                        });
+                },
+                saveFormPresetWithContent(name, description, selectedSections) {
+                    // First make sure the selectedSections object is properly structured
+                    this.initializeSelectedSections();
+
+                    if (!name || name.trim() === '') {
+                        alert("Palun sisestage vormimalli nimi");
+                        return;
+                    }
+
+                    if (!window.auth.currentUser) {
+                        alert("Vormimalli salvestamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to create presets
+                    if (!hasFormPermission(window.userData, 'createPresets')) {
+                        alert("Teil pole õigusi vormimallide loomiseks");
+                        return;
+                    }
+
+                    console.log("Saving with selections:", JSON.stringify(selectedSections));
+
+                    // Valime välja ainult valitud sektsioonid ja nende valitud tingimused
+                    const filteredSections = [];
+                    this.form.sections.forEach((section, index) => {
+                        if (selectedSections[index]) {
+                            // Create a copy of the section
+                            const newSection = { ...section };
+
+                            // Make sure options is initialized
+                            newSection.options = newSection.options || [];
+
+                            // Only include selected options if they exist
+                            if (selectedSections.sectionOptions &&
+                                selectedSections.sectionOptions[index]) {
+                                const optionSelections = selectedSections.sectionOptions[index];
+
+                                // If at least one option is explicitly selected
+                                if (Object.values(optionSelections).some(v => v === true)) {
+                                    // Filter options based on selection
+                                    newSection.options = section.options
+                                        .filter((_, optIndex) => optionSelections[optIndex] === true)
+                                        .map(option => ({ ...option }));
+                                }
+                            }
+
+                            // Only add if there are options or we want empty sections too
+                            if (newSection.options.length > 0) {
+                                filteredSections.push(newSection);
+                            }
+                        }
+                    });
+
+                    // Loome malli objekti
+                    const preset = {
+                        name: name.trim(),
+                        description: description || '',
+                        form: {
+                            intro: selectedSections.includeIntro ? this.form.intro : '',
+                            sections: filteredSections
+                        },
+                        createdBy: window.auth.currentUser.email,
+                        createdAt: window.serverTimestamp()
+                    };
+
+                    console.log("Saving preset with content:", preset);
+
+                    // Salvestame Firestore'i
+                    window.addDoc(window.collection(window.db, "formPresets"), preset)
+                        .then(() => {
+                            alert("Vormimall on edukalt salvestatud!");
+                            // Uuendame mallide nimekirja
+                            try {
+                                const presetsComponent = document.querySelector('[x-data*="presets"]')?.__x?.$data;
+                                if (presetsComponent && typeof presetsComponent.loadPresets === 'function') {
+                                    presetsComponent.loadPresets();
+                                } else {
+                                    console.warn("Vormimallide komponenti ei leitud või loadPresets funktsioon puudub");
+                                    setTimeout(() => window.location.reload(), 1000);
+                                }
+                                // Reset view mode
+                                this.viewMode = 'list';
+                                this.presetName = '';
+                                this.presetDescription = '';
+                                this.selectedSections = {
+                                    includeIntro: false,
+                                    sectionOptions: {}
+                                };
+                            } catch (err) {
+                                console.error("Vormimallide uuendamisel tekkis viga:", err);
+                                setTimeout(() => window.location.reload(), 1000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Vormimalli salvestamine ebaõnnestus:", error);
+                            alert("Vormimalli salvestamine ebaõnnestus: " + error.message);
+                        });
+                },
+                applyPreset(presetId) {
+                    if (!confirm("Kas soovite rakendada selle vormimalli? See asendab praeguse vormi sisu.")) {
+                        return;
+                    }
+
+                    if (!window.auth.currentUser) {
+                        alert("Vormimalli rakendamiseks peate olema sisse logitud");
+                        return;
+                    }
+
+                    // Check if user has permission to apply presets
+                    if (!hasFormPermission(window.userData, 'applyPresets')) {
+                        alert("Teil pole õigusi vormimallide rakendamiseks");
+                        return;
+                    }
+
+                    window.getDoc(window.doc(window.db, "formPresets", presetId))
+                        .then(doc => {
+                            if (doc.exists()) {
+                                const presetData = doc.data();
+                                if (presetData.form) {
+                                    // Apply intro if it exists
+                                    if (presetData.form.intro) {
+                                        this.form.intro = presetData.form.intro;
+                                    }
+
+                                    // Apply sections if they exist
+                                    if (presetData.form.sections && Array.isArray(presetData.form.sections)) {
+                                        // Keep a copy of original sections for reference
+                                        const originalSections = [...this.form.sections];
+
+                                        // Apply new sections, ensuring they have isOpen property
+                                        this.form.sections = presetData.form.sections.map(section => ({
+                                            ...section,
+                                            isOpen: false // Default closed state
+                                        }));
+
+                                        alert("Vormimall on rakendatud!");
+                                    } else {
+                                        alert("Vormimallil puuduvad sektsioonid!");
+                                    }
+                                } else {
+                                    alert("Vormimallil puudub vormi sisu!");
+                                }
+                            } else {
+                                alert("Vormimalli ei leitud!");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Vormimalli rakendamisel tekkis viga:", error);
+                            alert("Vormimalli rakendamine ebaõnnestus: " + error.message);
+                        });
+                },
+                editPreset(presetId) {
+                    // Load preset data
+                    window.getDoc(window.doc(window.db, "formPresets", presetId))
+                        .then(doc => {
+                            if (doc.exists()) {
+                                const presetData = doc.data();
+
+                                // Switch to edit view
+                                this.viewMode = 'create';
+                                this.selectedPreset = presetId;
+                                this.presetName = presetData.name || '';
+                                this.presetDescription = presetData.description || '';
+
+                                // Initialize section selection
+                                this.selectedSections = {
+                                    includeIntro: !!presetData.form?.intro,
+                                    sectionOptions: {}
+                                };
+
+                                // Map selected sections and their options
+                                if (presetData.form?.sections && Array.isArray(presetData.form.sections)) {
+                                    // Create a map of sections by title for easy lookup
+                                    const presetSectionMap = {};
+                                    presetData.form.sections.forEach(presetSection => {
+                                        presetSectionMap[presetSection.title] = presetSection;
+                                    });
+
+                                    // Check each section in the current form
+                                    this.form.sections.forEach((section, index) => {
+                                        // If this section title exists in the preset
+                                        if (presetSectionMap[section.title]) {
+                                            // Mark this section as selected
+                                            this.selectedSections[index] = true;
+
+                                            // Initialize options container for this section
+                                            this.selectedSections.sectionOptions[index] = {};
+
+                                            // Get the matching preset section
+                                            const matchingPresetSection = presetSectionMap[section.title];
+
+                                            // Create a map of preset options by text for easy lookup
+                                            const presetOptionTexts = new Set(
+                                                matchingPresetSection.options.map(opt => opt.text)
+                                            );
+
+                                            // Mark options that exist in the preset as selected
+                                            section.options.forEach((option, optIndex) => {
+                                                this.selectedSections.sectionOptions[index][optIndex] =
+                                                    presetOptionTexts.has(option.text);
+                                            });
+                                        }
+                                    });
+                                }
+
+                                const toast = document.createElement('div');
+                                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                                toast.textContent = "Vormimalli redigeerimine on avatud. Tehke vajalikud muudatused ja salvestage.";
+                                document.body.appendChild(toast);
+
+                                setTimeout(() => {
+                                    toast.style.opacity = '0';
+                                    toast.style.transform = 'translateX(100px)';
+                                    setTimeout(() => toast.remove(), 300);
+                                }, 3000);
+                            } else {
+                                const toast = document.createElement('div');
+                                toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                                toast.textContent = "Vormimalli ei leitud!";
+                                document.body.appendChild(toast);
+
+                                setTimeout(() => {
+                                    toast.style.opacity = '0';
+                                    toast.style.transform = 'translateX(100px)';
+                                    setTimeout(() => toast.remove(), 300);
+                                }, 3000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Vormimalli laadimise viga:", error);
+                            const toast = document.createElement('div');
+                            toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out';
+                            toast.textContent = "Vormimalli laadimise viga: " + error.message;
+                            document.body.appendChild(toast);
+
+                            setTimeout(() => {
+                                toast.style.opacity = '0';
+                                toast.style.transform = 'translateX(100px)';
+                                setTimeout(() => toast.remove(), 300);
+                            }, 3000);
+                        });
+                },
+                selectAllOptionsInSection(sectionIndex) {
+                    // Make sure the section is marked as selected
+                    this.selectedSections[sectionIndex] = true;
+
+                    // Initialize options container if needed
+                    if (!this.selectedSections.sectionOptions) {
+                        this.selectedSections.sectionOptions = {};
+                    }
+
+                    if (!this.selectedSections.sectionOptions[sectionIndex]) {
+                        this.selectedSections.sectionOptions[sectionIndex] = {};
+                    }
+
+                    // Select all options in this section
+                    this.form.sections[sectionIndex].options.forEach((_, optIndex) => {
+                        this.selectedSections.sectionOptions[sectionIndex][optIndex] = true;
+                    });
+                },
+                deselectAllOptionsInSection(sectionIndex) {
+                    // Make sure the sectionOptions container exists
+                    if (!this.selectedSections.sectionOptions) {
+                        this.selectedSections.sectionOptions = {};
+                        return;
+                    }
+
+                    if (!this.selectedSections.sectionOptions[sectionIndex]) {
+                        this.selectedSections.sectionOptions[sectionIndex] = {};
+                        return;
+                    }
+
+                    // Deselect all options in this section
+                    this.form.sections[sectionIndex].options.forEach((_, optIndex) => {
+                        this.selectedSections.sectionOptions[sectionIndex][optIndex] = false;
+                    });
+                },
+                navigateToOm() {
+
+
+                    // Salvesta kasutaja autentimisteave enne navigeerimist
+                    try {
+                        // Salvesta praegune kasutaja info sessionStorage'isse
+                        if (window.currentUser) {
+                            const userInfo = {
+                                uid: window.currentUser.uid,
+                                email: window.currentUser.email,
+                                userData: window.userData
+                            };
+                            sessionStorage.setItem('authUserData', JSON.stringify(userInfo));
+                            console.log("Kasutaja andmed salvestatud sessionStorage'i", userInfo);
+                        } else {
+                            console.warn("Kasutaja pole sisselogitud, ei saa andmeid salvestada");
+                        }
+
+                        // Suuna kasutaja ostumenetluse lehele
+                        window.location.href = "../ostu/om.html";
+                    } catch (error) {
+                        console.error("Navigeerimisel tekkis viga:", error);
+                        alert("Navigeerimisel tekkis viga: " + error.message);
+                    }
+                },
+                navigateToAdmin() {
+
+
+                    // Salvesta kasutaja autentimisteave enne navigeerimist
+                    try {
+                        // Salvesta praegune kasutaja info sessionStorage'isse
+                        if (window.currentUser) {
+                            const userInfo = {
+                                uid: window.currentUser.uid,
+                                email: window.currentUser.email,
+                                userData: window.userData
+                            };
+                            sessionStorage.setItem('authUserData', JSON.stringify(userInfo));
+                            console.log("Kasutaja andmed salvestatud sessionStorage'i", userInfo);
+                        } else {
+                            console.warn("Kasutaja pole sisselogitud, ei saa andmeid salvestada");
+                        }
+
+                        // Suuna kasutaja admin paneeli
+                        window.location.href = "admin.html";
+                    } catch (error) {
+                        console.error("Navigeerimisel tekkis viga:", error);
+                        alert("Navigeerimisel tekkis viga: " + error.message);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
